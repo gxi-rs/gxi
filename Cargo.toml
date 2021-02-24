@@ -1,10 +1,5 @@
 [package]
-name = "dlopen_rust_live_reload"
+name = "rust_gui"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[dependencies]
-libc = "0.2.86"
