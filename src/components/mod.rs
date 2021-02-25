@@ -28,6 +28,8 @@ pub trait Component {
     fn get_type(&self) -> ComponentType {
         ComponentType::Custom
     }
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
     fn render(&mut self) {
         //call backend calls here
     }

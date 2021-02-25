@@ -40,6 +40,13 @@ impl Component for MyApp {
         &mut self.child
     }
 
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+
     fn render(&mut self) {
         println!("Some : {}", self.child.is_some());
         let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
@@ -74,17 +81,13 @@ impl Component for MyApp {
             // 1st sibling
             {
                 // when if statement create an empty pure element to pre occupy space
-                prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default()));
+                let mut pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
                 // user defined if statement
                 if self.state.counter == 0 {
-                    let parent = {
-                        if let ComponentType::Pure(type_extra) = prev_sibling.get_sibling_mut().as_ref().unwrap().get_type() {
-                            if type_extra != 0 {
-                                prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 0, ..Default::default() }));
-                            }
-                        };
-                        prev_sibling.get_sibling_mut().as_mut().unwrap()
-                    };
+                    if pure_block.type_extra != 0 {
+                        prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 0, ..Default::default() }));
+                    }
+                    let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let mut prev_sibling;
                     {
                         let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text {
@@ -96,18 +99,18 @@ impl Component for MyApp {
                         prev_sibling = node;
                     }
                 } else {
-                    let parent = {
-                        if let ComponentType::Pure(type_extra) = prev_sibling.get_sibling_mut().as_ref().unwrap().get_type() {
-                            if type_extra != 1 {
-                                prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 1, ..Default::default() }));
-                            }
-                        };
-                        prev_sibling.get_sibling_mut().as_mut().unwrap()
-                    };
+                    if pure_block.type_extra != 1 {
+                        prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 1, ..Default::default() }));
+                    }
+                    let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let mut prev_sibling;
                     {
-                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
+                        let mut node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
                         // set attributes which depend on variables
+                        {
+                            let mut text = node.as_any_mut().downcast_mut::<Text>().unwrap();
+                            text.label = self.state.counter.to_string();
+                        }
                         // now node becomes prev_sibling
                         prev_sibling = node;
                     }

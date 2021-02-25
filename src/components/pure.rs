@@ -1,4 +1,5 @@
 use crate::components::{Component, ComponentType, Node};
+use std::any::Any;
 
 pub struct Pure {
     pub sibling: Option<Box<dyn Component>>,
@@ -30,4 +31,10 @@ impl Component for Pure {
     }
 
     fn get_type(&self) -> ComponentType { ComponentType::Pure(self.type_extra) }
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
 }
