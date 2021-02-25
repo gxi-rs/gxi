@@ -87,11 +87,12 @@ impl Component for MyApp {
             // 1st sibling
             {
                 // when if statement create an empty pure element to pre occupy space
-                let pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
+                let mut pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
                 // user defined if statement
                 if self.state.counter == 0 {
                     if pure_block.type_extra != 0 {
-                        prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 0, ..Default::default() }));
+                        pure_block.type_extra = 0;
+                        pure_block.child = None;
                     }
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let prev_sibling;
@@ -108,7 +109,8 @@ impl Component for MyApp {
                     prev_sibling.render();
                 } else {
                     if pure_block.type_extra != 1 {
-                        prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 1, ..Default::default() }));
+                        pure_block.type_extra = 1;
+                        pure_block.child = None;
                     }
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let prev_sibling;
@@ -125,6 +127,7 @@ impl Component for MyApp {
                     //render
                     prev_sibling.render();
                 }
+                prev_sibling = prev_sibling.get_sibling_mut().as_mut().unwrap();
             }
             //render
             prev_sibling.render();
@@ -142,6 +145,7 @@ impl Component for MyApp {
             //render
             prev_sibling.render();
         }
+        parent.render();
     }
 }
 /*
