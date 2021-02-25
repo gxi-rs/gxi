@@ -44,13 +44,14 @@ impl Component for MyApp {
     }
 
     fn render(&mut self) {
-        let parent = self.child.get_or_insert(Box::from(View::default()));
+        println!("Some : {}", self.child.is_some());
+        let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
         //set attributes and children of child
         {
             let mut prev_sibling;
             // 1st is child
             {
-                let node = parent.get_child_mut().get_or_insert(Box::from(View {
+                let node = parent.get_child_mut().get_or_insert_with(||Box::from(View {
                     ..Default::default()
                 }));
                 // set attributes which depend on variables
@@ -61,7 +62,7 @@ impl Component for MyApp {
                     // 1st is child
                     {
                         // init and set static values
-                        let node = parent.get_child_mut().get_or_insert(Box::from(Text {
+                        let node = parent.get_child_mut().get_or_insert_with(||Box::from(Text {
                             label: String::from("Welcome"),
                             ..Default::default()
                         }));
@@ -76,7 +77,7 @@ impl Component for MyApp {
 
             // 1st sibling
             {
-                let node = prev_sibling.get_sibling_mut().get_or_insert(Box::from(Text {
+                let node = prev_sibling.get_sibling_mut().get_or_insert_with(||Box::from(Text {
                     label: String::from("UnSet"),
                     ..Default::default()
                 }));
@@ -86,7 +87,7 @@ impl Component for MyApp {
             }
             // 2nd sibling
             {
-                let node = prev_sibling.get_sibling_mut().get_or_insert(Box::from(Button {
+                let node = prev_sibling.get_sibling_mut().get_or_insert_with(||Box::from(Button {
                     label: String::from("PressMe"),
                     ..Default::default()
                 }));
