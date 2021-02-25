@@ -1,4 +1,4 @@
-use crate::components::{Component};
+use crate::components::Component;
 
 pub struct Text {
     pub label: String
@@ -12,5 +12,4 @@ impl Default for Text {
     }
 }
 
-impl Component for Text {
-}
+impl Component for Text {}

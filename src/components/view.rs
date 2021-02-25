@@ -1,4 +1,4 @@
-use crate::components::{Component};
+use crate::components::Component;
 
 pub struct View {
     pub sibling: Option<Box<dyn Component>>,
