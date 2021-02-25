@@ -1,23 +1,14 @@
 /*
-Each component is a tree
+Each components is a tree
 it initialises the tree when First
 updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
  */
 
-use std::collections::HashMap;
 
-use button::Button;
-use component::Component;
-use text::Text;
-use view::View;
+use crate::components::{Component, Text, View};
 
-use crate::component::Nodes;
-
-mod component;
-mod button;
-mod view;
-mod text;
+mod components;
 mod run;
 
 fn main() {
@@ -26,72 +17,75 @@ fn main() {
 
 struct MyApp {
     counter: i32,
-    nodes: HashMap<i32, Box<dyn Component>>,
+    child: Option<Box<dyn Component>>,
+    sibling: Option<Box<dyn Component>>,
 }
 
 impl Default for MyApp {
     fn default() -> Self {
         MyApp {
             counter: 0,
-            nodes: Default::default(),
+            child: None,
+            sibling: None,
         }
     }
 }
 
 impl Component for MyApp {
-    fn get_nodes(&self) -> Option<&Nodes> {
-        Some(&self.nodes)
+    fn get_sibling(&self) -> Option<&Box<dyn Component>> {
+        self.sibling.as_ref()
     }
 
-    fn get_mut_nodes(&mut self) -> Option<&mut Nodes> {
-        Some(&mut self.nodes)
+    fn get_sibling_mut(&mut self) -> Option<&mut Box<dyn Component>> {
+        self.sibling.as_mut()
     }
 
-    fn render(&self, tree: &mut HashMap<i32, Box<dyn Component>>, first: bool) {
-        const KEY: i32 = 0;
-        //initialize
-        if first {
-            tree.insert(KEY, Box::from(View::default()));
+    fn get_child(&self) -> Option<&Box<dyn Component>> {
+        self.child.as_ref()
+    }
+
+    fn get_child_mut(&mut self) -> Option<&mut Box<dyn Component>> {
+        self.child.as_mut()
+    }
+
+    fn render(&mut self, init: bool) {
+        if init {
+            self.child = Some(Box::from(View::default()));
         }
-        //set attributes or children
-        match tree.get_mut(&KEY) {
-            Some(tree) => {
-                let tree = tree.get_mut_nodes().unwrap();
-                {
-                    const KEY: i32 = 0;
-                    //root
-                    if first {
-                        tree.insert(KEY, Box::from(View::default()));
-                    }
-                    //Dont match if no attributes or off children
+        let parent = self.child.as_mut().unwrap();
+        //set attributes and children of child
+        {
+            let mut prev_sibling;
+            // 1st is child
+            {
+                // init and set static values
+                if init {
+                    parent.get_sibling_mut().map(|_| Box::from(View { ..Default::default() }));
                 }
+                let node = parent.get_child_mut().unwrap();
+                // set attributes which depend on variables
+                // now node becomes parent for its children
+                let parent = node;
                 {
-                    //if conditional render then first is replaced by condition
-                    //branch out
-                    const KEY: i32 = 1;
-
-                    if self.counter == 0 {
-                        tree.insert(KEY, Box::from(Text::default()));
-                        // set attribute here
-                    } else {
-                        tree.insert(KEY, Box::from(Text {
-                            label: "Hello".to_string()
-                        }));
-                        // set attribute here
+                    let prev_sibling;
+                    // 1st is child
+                    {
+                        // init and set static values
+                        if init {
+                            parent.get_sibling_mut().map(|_| Box::from(Text {
+                                label: String::from("Welcome"),
+                                ..Default::default()
+                            }));
+                        }
+                        let node = parent.get_child_mut().unwrap();
+                        // set attributes which depend on variables
+                        // set prev_sibling to current
+                        prev_sibling = node;
                     }
                 }
-                {
-                    const KEY: i32 = 3;
-
-                    if first {
-                        tree.insert(KEY, Box::from(Button {
-                            label: "Press Me".to_string()
-                        }));
-                    }
-                    //Dont match if no attributes or off children
-                }
+                // now parent i.e node becomes prev_sibling for the next sibling
+                prev_sibling = parent;
             }
-            _ => {}
         }
     }
 }
@@ -114,8 +108,10 @@ c! {
   }
   render {
     View {
-        View,
-        if self.counter == 0 {Text(self.counter)} else {Text("Hello")},
+        View {
+            Text("Welcome")
+        },
+        if self.counter == 0 {Text("Click button to update)} else {Text(self.counter)},
         Button("Press Me", on_click: |_| update(Msg::Inc))
     }
   }
