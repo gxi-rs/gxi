@@ -1,4 +1,4 @@
-use crate::components::Component;
+use crate::components::{Component, Node};
 
 pub struct View {
     pub sibling: Option<Box<dyn Component>>,
@@ -15,19 +15,15 @@ impl Default for View {
 }
 
 impl Component for View {
-    fn get_sibling(&self) -> Option<&Box<dyn Component>> {
-        self.sibling.as_ref()
+    fn get_sibling(&self) -> &Node { &self.sibling }
+
+    fn get_sibling_mut(&mut self) -> &mut Node {
+        &mut self.sibling
     }
 
-    fn get_sibling_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        self.sibling.as_mut()
-    }
+    fn get_child(&self) -> &Node { &self.child }
 
-    fn get_child(&self) -> Option<&Box<dyn Component>> {
-        self.child.as_ref()
-    }
-
-    fn get_child_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        self.child.as_mut()
+    fn get_child_mut(&mut self) -> &mut Node {
+        &mut self.child
     }
 }

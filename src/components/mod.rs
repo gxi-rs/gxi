@@ -6,6 +6,8 @@ mod button;
 mod text;
 mod view;
 
+pub type Node = Option<Box<dyn Component>>;
+
 /// # Component struct :
 /// ```rust
 /// struct Component {
@@ -16,20 +18,20 @@ mod view;
 /// ```
 pub trait Component {
     // getter setter functions
-    fn get_sibling(&self) -> Option<&Box<dyn Component>> {
-        None
+    fn get_sibling(&self) -> &Node {
+        unimplemented!()
     }
 
-    fn get_sibling_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        None
+    fn get_sibling_mut(&mut self) -> &mut Node {
+        unimplemented!()
     }
 
-    fn get_child(&self) -> Option<&Box<dyn Component>> {
-        None
+    fn get_child(&self) -> &Node {
+        unimplemented!()
     }
 
-    fn get_child_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        None
+    fn get_child_mut(&mut self) -> &mut Node {
+        unimplemented!()
     }
 
     fn render(&mut self, _init: bool) {

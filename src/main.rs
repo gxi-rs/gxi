@@ -6,7 +6,7 @@ when re-rendering renderer just has to go through the tree without touching the 
  */
 
 
-use crate::components::{Component, Text, View};
+use crate::components::{Component, Text, View, Node};
 
 mod components;
 mod run;
@@ -32,27 +32,23 @@ impl Default for MyApp {
 }
 
 impl Component for MyApp {
-    fn get_sibling(&self) -> Option<&Box<dyn Component>> {
-        self.sibling.as_ref()
+    fn get_sibling(&self) -> &Node { &self.sibling }
+
+    fn get_sibling_mut(&mut self) -> &mut Node {
+        &mut self.sibling
     }
 
-    fn get_sibling_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        self.sibling.as_mut()
-    }
+    fn get_child(&self) -> &Node { &self.child }
 
-    fn get_child(&self) -> Option<&Box<dyn Component>> {
-        self.child.as_ref()
-    }
-
-    fn get_child_mut(&mut self) -> Option<&mut Box<dyn Component>> {
-        self.child.as_mut()
+    fn get_child_mut(&mut self) -> &mut Node {
+        &mut self.child
     }
 
     fn render(&mut self, init: bool) {
         if init {
             self.child = Some(Box::from(View::default()));
         }
-        let parent = self.child.as_mut().unwrap();
+        let mut parent = self.child.as_mut().unwrap();
         //set attributes and children of child
         {
             let mut prev_sibling;
@@ -60,9 +56,9 @@ impl Component for MyApp {
             {
                 // init and set static values
                 if init {
-                    parent.get_sibling_mut().map(|_| Box::from(View { ..Default::default() }));
+                    parent.get_child_mut().replace(Box::from(View { ..Default::default() }));
                 }
-                let node = parent.get_child_mut().unwrap();
+                let node = parent.get_child_mut().as_mut().unwrap();
                 // set attributes which depend on variables
                 // now node becomes parent for its children
                 let parent = node;
@@ -72,12 +68,12 @@ impl Component for MyApp {
                     {
                         // init and set static values
                         if init {
-                            parent.get_sibling_mut().map(|_| Box::from(Text {
+                            parent.get_child_mut().replace(Box::from(Text {
                                 label: String::from("Welcome"),
                                 ..Default::default()
                             }));
                         }
-                        let node = parent.get_child_mut().unwrap();
+                        let node = parent.get_child_mut().as_mut().unwrap();
                         // set attributes which depend on variables
                         // set prev_sibling to current
                         prev_sibling = node;
