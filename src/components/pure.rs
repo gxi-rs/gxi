@@ -1,22 +1,22 @@
 use crate::components::{Component, ComponentType, Node};
 
-pub struct Button {
-    pub child: Option<Box<dyn Component>>,
+pub struct Pure {
     pub sibling: Option<Box<dyn Component>>,
-    pub label: String,
+    pub child: Option<Box<dyn Component>>,
+    pub type_extra: i32,
 }
 
-impl Default for Button {
+impl Default for Pure {
     fn default() -> Self {
-        Button {
-            child: None,
+        Pure {
             sibling: None,
-            label: String::new(),
+            child: None,
+            type_extra: -1,
         }
     }
 }
 
-impl Component for Button {
+impl Component for Pure {
     fn get_sibling(&self) -> &Node { &self.sibling }
 
     fn get_sibling_mut(&mut self) -> &mut Node {
@@ -29,7 +29,5 @@ impl Component for Button {
         &mut self.child
     }
 
-    fn get_type(&self) -> ComponentType {
-        ComponentType::Button
-    }
+    fn get_type(&self) -> ComponentType { ComponentType::Pure(self.type_extra) }
 }

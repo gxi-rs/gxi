@@ -1,4 +1,4 @@
-use crate::components::{Component, Node};
+use crate::components::{Component, ComponentType, Node};
 
 pub struct View {
     pub sibling: Option<Box<dyn Component>>,
@@ -25,5 +25,9 @@ impl Component for View {
 
     fn get_child_mut(&mut self) -> &mut Node {
         &mut self.child
+    }
+
+    fn get_type(&self) -> ComponentType {
+        ComponentType::View
     }
 }

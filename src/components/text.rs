@@ -1,4 +1,4 @@
-use crate::components::{Component, Node};
+use crate::components::{Component, ComponentType, Node};
 
 pub struct Text {
     pub label: String,
@@ -11,7 +11,7 @@ impl Default for Text {
         Text {
             label: String::new(),
             child: None,
-            sibling: None
+            sibling: None,
         }
     }
 }
@@ -27,5 +27,9 @@ impl Component for Text {
 
     fn get_child_mut(&mut self) -> &mut Node {
         &mut self.child
+    }
+
+    fn get_type(&self) -> ComponentType {
+        ComponentType::Text
     }
 }
