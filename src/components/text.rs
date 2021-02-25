@@ -1,5 +1,6 @@
-use crate::components::{Component, Node};
 use std::any::Any;
+
+use crate::components::{Component, Node};
 
 pub struct Text {
     pub label: String,
@@ -9,6 +10,7 @@ pub struct Text {
 
 impl Default for Text {
     fn default() -> Self {
+        println!("Text init");
         Text {
             label: String::new(),
             child: None,
@@ -35,5 +37,9 @@ impl Component for Text {
     }
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+
+    fn render(&mut self) {
+        println!("{}", self.label);
     }
 }

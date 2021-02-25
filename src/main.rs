@@ -50,7 +50,6 @@ impl Component for MyApp {
     #[allow(unused_assignments)]
     #[allow(unused_variables)]
     fn render(&mut self) {
-        println!("Some : {}", self.child.is_some());
         let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
         //set attributes and children of child
         {
@@ -76,10 +75,15 @@ impl Component for MyApp {
                         // set prev_sibling to current
                         prev_sibling = node;
                     }
+                    //render
+                    prev_sibling.render();
                 }
-                // now parent i.e node becomes prev_sibling for the next sibling
+                //now parent i.e node becomes prev_sibling for the next sibling
                 prev_sibling = parent;
             }
+            //render
+            prev_sibling.render();
+
             // 1st sibling
             {
                 // when if statement create an empty pure element to pre occupy space
@@ -100,6 +104,8 @@ impl Component for MyApp {
                         // now node becomes prev_sibling
                         prev_sibling = node;
                     }
+                    //render
+                    prev_sibling.render();
                 } else {
                     if pure_block.type_extra != 1 {
                         prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 1, ..Default::default() }));
@@ -116,8 +122,13 @@ impl Component for MyApp {
                         // now node becomes prev_sibling
                         prev_sibling = node;
                     }
+                    //render
+                    prev_sibling.render();
                 }
             }
+            //render
+            prev_sibling.render();
+
             // 2nd sibling
             {
                 let node = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Button {
@@ -128,6 +139,8 @@ impl Component for MyApp {
                 // now node becomes prev_sibling
                 prev_sibling = node;
             }
+            //render
+            prev_sibling.render();
         }
     }
 }

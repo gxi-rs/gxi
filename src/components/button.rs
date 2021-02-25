@@ -37,4 +37,8 @@ impl Component for Button {
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
     }
+
+    fn render(&mut self) {
+        println!("({})", self.label);
+    }
 }

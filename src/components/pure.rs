@@ -9,6 +9,7 @@ pub struct Pure {
 
 impl Default for Pure {
     fn default() -> Self {
+        println!("Pure init");
         Pure {
             sibling: None,
             child: None,

@@ -9,6 +9,7 @@ pub struct View {
 
 impl Default for View {
     fn default() -> Self {
+        println!("View init");
         View {
             sibling: None,
             child: None,
