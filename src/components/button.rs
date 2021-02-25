@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::components::{Component, ComponentType, Node};
+use crate::components::{Component, Node};
 
 pub struct Button {
     pub child: Option<Box<dyn Component>>,
@@ -29,10 +29,6 @@ impl Component for Button {
 
     fn get_child_mut(&mut self) -> &mut Node {
         &mut self.child
-    }
-
-    fn get_type(&self) -> ComponentType {
-        ComponentType::Button
     }
 
     fn as_any(&self) -> &dyn Any {

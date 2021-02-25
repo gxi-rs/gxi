@@ -1,4 +1,4 @@
-use crate::components::{Component, ComponentType, Node};
+use crate::components::{Component, Node};
 use std::any::Any;
 
 pub struct Pure {
@@ -30,7 +30,6 @@ impl Component for Pure {
         &mut self.child
     }
 
-    fn get_type(&self) -> ComponentType { ComponentType::Pure(self.type_extra) }
     fn as_any(&self) -> &dyn Any {
         self
     }

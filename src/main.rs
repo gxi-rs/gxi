@@ -4,9 +4,9 @@ it initialises the tree when First
 updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
 */
-use std::any::{Any, TypeId};
+use std::any::Any;
 
-use crate::components::{Button, Component, ComponentType, Node, Pure, Text, View};
+use crate::components::{Button, Component, Node, Pure, Text, View};
 
 mod components;
 mod run;
@@ -47,6 +47,8 @@ impl Component for MyApp {
         self
     }
 
+    #[allow(unused_assignments)]
+    #[allow(unused_variables)]
     fn render(&mut self) {
         println!("Some : {}", self.child.is_some());
         let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
@@ -81,14 +83,14 @@ impl Component for MyApp {
             // 1st sibling
             {
                 // when if statement create an empty pure element to pre occupy space
-                let mut pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
+                let pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
                 // user defined if statement
                 if self.state.counter == 0 {
                     if pure_block.type_extra != 0 {
                         prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 0, ..Default::default() }));
                     }
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
-                    let mut prev_sibling;
+                    let prev_sibling;
                     {
                         let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text {
                             label: String::from("UnSet"),
@@ -103,9 +105,9 @@ impl Component for MyApp {
                         prev_sibling.get_sibling_mut().replace(Box::from(Pure { type_extra: 1, ..Default::default() }));
                     }
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
-                    let mut prev_sibling;
+                    let prev_sibling;
                     {
-                        let mut node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
+                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
                         // set attributes which depend on variables
                         {
                             let mut text = node.as_any_mut().downcast_mut::<Text>().unwrap();

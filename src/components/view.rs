@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::components::{Component, ComponentType, Node};
+use crate::components::{Component, Node};
 
 pub struct View {
     pub sibling: Option<Box<dyn Component>>,
@@ -29,9 +29,6 @@ impl Component for View {
         &mut self.child
     }
 
-    fn get_type(&self) -> ComponentType {
-        ComponentType::View
-    }
     fn as_any(&self) -> &dyn Any {
         self
     }

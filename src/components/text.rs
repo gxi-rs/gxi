@@ -1,4 +1,4 @@
-use crate::components::{Component, ComponentType, Node};
+use crate::components::{Component, Node};
 use std::any::Any;
 
 pub struct Text {
@@ -30,9 +30,6 @@ impl Component for Text {
         &mut self.child
     }
 
-    fn get_type(&self) -> ComponentType {
-        ComponentType::Text
-    }
     fn as_any(&self) -> &dyn Any {
         self
     }
