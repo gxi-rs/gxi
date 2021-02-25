@@ -17,24 +17,11 @@ pub type Node = Option<Box<dyn Component>>;
 /// }
 /// ```
 pub trait Component {
-    // getter setter functions
-    fn get_sibling(&self) -> &Node {
-        unimplemented!()
-    }
-
-    fn get_sibling_mut(&mut self) -> &mut Node {
-        unimplemented!()
-    }
-
-    fn get_child(&self) -> &Node {
-        unimplemented!()
-    }
-
-    fn get_child_mut(&mut self) -> &mut Node {
-        unimplemented!()
-    }
-
-    fn render(&mut self, _init: bool) {
+    fn get_sibling(&self) -> &Node;
+    fn get_sibling_mut(&mut self) -> &mut Node;
+    fn get_child(&self) -> &Node;
+    fn get_child_mut(&mut self) -> &mut Node;
+    fn render(&mut self) {
         //call backend calls here
     }
 }

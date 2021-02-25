@@ -1,12 +1,11 @@
 /*
-Each components is a tree
+Each components is a binary n tree
 it initialises the tree when First
 updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
- */
+*/
 
-
-use crate::components::{Component, Text, View, Node};
+use crate::components::{Button, Component, Node, Text, View};
 
 mod components;
 mod run;
@@ -44,21 +43,16 @@ impl Component for MyApp {
         &mut self.child
     }
 
-    fn render(&mut self, init: bool) {
-        if init {
-            self.child = Some(Box::from(View::default()));
-        }
-        let mut parent = self.child.as_mut().unwrap();
+    fn render(&mut self) {
+        let parent = self.child.get_or_insert(Box::from(View::default()));
         //set attributes and children of child
         {
             let mut prev_sibling;
             // 1st is child
             {
-                // init and set static values
-                if init {
-                    parent.get_child_mut().replace(Box::from(View { ..Default::default() }));
-                }
-                let node = parent.get_child_mut().as_mut().unwrap();
+                let node = parent.get_child_mut().get_or_insert(Box::from(View {
+                    ..Default::default()
+                }));
                 // set attributes which depend on variables
                 // now node becomes parent for its children
                 let parent = node;
@@ -67,13 +61,10 @@ impl Component for MyApp {
                     // 1st is child
                     {
                         // init and set static values
-                        if init {
-                            parent.get_child_mut().replace(Box::from(Text {
-                                label: String::from("Welcome"),
-                                ..Default::default()
-                            }));
-                        }
-                        let node = parent.get_child_mut().as_mut().unwrap();
+                        let node = parent.get_child_mut().get_or_insert(Box::from(Text {
+                            label: String::from("Welcome"),
+                            ..Default::default()
+                        }));
                         // set attributes which depend on variables
                         // set prev_sibling to current
                         prev_sibling = node;
@@ -81,6 +72,27 @@ impl Component for MyApp {
                 }
                 // now parent i.e node becomes prev_sibling for the next sibling
                 prev_sibling = parent;
+            }
+
+            // 1st sibling
+            {
+                let node = prev_sibling.get_sibling_mut().get_or_insert(Box::from(Text {
+                    label: String::from("UnSet"),
+                    ..Default::default()
+                }));
+                // set attributes which depend on variables
+                // now node becomes prev_sibling
+                prev_sibling = node;
+            }
+            // 2nd sibling
+            {
+                let node = prev_sibling.get_sibling_mut().get_or_insert(Box::from(Button {
+                    label: String::from("PressMe"),
+                    ..Default::default()
+                }));
+                // set attributes which depend on variables
+                // now node becomes prev_sibling
+                prev_sibling = node;
             }
         }
     }
@@ -107,7 +119,7 @@ c! {
         View {
             Text("Welcome")
         },
-        if self.counter == 0 {Text("Click button to update)} else {Text(self.counter)},
+        if self.counter == 0 {Text("UnSet")} else {Text(self.counter)},
         Button("Press Me", on_click: |_| update(Msg::Inc))
     }
   }
