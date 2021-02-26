@@ -6,7 +6,7 @@ when re-rendering renderer just has to go through the tree without touching the 
 */
 use std::any::Any;
 
-use gtk::ButtonExt;
+use gtk::{ButtonExt, LabelExt};
 
 use crate::components::{Button, Component, Node, Pure, Text, View};
 
@@ -63,9 +63,10 @@ impl Component for MyApp {
                     // 1st is child
                     {
                         // init and set static values
-                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text {
-                            label: String::from("Welcome"),
-                            ..Default::default()
+                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from({
+                            let node = Text::default();
+                            node.widget.set_label("Welcome");
+                            node
                         }));
                         // set attributes which depend on variables
                         // set prev_sibling to current
@@ -93,9 +94,10 @@ impl Component for MyApp {
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let prev_sibling;
                     {
-                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text {
-                            label: String::from("UnSet"),
-                            ..Default::default()
+                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from({
+                            let node = Text::default();
+                            node.widget.set_label("Un Set");
+                            node
                         }));
                         // set attributes which depend on variables
                         // now node becomes prev_sibling
@@ -114,8 +116,8 @@ impl Component for MyApp {
                         let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
                         // set attributes which depend on variables
                         {
-                            let mut text = node.as_any_mut().downcast_mut::<Text>().unwrap();
-                            text.label = self.state.counter.to_string();
+                            let text = node.as_any_mut().downcast_ref::<Text>().unwrap();
+                            text.widget.set_label(&self.state.counter.to_string()[..]);
                         }
                         // now node becomes prev_sibling
                         prev_sibling = node;
@@ -170,7 +172,7 @@ c! {
         View {
             Text("Welcome")
         },
-        if self.counter == 0 {Text("UnSet")} else {Text(self.counter)},
+        if self.counter == 0 {Text("Un Set")} else {Text(self.counter)},
         Button("Press Me", on_click: |_| update(Msg::Inc))
     }
   }

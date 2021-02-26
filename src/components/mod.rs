@@ -10,6 +10,8 @@ mod text;
 mod view;
 mod pure;
 mod window;
+mod macros;
+
 
 pub type Node = Option<Box<dyn Component>>;
 pub type Widget = gtk::Widget;
