@@ -1,5 +1,7 @@
 use std::any::Any;
 
+use gtk::ButtonExt;
+
 use crate::components::*;
 use crate::default_component;
 
@@ -19,7 +21,15 @@ impl Default for Button {
     }
 }
 
-
 impl Component for Button {
     default_component!(true);
+}
+
+impl Button {
+    pub fn on_click<F: Fn() + 'static>(&self, f: F) {
+        self.widget.connect_clicked(move |_| f());
+    }
+    pub fn set_label(&self, label: &str) {
+        self.widget.set_label(label);
+    }
 }
