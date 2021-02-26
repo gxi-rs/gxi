@@ -1,15 +1,20 @@
 use std::any::Any;
+use std::borrow::BorrowMut;
 
-use crate::components::{Component, Node};
+use gtk::{ContainerExt, Grid, ListBox};
+
+use crate::components::{Component, Node, Widget};
 
 pub struct View {
-    pub sibling: Option<Box<dyn Component>>,
-    pub child: Option<Box<dyn Component>>,
+    pub widget: Grid,
+    pub sibling: Node,
+    pub child: Node,
 }
 
 impl Default for View {
     fn default() -> Self {
         View {
+            widget: Default::default(),
             sibling: None,
             child: None,
         }
@@ -32,7 +37,40 @@ impl Component for View {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
     }
+
+    fn get_widget(&self) -> Option<&Widget> {
+        Some(self.widget.as_ref())
+    }
+
+    fn render(&mut self) {
+        match self.child.as_ref() {
+            Some(node) => {
+                traverse(&mut self.widget, node);
+            }
+            _ => {}
+        };
+    }
+}
+
+fn traverse(widget: &mut Grid, node: &Box<dyn Component>) {
+    match node.get_widget() {
+        Some(w) => {
+            widget.add(w);
+        }
+        //pure and custom components
+        None => {
+            match node.get_child() {
+                Some(s) => { traverse(widget, s) }
+                _ => {}
+            }
+        }
+    };
+    match node.get_sibling().as_ref() {
+        Some(s) => traverse(widget, s),
+        _ => return
+    };
 }

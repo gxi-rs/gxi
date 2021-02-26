@@ -3,3 +3,6 @@ name = "rust_gui"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
+
+[dependencies]
+gtk = "0.9.2"

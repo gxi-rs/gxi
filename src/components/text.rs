@@ -1,8 +1,11 @@
 use std::any::Any;
 
-use crate::components::{Component, Node};
+use gtk::{Label, LabelExt};
+
+use crate::components::{Component, Node, Widget};
 
 pub struct Text {
+    pub widget: Label,
     pub label: String,
     pub child: Option<Box<dyn Component>>,
     pub sibling: Option<Box<dyn Component>>,
@@ -11,6 +14,7 @@ pub struct Text {
 impl Default for Text {
     fn default() -> Self {
         Text {
+            widget: Label::new(None),
             label: String::new(),
             child: None,
             sibling: None,
@@ -38,7 +42,11 @@ impl Component for Text {
         self
     }
 
+    fn get_widget(&self) -> Option<&Widget> {
+        Some(self.widget.as_ref())
+    }
+
     fn render(&mut self) {
-        println!("{}", self.label);
+        self.widget.set_label(self.label.as_str())
     }
 }

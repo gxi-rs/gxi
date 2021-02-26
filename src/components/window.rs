@@ -1,24 +1,28 @@
 use std::any::Any;
 
+use gtk::{CheckButton, WindowType};
+
 use crate::components::{Component, Node, Widget};
 
-pub struct Pure {
-    pub sibling: Option<Box<dyn Component>>,
+pub struct Window {
+    pub widget: gtk::Window,
     pub child: Option<Box<dyn Component>>,
-    pub type_extra: i32,
+    pub sibling: Option<Box<dyn Component>>,
+    pub label: String,
 }
 
-impl Default for Pure {
+impl Default for Window {
     fn default() -> Self {
-        Pure {
-            sibling: None,
+        Window {
+            widget: gtk::Window::new(WindowType::Toplevel),
             child: None,
-            type_extra: -1,
+            sibling: None,
+            label: String::new(),
         }
     }
 }
 
-impl Component for Pure {
+impl Component for Window {
     fn get_sibling(&self) -> &Node { &self.sibling }
 
     fn get_sibling_mut(&mut self) -> &mut Node {
@@ -34,7 +38,15 @@ impl Component for Pure {
     fn as_any(&self) -> &dyn Any {
         self
     }
+
     fn as_any_mut(&mut self) -> &mut dyn Any {
         self
+    }
+
+    fn get_widget(&self) -> Option<&Widget> {
+        Some(self.widget.as_ref())
+    }
+
+    fn render(&mut self) {
     }
 }

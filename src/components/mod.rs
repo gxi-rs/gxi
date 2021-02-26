@@ -1,4 +1,4 @@
-use std::any::{Any};
+use std::any::Any;
 
 pub use button::*;
 pub use pure::*;
@@ -9,8 +9,10 @@ mod button;
 mod text;
 mod view;
 mod pure;
+mod window;
 
 pub type Node = Option<Box<dyn Component>>;
+pub type Widget = gtk::Widget;
 
 /// # Component struct :
 /// ```rust
@@ -27,5 +29,6 @@ pub trait Component {
     fn get_child_mut(&mut self) -> &mut Node;
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
+    fn get_widget(&self) -> Option<&Widget> { None }
     fn render(&mut self) { /*call backend calls here */ }
 }
