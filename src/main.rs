@@ -6,7 +6,7 @@ when re-rendering renderer just has to go through the tree without touching the 
 */
 use std::any::Any;
 
-use gtk::{LabelExt};
+use gtk::LabelExt;
 
 use crate::components::{Button, Component, Node, Pure, Text, View};
 
