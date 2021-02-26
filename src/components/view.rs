@@ -56,7 +56,7 @@ impl Component for View {
     }
 }
 
-fn traverse(widget: &mut Grid, node: &Box<dyn Component>) {
+fn traverse<T: ContainerExt>(widget: &mut T, node: &Box<dyn Component>) {
     match node.get_widget() {
         Some(w) => {
             widget.add(w);
