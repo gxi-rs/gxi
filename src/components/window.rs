@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use gtk::{CheckButton, WindowType};
+use gtk::{WindowType};
 
 use crate::components::{Component, Node, Widget};
 

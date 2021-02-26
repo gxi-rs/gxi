@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::components::{Component, Node, Widget};
+use crate::components::{Component, Node};
 
 pub struct Pure {
     pub sibling: Option<Box<dyn Component>>,

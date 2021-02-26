@@ -6,7 +6,9 @@ when re-rendering renderer just has to go through the tree without touching the 
 */
 use std::any::Any;
 
-use crate::components::{Button, Component, Node, Pure, Text, View, Widget};
+use gtk::ButtonExt;
+
+use crate::components::{Button, Component, Node, Pure, Text, View};
 
 mod components;
 mod run;
@@ -128,10 +130,14 @@ impl Component for MyApp {
 
             // 2nd sibling
             {
-                let node = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Button {
-                    label: String::from("PressMe"),
-                    ..Default::default()
-                }));
+                let node = prev_sibling.get_sibling_mut().get_or_insert_with(|| {
+                    let bt = Box::from(Button::default());
+                    bt.widget.set_label("PressMe");
+                    bt.widget.connect_clicked(|_| {
+                        println!("Hello");
+                    });
+                    bt
+                });
                 // set attributes which depend on variables
                 // now node becomes prev_sibling
                 prev_sibling = node;

@@ -1,14 +1,11 @@
 use std::any::Any;
 
-use gtk::{ButtonExt, CheckButton};
-
 use crate::components::{Component, Node, Widget};
 
 pub struct Button {
-    pub widget: CheckButton,
+    pub widget: gtk::Button,
     pub child: Option<Box<dyn Component>>,
     pub sibling: Option<Box<dyn Component>>,
-    pub label: String,
 }
 
 impl Default for Button {
@@ -17,10 +14,10 @@ impl Default for Button {
             widget: Default::default(),
             child: None,
             sibling: None,
-            label: String::new(),
         }
     }
 }
+
 
 impl Component for Button {
     fn get_sibling(&self) -> &Node { &self.sibling }
@@ -47,7 +44,4 @@ impl Component for Button {
         Some(self.widget.as_ref())
     }
 
-    fn render(&mut self) {
-        self.widget.set_label(self.label.as_str());
-    }
 }

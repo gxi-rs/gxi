@@ -1,7 +1,6 @@
 use std::any::Any;
-use std::borrow::BorrowMut;
 
-use gtk::{ContainerExt, Grid, ListBox};
+use gtk::{ContainerExt, Grid};
 
 use crate::components::{Component, Node, Widget};
 

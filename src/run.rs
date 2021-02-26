@@ -1,10 +1,9 @@
-use gtk::{ContainerExt, WindowType, WidgetExt};
+use gtk::{ContainerExt, WidgetExt, WindowType};
 
 use crate::components::Component;
-use crate::MyApp;
 
 pub fn run<T: Component + Default>() {
-    gtk::init();
+    gtk::init().unwrap();
     let mut app = T::default();
     app.render();
     let win = gtk::Window::new(WindowType::Toplevel);

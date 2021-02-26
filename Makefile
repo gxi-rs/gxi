@@ -8,3 +8,6 @@ main:
 
 run:
 	cargo run
+
+run_release:
+	cargo run --release
