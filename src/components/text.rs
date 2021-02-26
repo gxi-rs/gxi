@@ -10,7 +10,6 @@ pub struct Text {
 
 impl Default for Text {
     fn default() -> Self {
-        println!("Text init");
         Text {
             label: String::new(),
             child: None,

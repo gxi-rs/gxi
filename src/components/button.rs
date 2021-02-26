@@ -10,7 +10,6 @@ pub struct Button {
 
 impl Default for Button {
     fn default() -> Self {
-        println!("Button init");
         Button {
             child: None,
             sibling: None,
