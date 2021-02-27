@@ -1,8 +1,9 @@
 use std::any::Any;
+use std::cell::{RefCell, RefMut};
 
 use gtk::ButtonExt;
 
-use crate::{default_component, MyApp};
+use crate::{default_component, MyApp, MyAppState};
 use crate::components::*;
 
 pub struct Button {

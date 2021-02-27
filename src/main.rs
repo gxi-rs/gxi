@@ -5,6 +5,9 @@ updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
 */
 use std::any::Any;
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::ops::Deref;
 use std::process::exit;
 use std::rc::Rc;
 
@@ -21,7 +24,7 @@ fn main() {
 
 #[derive(Default)]
 struct MyApp {
-    state: Rc<MyAppState>,
+    state: Rc<RefCell<MyAppState>>,
     child: Option<Box<dyn Component>>,
     sibling: Option<Box<dyn Component>>,
 }
@@ -31,7 +34,9 @@ struct MyAppState {
     counter: i32
 }
 
-fn update(state: Rc<MyAppState>) {}
+impl MyApp {
+    fn update(&self) {}
+}
 
 impl Component for MyApp {
     default_component!(false);
@@ -39,6 +44,7 @@ impl Component for MyApp {
     #[allow(unused_assignments)]
     #[allow(unused_variables)]
     fn render(&mut self) {
+        let state = self.state.borrow_mut();
         let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
         //set attributes and children of child
         {
@@ -79,7 +85,7 @@ impl Component for MyApp {
                 // when if statement create an empty pure element to pre occupy space
                 let mut pure_block = prev_sibling.get_sibling_mut().get_or_insert_with(|| Box::from(Pure::default())).as_any_mut().downcast_mut::<Pure>().unwrap();
                 // user defined if statement
-                if self.state.counter == 0 {
+                if state.counter == 0 {
                     if pure_block.type_extra != 0 {
                         pure_block.type_extra = 0;
                         pure_block.child = None;
@@ -110,7 +116,7 @@ impl Component for MyApp {
                         // set attributes which depend on variables
                         {
                             let text = node.as_any_mut().downcast_ref::<Text>().unwrap();
-                            text.widget.set_label(&self.state.counter.to_string()[..]);
+                            text.widget.set_label(&state.counter.to_string()[..]);
                         }
                         // now node becomes prev_sibling
                         prev_sibling = node;
@@ -131,9 +137,9 @@ impl Component for MyApp {
                     bt
                 });
                 {
-                    let a = Rc::clone(&self.state);
+                    let state = self.state.clone();
                     node.as_any().downcast_ref::<Button>().unwrap().on_click(Box::from(move || {
-                        println!("{}", a.counter);
+                        state.borrow_mut().counter += 1;
                     }));
                 }
                 // set attributes which depend on variables
