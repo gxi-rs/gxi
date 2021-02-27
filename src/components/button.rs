@@ -26,6 +26,9 @@ impl Component for Button {
     default_component!(true);
 }
 
+unsafe impl Send for Button {}
+unsafe impl Sync for Button {}
+
 impl Button {
     pub fn on_click(&self, f: Box<dyn Fn()>) {
         self.widget.connect_clicked(move |_| f());

@@ -11,6 +11,8 @@ pub struct Window {
     pub sibling: Option<Box<dyn Component>>,
     pub label: String,
 }
+unsafe impl Send for Window {}
+unsafe impl Sync for Window {}
 
 impl Default for Window {
     fn default() -> Self {

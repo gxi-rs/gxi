@@ -1,15 +1,20 @@
 use std::any::Any;
 
-use gtk::{ContainerExt, Grid};
+use gtk::{ContainerExt, Grid, WidgetExt};
 
 use crate::components::*;
 use crate::default_component;
 
 pub struct View {
-    pub widget: Grid,
+    pub widget: gtk::ListBox,
     pub sibling: Node,
     pub child: Node,
+    pub traversed: bool,
 }
+
+unsafe impl Send for View {}
+
+unsafe impl Sync for View {}
 
 impl Default for View {
     fn default() -> Self {
@@ -17,6 +22,7 @@ impl Default for View {
             widget: Default::default(),
             sibling: None,
             child: None,
+            traversed: false,
         }
     }
 }
@@ -25,12 +31,15 @@ impl Component for View {
     default_component!(true);
 
     fn render(&mut self) {
-        match self.child.as_ref() {
-            Some(node) => {
-                traverse(&mut self.widget, node);
-            }
-            _ => {}
-        };
+        if !self.traversed {
+            match self.child.as_ref() {
+                Some(node) => {
+                    traverse(&mut self.widget, node);
+                    self.traversed = true;
+                }
+                _ => {}
+            };
+        }
     }
 }
 

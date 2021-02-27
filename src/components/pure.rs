@@ -19,6 +19,9 @@ impl Default for Pure {
     }
 }
 
+unsafe impl Send for Pure {}
+unsafe impl Sync for Pure {}
+
 impl Component for Pure {
     default_component!(false);
 }

@@ -24,7 +24,7 @@ pub type Widget = gtk::Widget;
 ///     child : Node
 /// }
 /// ```
-pub trait Component {
+pub trait Component: Sync + Send {
     fn get_sibling(&self) -> &Node;
     fn get_sibling_mut(&mut self) -> &mut Node;
     fn get_child(&self) -> &Node;

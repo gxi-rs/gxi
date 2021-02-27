@@ -20,6 +20,8 @@ impl Default for Text {
         }
     }
 }
+unsafe impl Send for Text {}
+unsafe impl Sync for Text {}
 
 impl Component for Text {
     default_component!(true);

@@ -5,33 +5,41 @@ updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
 */
 use std::any::Any;
-use std::borrow::Borrow;
-use std::cell::RefCell;
+use std::borrow::{Borrow, BorrowMut};
+use std::cell::{RefCell, RefMut};
 use std::ops::Deref;
 use std::process::exit;
 use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 use gtk::LabelExt;
+use gtk::prelude::WidgetExtManual;
 
 use crate::components::{Button, Component, Node, Pure, Text, View};
+use crate::Msg::Inc;
 
 mod components;
 mod run;
 
 fn main() {
-    run::run::<MyApp>();
+    run::run();
 }
 
 #[derive(Default)]
-struct MyApp {
-    state: Rc<RefCell<MyAppState>>,
+pub struct MyApp {
+    state: Arc<Mutex<MyAppState>>,
     child: Option<Box<dyn Component>>,
     sibling: Option<Box<dyn Component>>,
 }
 
 #[derive(Default)]
 struct MyAppState {
-    counter: i32
+    counter: i32,
+}
+
+enum Msg {
+    Inc,
+    Dec,
 }
 
 impl MyApp {
@@ -44,7 +52,9 @@ impl Component for MyApp {
     #[allow(unused_assignments)]
     #[allow(unused_variables)]
     fn render(&mut self) {
-        let state = self.state.borrow_mut();
+        println!("render");
+        let state = self.state.clone();
+        let state = state.lock().unwrap();
         let parent = self.child.get_or_insert_with(|| Box::from(View::default()));
         //set attributes and children of child
         {
@@ -64,9 +74,10 @@ impl Component for MyApp {
                         // init and set static values
                         let node = parent.get_child_mut().get_or_insert_with(|| Box::from({
                             let node = Text::default();
-                            node.widget.set_label("Welcome");
                             node
                         }));
+                        let text  = node.as_any_mut().downcast_ref::<Text>().unwrap();
+                        text.widget.set_label(&format!("Count {}", state.counter)[..]);
                         // set attributes which depend on variables
                         // set prev_sibling to current
                         prev_sibling = node;
@@ -88,16 +99,16 @@ impl Component for MyApp {
                 if state.counter == 0 {
                     if pure_block.type_extra != 0 {
                         pure_block.type_extra = 0;
-                        pure_block.child = None;
-                    }
-                    let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
-                    let prev_sibling;
-                    {
-                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from({
+                        pure_block.child.replace(Box::from({
                             let node = Text::default();
                             node.widget.set_label("Un Set");
                             node
                         }));
+                    }
+                    let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
+                    let prev_sibling;
+                    {
+                        let node = parent.get_child_mut().as_mut().unwrap();
                         // set attributes which depend on variables
                         // now node becomes prev_sibling
                         prev_sibling = node;
@@ -107,15 +118,16 @@ impl Component for MyApp {
                 } else {
                     if pure_block.type_extra != 1 {
                         pure_block.type_extra = 1;
-                        pure_block.child = None;
+                        pure_block.child.replace( Box::from(Text { ..Default::default() }));
                     }
                     let parent = prev_sibling.get_sibling_mut().as_mut().unwrap();
                     let prev_sibling;
                     {
-                        let node = parent.get_child_mut().get_or_insert_with(|| Box::from(Text { ..Default::default() }));
+                        let mut node = parent.get_child_mut().as_mut().unwrap();
                         // set attributes which depend on variables
                         {
                             let text = node.as_any_mut().downcast_ref::<Text>().unwrap();
+                            println!("{}", &state.counter.to_string()[..]);
                             text.widget.set_label(&state.counter.to_string()[..]);
                         }
                         // now node becomes prev_sibling
@@ -131,19 +143,21 @@ impl Component for MyApp {
 
             // 2nd sibling
             {
+                let state = self.state.clone();
+
                 let node = prev_sibling.get_sibling_mut().get_or_insert_with(move || {
                     let bt = Box::from(Button::default());
                     bt.set_label("PressMe");
+                    bt.on_click(Box::from(move || {
+                        println!("call");
+                        {
+                            let mut state = state.lock().unwrap();
+                            state.counter += 1;
+                        }
+                        crate::run::APP.lock().unwrap().render();
+                    }));
                     bt
                 });
-                {
-                    let state = self.state.clone();
-                    node.as_any().downcast_ref::<Button>().unwrap().on_click(Box::from(move || {
-                        let mut state = state.borrow_mut();
-                        state.counter += 1;
-                        println!("{}", state.counter);
-                    }));
-                }
                 // set attributes which depend on variables
                 // now node becomes prev_sibling
                 prev_sibling = node;
