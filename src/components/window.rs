@@ -23,7 +23,6 @@ impl Default for Window {
     }
 }
 
-
 impl Component for Window {
     default_component!(true);
 }

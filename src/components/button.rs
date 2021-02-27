@@ -2,8 +2,8 @@ use std::any::Any;
 
 use gtk::ButtonExt;
 
+use crate::{default_component, MyApp};
 use crate::components::*;
-use crate::default_component;
 
 pub struct Button {
     pub widget: gtk::Button,
@@ -26,7 +26,7 @@ impl Component for Button {
 }
 
 impl Button {
-    pub fn on_click<F: Fn() + 'static>(&self, f: F) {
+    pub fn on_click(&self, f: Box<dyn Fn()>) {
         self.widget.connect_clicked(move |_| f());
     }
     pub fn set_label(&self, label: &str) {

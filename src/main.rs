@@ -5,6 +5,8 @@ updates the attributes when not first on state change
 when re-rendering renderer just has to go through the tree without touching the render function
 */
 use std::any::Any;
+use std::process::exit;
+use std::rc::Rc;
 
 use gtk::LabelExt;
 
@@ -19,7 +21,7 @@ fn main() {
 
 #[derive(Default)]
 struct MyApp {
-    state: MyAppState,
+    state: Rc<MyAppState>,
     child: Option<Box<dyn Component>>,
     sibling: Option<Box<dyn Component>>,
 }
@@ -28,6 +30,8 @@ struct MyApp {
 struct MyAppState {
     counter: i32
 }
+
+fn update(state: Rc<MyAppState>) {}
 
 impl Component for MyApp {
     default_component!(false);
@@ -121,12 +125,17 @@ impl Component for MyApp {
 
             // 2nd sibling
             {
-                let node = prev_sibling.get_sibling_mut().get_or_insert_with(|| {
+                let node = prev_sibling.get_sibling_mut().get_or_insert_with(move || {
                     let bt = Box::from(Button::default());
                     bt.set_label("PressMe");
-                    bt.on_click(|| println!("Hello"));
                     bt
                 });
+                {
+                    let a = Rc::clone(&self.state);
+                    node.as_any().downcast_ref::<Button>().unwrap().on_click(Box::from(move || {
+                        println!("{}", a.counter);
+                    }));
+                }
                 // set attributes which depend on variables
                 // now node becomes prev_sibling
                 prev_sibling = node;
