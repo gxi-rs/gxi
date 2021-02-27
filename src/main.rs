@@ -139,7 +139,9 @@ impl Component for MyApp {
                 {
                     let state = self.state.clone();
                     node.as_any().downcast_ref::<Button>().unwrap().on_click(Box::from(move || {
-                        state.borrow_mut().counter += 1;
+                        let mut state = state.borrow_mut();
+                        state.counter += 1;
+                        println!("{}", state.counter);
                     }));
                 }
                 // set attributes which depend on variables
