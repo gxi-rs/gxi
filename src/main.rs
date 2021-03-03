@@ -12,7 +12,7 @@ use std::process::exit;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
-use gtk::LabelExt;
+use gtk::{LabelExt, WidgetExt};
 use gtk::prelude::WidgetExtManual;
 
 use crate::components::{Button, Component, Node, Pure, Text, View};
