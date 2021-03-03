@@ -12,6 +12,8 @@ mod node {
     pub trait NodeTrait {
         fn get_child(&self) -> &Option<Node>;
         fn get_sibling(&self) -> &Option<Node>;
+        fn get_child_mut(&mut self) -> &mut Option<Node>;
+        fn get_sibling_mut(&mut self) -> &mut Option<Node>;
     }
 }
 
@@ -37,8 +39,8 @@ mod tests {
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    use crate::comp::node::Node;
     use crate::comp::container::Container;
+    use crate::comp::node::Node;
 
     mod views {
         use crate::comp::container::Container;
@@ -57,6 +59,14 @@ mod tests {
             }
 
             fn get_sibling(&self) -> &Option<Node> {
+                unimplemented!()
+            }
+
+            fn get_child_mut(&mut self) -> &mut Option<Node> {
+                unimplemented!()
+            }
+
+            fn get_sibling_mut(&mut self) -> &mut Option<Node> {
                 unimplemented!()
             }
         }
@@ -82,6 +92,14 @@ mod tests {
             fn get_sibling(&self) -> &Option<Node> {
                 unimplemented!()
             }
+
+            fn get_child_mut(&mut self) -> &mut Option<Node> {
+                unimplemented!()
+            }
+
+            fn get_sibling_mut(&mut self) -> &mut Option<Node> {
+                unimplemented!()
+            }
         }
 
         impl Widget for Button {}
@@ -89,8 +107,10 @@ mod tests {
 
     #[test]
     fn test() {
-        let container: Rc<RefCell<Box<dyn Container>>> = Rc::new(RefCell::new(Box::new(views::Grid::default())));
-        let container_clone = container.clone().get_mut();
-        container_clone.get_sibling().get_or_insert_with(|| Node::Widget(Box::new(widgets::Button { parent: container.clone() })));
+        let mut container: Rc<RefCell<Box<dyn Container>>> = Rc::new(RefCell::new(Box::new(views::Grid::default())));
+        {
+            container.borrow_mut().get_child_mut()
+                .get_or_insert_with(|| Node::Widget(Box::new(widgets::Button { parent: container.clone() })));
+        }
     }
 }
