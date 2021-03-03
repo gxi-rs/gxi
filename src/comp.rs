@@ -5,17 +5,10 @@ enum Node {
 }
 
 mod container {
-    use crate::comp::element::Element;
-
     pub trait Container {}
 }
 
 mod element {
-    use std::cell::RefCell;
-    use std::rc::Rc;
-
-    use crate::comp::container::Container;
-
     pub trait Element {}
 }
 
@@ -27,15 +20,10 @@ mod tests {
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    use crate::comp::Node;
     use crate::comp::container::Container;
 
     mod views {
-        use std::cell::RefCell;
-        use std::rc::Rc;
-
         use crate::comp::container::Container;
-        use crate::comp::element::Element;
 
         pub struct Grid {}
 
@@ -53,13 +41,12 @@ mod tests {
             pub parent: Rc<RefCell<Box<dyn Container>>>
         }
 
-        impl Element for Button {
-        }
+        impl Element for Button {}
     }
 
     #[test]
     fn test() {
-        let container = Rc::new(RefCell::new(Box::new(views::Grid {})));
+        let container: Rc<RefCell<Box<dyn Container>>> = Rc::new(RefCell::new(Box::new(views::Grid {})));
         let _bt = Box::new(widgets::Button {
             parent: container.clone()
         });
