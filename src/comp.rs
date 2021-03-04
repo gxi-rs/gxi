@@ -48,7 +48,7 @@ mod tests {
 
         #[derive(Default)]
         pub struct Grid {
-            pub child: Option<Node>
+            pub child: Option<Node>,
         }
 
         impl Container for Grid {}
@@ -81,7 +81,7 @@ mod tests {
         use crate::comp::widget::Widget;
 
         pub struct Button {
-            pub parent: Rc<RefCell<Box<dyn Container>>>
+            pub parent: Rc<RefCell<Box<dyn Container>>>,
         }
 
         impl NodeTrait for Button {
@@ -107,10 +107,17 @@ mod tests {
 
     #[test]
     fn test() {
-        let mut container: Rc<RefCell<Box<dyn Container>>> = Rc::new(RefCell::new(Box::new(views::Grid::default())));
+        let mut container: Rc<RefCell<Box<dyn Container>>> =
+            Rc::new(RefCell::new(Box::new(views::Grid::default())));
         {
-            container.borrow_mut().get_child_mut()
-                .get_or_insert_with(|| Node::Widget(Box::new(widgets::Button { parent: container.clone() })));
+            container
+                .borrow_mut()
+                .get_child_mut()
+                .get_or_insert_with(|| {
+                    Node::Widget(Box::new(widgets::Button {
+                        parent: container.clone(),
+                    }))
+                });
         }
     }
 }

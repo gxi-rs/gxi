@@ -1,5 +1,3 @@
 mod comp;
 
-fn main(){
-
-}
+fn main() {}
