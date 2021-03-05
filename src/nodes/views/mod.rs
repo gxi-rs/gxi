@@ -1,1 +1,1 @@
-mod grid;
+pub mod grid;
