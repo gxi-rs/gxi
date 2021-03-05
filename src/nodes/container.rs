@@ -1,4 +1,3 @@
-use crate::comp::node::NodeTrait;
-use crate::node::NodeTrait;
+use crate::nodes::node::NodeTrait;
 
 pub trait Container: NodeTrait {}
