@@ -1,8 +1,6 @@
-
-
-use crate::nodes::container::Container;
-use crate::nodes::node::{AsyncNode, NodeTrait};
+use crate::nodes::node::{AsyncNode, Node};
 use std::any::Any;
+use std::sync::{Mutex, Arc};
 
 pub struct Grid {
     pub child: Option<AsyncNode>,
@@ -11,27 +9,17 @@ pub struct Grid {
     pub widget: gtk::Grid,
 }
 
-impl Container for Grid {
-    fn get_widget(&self) -> &gtk::Container {
-        self.widget.as_ref()
-    }
-}
-
-impl Drop for Grid {
-    fn drop(&mut self) {}
-}
-
-impl NodeTrait for Grid {
+impl Node for Grid {
     impl_node_trait!();
 }
 
 impl Grid {
-    pub fn new(parent: AsyncNode) -> Self {
-        Grid {
+    pub fn new(parent: AsyncNode) -> AsyncNode {
+        Arc::new(Mutex::new(Box::new(Grid {
             child: None,
             sibling: None,
             parent,
             widget: gtk::Grid::new(),
-        }
+        })))
     }
 }

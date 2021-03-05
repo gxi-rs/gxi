@@ -23,5 +23,13 @@ macro_rules! impl_node_trait {
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
+
+        fn get_widget(&self) -> &gtk::Widget {
+            self.widget.as_ref()
+        }
+
+        fn get_widget_as_container(&self) -> &gtk::Container {
+            self.widget.as_ref()
+        }
     };
 }

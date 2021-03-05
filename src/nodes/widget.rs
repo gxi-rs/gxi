@@ -1,3 +1,3 @@
-use crate::nodes::node::NodeTrait;
+use crate::nodes::node::Node;
 
-pub trait Widget: NodeTrait {}
+pub trait Widget: Node {}

@@ -1,7 +1,6 @@
 use gtk::{WindowType};
 
-use crate::nodes::container::Container;
-use crate::nodes::node::{AsyncNode, NodeTrait};
+use crate::nodes::node::{AsyncNode, Node};
 use std::any::Any;
 
 pub struct Window {
@@ -10,17 +9,7 @@ pub struct Window {
     pub widget: gtk::Window,
 }
 
-impl Container for Window {
-    fn get_widget(&self) -> &gtk::Container {
-        self.widget.as_ref()
-    }
-}
-
-impl Drop for Window {
-    fn drop(&mut self) {}
-}
-
-impl NodeTrait for Window {
+impl Node for Window {
     impl_node_trait!();
 }
 
