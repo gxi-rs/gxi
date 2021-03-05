@@ -12,7 +12,7 @@ pub enum Node {
 
 pub type AsyncNode = Arc<Mutex<Node>>;
 
-pub trait NodeTrait {
+pub trait NodeTrait:Drop {
     fn get_child(&self) -> &Option<AsyncNode>;
     fn get_sibling(&self) -> &Option<AsyncNode>;
     fn get_child_mut(&mut self) -> &mut Option<AsyncNode>;
