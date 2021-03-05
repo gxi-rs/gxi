@@ -5,26 +5,15 @@ use crate::nodes::container::Container;
 use crate::nodes::node::{Node, NodeTrait};
 use crate::nodes::widget::Widget;
 
+#[derive(Default)]
 pub struct Button {
-    pub parent: Rc<RefCell<Box<dyn Container>>>,
+    pub child: Option<Rc<RefCell<Node>>>,
+    pub sibling: Option<Rc<RefCell<Node>>>,
+    pub parent: Option<Rc<RefCell<Node>>>,
 }
 
 impl NodeTrait for Button {
-    fn get_child(&self) -> &Option<Node> {
-        unimplemented!()
-    }
-
-    fn get_sibling(&self) -> &Option<Node> {
-        unimplemented!()
-    }
-
-    fn get_child_mut(&mut self) -> &mut Option<Node> {
-        unimplemented!()
-    }
-
-    fn get_sibling_mut(&mut self) -> &mut Option<Node> {
-        unimplemented!()
-    }
+    impl_node_trait!();
 }
 
 impl Widget for Button {}
