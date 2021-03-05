@@ -5,14 +5,14 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use crate::nodes::container::Container;
-use crate::nodes::node::Node;
+use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::views::grid::Grid;
 use crate::nodes::widgets::button::Button;
 
 mod nodes;
 
 fn main() {
-    let container: Arc<Mutex<Node>> = Arc::new(Mutex::new(Node::Container(Box::new(Grid::default()))));
+    let container: AsyncNode = Arc::new(Mutex::new(Node::Container(Box::new(Grid::default()))));
 
     if let Node::Container(s) = container.clone().lock().unwrap().deref_mut() {
         s.get_child_mut().get_or_insert_with(|| {

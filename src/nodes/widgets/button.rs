@@ -3,14 +3,14 @@ use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use crate::nodes::container::Container;
-use crate::nodes::node::{Node, NodeTrait};
+use crate::nodes::node::{AsyncNode, Node, NodeTrait};
 use crate::nodes::widget::Widget;
 
 #[derive(Default)]
 pub struct Button {
-    pub child: Option<Arc<Mutex<Node>>>,
-    pub sibling: Option<Arc<Mutex<Node>>>,
-    pub parent: Option<Arc<Mutex<Node>>>,
+    pub child: Option<AsyncNode>,
+    pub sibling: Option<AsyncNode>,
+    pub parent: Option<AsyncNode>,
 }
 
 impl NodeTrait for Button {

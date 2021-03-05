@@ -10,9 +10,11 @@ pub enum Node {
     Component(Box<dyn Component>),
 }
 
+pub type AsyncNode = Arc<Mutex<Node>>;
+
 pub trait NodeTrait {
-    fn get_child(&self) -> &Option<Arc<Mutex<Node>>>;
-    fn get_sibling(&self) -> &Option<Arc<Mutex<Node>>>;
-    fn get_child_mut(&mut self) -> &mut Option<Arc<Mutex<Node>>>;
-    fn get_sibling_mut(&mut self) -> &mut Option<Arc<Mutex<Node>>>;
+    fn get_child(&self) -> &Option<AsyncNode>;
+    fn get_sibling(&self) -> &Option<AsyncNode>;
+    fn get_child_mut(&mut self) -> &mut Option<AsyncNode>;
+    fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode>;
 }
