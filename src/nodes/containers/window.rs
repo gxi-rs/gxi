@@ -1,4 +1,4 @@
-use gtk::{ContainerExt, WindowType};
+use gtk::{WindowType};
 
 use crate::nodes::container::Container;
 use crate::nodes::node::{AsyncNode, NodeTrait};
