@@ -2,6 +2,7 @@ use gtk::{ContainerExt, WindowType};
 
 use crate::nodes::container::Container;
 use crate::nodes::node::{AsyncNode, NodeTrait};
+use std::any::Any;
 
 pub struct Window {
     pub child: Option<AsyncNode>,

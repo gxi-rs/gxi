@@ -2,6 +2,7 @@ use gtk::ContainerExt;
 
 use crate::nodes::container::Container;
 use crate::nodes::node::{AsyncNode, NodeTrait};
+use std::any::Any;
 
 pub struct Grid {
     pub child: Option<AsyncNode>,

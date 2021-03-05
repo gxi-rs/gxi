@@ -4,6 +4,7 @@ use gtk::ContainerExt;
 
 use crate::nodes::node::{AsyncNode, Node, NodeTrait};
 use crate::nodes::widget::Widget;
+use std::any::Any;
 
 pub struct Button {
     pub widget: gtk::Button,
