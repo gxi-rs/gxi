@@ -1,7 +1,5 @@
-use std::sync::{Arc, Mutex};
-
 use crate::nodes::container::Container;
-use crate::nodes::node::{AsyncNode, Node, NodeTrait};
+use crate::nodes::node::{AsyncNode, NodeTrait};
 
 #[derive(Default)]
 pub struct Grid {
