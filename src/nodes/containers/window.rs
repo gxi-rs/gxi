@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{WindowType, ContainerExt};
+use gtk::{ContainerExt, WindowType};
 
 use crate::nodes::node::{AsyncNode, Node};
 
@@ -19,7 +19,7 @@ impl Node for Window {
         match self.child {
             None => {
                 self.child.replace(f());
-                self.widget.add(self.child.unwrap().get_mut().get_widget());
+                self.widget.add(self.child.as_ref().unwrap().get_widget());
             }
             _ => {}
         }
@@ -28,10 +28,10 @@ impl Node for Window {
 
 impl Window {
     pub fn new(window_type: WindowType) -> AsyncNode {
-        Rc::new(RefCell::new(Box::new(Window {
+        Box::new(Window {
             child: None,
             sibling: None,
             widget: gtk::Window::new(window_type),
-        })))
+        })
     }
 }

@@ -22,11 +22,11 @@ impl Node for Button {
 
 impl Button {
     pub fn new() -> AsyncNode {
-        Rc::new(RefCell::new(Box::new(Button {
+        Box::new(Button {
             widget: gtk::Button::new(),
             child: None,
             sibling: None,
             parent: None,
-        })))
+        })
     }
 }
