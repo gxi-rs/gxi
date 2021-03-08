@@ -1,6 +1,9 @@
-use crate::nodes::node::{AsyncNode, Node};
 use std::any::Any;
-use std::sync::{Mutex, Arc};
+use std::cell::RefCell;
+use std::sync::{Arc, Mutex};
+
+use crate::nodes::node::{AsyncNode, Node};
+use std::rc::Rc;
 
 pub struct Grid {
     pub child: Option<AsyncNode>,
@@ -15,7 +18,7 @@ impl Node for Grid {
 
 impl Grid {
     pub fn new(parent: AsyncNode) -> AsyncNode {
-        Arc::new(Mutex::new(Box::new(Grid {
+        Rc::new(RefCell::new(Box::new(Grid {
             child: None,
             sibling: None,
             parent,

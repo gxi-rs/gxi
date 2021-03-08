@@ -1,5 +1,7 @@
 use std::any::Any;
+use std::cell::RefCell;
 use std::ops::DerefMut;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use gtk::ContainerExt;
@@ -11,7 +13,7 @@ pub struct Button {
     pub widget: gtk::Button,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: AsyncNode,
+    pub parent: Option<AsyncNode>,
 }
 
 impl Node for Button {
@@ -19,12 +21,12 @@ impl Node for Button {
 }
 
 impl Button {
-    pub fn new(parent: AsyncNode) -> AsyncNode {
-        Arc::new(Mutex::new(Box::new(Button {
+    pub fn new() -> AsyncNode {
+        Rc::new(RefCell::new(Box::new(Button {
             widget: gtk::Button::new(),
             child: None,
             sibling: None,
-            parent,
+            parent: None,
         })))
     }
 }

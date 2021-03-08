@@ -1,14 +1,17 @@
 use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use crate::nodes::widget::Widget;
 
-pub type AsyncNode = Arc<Mutex<Box<dyn Node>>>;
+pub type AsyncNode = Rc<RefCell<Box<dyn Node>>>;
 
 
 pub trait Node {
     fn get_child(&self) -> &Option<AsyncNode>;
     fn get_sibling(&self) -> &Option<AsyncNode>;
+    fn init_child(&mut self, _: Box<dyn Fn() -> AsyncNode>) { unimplemented!() }
     fn get_child_mut(&mut self) -> &mut Option<AsyncNode>;
     fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode>;
     fn as_any(&self) -> &dyn Any;
