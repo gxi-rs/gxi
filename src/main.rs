@@ -30,18 +30,18 @@ fn render(container: AsyncNode) {
             let mut container_borrow = container_clone.as_ref().borrow_mut();
             let node = {
                 let container = Rc::clone(&container);
-                container_borrow.init_child(Box::new(move || Button::new(container.clone())))
+                container_borrow.init_child(Box::new(move || View::new(container.clone())))
             };
             node
         };
         {
             let node_clone = node.clone();
-            let mut node_borrow = node_clone.as_ref().borrow_mut();
             {
                 //init children if any here
             }
             //init siblings
             let node = {
+                let mut node_borrow = node_clone.as_ref().borrow_mut();
                 let node = {
                     let container = Rc::clone(&container);
                     node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
