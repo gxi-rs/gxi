@@ -1,6 +1,7 @@
+use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{WidgetExt, WindowType};
+use gtk::{ButtonExt, WidgetExt, WindowType};
 
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
@@ -44,7 +45,21 @@ fn render(container: AsyncNode) {
                     let node = {
                         let mut node_borrow = container.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
-                        node_borrow.init_child(Box::new(move || Button::new(container.clone())))
+                        node_borrow.init_child(Box::new(move || {
+                            Rc::new(RefCell::new({
+                                let button = Box::new(Button {
+                                    widget: gtk::Button::new(),
+                                    child: None,
+                                    sibling: None,
+                                    parent: container.clone(),
+                                });
+                                button.widget.connect_clicked(|_| {
+                                    println!("Clicked")
+                                });
+                                button.widget.set_label("Click me");
+                                button
+                            }))
+                        }))
                     };
                     let _node = {
                         let mut node_borrow = node.as_ref().borrow_mut();
