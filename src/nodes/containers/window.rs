@@ -15,23 +15,38 @@ pub struct Window {
 impl Node for Window {
     impl_node_trait!();
 
-    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) {
+    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> &mut AsyncNode {
         match self.child {
             None => {
-                self.child.replace(f());
-                self.widget.add(self.child.as_ref().unwrap().get_widget());
+                let child = self.child.get_or_insert_with(|| f());
+                self.widget.add(child.clone().borrow_mut().get_widget());
+                child
             }
-            _ => {}
+            _ => {
+                self.child.as_mut().unwrap()
+            }
+        }
+    }
+    fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> &mut AsyncNode {
+        match self.sibling {
+            None => {
+                let sibling = self.sibling.get_or_insert_with(|| f());
+                self.widget.add(sibling.clone().borrow_mut().get_widget());
+                sibling
+            }
+            _ => {
+                self.sibling.as_mut().unwrap()
+            }
         }
     }
 }
 
 impl Window {
     pub fn new(window_type: WindowType) -> AsyncNode {
-        Box::new(Window {
+        Rc::new(RefCell::new(Box::new(Window {
             child: None,
             sibling: None,
             widget: gtk::Window::new(window_type),
-        })
+        })))
     }
 }

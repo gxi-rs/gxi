@@ -13,7 +13,7 @@ pub struct Button {
     pub widget: gtk::Button,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: Option<AsyncNode>,
+    pub parent: AsyncNode,
 }
 
 impl Node for Button {
@@ -21,12 +21,12 @@ impl Node for Button {
 }
 
 impl Button {
-    pub fn new() -> AsyncNode {
-        Box::new(Button {
+    pub fn new(parent: AsyncNode) -> AsyncNode {
+        Rc::new(RefCell::new(Box::new(Button {
             widget: gtk::Button::new(),
             child: None,
             sibling: None,
-            parent: None,
-        })
+            parent,
+        })))
     }
 }

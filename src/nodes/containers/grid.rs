@@ -1,9 +1,9 @@
 use std::any::Any;
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use crate::nodes::node::{AsyncNode, Node};
-use std::rc::Rc;
 
 pub struct Grid {
     pub child: Option<AsyncNode>,
@@ -18,11 +18,11 @@ impl Node for Grid {
 
 impl Grid {
     pub fn new(parent: AsyncNode) -> AsyncNode {
-        Box::new(Grid {
+        Rc::new(RefCell::new(Box::new(Grid {
             child: None,
             sibling: None,
             parent,
             widget: gtk::Grid::new(),
-        })
+        })))
     }
 }
