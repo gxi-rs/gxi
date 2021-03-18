@@ -15,7 +15,7 @@ pub struct View {
 
 impl Node for View {
     impl_node_trait!();
-    init_node_trait_sibling!();
+    impl_node_trait_init_sibling!();
     init_node_trait_child!();
 }
 
