@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use gtk::{ButtonExt, WidgetExt, WindowType};
 
+use crate::nodes::containers::pure::Pure;
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::AsyncNode;
@@ -39,9 +40,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let container = {
             let mut container_borrow = container.as_ref().borrow_mut();
             let container = Rc::clone(&container);
-            container_borrow
-                .init_child(Box::new(move || View::new(container.clone())))
-                .0
+            container_borrow.init_child(Box::new(move || View::new(container.clone()))).0
         };
         {
             let node = {
@@ -96,7 +95,6 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                 }
                 container
             };
-
             //init siblings
             let node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
@@ -109,7 +107,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
                 node_borrow
-                    .init_sibling(Box::new(move || Button::new(container.clone())))
+                    .init_sibling(Box::new(move || Pure::new(container.clone())))
                     .0
             };
         }
