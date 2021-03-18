@@ -22,9 +22,7 @@ impl Node for Window {
                 self.widget.add(child.clone().borrow_mut().get_widget());
                 child
             }
-            _ => {
-                self.child.as_mut().unwrap()
-            }
+            _ => self.child.as_mut().unwrap(),
         }
     }
     fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> &mut AsyncNode {
@@ -34,9 +32,7 @@ impl Node for Window {
                 self.widget.add(sibling.clone().borrow_mut().get_widget());
                 sibling
             }
-            _ => {
-                self.sibling.as_mut().unwrap()
-            }
+            _ => self.sibling.as_mut().unwrap(),
         }
     }
 }
