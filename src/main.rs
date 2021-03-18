@@ -12,11 +12,15 @@ mod nodes;
 fn main() {
     gtk::init().unwrap();
     let window = Window::new(WindowType::Toplevel);
+    //render
     render(window.clone());
-    let mut window = window.as_ref().clone().borrow_mut();
-    let win: &mut Window = window.as_any_mut().downcast_mut().unwrap();
-    let win: &mut gtk::Window = &mut win.widget;
-    win.show_all();
+    //show window
+    {
+        let mut window_borrow = window.as_ref().borrow_mut();
+        let window = window_borrow.as_any_mut().downcast_mut::<Window>().unwrap();
+        window.widget.show_all();
+    }
+    //start main loop
     gtk::main();
 }
 
