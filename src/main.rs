@@ -72,9 +72,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                                 render(top_container_clone.clone(), state.clone());
                             });
                         }
-                        button
-                            .widget
-                            .set_label(state.as_ref().borrow().count.to_string().as_str())
+                        button.widget.set_label(state.as_ref().borrow().count.to_string().as_str())
                     }
                     let _node = {
                         let mut node_borrow = node.as_ref().borrow_mut();
