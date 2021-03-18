@@ -40,7 +40,9 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let container = {
             let mut container_borrow = container.as_ref().borrow_mut();
             let container = Rc::clone(&container);
-            container_borrow.init_child(Box::new(move || View::new(container.clone()))).0
+            container_borrow
+                .init_child(Box::new(move || View::new(container.clone())))
+                .0
         };
         {
             let node = {
