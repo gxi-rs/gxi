@@ -58,19 +58,3 @@ fn render(container: AsyncNode) {
         }
     }
 }
-
-/*fn render(mut container: AsyncNode) {
-    let mut container_clone = container.clone();
-    let container_clone = container_clone.borrow_mut().get_mut();
-    let container = container_clone.init_child(Box::new(|| Grid::new(container.clone())));
-    {
-        let bt = container_clone.init_child(Box::new(move || Button::new(Rc::clone(&container))));
-        let bt = bt.as_ref().clone().borrow_mut().as_any_mut().downcast_mut::<Button>().unwrap();
-        bt.widget.set_label("1");
-    }
-    {
-        let bt = container_clone.init_child(Box::new(move || Button::new(Rc::clone(&container))));
-        let bt = bt.as_ref().clone().borrow_mut().as_any_mut().downcast_mut::<Button>().unwrap();
-        bt.widget.set_label("2");
-    }
-}*/
