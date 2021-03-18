@@ -1,4 +1,3 @@
-use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -68,8 +67,8 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                                 button.widget.connect_clicked(move |_| {
                                     let state = state_clone.clone();
                                     {
-                                        let mut state_borrow = state.as_ref().borrow_mut();
-                                        state_borrow.count += 1;
+                                        let mut state = state.as_ref().borrow_mut();
+                                        state.count += 1;
                                     }
                                     render(top_container_clone.clone(), state.clone());
                                 });
@@ -103,3 +102,18 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         }
     }
 }
+/*
+In macro form above function can be written as
+
+component! {
+    View {
+        View {
+            Button ( on_click=|_|{ state.count += 1 }, label={self.count} ),
+            Button
+        },
+        Button,
+        Button
+    }
+}
+
+ */
