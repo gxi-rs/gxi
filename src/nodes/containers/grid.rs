@@ -1,28 +1,30 @@
-use crate::nodes::node::{AsyncNode, Node};
-use gtk::ContainerExt;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-pub struct Grid {
+use gtk::{ContainerExt, Orientation};
+
+use crate::nodes::node::{AsyncNode, Node};
+
+pub struct View {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
-    pub widget: gtk::Grid,
+    pub widget: gtk::Box,
 }
 
-impl Node for Grid {
+impl Node for View {
     impl_node_trait!();
     init_node_trait_descendents!();
 }
 
-impl Grid {
+impl View {
     pub fn new(parent: AsyncNode) -> AsyncNode {
-        Rc::new(RefCell::new(Box::new(Grid {
+        Rc::new(RefCell::new(Box::new(View {
             child: None,
             sibling: None,
             parent,
-            widget: gtk::Grid::new(),
+            widget: gtk::Box::new(Orientation::Horizontal,1),
         })))
     }
 }

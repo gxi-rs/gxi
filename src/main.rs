@@ -1,6 +1,8 @@
+use std::rc::Rc;
+
 use gtk::{WidgetExt, WindowType};
 
-use crate::nodes::containers::grid::Grid;
+use crate::nodes::containers::grid::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::AsyncNode;
 use crate::nodes::widgets::button::Button;
@@ -22,12 +24,34 @@ fn render(container: AsyncNode) {
     let container_clone = container.clone();
     let mut container_borrow = container_clone.as_ref().borrow_mut();
     {
-        let container = container_borrow.init_child(Box::new(move || Grid::new(container.clone())));
+        let container = container_borrow.init_child(Box::new(move || View::new(Rc::clone(&container))));
         let container_clone = container.clone();
         let mut container_borrow = container_clone.as_ref().borrow_mut();
         {
+            let node = {
+                let container = Rc::clone(&container);
+                container_borrow.init_child(Box::new(move || Button::new(container.clone())))
+            };
+            let node_clone = node.clone();
+            let mut node_borrow = node_clone.as_ref().borrow_mut();
             {
-                container_borrow.init_child(Box::new(move || Button::new(container.clone())));
+                //init children if any here
+            }
+            //init siblings
+            let node  = {
+                let node = {
+                    let container = Rc::clone(&container);
+                    node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
+                };
+                node
+            };
+            {
+                let node_clone = node.clone();
+                let mut node_borrow = node_clone.as_ref().borrow_mut();
+                let node = {
+                    let container = Rc::clone(&container);
+                    node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
+                };
             }
         }
     }

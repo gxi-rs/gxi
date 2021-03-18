@@ -31,6 +31,17 @@ macro_rules! impl_node_trait {
         fn get_widget_as_container(&self) -> &gtk::Container {
             self.widget.as_ref()
         }
+
+        fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
+            match self.sibling {
+                None => {
+                    let sibling = self.sibling.get_or_insert_with(|| f());
+                    self.widget.add(sibling.clone().borrow_mut().get_widget());
+                    sibling.clone()
+                }
+                _ => self.sibling.as_ref().unwrap().clone(),
+            }
+        }
     };
 }
 
@@ -45,16 +56,6 @@ macro_rules! init_node_trait_descendents {
                     child.clone()
                 }
                 _ => self.child.as_ref().unwrap().clone(),
-            }
-        }
-        fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
-            match self.sibling {
-                None => {
-                    let sibling = self.sibling.get_or_insert_with(|| f());
-                    self.widget.add(sibling.clone().borrow_mut().get_widget());
-                    sibling.clone()
-                }
-                _ => self.sibling.as_ref().unwrap().clone(),
             }
         }
     };

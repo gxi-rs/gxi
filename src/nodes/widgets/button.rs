@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::cell::RefCell;
+use gtk::ContainerExt;
 
 use std::rc::Rc;
 
