@@ -13,8 +13,6 @@ fn main() {
     gtk::init().unwrap();
     let window = Window::new(WindowType::Toplevel);
     render(window.clone());
-    render(window.clone());
-
     let mut window = window.as_ref().clone().borrow_mut();
     let win: &mut Window = window.as_any_mut().downcast_mut().unwrap();
     let win: &mut gtk::Window = &mut win.widget;
