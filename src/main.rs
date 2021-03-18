@@ -1,8 +1,10 @@
-use std::borrow::BorrowMut;
+use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
+use std::ops::Deref;
 use std::rc::Rc;
 
 use gtk::{ButtonExt, WidgetExt, WindowType};
+use gtk::prelude::WidgetExtManual;
 
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
@@ -34,8 +36,9 @@ struct MyAppState {
     count: i32
 }
 
-fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     {
+        let container = Rc::clone(&top_container);
         let container = {
             let mut container_borrow = container.as_ref().borrow_mut();
             let container = Rc::clone(&container);
@@ -53,27 +56,25 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     let node = {
                         let mut node_borrow = container.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
-                        let state_clone = Rc::clone(&state);
-                        node_borrow.init_child(Box::new(move || {
-                            Rc::new(RefCell::new({
-                                let button = Box::new(Button {
-                                    widget: gtk::Button::new(),
-                                    child: None,
-                                    sibling: None,
-                                    parent: container.clone(),
-                                });
-                                let state_clone = state_clone.clone();
-                                button.widget.connect_clicked(move |_| {
-                                    let state = state_clone.clone();
+                        node_borrow.init_child(Box::new(move || Button::new(container.clone())))
+                    };
+                    {
+                        let mut button_borrow = node.as_ref().borrow_mut();
+                        let button = button_borrow.as_any_mut().downcast_mut::<Button>().unwrap();
+                        if state.as_ref().borrow().count == 0 {
+                            let state_clone = Rc::clone(&state);
+                            let top_container_clone = Rc::clone(&top_container);
+                            button.widget.connect_clicked(move |_| {
+                                let state = state_clone.clone();
+                                {
                                     let mut state_borrow = state.as_ref().borrow_mut();
                                     state_borrow.count += 1;
-                                    println!("Clicked")
-                                });
-                                button.widget.set_label("Click me");
-                                button
-                            }))
-                        }))
-                    };
+                                }
+                                render(top_container_clone.clone(), state.clone());
+                            });
+                        }
+                        button.widget.set_label(state.as_ref().borrow().count.to_string().as_str())
+                    }
                     let _node = {
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
