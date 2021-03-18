@@ -1,15 +1,10 @@
 use std::borrow::BorrowMut;
 
-
-
-
-
 use gtk::{WidgetExt, WindowType};
 
 use crate::nodes::containers::grid::Grid;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::{AsyncNode, Node};
-
 
 mod nodes;
 
