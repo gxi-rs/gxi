@@ -54,14 +54,19 @@ macro_rules! init_node_trait_child {
 macro_rules! init_node_trait_sibling {
     () => {
         fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
-        match self.sibling {
-            None => {
-                let sibling = self.sibling.get_or_insert_with(|| f());
-                self.parent.as_ref().clone().borrow_mut().get_widget_as_container().add(sibling.clone().borrow_mut().get_widget());
-                sibling.clone()
+            match self.sibling {
+                None => {
+                    let sibling = self.sibling.get_or_insert_with(|| f());
+                    self.parent
+                        .as_ref()
+                        .clone()
+                        .borrow_mut()
+                        .get_widget_as_container()
+                        .add(sibling.clone().borrow_mut().get_widget());
+                    sibling.clone()
+                }
+                _ => self.sibling.as_ref().unwrap().clone(),
             }
-            _ => self.sibling.as_ref().unwrap().clone(),
-        }
         }
     };
 }

@@ -25,7 +25,7 @@ impl View {
             child: None,
             sibling: None,
             parent,
-            widget: gtk::Box::new(Orientation::Horizontal,1),
+            widget: gtk::Box::new(Orientation::Horizontal, 1),
         })))
     }
 }
