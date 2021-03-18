@@ -44,7 +44,7 @@ fn render(container: AsyncNode) {
                         let container = Rc::clone(&container);
                         node_borrow.init_child(Box::new(move || Button::new(container.clone())))
                     };
-                    let node = {
+                    let _node = {
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
                         node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
@@ -59,7 +59,7 @@ fn render(container: AsyncNode) {
                 let container = Rc::clone(&container);
                 node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
             };
-            let node = {
+            let _node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
                 node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
