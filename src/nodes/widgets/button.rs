@@ -16,6 +16,7 @@ pub struct Button {
 impl Node for Button {
     impl_node_trait!();
     impl_node_trait_init_sibling!();
+    impl_node_trait_get_widget!();
 }
 
 impl Button {

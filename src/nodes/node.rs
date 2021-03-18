@@ -17,6 +17,10 @@ pub trait Node {
     fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode>;
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn get_widget(&self) -> &gtk::Widget;
-    fn get_widget_as_container(&self) -> &gtk::Container;
+    fn get_widget(&self) -> &gtk::Widget {
+        unimplemented!()
+    }
+    fn get_widget_as_container(&self) -> &gtk::Container {
+        unimplemented!()
+    }
 }

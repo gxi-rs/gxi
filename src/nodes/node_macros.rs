@@ -23,7 +23,12 @@ macro_rules! impl_node_trait {
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
+    };
+}
 
+#[macro_export]
+macro_rules! impl_node_trait_get_widget {
+    () => {
         fn get_widget(&self) -> &gtk::Widget {
             self.widget.as_ref()
         }
@@ -35,7 +40,7 @@ macro_rules! impl_node_trait {
 }
 
 #[macro_export]
-macro_rules! init_node_trait_child {
+macro_rules! impl_node_trait_init_child {
     () => {
         fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
             match self.child {
