@@ -1,3 +1,4 @@
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -14,7 +15,10 @@ fn main() {
     gtk::init().unwrap();
     let window = Window::new(WindowType::Toplevel);
     //render
-    render(window.clone());
+    {
+        let my_app_state = Rc::new(RefCell::new(MyAppState::default()));
+        render(window.clone(), my_app_state);
+    }
     //show window
     {
         let mut window_borrow = window.as_ref().borrow_mut();
@@ -25,11 +29,15 @@ fn main() {
     gtk::main();
 }
 
-fn render(container: AsyncNode) {
-    let container_clone = container.clone();
+#[derive(Default)]
+struct MyAppState {
+    count: i32
+}
+
+fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     {
         let container = {
-            let mut container_borrow = container_clone.as_ref().borrow_mut();
+            let mut container_borrow = container.as_ref().borrow_mut();
             let container = Rc::clone(&container);
             container_borrow.init_child(Box::new(move || View::new(container.clone())))
         };
@@ -45,6 +53,7 @@ fn render(container: AsyncNode) {
                     let node = {
                         let mut node_borrow = container.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
+                        let state_clone = Rc::clone(&state);
                         node_borrow.init_child(Box::new(move || {
                             Rc::new(RefCell::new({
                                 let button = Box::new(Button {
@@ -53,7 +62,11 @@ fn render(container: AsyncNode) {
                                     sibling: None,
                                     parent: container.clone(),
                                 });
-                                button.widget.connect_clicked(|_| {
+                                let state_clone = state_clone.clone();
+                                button.widget.connect_clicked(move |_| {
+                                    let state = state_clone.clone();
+                                    let mut state_borrow = state.as_ref().borrow_mut();
+                                    state_borrow.count += 1;
                                     println!("Clicked")
                                 });
                                 button.widget.set_label("Click me");
