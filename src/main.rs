@@ -26,8 +26,7 @@ fn render(container: AsyncNode) {
     {
         let container = container_borrow.init_child(Box::new(move || View::new(Rc::clone(&container))));
         let node = {
-            let container_clone = container.clone();
-            let mut container_borrow = container_clone.as_ref().borrow_mut();
+            let mut container_borrow = container.as_ref().borrow_mut();
             let node = {
                 let container = Rc::clone(&container);
                 container_borrow.init_child(Box::new(move || View::new(container.clone())))
