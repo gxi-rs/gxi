@@ -33,3 +33,29 @@ macro_rules! impl_node_trait {
         }
     };
 }
+
+#[macro_export]
+macro_rules! init_node_trait_descendents {
+    () => {
+    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
+        match self.child {
+            None => {
+                let child = self.child.get_or_insert_with(|| f());
+                self.widget.add(child.clone().borrow_mut().get_widget());
+                child.clone()
+            }
+            _ => self.child.as_ref().unwrap().clone(),
+        }
+    }
+    fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
+        match self.sibling {
+            None => {
+                let sibling = self.sibling.get_or_insert_with(|| f());
+                self.widget.add(sibling.clone().borrow_mut().get_widget());
+                sibling.clone()
+            }
+            _ => self.sibling.as_ref().unwrap().clone(),
+        }
+    }
+    };
+}

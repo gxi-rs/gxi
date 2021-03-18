@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-
+use gtk::ContainerExt;
 use crate::nodes::node::{AsyncNode, Node};
 
 pub struct Grid {
@@ -13,6 +13,7 @@ pub struct Grid {
 
 impl Node for Grid {
     impl_node_trait!();
+    init_node_trait_descendents!();
 }
 
 impl Grid {

@@ -2,7 +2,8 @@ use gtk::{WidgetExt, WindowType};
 
 use crate::nodes::containers::grid::Grid;
 use crate::nodes::containers::window::Window;
-use crate::nodes::node::{AsyncNode};
+use crate::nodes::node::AsyncNode;
+use crate::nodes::widgets::button::Button;
 
 mod nodes;
 
@@ -20,7 +21,16 @@ fn main() {
 fn render(container: AsyncNode) {
     let container_clone = container.clone();
     let mut container_borrow = container_clone.as_ref().borrow_mut();
-    container_borrow.init_child(Box::new(move || Grid::new(container.clone())));
+    {
+        let container = container_borrow.init_child(Box::new(move || Grid::new(container.clone())));
+        let container_clone = container.clone();
+        let mut container_borrow = container_clone.as_ref().borrow_mut();
+        {
+            {
+                container_borrow.init_child(Box::new(move || Button::new(container.clone())));
+            }
+        }
+    }
 }
 
 /*fn render(mut container: AsyncNode) {
