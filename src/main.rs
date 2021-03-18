@@ -25,40 +25,28 @@ fn render(container: AsyncNode) {
     {
         let container = {
             let mut container_borrow = container_clone.as_ref().borrow_mut();
-            let container = {
-                let container = Rc::clone(&container);
-                container_borrow.init_child(Box::new(move || View::new(container.clone())))
-            };
-            container
+            let container = Rc::clone(&container);
+            container_borrow.init_child(Box::new(move || View::new(container.clone())))
         };
         {
             let node = {
                 let mut container_borrow = container.as_ref().borrow_mut();
-                let node = {
-                    let container = Rc::clone(&container);
-                    container_borrow.init_child(Box::new(move || View::new(container.clone())))
-                };
-                node
+                let container = Rc::clone(&container);
+                container_borrow.init_child(Box::new(move || View::new(container.clone())))
             };
             //init children
-            {
-            }
+            {}
             //init siblings
             let node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
-                let node = {
-                    let container = Rc::clone(&container);
-                    node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
-                };
-                node
+                let container = Rc::clone(&container);
+                node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
             };
-            {
+            let _node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
-                let _node = {
-                    let container = Rc::clone(&container);
-                    node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
-                };
-            }
+                let container = Rc::clone(&container);
+                node_borrow.init_sibling(Box::new(move || Button::new(container.clone())))
+            };
         }
     }
 }
