@@ -1,15 +1,15 @@
 use std::borrow::BorrowMut;
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 
-use gtk::{ButtonExt, ContainerExt, WidgetExt, WindowType};
+
+
+
+
+use gtk::{WidgetExt, WindowType};
 
 use crate::nodes::containers::grid::Grid;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::{AsyncNode, Node};
-use crate::nodes::widgets::button::Button;
+
 
 mod nodes;
 
@@ -24,7 +24,7 @@ fn main() {
     gtk::main();
 }
 
-fn render(mut container: AsyncNode) {
+fn render(container: AsyncNode) {
     let container_clone = container.clone();
     let mut container_borrow = container_clone.as_ref().borrow_mut();
     container_borrow.init_child(Box::new(move || Grid::new(container.clone())));
