@@ -39,14 +39,18 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let container = {
             let mut container_borrow = container.as_ref().borrow_mut();
             let container = Rc::clone(&container);
-            container_borrow.init_child(Box::new(move || View::new(container.clone()))).0
+            container_borrow
+                .init_child(Box::new(move || View::new(container.clone())))
+                .0
         };
         {
             let node = {
                 let container = {
                     let mut container_borrow = container.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
-                    container_borrow.init_child(Box::new(move || View::new(container.clone()))).0
+                    container_borrow
+                        .init_child(Box::new(move || View::new(container.clone())))
+                        .0
                 };
                 //init children
                 {
@@ -58,7 +62,8 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                         };
                         {
                             let mut button_borrow = node.as_ref().borrow_mut();
-                            let button = button_borrow.as_any_mut().downcast_mut::<Button>().unwrap();
+                            let button =
+                                button_borrow.as_any_mut().downcast_mut::<Button>().unwrap();
 
                             if is_new {
                                 //init constants
@@ -74,7 +79,9 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                                 });
                             }
                             //init non constants
-                            button.widget.set_label(state.as_ref().borrow().count.to_string().as_str());
+                            button
+                                .widget
+                                .set_label(state.as_ref().borrow().count.to_string().as_str());
                         }
                         node
                     };
@@ -82,7 +89,9 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     let _node = {
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
-                        node_borrow.init_sibling(Box::new(move || Button::new(container.clone()))).0
+                        node_borrow
+                            .init_sibling(Box::new(move || Button::new(container.clone())))
+                            .0
                     };
                 }
                 container
@@ -92,12 +101,16 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             let node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
-                node_borrow.init_sibling(Box::new(move || Button::new(container.clone()))).0
+                node_borrow
+                    .init_sibling(Box::new(move || Button::new(container.clone())))
+                    .0
             };
             let _node = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
-                node_borrow.init_sibling(Box::new(move || Button::new(container.clone()))).0
+                node_borrow
+                    .init_sibling(Box::new(move || Button::new(container.clone())))
+                    .0
             };
         }
     }
