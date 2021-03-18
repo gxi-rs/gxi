@@ -31,17 +31,17 @@ fn render(container: AsyncNode) {
             };
             container
         };
-        let node = {
-            let mut container_borrow = container.as_ref().borrow_mut();
-            let node = {
-                let container = Rc::clone(&container);
-                container_borrow.init_child(Box::new(move || View::new(container.clone())))
-            };
-            node
-        };
         {
+            let node = {
+                let mut container_borrow = container.as_ref().borrow_mut();
+                let node = {
+                    let container = Rc::clone(&container);
+                    container_borrow.init_child(Box::new(move || View::new(container.clone())))
+                };
+                node
+            };
+            //init children
             {
-                //init children if any here
             }
             //init siblings
             let node = {
