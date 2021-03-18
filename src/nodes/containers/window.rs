@@ -14,7 +14,7 @@ pub struct Window {
 
 impl Node for Window {
     impl_node_trait!();
-    init_node_trait_descendents!();
+    init_node_trait_child!();
 }
 
 impl Window {
