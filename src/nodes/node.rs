@@ -7,10 +7,10 @@ pub type AsyncNode = Rc<RefCell<Box<dyn Node>>>;
 pub trait Node {
     fn get_child(&self) -> &Option<AsyncNode>;
     fn get_sibling(&self) -> &Option<AsyncNode>;
-    fn init_child(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
+    fn init_child(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
         unimplemented!()
     }
-    fn init_sibling(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> AsyncNode {
+    fn init_sibling(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
         unimplemented!()
     }
     fn get_child_mut(&mut self) -> &mut Option<AsyncNode>;
