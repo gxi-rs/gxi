@@ -87,7 +87,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     node
                 };
                 {}
-                let node = {
+                let _node = {
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
                     node_borrow
@@ -105,7 +105,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                 .init_sibling(Box::new(move || Button::new(container.clone())), true)
                 .0
         };
-        let node = {
+        let _node = {
             let container = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
@@ -118,7 +118,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             //condition
             if state.count >= 1 {
                 println!("yes");
-                let node = {
+                let _node = {
                     let mut node_borrow = container.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
                     node_borrow

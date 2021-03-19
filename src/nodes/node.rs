@@ -20,14 +20,14 @@ pub trait Node {
     fn init_child(
         &mut self,
         _f: Box<dyn Fn() -> AsyncNode>,
-        add_widget: bool,
+        _add_widget: bool,
     ) -> (AsyncNode, bool) {
         unimplemented!()
     }
     fn init_sibling(
         &mut self,
         _f: Box<dyn Fn() -> AsyncNode>,
-        add_widget: bool,
+        _add_widget: bool,
     ) -> (AsyncNode, bool) {
         unimplemented!()
     }
