@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::ContainerExt;
+use gtk::{ContainerExt, WidgetExt};
 
 use crate::nodes::node::{AsyncNode, Node};
 
@@ -25,9 +25,11 @@ impl Node for Pure {
                 if add_widget {
                     let child_borrow = child.as_ref().borrow();
                     let parent_borrow = self.parent.as_ref().borrow();
-                    parent_borrow
-                        .get_widget_as_container()
-                        .add(&child_borrow.get_widget());
+
+                    let container = parent_borrow
+                        .get_widget_as_container();
+                    container.add(&child_borrow.get_widget());
+                    container.show_all();
                 }
                 (child.clone(), true)
             }

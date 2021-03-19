@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{ButtonExt, WidgetExt, WindowType};
+use gtk::{ButtonExt, ContainerExt, WidgetExt, WindowType};
 
 use crate::nodes::containers::pure::Pure;
 use crate::nodes::containers::view::View;
@@ -101,9 +101,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let node = {
             let mut node_borrow = node.as_ref().borrow_mut();
             let container = Rc::clone(&container);
-            node_borrow
-                .init_sibling(Box::new(move || Button::new(container.clone())), true)
-                .0
+            node_borrow.init_sibling(Box::new(move || Button::new(container.clone())), true).0
         };
         let _node = {
             let container = {
@@ -117,7 +115,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             let state = state.as_ref().borrow();
             //condition
             if state.count >= 1 {
-                let _node = {
+                let node = {
                     let mut node_borrow = container.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
                     node_borrow
