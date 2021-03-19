@@ -105,13 +105,11 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     .init_sibling(Box::new(move || Button::new(container.clone())))
                     .0
             };
-            let node = {
+            /*let node = {
                 let node = {
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
-                    node_borrow
-                        .init_sibling(Box::new(move || Pure::new(container.clone())))
-                        .0
+                    node_borrow.init_sibling(Box::new(move || Pure::new(container.clone()))).0
                 };
                 //get state
                 let state = state.as_ref().borrow();
@@ -128,7 +126,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                 }
                 //return
                 node
-            };
+            };*/
         }
     }
 }
