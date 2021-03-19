@@ -44,7 +44,13 @@ macro_rules! impl_node_trait_init_sibling {
                 _ => (self.sibling.as_ref().unwrap().clone(), false),
             }
         }
-        impl_node_trait_get_sibling!();
+        fn get_sibling(&self) -> &Option<AsyncNode> {
+            &self.sibling
+        }
+
+        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
+            &mut self.sibling
+        }
     };
 }
 
@@ -77,19 +83,6 @@ macro_rules! impl_node_trait_get_child {
 
         fn get_child_mut(&mut self) -> &mut Option<AsyncNode> {
             &mut self.child
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! impl_node_trait_get_sibling {
-    () => {
-        fn get_sibling(&self) -> &Option<AsyncNode> {
-            &self.sibling
-        }
-
-        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
-            &mut self.sibling
         }
     };
 }
