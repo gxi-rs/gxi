@@ -1,12 +1,11 @@
 use std::any::Any;
 use std::cell::RefCell;
-use std::convert::TryInto;
+
 use std::rc::Rc;
 
 use gtk::ContainerExt;
 
 use crate::nodes::node::{AsyncNode, Node};
-use crate::nodes::widget::Widget;
 
 pub struct Button {
     pub widget: gtk::Button,
