@@ -14,12 +14,14 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
-        fn get_widget(&self) -> Rc<gtk::Widget> {
-            self.widget.clone()
+        fn get_widget(&self) -> gtk::Widget {
+            let widget: &gtk::Widget = self.widget.as_ref();
+            widget.clone()
         }
 
-        fn get_widget_as_container(&self) -> Rc<gtk::Container> {
-            self.widget.clone()
+        fn get_widget_as_container(&self) -> gtk::Container {
+            let widget: &gtk::Container = self.widget.as_ref();
+            widget.clone()
         }
     };
 }
@@ -33,7 +35,7 @@ macro_rules! impl_node_trait_init_sibling {
                     let sibling = self.sibling.get_or_insert_with(|| f());
                     {
                         let sibling_borrow = sibling.as_ref().borrow();
-                        self.widget.add(sibling_borrow.get_widget());
+                        self.widget.add(&sibling_borrow.get_widget());
                     }
                     (sibling.clone(), true)
                 }
@@ -53,7 +55,7 @@ macro_rules! impl_node_trait_init_child {
                     let child = self.child.get_or_insert_with(|| f());
                     {
                         let child_borrow = child.as_ref().borrow();
-                        self.widget.add(child_borrow.get_widget());
+                        self.widget.add(&child_borrow.get_widget());
                     }
                     (child.clone(), true)
                 }

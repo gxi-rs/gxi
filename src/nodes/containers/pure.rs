@@ -9,7 +9,7 @@ use crate::nodes::node::{AsyncNode, Node};
 pub struct Pure {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: AsyncNode,
+    pub parent: AsyncNode
 }
 
 impl Node for Pure {
@@ -25,7 +25,7 @@ impl Node for Pure {
                     let parent_borrow = self.parent.as_ref().borrow();
                     let parent_container = parent_borrow.get_widget_as_container();
                     let sibling_borrow = sibling.as_ref().borrow();
-                    parent_container.add(sibling_borrow.get_widget().as_ref());
+                    parent_container.add(&sibling_borrow.get_widget());
                 }
                 (sibling.clone(), true)
             }
@@ -40,19 +40,19 @@ impl Node for Pure {
                 let child_borrow = child.as_ref().borrow();
                 let parent_borrow = self.parent.as_ref().borrow();
                 let parent_container = parent_borrow.get_widget_as_container();
-                parent_container.add(child_borrow.get_widget().as_ref());
+                parent_container.add(&child_borrow.get_widget());
                 (child.clone(), true)
             }
             _ => (self.child.as_ref().unwrap().clone(), false),
         }
     }
 
-    fn get_widget(&self) -> Rc<Widget> {
+    fn get_widget(&self) -> gtk::Widget {
         let parent_borrow = self.parent.as_ref().borrow();
         parent_borrow.get_widget()
     }
 
-    fn get_widget_as_container(&self) -> Rc<Container> {
+    fn get_widget_as_container(&self) -> gtk::Container {
         let parent_borrow = self.parent.as_ref().borrow();
         parent_borrow.get_widget_as_container()
     }

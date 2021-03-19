@@ -21,6 +21,6 @@ pub trait Node {
     fn init_sibling(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) { unimplemented!() }
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn get_widget(&self) -> &gtk::Widget;
-    fn get_widget_as_container(&self) -> &gtk::Container;
+    fn get_widget(&self) -> gtk::Widget;
+    fn get_widget_as_container(&self) -> gtk::Container;
 }
