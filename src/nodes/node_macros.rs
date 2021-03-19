@@ -1,13 +1,9 @@
 #[macro_export]
 macro_rules! impl_node_trait {
     () => {
-        fn as_any(&self) -> &dyn Any {
-            self
-        }
+        fn as_any(&self) -> &dyn Any { self }
 
-        fn as_any_mut(&mut self) -> &mut dyn Any {
-            self
-        }
+        fn as_any_mut(&mut self) -> &mut dyn Any { self }
     };
 }
 
@@ -30,9 +26,7 @@ macro_rules! impl_node_trait_get_widget {
 macro_rules! impl_node_trait_init_sibling {
     () => {
         fn init_sibling(
-            &mut self,
-            f: Box<dyn Fn() -> AsyncNode>,
-            add_widget: bool,
+            &mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool,
         ) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
@@ -48,13 +42,9 @@ macro_rules! impl_node_trait_init_sibling {
                 _ => (self.sibling.as_ref().unwrap().clone(), false),
             }
         }
-        fn get_sibling(&self) -> &Option<AsyncNode> {
-            &self.sibling
-        }
+        fn get_sibling(&self) -> &Option<AsyncNode> { &self.sibling }
 
-        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
-            &mut self.sibling
-        }
+        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> { &mut self.sibling }
     };
 }
 
@@ -62,9 +52,7 @@ macro_rules! impl_node_trait_init_sibling {
 macro_rules! impl_node_trait_init_child {
     () => {
         fn init_child(
-            &mut self,
-            f: Box<dyn Fn() -> AsyncNode>,
-            add_widget: bool,
+            &mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool,
         ) -> (AsyncNode, bool) {
             match self.child {
                 None => {
@@ -85,12 +73,8 @@ macro_rules! impl_node_trait_init_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_child {
     () => {
-        fn get_child(&self) -> &Option<AsyncNode> {
-            &self.child
-        }
+        fn get_child(&self) -> &Option<AsyncNode> { &self.child }
 
-        fn get_child_mut(&mut self) -> &mut Option<AsyncNode> {
-            &mut self.child
-        }
+        fn get_child_mut(&mut self) -> &mut Option<AsyncNode> { &mut self.child }
     };
 }
