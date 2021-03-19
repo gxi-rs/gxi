@@ -17,10 +17,18 @@ pub trait Node {
     fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
         unimplemented!()
     }
-    fn init_child(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+    fn init_child(
+        &mut self,
+        _f: Box<dyn Fn() -> AsyncNode>,
+        add_widget: bool,
+    ) -> (AsyncNode, bool) {
         unimplemented!()
     }
-    fn init_sibling(&mut self, _f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+    fn init_sibling(
+        &mut self,
+        _f: Box<dyn Fn() -> AsyncNode>,
+        add_widget: bool,
+    ) -> (AsyncNode, bool) {
         unimplemented!()
     }
     fn as_any(&self) -> &dyn Any;

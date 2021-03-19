@@ -3,6 +3,7 @@ use std::rc::Rc;
 
 use gtk::{ButtonExt, WidgetExt, WindowType};
 
+use crate::nodes::containers::pure::Pure;
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::AsyncNode;
@@ -40,7 +41,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let mut container_borrow = container.as_ref().borrow_mut();
         let container = Rc::clone(&container);
         container_borrow
-            .init_child(Box::new(move || View::new(container.clone())))
+            .init_child(Box::new(move || View::new(container.clone())), true)
             .0
     };
     {
@@ -49,7 +50,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                 let mut container_borrow = container.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
                 container_borrow
-                    .init_child(Box::new(move || View::new(container.clone())))
+                    .init_child(Box::new(move || View::new(container.clone())), true)
                     .0
             };
             //init children
@@ -58,7 +59,8 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     let (node, is_new) = {
                         let mut node_borrow = container.as_ref().borrow_mut();
                         let container = Rc::clone(&container);
-                        node_borrow.init_child(Box::new(move || Button::new(container.clone())))
+                        node_borrow
+                            .init_child(Box::new(move || Button::new(container.clone())), true)
                     };
                     {
                         let mut button_borrow = node.as_ref().borrow_mut();
@@ -85,47 +87,48 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     node
                 };
                 {}
-                let _node = {
+                let node = {
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
-                    println!("init sibling");
                     node_borrow
-                        .init_sibling(Box::new(move || Button::new(container.clone())))
+                        .init_sibling(Box::new(move || Button::new(container.clone())), true)
                         .0
                 };
             }
             container
         };
         //init siblings
-        let _node = {
+        let node = {
             let mut node_borrow = node.as_ref().borrow_mut();
             let container = Rc::clone(&container);
             node_borrow
-                .init_sibling(Box::new(move || Button::new(container.clone())))
+                .init_sibling(Box::new(move || Button::new(container.clone())), true)
                 .0
         };
-        /*let node = {
-            let node = {
+        let node = {
+            let container = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
-                node_borrow.init_sibling(Box::new(move || Pure::new(container.clone()))).0
+                node_borrow
+                    .init_sibling(Box::new(move || Pure::new(container.clone())), false)
+                    .0
             };
             //get state
             let state = state.as_ref().borrow();
             //condition
-            println!("{}", state.count);
             if state.count >= 1 {
+                println!("yes");
                 let node = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let mut node_borrow = container.as_ref().borrow_mut();
                     let container = Rc::clone(&container);
                     node_borrow
-                        .init_sibling(Box::new(move || Button::new(container.clone())))
+                        .init_child(Box::new(move || Button::new(container.clone())), true)
                         .0
                 };
             }
             //return
-            node
-        };*/
+            container
+        };
     }
 }
 /*

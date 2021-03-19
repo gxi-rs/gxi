@@ -29,11 +29,15 @@ macro_rules! impl_node_trait_get_widget {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+        fn init_sibling(
+            &mut self,
+            f: Box<dyn Fn() -> AsyncNode>,
+            add_widget: bool,
+        ) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert_with(|| f());
-                    {
+                    if add_widget {
                         let parent_borrow = self.parent.as_ref().borrow();
                         let parent_container = parent_borrow.get_widget_as_container();
                         let sibling_borrow = sibling.as_ref().borrow();
@@ -57,11 +61,15 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+        fn init_child(
+            &mut self,
+            f: Box<dyn Fn() -> AsyncNode>,
+            add_widget: bool,
+        ) -> (AsyncNode, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert_with(|| f());
-                    {
+                    if add_widget {
                         let child_borrow = child.as_ref().borrow();
                         self.widget.add(&child_borrow.get_widget());
                     }

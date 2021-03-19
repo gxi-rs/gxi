@@ -17,14 +17,17 @@ impl Node for Pure {
     impl_node_trait_get_child!();
     impl_node_trait_init_sibling!();
 
-    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool) -> (AsyncNode, bool) {
         match self.child {
             None => {
                 let child = self.child.get_or_insert_with(|| f());
-                let child_borrow = child.as_ref().borrow();
-                let parent_borrow = self.parent.as_ref().borrow();
-                let parent_container = parent_borrow.get_widget_as_container();
-                parent_container.add(&child_borrow.get_widget());
+                if add_widget {
+                    let child_borrow = child.as_ref().borrow();
+                    let parent_borrow = self.parent.as_ref().borrow();
+                    parent_borrow
+                        .get_widget_as_container()
+                        .add(&child_borrow.get_widget());
+                }
                 (child.clone(), true)
             }
             _ => (self.child.as_ref().unwrap().clone(), false),
