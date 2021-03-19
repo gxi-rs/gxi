@@ -9,29 +9,13 @@ use crate::nodes::node::{AsyncNode, Node};
 pub struct Pure {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: AsyncNode
+    pub parent: AsyncNode,
 }
 
 impl Node for Pure {
     impl_node_trait!();
     impl_node_trait_get_child!();
-    impl_node_trait_get_sibling!();
-
-    fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
-        match self.sibling {
-            None => {
-                let sibling = self.sibling.get_or_insert_with(|| f());
-                {
-                    let parent_borrow = self.parent.as_ref().borrow();
-                    let parent_container = parent_borrow.get_widget_as_container();
-                    let sibling_borrow = sibling.as_ref().borrow();
-                    parent_container.add(&sibling_borrow.get_widget());
-                }
-                (sibling.clone(), true)
-            }
-            _ => (self.child.as_ref().unwrap().clone(), false),
-        }
-    }
+    impl_node_trait_init_sibling!();
 
     fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
         match self.child {

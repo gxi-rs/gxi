@@ -34,8 +34,10 @@ macro_rules! impl_node_trait_init_sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert_with(|| f());
                     {
+                        let parent_borrow = self.parent.as_ref().borrow();
+                        let parent_container = parent_borrow.get_widget_as_container();
                         let sibling_borrow = sibling.as_ref().borrow();
-                        self.widget.add(&sibling_borrow.get_widget());
+                        parent_container.add(&sibling_borrow.get_widget());
                     }
                     (sibling.clone(), true)
                 }

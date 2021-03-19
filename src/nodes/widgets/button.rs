@@ -30,8 +30,9 @@ impl Button {
     }
 }
 
-impl Drop for Button {
+/*impl Drop for Button {
     fn drop(&mut self) {
         println!("Dropping")
     }
 }
+*/
