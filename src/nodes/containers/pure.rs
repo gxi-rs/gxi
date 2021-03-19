@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::ContainerExt;
+use gtk::{Container, ContainerExt, Widget};
 
 use crate::nodes::node::{AsyncNode, Node};
 
@@ -14,7 +14,48 @@ pub struct Pure {
 
 impl Node for Pure {
     impl_node_trait!();
-    impl_node_trait_init_sibling!();
+    impl_node_trait_get_child!();
+    impl_node_trait_get_sibling!();
+
+    fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+        match self.sibling {
+            None => {
+                let sibling = self.sibling.get_or_insert_with(|| f());
+                {
+                    let parent_borrow = self.parent.as_ref().borrow();
+                    let parent_container = parent_borrow.get_widget_as_container();
+                    let sibling_borrow = sibling.as_ref().borrow();
+                    parent_container.add(sibling_borrow.get_widget().as_ref());
+                }
+                (sibling.clone(), true)
+            }
+            _ => (self.child.as_ref().unwrap().clone(), false),
+        }
+    }
+
+    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
+        match self.child {
+            None => {
+                let child = self.child.get_or_insert_with(|| f());
+                let child_borrow = child.as_ref().borrow();
+                let parent_borrow = self.parent.as_ref().borrow();
+                let parent_container = parent_borrow.get_widget_as_container();
+                parent_container.add(child_borrow.get_widget().as_ref());
+                (child.clone(), true)
+            }
+            _ => (self.child.as_ref().unwrap().clone(), false),
+        }
+    }
+
+    fn get_widget(&self) -> Rc<Widget> {
+        let parent_borrow = self.parent.as_ref().borrow();
+        parent_borrow.get_widget()
+    }
+
+    fn get_widget_as_container(&self) -> Rc<Container> {
+        let parent_borrow = self.parent.as_ref().borrow();
+        parent_borrow.get_widget_as_container()
+    }
 }
 
 impl Pure {

@@ -7,7 +7,7 @@ use gtk::ContainerExt;
 use crate::nodes::node::{AsyncNode, Node};
 
 pub struct Button {
-    pub widget: gtk::Button,
+    pub widget: Rc<gtk::Button>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
 }
@@ -21,7 +21,7 @@ impl Node for Button {
 impl Button {
     pub fn new(parent: AsyncNode) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Button {
-            widget: gtk::Button::new(),
+            widget: Rc::from(gtk::Button::new()),
             sibling: None,
             parent,
         })))

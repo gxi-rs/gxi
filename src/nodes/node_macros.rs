@@ -14,12 +14,12 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
-        fn get_widget(&self) -> Option<&gtk::Widget> {
-            Some(self.widget.as_ref())
+        fn get_widget(&self) -> Rc<gtk::Widget> {
+            self.widget.clone()
         }
 
-        fn get_widget_as_container(&self) -> Option<&gtk::Container> {
-            Some(self.widget.as_ref())
+        fn get_widget_as_container(&self) -> Rc<gtk::Container> {
+            self.widget.clone()
         }
     };
 }
@@ -27,26 +27,20 @@ macro_rules! impl_node_trait_get_widget {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn get_sibling(&self) -> &Option<AsyncNode> {
-            &self.sibling
-        }
-        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
-            &mut self.sibling
-        }
         fn init_sibling(&mut self, f: Box<dyn Fn() -> AsyncNode>) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert_with(|| f());
-                    if let Some(widget) = sibling.clone().borrow_mut().get_widget() {
-                        if let Some(parent) = self.parent.borrow_mut().get_widget_as_container() {
-                            parent.add(widget);
-                        }
+                    {
+                        let sibling_borrow = sibling.as_ref().borrow();
+                        self.widget.add(sibling_borrow.get_widget());
                     }
                     (sibling.clone(), true)
                 }
                 _ => (self.sibling.as_ref().unwrap().clone(), false),
             }
         }
+        impl_node_trait_get_sibling!();
     };
 }
 
@@ -57,20 +51,41 @@ macro_rules! impl_node_trait_init_child {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert_with(|| f());
-                    if let Some(s) = child.clone().borrow_mut().get_widget() {
-                        self.widget.add(s);
+                    {
+                        let child_borrow = child.as_ref().borrow();
+                        self.widget.add(child_borrow.get_widget());
                     }
                     (child.clone(), true)
                 }
                 _ => (self.child.as_ref().unwrap().clone(), false),
             }
         }
+        impl_node_trait_get_child!();
+    };
+}
+
+#[macro_export]
+macro_rules! impl_node_trait_get_child {
+    () => {
         fn get_child(&self) -> &Option<AsyncNode> {
             &self.child
         }
 
         fn get_child_mut(&mut self) -> &mut Option<AsyncNode> {
             &mut self.child
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_node_trait_get_sibling {
+    () => {
+        fn get_sibling(&self) -> &Option<AsyncNode> {
+            &self.sibling
+        }
+
+        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
+            &mut self.sibling
         }
     };
 }

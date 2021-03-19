@@ -8,7 +8,7 @@ use crate::nodes::node::{AsyncNode, Node};
 
 pub struct Window {
     pub child: Option<AsyncNode>,
-    pub widget: gtk::Window,
+    pub widget: Rc<gtk::Window>,
 }
 
 impl Node for Window {
@@ -21,7 +21,7 @@ impl Window {
     pub fn new(window_type: WindowType) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Window {
             child: None,
-            widget: gtk::Window::new(window_type),
+            widget: Rc::from(gtk::Window::new(window_type)),
         })))
     }
 }
