@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{Container, ContainerExt, Widget};
+use gtk::ContainerExt;
 
 use crate::nodes::node::{AsyncNode, Node};
 
