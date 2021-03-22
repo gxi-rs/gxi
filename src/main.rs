@@ -8,6 +8,8 @@ use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::widgets::button::Button;
+use std::borrow::Borrow;
+use std::ops::Deref;
 
 mod nodes;
 
@@ -134,7 +136,10 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                         let pure = pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
                         //destroy previous AsyncNode if previous if block was not this
                         if pure.current_index != 2 {
-                            pure.remove_child();
+                            if pure.child.is_some() {
+                                let child =  pure.child.as_ref().unwrap();
+                                pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget())
+                            }
                             pure.current_index = 2;
                         }
                     }
