@@ -5,4 +5,7 @@ fmt:
 	cargo +nightly fmt
 
 macro_trace:
-	cargo +nightly -- -Zmacro-backtrace run
+	RUSTFLAGS="-Z macro-backtrace" cargo +nightly build
+
+macro_expand:
+	cargo expand

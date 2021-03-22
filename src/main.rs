@@ -1,13 +1,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-
 use gtk::{ButtonExt, ContainerExt, WidgetExt, WindowType};
 
-use crate::nodes::containers::pure::Pure;
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
-use crate::nodes::node::{AsyncNode, Node};
-use crate::nodes::widgets::button::Button;
+use crate::nodes::node::AsyncNode;
 
 mod macros;
 mod nodes;
@@ -37,9 +34,8 @@ struct MyAppState {
 
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let container = Rc::clone(&top_container);
-    cont!(View ())
+    cont!(View(container));
 }
-
 
 /*fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let container = Rc::clone(&top_container);
