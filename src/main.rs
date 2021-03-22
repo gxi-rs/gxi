@@ -9,8 +9,8 @@ use crate::nodes::containers::window::Window;
 use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::widgets::button::Button;
 
-mod nodes;
 mod macros;
+mod nodes;
 
 fn main() {
     gtk::init().unwrap();
@@ -35,9 +35,11 @@ struct MyAppState {
     count: i32,
 }
 
-comp! {
-
+fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+    let container = Rc::clone(&top_container);
+    cont!(View ())
 }
+
 
 /*fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let container = Rc::clone(&top_container);
