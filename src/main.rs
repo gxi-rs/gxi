@@ -35,7 +35,7 @@ struct MyAppState {
     count: i32,
 }
 
-fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+comp! {
 
 }
 
