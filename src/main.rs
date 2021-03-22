@@ -38,8 +38,11 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = con!(View(top_container));
     {
         let view = nod!(View(cont, init_child));
-        let button = nod!(Button(view, init_sibling));
-        let button = nod!(Button(button, init_sibling));
+        {
+            let bt = nod!(Button(view, init_child));
+            let bt = nod!(Button(bt, init_sibling));
+        }
+        let bt = nod!(Button(view, init_sibling));
     }
 }
 
