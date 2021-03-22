@@ -10,6 +10,7 @@ use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::widgets::button::Button;
 
 mod nodes;
+mod macros;
 
 fn main() {
     gtk::init().unwrap();
@@ -35,6 +36,10 @@ struct MyAppState {
 }
 
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+
+}
+
+/*fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let container = Rc::clone(&top_container);
     let container = {
         let mut container_borrow = container.as_ref().borrow_mut();
@@ -156,7 +161,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         };
     }
 }
-/*
+*//*
 In macro form above function can be written as
 
 component! {
