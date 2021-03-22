@@ -1,8 +1,8 @@
+use crate::nodes::node::{AsyncNode, Node};
+use gtk::ContainerExt;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use gtk::ContainerExt;
-use crate::nodes::node::{AsyncNode, Node};
 
 pub struct Button {
     pub widget: gtk::Button,
