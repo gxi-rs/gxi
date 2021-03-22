@@ -8,8 +8,6 @@ use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::widgets::button::Button;
-use std::borrow::Borrow;
-use std::ops::Deref;
 
 mod nodes;
 
@@ -102,23 +100,28 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         let node = {
             let mut node_borrow = node.as_ref().borrow_mut();
             let container = Rc::clone(&container);
-            node_borrow.init_sibling(Box::new(move || Button::new(container.clone())), true).0
+            node_borrow
+                .init_sibling(Box::new(move || Button::new(container.clone())), true)
+                .0
         };
         let _node = {
             let pure = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
-                node_borrow.init_sibling(Box::new(move || Pure::new(container.clone())), false).0
+                node_borrow
+                    .init_sibling(Box::new(move || Pure::new(container.clone())), false)
+                    .0
             };
             //get state
             let state = state.as_ref().borrow();
             //condition
             if state.count % 2 == 0 {
                 //1st if block
-                let node = {
+                let _node = {
                     let mut pure_borrow = pure.as_ref().borrow_mut();
                     {
-                        let pure:&mut Pure = pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                        let pure: &mut Pure =
+                            pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
                         //destroy previous AsyncNode if previous if block was not this
                         if pure.current_index != 1 {
                             pure.remove_child();
@@ -126,19 +129,22 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                         }
                     }
                     let container = Rc::clone(&pure);
-                    pure_borrow.init_child(Box::new(move || Button::new(container.clone())), true).0
+                    pure_borrow
+                        .init_child(Box::new(move || Button::new(container.clone())), true)
+                        .0
                 };
             } else {
                 //2nd if block
-                let node = {
+                let _node = {
                     let mut pure_borrow = pure.as_ref().borrow_mut();
                     {
                         let pure = pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
                         //destroy previous AsyncNode if previous if block was not this
                         if pure.current_index != 2 {
                             if pure.child.is_some() {
-                                let child =  pure.child.as_ref().unwrap();
-                                pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget())
+                                let child = pure.child.as_ref().unwrap();
+                                pure.get_widget_as_container()
+                                    .remove(&child.as_ref().borrow().get_widget())
                             }
                             pure.current_index = 2;
                         }
