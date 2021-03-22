@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{WidgetExt, WindowType};
+use gtk::{ButtonExt, WidgetExt, WindowType};
 
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
@@ -37,12 +37,12 @@ struct MyAppState {
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = con!(View(top_container));
     {
-        let view = nod!(View(cont, init_child));
+        let view = nod!(View(cont, init_child, state){}{});
         {
-            let bt = nod!(Button(view, init_child));
-            let bt = nod!(Button(bt, init_sibling));
+            let bt = nod!(Button(view, init_child, state){}{});
+            let bt = nod!(Button(bt, init_sibling, state){}{set_label = count});
         }
-        let bt = nod!(Button(view, init_sibling));
+        let bt = nod!(Button(view, init_sibling, state){}{});
     }
 }
 
@@ -79,7 +79,6 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
 
                         if is_new {
                             //init constants
-                            let state_clone = Rc::clone(&state);
                             let top_container_clone = Rc::clone(&top_container);
                             button.widget.connect_clicked(move |_| {
                                 let state = state_clone.clone();
