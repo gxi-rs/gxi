@@ -6,7 +6,7 @@ use gtk::{ButtonExt, ContainerExt, WidgetExt, WindowType};
 use crate::nodes::containers::pure::Pure;
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
-use crate::nodes::node::AsyncNode;
+use crate::nodes::node::{AsyncNode, Node};
 use crate::nodes::widgets::button::Button;
 
 mod nodes;
@@ -35,7 +35,6 @@ struct MyAppState {
 }
 
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
-    println!("render");
     let container = Rc::clone(&top_container);
     let container = {
         let mut container_borrow = container.as_ref().borrow_mut();
@@ -104,27 +103,45 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             node_borrow.init_sibling(Box::new(move || Button::new(container.clone())), true).0
         };
         let _node = {
-            let container = {
+            let pure = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let container = Rc::clone(&container);
-                node_borrow
-                    .init_sibling(Box::new(move || Pure::new(container.clone())), false)
-                    .0
+                node_borrow.init_sibling(Box::new(move || Pure::new(container.clone())), false).0
             };
             //get state
             let state = state.as_ref().borrow();
             //condition
-            if state.count >= 1 {
+            if state.count % 2 == 0 {
+                //1st if block
                 let node = {
-                    let mut node_borrow = container.as_ref().borrow_mut();
-                    let container = Rc::clone(&container);
-                    node_borrow
-                        .init_child(Box::new(move || Button::new(container.clone())), true)
-                        .0
+                    let mut pure_borrow = pure.as_ref().borrow_mut();
+                    {
+                        let pure:&mut Pure = pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                        //destroy previous AsyncNode if previous if block was not this
+                        if pure.current_index != 1 {
+                            pure.remove_child();
+                            pure.current_index = 1;
+                        }
+                    }
+                    let container = Rc::clone(&pure);
+                    pure_borrow.init_child(Box::new(move || Button::new(container.clone())), true).0
+                };
+            } else {
+                //2nd if block
+                let node = {
+                    let mut pure_borrow = pure.as_ref().borrow_mut();
+                    {
+                        let pure = pure_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                        //destroy previous AsyncNode if previous if block was not this
+                        if pure.current_index != 2 {
+                            pure.remove_child();
+                            pure.current_index = 2;
+                        }
+                    }
                 };
             }
             //return
-            container
+            pure
         };
     }
 }

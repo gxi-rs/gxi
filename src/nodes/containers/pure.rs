@@ -10,6 +10,7 @@ pub struct Pure {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
+    pub current_index: u32, //Index of current if block where 0 is default i.e when no if block was rendered before
 }
 
 impl Node for Pure {
@@ -25,9 +26,7 @@ impl Node for Pure {
                 if add_widget {
                     let child_borrow = child.as_ref().borrow();
                     let parent_borrow = self.parent.as_ref().borrow();
-
-                    let container = parent_borrow
-                        .get_widget_as_container();
+                    let container = parent_borrow.get_widget_as_container();
                     container.add(&child_borrow.get_widget());
                     container.show_all();
                 }
@@ -54,6 +53,12 @@ impl Pure {
             child: None,
             sibling: None,
             parent,
+            current_index: 0,
         })))
+    }
+    pub fn remove_child(&mut self) {
+        if self.child.is_some() {
+            self.child.take().unwrap();
+        }
     }
 }
