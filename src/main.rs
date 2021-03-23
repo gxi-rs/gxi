@@ -7,8 +7,8 @@ use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::AsyncNode;
 use crate::nodes::widgets::button::Button;
+use macros::proc_cont;
 
-mod macros;
 mod nodes;
 
 fn main() {
@@ -35,7 +35,10 @@ struct MyAppState {
 }
 
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
-    let cont = con!(View(top_container));
+    proc_cont!();
+}
+/*
+fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     {
         let view = nod!(View(cont, init_child, state){}{});
         {
@@ -44,7 +47,7 @@ fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         }
         let bt = nod!(Button(view, init_sibling, state){}{});
     }
-}
+}*/
 
 /*fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let container = Rc::clone(&top_container);
