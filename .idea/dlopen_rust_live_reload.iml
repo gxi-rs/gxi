@@ -8,6 +8,8 @@
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/c/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/n/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

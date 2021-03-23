@@ -1,15 +1,11 @@
+use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::ButtonExt;
-use gtk::{WidgetExt, WindowType};
+use gtk::{ButtonExt, WidgetExt, WindowType};
+use n::n;
 
-use macros::proc_node;
-
-use crate::nodes::containers::view::View;
-use crate::nodes::containers::window::Window;
-use crate::nodes::node::AsyncNode;
-use crate::nodes::widgets::button::Button;
+use crate::nodes::{*};
 
 mod nodes;
 
@@ -39,16 +35,31 @@ struct MyAppState {
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
-    proc_node!(View init_child { set_property_width_request = 300 ; });
+    n!(View init_child { set_property_width_request = 300 ; });
     {
         let cont = node.clone();
-        proc_node!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
-        proc_node!(Button init_sibling { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
-        proc_node!(View init_sibling {});
+        n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+        n!(Button init_sibling { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+        n!(View init_sibling {});
         {
             let cont = node.clone();
-            proc_node!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+            n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
         }
+    }
+}
+
+mod hello {
+
+    use c::c;
+    use std::borrow::BorrowMut;
+    use std::cell::RefCell;
+    use std::rc::Rc;
+    use gtk::{ButtonExt, WidgetExt, WindowType};
+    use crate::nodes::{*};
+    use crate::MyAppState;
+
+    c! {
+
     }
 }
 

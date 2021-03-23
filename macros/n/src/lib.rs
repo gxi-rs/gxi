@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use quote::{quote};
+use quote::quote;
 use syn::{Block, Error, Expr, Ident, Stmt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
@@ -59,7 +59,7 @@ impl Parse for Combinations {
 }
 
 #[proc_macro]
-pub fn proc_node(item: TokenStream) -> TokenStream {
+pub fn n(item: TokenStream) -> TokenStream {
     let Combinations { name, static_exprs, dynamic_exprs, init_type } = syn::parse_macro_input!(item as Combinations);
 
     (quote! {
