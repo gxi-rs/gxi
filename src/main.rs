@@ -37,10 +37,20 @@ struct MyAppState {
 }
 
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
-    let node = Rc::clone(&container);
-    proc_node!(View { set_property_width_request = 300 ; });
-    proc_node!(Button { set_label = state.count.to_string().as_str(); connect_clicked = || println!("hello"); });
+    let cont = Rc::clone(&container);
+    let node = cont.clone();
+    proc_node!(View init_child { set_property_width_request = 300 ; }); {
+        let cont = node.clone();
+        proc_node!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+        proc_node!(Button init_sibling { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+        proc_node!(View init_sibling {}); {
+            let cont = node.clone();
+            proc_node!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+        }
+    }
 }
+
+
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     {

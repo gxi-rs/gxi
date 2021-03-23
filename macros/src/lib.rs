@@ -1,12 +1,13 @@
 use proc_macro::TokenStream;
 
-use quote::{quote, ToTokens};
+use quote::{quote};
 use syn::{Block, Error, Expr, Ident, Stmt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 
 struct Combinations {
     name: Ident,
+    init_type: Ident,
     static_exprs: Vec<TokenStream2>,
     dynamic_exprs: Vec<TokenStream2>,
 }
@@ -14,12 +15,12 @@ struct Combinations {
 impl Parse for Combinations {
     fn parse(input: ParseStream) -> Result<Self, Error> {
         let name = input.parse()?;
+        let init_type = input.parse()?;
         let mut static_exprs = vec![];
         let mut dynamic_exprs = vec![];
         {
             let block: Block = input.parse()?;
             for x in block.stmts {
-                println!("{}", x.to_token_stream().to_string());
                 match x {
                     Stmt::Semi(s, _) => {
                         match s {
@@ -53,31 +54,30 @@ impl Parse for Combinations {
                 }
             }
         }
-        Ok(Combinations { name, static_exprs, dynamic_exprs })
+        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type })
     }
 }
 
 #[proc_macro]
 pub fn proc_node(item: TokenStream) -> TokenStream {
-    let Combinations { name, static_exprs, dynamic_exprs } = syn::parse_macro_input!(item as Combinations);
+    let Combinations { name, static_exprs, dynamic_exprs, init_type } = syn::parse_macro_input!(item as Combinations);
 
     (quote! {
         let node = {
             let (node, is_new) = {
                 let mut node_borrow = node.as_ref().borrow_mut();
-                let node = Rc::clone(&node);
-                node_borrow.init_child(Box::new(move || #name::new(node.clone())), true)
+                let cont = Rc::clone(&cont);
+                node_borrow.#init_type(Box::new(move || #name::new(cont.clone())), true)
             };
             {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
-                let state = state.as_ref().borrow();
                 if is_new {
                     #(#static_exprs)*
                 }
+                let state = state.as_ref().borrow();
                 #(#dynamic_exprs)*
             }
-
             node
         };
     }).into()
