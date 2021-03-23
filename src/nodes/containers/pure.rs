@@ -56,9 +56,4 @@ impl Pure {
             current_index: 0,
         })))
     }
-    pub fn remove_child(&mut self) {
-        if self.child.is_some() {
-            self.child.take().unwrap();
-        }
-    }
 }

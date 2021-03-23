@@ -1,15 +1,13 @@
 use proc_macro::TokenStream;
 
 use quote::quote;
-use syn::{Block, Error, Expr, Ident, Stmt};
-use syn::__private::TokenStream2;
+use syn::{*};
 use syn::parse::{Parse, ParseStream};
 
 struct Combinations {}
 
 impl Parse for Combinations {
-    fn parse(input: ParseStream) -> Result<Self, Error> {
-
+    fn parse(input: ParseStream) -> Result<Self> {
         Ok(Combinations {})
     }
 }

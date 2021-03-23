@@ -1,4 +1,3 @@
-use std::borrow::BorrowMut;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -51,10 +50,10 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
 mod hello {
 
     use c::c;
-    use std::borrow::BorrowMut;
+    
     use std::cell::RefCell;
     use std::rc::Rc;
-    use gtk::{ButtonExt, WidgetExt, WindowType};
+    
     use crate::nodes::{*};
     use crate::MyAppState;
 
