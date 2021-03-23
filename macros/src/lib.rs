@@ -27,21 +27,22 @@ impl Parse for Combinations {
                                 let left = e.left;
                                 let right = e.right;
                                 match *right {
-                                    Expr::Lit(literal) => static_exprs.push(quote! { node.widget.#left(#literal); }),
                                     Expr::Closure(closure) => {
                                         let closure_body = closure.body;
-                                        static_exprs.push((quote! {{
+                                        static_exprs.push(quote! {{
                                              let container_clone = Rc::clone(&container);
-                                             node.widget.#left(move | | {
-                                                 let state = state.clone();
+                                             let state_clone = Rc::clone(&state);
+                                             node.widget.#left(move |_| {
+                                                 let state = state_clone.clone();
                                                  {
                                                      let mut state = state.as_ref().borrow_mut();
                                                      #closure_body
                                                  }
                                                  render(container_clone.clone(), state.clone());
                                              });
-                                        }}));
+                                        }});
                                     }
+                                    Expr::Lit(literal) => static_exprs.push(quote! { node.widget.#left(#literal); }),
                                     _ => dynamic_exprs.push(quote! { node.widget.#left(#right); })
                                 }
                             }

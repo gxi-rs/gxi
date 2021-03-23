@@ -1,8 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::ButtonExt;
 use gtk::{WidgetExt, WindowType};
+use gtk::ButtonExt;
 
 use macros::proc_node;
 
@@ -39,7 +39,7 @@ struct MyAppState {
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let node = Rc::clone(&container);
     proc_node!(View { set_property_width_request = 300 ; });
-    proc_node!(Button { set_label = state.count.to_string().as_str(); });
+    proc_node!(Button { set_label = state.count.to_string().as_str(); connect_clicked = || println!("hello"); });
 }
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
