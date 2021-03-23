@@ -19,8 +19,7 @@ impl Parse for Combinations {
 
 #[proc_macro]
 pub fn proc_node(item: TokenStream) -> TokenStream {
-    let name = syn::parse_macro_input!(item as Combinations);
-    let name = name.name;
+    let Combinations { name, .. } = syn::parse_macro_input!(item as Combinations);
     let result = quote! {
         let node = {
             let mut node_borrow = node.as_ref().borrow_mut();

@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{ButtonExt, WidgetExt, WindowType};
+use gtk::{WidgetExt, WindowType};
 
 use macros::proc_node;
 
@@ -35,7 +35,7 @@ struct MyAppState {
     count: i32,
 }
 
-fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+fn render(container: AsyncNode, _state: Rc<RefCell<MyAppState>>) {
     let node = Rc::clone(&container);
     proc_node!(View {});
     proc_node!(Button {});
