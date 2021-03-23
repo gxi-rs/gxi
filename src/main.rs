@@ -3,11 +3,12 @@ use std::rc::Rc;
 
 use gtk::{ButtonExt, WidgetExt, WindowType};
 
+use macros::proc_node;
+
 use crate::nodes::containers::view::View;
 use crate::nodes::containers::window::Window;
 use crate::nodes::node::AsyncNode;
 use crate::nodes::widgets::button::Button;
-use macros::proc_cont;
 
 mod nodes;
 
@@ -34,8 +35,10 @@ struct MyAppState {
     count: i32,
 }
 
-fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
-    proc_cont!();
+fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+    let node = Rc::clone(&container);
+    proc_node!(View {});
+    proc_node!(Button {});
 }
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
