@@ -29,17 +29,24 @@ It is adviced not to use it directly, use [c!](../c/macro.c.html) macro instead.
 ```
 !*/
 
+use proc_macro::TokenStream;
+
 use quote::quote;
 
 use crate::combinations::Combinations;
-use proc_macro::TokenStream;
+use syn::__private::TokenStream2;
 
 mod combinations;
 
 #[proc_macro]
 pub fn n(item: TokenStream) -> TokenStream {
-    let Combinations { name, static_exprs, dynamic_exprs, init_type } = syn::parse_macro_input!(item as Combinations);
+    let Combinations { name, static_exprs, dynamic_exprs, init_type, is_pure } = syn::parse_macro_input!(item as Combinations);
 
+    let pure_state_reference = if is_pure {
+        TokenStream2::new()
+    } else {
+        quote! { let state = state.as_ref().borrow(); }
+    };
     (quote! {
         let node = {
             let (node, is_new) = {
@@ -53,7 +60,7 @@ pub fn n(item: TokenStream) -> TokenStream {
                 if is_new {
                     #(#static_exprs)*
                 }
-                let state = state.as_ref().borrow();
+                #pure_state_reference
                 #(#dynamic_exprs)*
             }
             node

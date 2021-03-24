@@ -6,6 +6,7 @@ use syn::parse::{Parse, ParseStream};
 enum InitType {
     Child,
     Sibling,
+    Pure,
 }
 
 pub struct CParser {
@@ -26,7 +27,7 @@ impl CParser {
                         (node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone())), false).0, node.clone())
                     };
                     let state = state.as_ref().borrow();
-                    { #block }
+                    #block
                     node
                 };
                 #content_tree
@@ -38,7 +39,11 @@ impl CParser {
             //check for block
             let mut tree = {
                 let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream() } else { (quote! {{}}).into() };
-                if let InitType::Child = init_type { quote! { n!(#name init_child #block); } } else { quote! { n!(#name init_sibling #block); } }
+                match init_type {
+                    InitType::Child => (quote! { n!(#name init_child #block); }),
+                    InitType::Sibling => (quote! { n!(#name init_sibling #block); }),
+                    InitType::Pure => quote! { n!(# #name init_child #block); }
+                }
             };
             {
                 //check for first block
@@ -68,6 +73,11 @@ impl CParser {
 
 impl Parse for CParser {
     fn parse(input: ParseStream) -> Result<Self> {
+        //check for # which donates a pure child
+        //it can only be used at the starting of macro call
+        if input.parse::<syn::token::Pound>().is_ok() {
+            return CParser::custom_parse(input, InitType::Pure);
+        }
         CParser::custom_parse(input, InitType::Child)
     }
 }

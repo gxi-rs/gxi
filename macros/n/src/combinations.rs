@@ -8,10 +8,12 @@ pub struct Combinations {
     pub init_type: Ident,
     pub static_exprs: Vec<TokenStream2>,
     pub dynamic_exprs: Vec<TokenStream2>,
+    pub is_pure: bool
 }
 
 impl Parse for Combinations {
     fn parse(input: ParseStream) -> Result<Self, Error> {
+        let is_pure = input.parse::<syn::token::Pound>().is_ok();
         let name = input.parse()?;
         let init_type = input.parse()?;
         let mut static_exprs = vec![];
@@ -52,6 +54,6 @@ impl Parse for Combinations {
                 }
             }
         }
-        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type })
+        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type, is_pure })
     }
 }

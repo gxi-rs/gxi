@@ -40,11 +40,15 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             View [
                 {
                     println!("I am running");
-                    if state.
-                    c!(Button { set_label = "2"; connect_clicked = || state.count += 2; });
+                    c!(# Button { set_label = "2";});
                 }
-                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                View [
+                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
+            ]
+        ]
+    );
+}
+/*
+View [
                     Button { set_label = "Hello"; connect_clicked = || println!("Hello"); },
                     View { set_orientation = Orientation::Vertical; } [
                         Button { set_label = "1"; connect_clicked = || state.count += 1; },
@@ -54,12 +58,7 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                         Button { set_label = "2"; connect_clicked = || state.count += 2; },
                         Button { set_label = "4"; connect_clicked = || state.count += 4; }
                     ]
-                ]
-            ]
-        ]
-    );
-}
-
+                ]*/
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     {
