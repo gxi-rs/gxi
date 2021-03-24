@@ -1,11 +1,7 @@
-use proc_macro::{Punct, TokenStream};
-
 use quote::{*};
 use syn::{*};
 use syn::__private::TokenStream2;
-use syn::group::Brackets;
 use syn::parse::{Parse, ParseStream};
-use syn::token::Token;
 
 use crate::nth_child::NthChild;
 
@@ -28,11 +24,19 @@ impl Parse for FirstChild {
                     syn::__private::Ok(brackets) => {
                         let content = FirstChild::parse(&brackets.content).unwrap();
                         let content_tree = content.tree;
-                        tree = quote! { #tree #content_tree};
+                        tree = quote! { #tree {  let cont = node.clone(); #content_tree }};
                     }
-                    syn::__private::Err(error) => {}
+                    syn::__private::Err(_error) => {}
                 }
                 //parse ,
+                match input.parse::<syn::Token![,]>() {
+                    Ok(_) => {
+                        let content = NthChild::parse(&input).unwrap();
+                        let content_tree = content.tree;
+                        tree = quote! { #tree #content_tree };
+                    }
+                    _ => {}
+                }
             }
             return Ok(FirstChild { tree });
         }

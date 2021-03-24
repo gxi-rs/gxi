@@ -51,10 +51,101 @@ struct MyAppState {
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
+    /*fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+        let cont = Rc::clone(&container);
+        let node = cont.clone();
+        let node = {
+            let (node, is_new) = {
+                let mut node_borrow = node.as_ref().borrow_mut();
+                let cont = Rc::clone(&cont);
+                node_borrow.init_child(Box::new(move || View::new(cont.clone())), true)
+            };
+            {
+                let mut node_borrow = node.as_ref().borrow_mut();
+                let node = node_borrow.as_any_mut().downcast_mut::<View>().unwrap();
+                if is_new {}
+                let state = state.as_ref().borrow();
+            }
+            node
+        };
+        {
+            let node = {
+                let (node, is_new) = {
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let cont = Rc::clone(&cont);
+                    node_borrow.init_child(Box::new(move || View::new(cont.clone())), true)
+                };
+                {
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let node = node_borrow.as_any_mut().downcast_mut::<View>().unwrap();
+                    if is_new {}
+                    let state = state.as_ref().borrow();
+                }
+                node
+            };
+            {
+                let node = {
+                    let (node, is_new) = {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let cont = Rc::clone(&cont);
+                        node_borrow.init_child(Box::new(move || Button::new(cont.clone())), true)
+                    };
+                    {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let node = node_borrow.as_any_mut().downcast_mut::<Button>().unwrap();
+                        if is_new {
+                            {
+                                let container_clone = Rc::clone(&container);
+                                let state_clone = Rc::clone(&state);
+                                node.widget.connect_clicked(move |_| {
+                                    let state = state_clone.clone();
+                                    {
+                                        let mut state = state.as_ref().borrow_mut();
+                                        state.count += 1
+                                    }
+                                    render(container_clone.clone(), state.clone());
+                                });
+                            }
+                        }
+                        let state = state.as_ref().borrow();
+                        node.widget.set_label(state.count.to_string().as_str());
+                    }
+                    node
+                };
+                let node = {
+                    let (node, is_new) = {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let cont = Rc::clone(&cont);
+                        node_borrow.init_sibling(Box::new(move || View::new(cont.clone())), true)
+                    };
+                    {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let node = node_borrow.as_any_mut().downcast_mut::<View>().unwrap();
+                        if is_new {}
+                        let state = state.as_ref().borrow();
+                    }
+                    node
+                };
+            }
+        };
+    }*/
+
     c! {
         View [
             View [
-                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
+                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
+                View [
+                    Button { set_label = "Hello"; connect_clicked = || state.count += 1; },
+                    Button { set_label = "World"; connect_clicked = || state.count += 1; },
+                    View [
+                        Button { set_label = "1"; connect_clicked = || state.count += 1; },
+                        Button { set_label = "2"; connect_clicked = || state.count += 2; },
+                    ],
+                    View [
+                        Button { set_label = "3"; connect_clicked = || state.count += 3; },
+                        Button { set_label = "4"; connect_clicked = || state.count += 4; },
+                    ]
+                ]
             ]
         ]
     };
