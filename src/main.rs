@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use c::c;
 use gtk::{ButtonExt, WidgetExt, WindowType};
 use n::n;
 
@@ -31,7 +32,7 @@ struct MyAppState {
     count: i32,
 }
 
-fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+/*fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
     n!(View init_child { set_property_width_request = 300 ; });
@@ -45,22 +46,18 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
         }
     }
-}
+}*/
 
-mod hello {
-
-    use c::c;
-    
-    use std::cell::RefCell;
-    use std::rc::Rc;
-    
-    use crate::nodes::{*};
-    use crate::MyAppState;
-
+fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+    let cont = Rc::clone(&container);
+    let node = cont.clone();
     c! {
-
-    }
+        View { set_property_width_request = 300 ; } [
+            View { set_property_width_request = 300 ; }
+        ]
+    };
 }
+
 
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
