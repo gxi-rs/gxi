@@ -52,8 +52,8 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
     c! {
-        View { set_property_width_request = 300 ; } [
-            View { set_property_width_request = 300 ; }
+        View [
+            View {}
         ]
     };
 }

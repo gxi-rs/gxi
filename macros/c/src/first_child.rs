@@ -15,40 +15,28 @@ pub struct FirstChild {
 
 impl Parse for FirstChild {
     fn parse(input: ParseStream) -> Result<Self> {
-        let mut tree = {
-            let name: Ident = input.parse()?;
-            let block: Block = input.parse()?;
-            quote! { n!(#name init_child #block); }
-        };
-        //children are optional
-        {
-            //check for first block
-            match group::parse_brackets(&input) {
-                syn::__private::Ok(brackets) => {
-                    let content = brackets.content;
-                    let name: Ident = content.parse()?;
-                    let block: Block = content.parse()?;
-                    tree = quote! {#tree n!(#name init_child #block); }
+        //not mandatory to have a bracket or component inside the macro. macro can be empty
+        if let Ok(name) = input.parse::<Ident>() {
+            let mut tree = if let Ok(block) = input.parse::<Block>() {
+                quote! { n!(#name init_child #block); }
+            } else {
+                quote! { n!(#name init_child {}); }
+            };
+            {
+                //check for first block
+                match group::parse_brackets(&input) {
+                    syn::__private::Ok(brackets) => {
+                        let content = brackets.content;
+                        let name: Ident = content.parse()?;
+                        let block: Block = content.parse()?;
+                        tree = quote! {#tree n!(#name init_child #block); }
+                    }
+                    syn::__private::Err(error) => {}
                 }
-                syn::__private::Err(error) => {}
+                //parse ,
             }
+            return Ok(FirstChild { tree });
         }
-        /*if let Ok(block) = input.parse::<ExprArray>() {
-            let block_stream = block.to_token_stream();
-            println!("{} ", block_stream.to_string());
-            let i = 0;
-            for stmt in block.elems {
-                println!("stmts {}", stmt.to_token_stream().to_string());
-                /*let stmt: TokenStream = stmt.into();
-                if i == 0 {
-                    tree.append(syn::parse_macro_input!(stmt as FirstChild).tree.into())
-                } else {
-                    tree.append(syn::parse_macro_input!(stmt as NthChild).tree.into())
-                }*/
-            }
-        } else {
-            panic!("not Expr Array");
-        }*/
-        Ok(FirstChild { tree })
+        Ok(FirstChild { tree: TokenStream2::new() })
     }
 }
