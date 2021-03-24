@@ -53,7 +53,9 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let node = cont.clone();
     c! {
         View [
-            View {}
+            View [
+                Button
+            ]
         ]
     };
 }

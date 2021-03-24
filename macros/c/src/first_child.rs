@@ -17,7 +17,7 @@ impl Parse for FirstChild {
     fn parse(input: ParseStream) -> Result<Self> {
         //not mandatory to have a bracket or component inside the macro. macro can be empty
         if let Ok(name) = input.parse::<Ident>() {
-            let mut tree = if let Ok(block) = input.parse::<Block>() {
+            let mut tree: TokenStream2 = if let Ok(block) = input.parse::<Block>() {
                 quote! { n!(#name init_child #block); }
             } else {
                 quote! { n!(#name init_child {}); }
@@ -26,10 +26,9 @@ impl Parse for FirstChild {
                 //check for first block
                 match group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
-                        let content = brackets.content;
-                        let name: Ident = content.parse()?;
-                        let block: Block = content.parse()?;
-                        tree = quote! {#tree n!(#name init_child #block); }
+                        let content = FirstChild::parse(&brackets.content).unwrap();
+                        let content_tree = content.tree;
+                        tree = quote! { #tree #content_tree};
                     }
                     syn::__private::Err(error) => {}
                 }
