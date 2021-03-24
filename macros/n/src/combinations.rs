@@ -32,7 +32,7 @@ impl Parse for Combinations {
                                         let closure_body = closure.body;
                                         static_exprs.push(quote! {{
                                              let container_clone = Rc::clone(&container);
-                                             let state_clone = Rc::clone(&state);
+                                             let state_clone = Rc::clone(&top_state);
                                              node.widget.#left(move |_| {
                                                  let state = state_clone.clone();
                                                  {

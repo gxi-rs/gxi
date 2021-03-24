@@ -32,7 +32,7 @@ struct MyAppState {
     count: i32,
 }
 
-fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+fn render(container: AsyncNode, top_state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
     c!(
@@ -40,7 +40,7 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             View [
                 {
                     println!("I am running");
-                    c!(# Button { set_label = "2";});
+                    c!(# Button { set_label = "2"; connect_clicked = || state.count += 1; });
                 }
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
             ]

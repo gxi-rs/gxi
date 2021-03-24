@@ -45,7 +45,7 @@ pub fn n(item: TokenStream) -> TokenStream {
     let pure_state_reference = if is_pure {
         TokenStream2::new()
     } else {
-        quote! { let state = state.as_ref().borrow(); }
+        quote! { let state = top_state.as_ref().borrow(); }
     };
     (quote! {
         let node = {
