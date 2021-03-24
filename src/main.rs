@@ -38,10 +38,12 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     c!(
         View [
             View [
+                {
+                    println!("I am running");
+                }
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
                 View [
                     Button { set_label = "Hello"; connect_clicked = || println!("Hello"); },
-                    Button { set_label = "World"; connect_clicked = || println!("World"); },
                     View { set_orientation = Orientation::Vertical; } [
                         Button { set_label = "1"; connect_clicked = || state.count += 1; },
                         Button { set_label = "3"; connect_clicked = || state.count += 3; }

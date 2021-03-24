@@ -14,18 +14,31 @@ pub struct CParser {
 
 impl CParser {
     fn custom_parse(input: ParseStream, init_type: InitType) -> Result<Self> {
+        if let Ok(block) = input.parse::<Block>() {
+            let content = CParser::custom_parse(&input, InitType::Sibling).unwrap();
+            let content_tree = content.tree;
+            return Ok(CParser {
+                tree: quote! {
+                let node = {
+                    let pure = {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let cont = Rc::clone(&cont);
+                        node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone())), false).0
+                    };
+                    let cont = node.clone();
+                    let state = state.as_ref().borrow();
+                    { #block }
+                    pure
+                };
+                #content_tree
+            }});
+        }
         //not mandatory to have a bracket or component inside the macro. macro can be empty
         if let Ok(name) = input.parse::<Ident>() {
+            //check for block
             let mut tree = {
-                let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream()} else { (quote!{{}}).into() };
-                match init_type {
-                    InitType::Child => {
-                        quote! { n!(#name init_child #block); }
-                    }
-                    InitType::Sibling => {
-                        quote! { n!(#name init_sibling #block); }
-                    }
-                }
+                let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream() } else { (quote! {{}}).into() };
+                if let InitType::Child = init_type { quote! { n!(#name init_child #block); } } else { quote! { n!(#name init_sibling #block); } }
             };
             {
                 //check for first block

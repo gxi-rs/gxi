@@ -1,11 +1,12 @@
 [package]
-name = "rust_gui"
+name = "p"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
+[lib]
+proc-macro = true
+
 [dependencies]
-gtk = "0.9.2"
-c = { path = "macros/c" }
-n = { path = "macros/n" }
-p = { path = "macros/p" }
+syn = { version = "", features = ["full"] }
+quote = "1.0.9"
