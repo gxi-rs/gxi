@@ -1,62 +1,40 @@
-use proc_macro::TokenStream;
+/*!
+[n!](macro.n.html) macro expands given widget to correct method calls.
+
+It is adviced not to use it directly, use [c!](../c/macro.c.html) macro instead.
+*Example*
+```
+ use std::cell::RefCell;
+ use std::rc::Rc;
+ use n::n;
+ use gtk::{ButtonExt, WidgetExt};
+
+ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
+     //these 2 lines are mandatory
+     let cont = Rc::clone(&container);
+     let node = cont.clone();
+     //init_child for first child, init_sibling for other children
+     n!(View init_child { set_property_width_request = 300 ; });
+     {//make sure to use brackets in order to separate hierarchy
+         let cont = node.clone(); //this is important
+         n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+         n!(Button init_sibling { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+         n!(View init_sibling {});
+         {
+             let cont = node.clone();
+             n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
+         }
+     }
+ }
+```
+!*/
 
 use quote::quote;
-use syn::{Block, Error, Expr, Ident, Stmt};
-use syn::__private::TokenStream2;
-use syn::parse::{Parse, ParseStream};
 
-struct Combinations {
-    name: Ident,
-    init_type: Ident,
-    static_exprs: Vec<TokenStream2>,
-    dynamic_exprs: Vec<TokenStream2>,
-}
+use crate::combinations::Combinations;
+use proc_macro::TokenStream;
 
-impl Parse for Combinations {
-    fn parse(input: ParseStream) -> Result<Self, Error> {
-        let name = input.parse()?;
-        let init_type = input.parse()?;
-        let mut static_exprs = vec![];
-        let mut dynamic_exprs = vec![];
-        {
-            let block: Block = input.parse()?;
-            for x in block.stmts {
-                match x {
-                    Stmt::Semi(s, _) => {
-                        match s {
-                            Expr::Assign(e) => {
-                                let left = e.left;
-                                let right = e.right;
-                                match *right {
-                                    Expr::Closure(closure) => {
-                                        let closure_body = closure.body;
-                                        static_exprs.push(quote! {{
-                                             let container_clone = Rc::clone(&container);
-                                             let state_clone = Rc::clone(&state);
-                                             node.widget.#left(move |_| {
-                                                 let state = state_clone.clone();
-                                                 {
-                                                     let mut state = state.as_ref().borrow_mut();
-                                                     #closure_body
-                                                 }
-                                                 render(container_clone.clone(), state.clone());
-                                             });
-                                        }});
-                                    }
-                                    Expr::Lit(literal) => static_exprs.push(quote! { node.widget.#left(#literal); }),
-                                    _ => dynamic_exprs.push(quote! { node.widget.#left(#right); })
-                                }
-                            }
-                            _ => panic!("expected an Assignment Expression")
-                        }
-                    }
-                    _ => { panic!("expected an Expression") }
-                }
-            }
-        }
-        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type })
-    }
-}
+mod combinations;
 
 #[proc_macro]
 pub fn n(item: TokenStream) -> TokenStream {
@@ -82,3 +60,4 @@ pub fn n(item: TokenStream) -> TokenStream {
         };
     }).into()
 }
+

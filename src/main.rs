@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use c::c;
-use gtk::{ButtonExt, WidgetExt, WindowType, OrientableExt, Orientation};
+use gtk::{ButtonExt, OrientableExt, Orientation, WidgetExt, WindowType};
 use n::n;
 
 use crate::nodes::*;
@@ -31,22 +31,6 @@ fn main() {
 struct MyAppState {
     count: i32,
 }
-
-/*fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
-    let cont = Rc::clone(&container);
-    let node = cont.clone();
-    n!(View init_child { set_property_width_request = 300 ; });
-    {
-        let cont = node.clone();
-        n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
-        n!(Button init_sibling { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
-        n!(View init_sibling {});
-        {
-            let cont = node.clone();
-            n!(Button init_child { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; });
-        }
-    }
-}*/
 
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
