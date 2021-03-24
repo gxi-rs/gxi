@@ -6,7 +6,7 @@ use syn::parse::{Parse, ParseStream};
 enum InitType {
     Child,
     Sibling,
-    Pure,
+    Pure(u32),
 }
 
 pub struct CParser {
@@ -42,7 +42,7 @@ impl CParser {
                 match init_type {
                     InitType::Child => (quote! { n!(#name init_child #block); }),
                     InitType::Sibling => (quote! { n!(#name init_sibling #block); }),
-                    InitType::Pure => quote! { n!(# #name init_child #block); }
+                    InitType::Pure(i) => quote! { n!(#i #name init_child #block); }
                 }
             };
             {
@@ -75,8 +75,15 @@ impl Parse for CParser {
     fn parse(input: ParseStream) -> Result<Self> {
         //check for # which donates a pure child
         //it can only be used at the starting of macro call
-        if input.parse::<syn::token::Pound>().is_ok() {
-            return CParser::custom_parse(input, InitType::Pure);
+        if let Ok(i) = input.parse::<syn::Lit>() {
+            if let Lit::Int(i) = i {
+                let i = i.base10_parse().unwrap();
+                if i > 0 {
+                    return CParser::custom_parse(input, InitType::Pure(i));
+                }
+                panic!("Expected an u32 greater than 1")
+            }
+            panic!("Expected an u32")
         }
         CParser::custom_parse(input, InitType::Child)
     }

@@ -39,9 +39,12 @@ fn render(container: AsyncNode, top_state: Rc<RefCell<MyAppState>>) {
         View [
             View [
                 {
-                    println!("I am running");
-                    if state.count == 3 {
-                        c!(# Button { set_label = "2"; connect_clicked = || state.count += 1; });
+                    if state.count % 2 == 0 {
+                        println!("even");
+                        c!(1 Button { set_label = "2"; connect_clicked = || state.count += 1; });
+                    } else {
+                        println!("odd");
+                        c!(2 View);
                     }
                 }
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }

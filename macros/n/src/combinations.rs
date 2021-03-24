@@ -8,12 +8,16 @@ pub struct Combinations {
     pub init_type: Ident,
     pub static_exprs: Vec<TokenStream2>,
     pub dynamic_exprs: Vec<TokenStream2>,
-    pub is_pure: bool
+    pub pure_index: u32,
 }
 
 impl Parse for Combinations {
     fn parse(input: ParseStream) -> Result<Self, Error> {
-        let is_pure = input.parse::<syn::token::Pound>().is_ok();
+        let pure_index:u32 = if let Ok(i) = input.parse::<syn::Lit>() {
+            if let syn::Lit::Int(i) = i {
+                i.base10_parse().unwrap()
+            } else { panic!("Expected an u32") }
+        } else { 0 };
         let name = input.parse()?;
         let init_type = input.parse()?;
         let mut static_exprs = vec![];
@@ -54,6 +58,6 @@ impl Parse for Combinations {
                 }
             }
         }
-        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type, is_pure })
+        Ok(Combinations { name, static_exprs, dynamic_exprs, init_type, pure_index })
     }
 }
