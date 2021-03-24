@@ -40,10 +40,8 @@ fn render(container: AsyncNode, top_state: Rc<RefCell<MyAppState>>) {
             View [
                 {
                     if state.count % 2 == 0 {
-                        println!("even");
-                        c!(1 Button { set_label = "2"; connect_clicked = || state.count += 1; });
+                        c!(1 Button { set_label = "even"; connect_clicked = || state.count += 1; });
                     } else {
-                        println!("odd");
                         c!(2 View);
                     }
                 }

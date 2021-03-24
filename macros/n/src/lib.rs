@@ -48,7 +48,8 @@ pub fn n(item: TokenStream) -> TokenStream {
             if pure.current_index != #pure_index {
                 if pure.child.is_some() {
                     let child = pure.child.as_ref().unwrap();
-                    pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget())
+                    pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
+                    pure.child = None;
                 }
                 pure.current_index = #pure_index;
             }
