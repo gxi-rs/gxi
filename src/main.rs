@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use c::c;
-use gtk::{ButtonExt, OrientableExt, Orientation, WidgetExt, WindowType};
+use gtk::{ButtonExt, ContainerExt, OrientableExt, Orientation, WidgetExt, WindowType};
 use n::n;
 
 use crate::nodes::*;
@@ -40,7 +40,9 @@ fn render(container: AsyncNode, top_state: Rc<RefCell<MyAppState>>) {
             View [
                 {
                     println!("I am running");
-                    c!(# Button { set_label = "2"; connect_clicked = || state.count += 1; });
+                    if state.count == 3 {
+                        c!(# Button { set_label = "2"; connect_clicked = || state.count += 1; });
+                    }
                 }
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
             ]

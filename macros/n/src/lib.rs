@@ -32,9 +32,9 @@ It is adviced not to use it directly, use [c!](../c/macro.c.html) macro instead.
 use proc_macro::TokenStream;
 
 use quote::quote;
+use syn::__private::TokenStream2;
 
 use crate::combinations::Combinations;
-use syn::__private::TokenStream2;
 
 mod combinations;
 
@@ -42,15 +42,26 @@ mod combinations;
 pub fn n(item: TokenStream) -> TokenStream {
     let Combinations { name, static_exprs, dynamic_exprs, init_type, is_pure } = syn::parse_macro_input!(item as Combinations);
 
-    let pure_state_reference = if is_pure {
-        TokenStream2::new()
+    let (pure_state_reference, pure_remove_block) = if is_pure {
+        (TokenStream2::new(), quote! {
+            let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+            if pure.current_index != 1 {
+                if pure.child.is_some() {
+                    let child = pure.child.as_ref().unwrap();
+                    pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget())
+                }
+                pure.current_index = 1;
+            }
+         })
     } else {
-        quote! { let state = top_state.as_ref().borrow(); }
+        (quote! { let state = top_state.as_ref().borrow(); }, TokenStream2::new())
     };
+
     (quote! {
         let node = {
             let (node, is_new) = {
                 let mut node_borrow = node.as_ref().borrow_mut();
+                { #pure_remove_block }
                 let cont = Rc::clone(&cont);
                 node_borrow.#init_type(Box::new(move || #name::new(cont.clone())), true)
             };
