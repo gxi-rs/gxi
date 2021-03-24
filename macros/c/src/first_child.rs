@@ -23,12 +23,14 @@ impl Parse for FirstChild {
         //children are optional
         {
             //check for first block
-            let content;
-            bracketed!(content in input);
-            {
-                let name: Ident = content.parse()?;
-                let block: Block = content.parse()?;
-                tree = quote! {#tree n!(#name init_child #block); }
+            match group::parse_brackets(&input) {
+                syn::__private::Ok(brackets) => {
+                    let content = brackets.content;
+                    let name: Ident = content.parse()?;
+                    let block: Block = content.parse()?;
+                    tree = quote! {#tree n!(#name init_child #block); }
+                }
+                syn::__private::Err(error) => {}
             }
         }
         /*if let Ok(block) = input.parse::<ExprArray>() {
