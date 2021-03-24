@@ -31,6 +31,7 @@ fn main() {
 struct MyAppState {
     count: i32,
 }
+//TODO: impl looping
 
 fn render(container: AsyncNode, top_state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
