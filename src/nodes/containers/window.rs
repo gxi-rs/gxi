@@ -17,7 +17,7 @@ impl Node for Window {
     impl_node_trait_init_child!();
 
     fn init_sibling(&mut self, _f: Box<dyn Fn() -> AsyncNode>, _add_widget: bool) -> (AsyncNode, bool) {
-        panic!("Window can't have a sibling");
+        panic!("Window can't have a sibling node");
     }
 }
 
