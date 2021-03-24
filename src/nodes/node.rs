@@ -11,14 +11,10 @@ pub trait Node {
     fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> { unimplemented!() }
     fn init_child(
         &mut self, _f: Box<dyn Fn() -> AsyncNode>, _add_widget: bool,
-    ) -> (AsyncNode, bool) {
-        unimplemented!()
-    }
+    ) -> (AsyncNode, bool);
     fn init_sibling(
         &mut self, _f: Box<dyn Fn() -> AsyncNode>, _add_widget: bool,
-    ) -> (AsyncNode, bool) {
-        unimplemented!()
-    }
+    ) -> (AsyncNode, bool);
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn get_widget(&self) -> gtk::Widget;
