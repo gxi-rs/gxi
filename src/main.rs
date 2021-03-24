@@ -40,6 +40,8 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
             View [
                 {
                     println!("I am running");
+                    if state.
+                    c!(Button { set_label = "2"; connect_clicked = || state.count += 2; });
                 }
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
                 View [

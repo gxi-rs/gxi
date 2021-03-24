@@ -20,18 +20,18 @@ impl CParser {
             return Ok(CParser {
                 tree: quote! {
                 let node = {
-                    let pure = {
+                    let (node , cont) = {
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let cont = Rc::clone(&cont);
-                        node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone())), false).0
+                        (node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone())), false).0, node.clone())
                     };
-                    let cont = node.clone();
                     let state = state.as_ref().borrow();
                     { #block }
-                    pure
+                    node
                 };
                 #content_tree
-            }});
+            }
+            });
         }
         //not mandatory to have a bracket or component inside the macro. macro can be empty
         if let Ok(name) = input.parse::<Ident>() {
