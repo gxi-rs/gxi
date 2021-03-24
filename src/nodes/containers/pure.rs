@@ -21,7 +21,6 @@ impl Node for Pure {
     fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool) -> (AsyncNode, bool) {
         match self.child {
             None => {
-                println!("yes {} ", add_widget);
                 let child = self.child.get_or_insert_with(|| f());
                 if add_widget {
                     let child_borrow = child.as_ref().borrow();
