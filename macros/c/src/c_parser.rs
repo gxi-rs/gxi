@@ -16,22 +16,14 @@ impl CParser {
     fn custom_parse(input: ParseStream, init_type: InitType) -> Result<Self> {
         //not mandatory to have a bracket or component inside the macro. macro can be empty
         if let Ok(name) = input.parse::<Ident>() {
-            let mut tree: TokenStream2 = if let Ok(block) = input.parse::<Block>() {
+            let mut tree = {
+                let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream()} else { (quote!{{}}).into() };
                 match init_type {
                     InitType::Child => {
                         quote! { n!(#name init_child #block); }
                     }
                     InitType::Sibling => {
                         quote! { n!(#name init_sibling #block); }
-                    }
-                }
-            } else {
-                match init_type {
-                    InitType::Child => {
-                        quote! { n!(#name init_child {}); }
-                    }
-                    InitType::Sibling => {
-                        quote! { n!(#name init_sibling {}); }
                     }
                 }
             };
