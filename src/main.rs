@@ -130,7 +130,7 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         };
     }*/
 
-    c! {
+    c!(
         View [
             View [
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
@@ -139,16 +139,16 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
                     Button { set_label = "World"; connect_clicked = || state.count += 1; },
                     View [
                         Button { set_label = "1"; connect_clicked = || state.count += 1; },
-                        Button { set_label = "2"; connect_clicked = || state.count += 2; },
+                        Button { set_label = "2"; connect_clicked = || state.count += 2; }
                     ],
                     View [
                         Button { set_label = "3"; connect_clicked = || state.count += 3; },
-                        Button { set_label = "4"; connect_clicked = || state.count += 4; },
+                        Button { set_label = "4"; connect_clicked = || state.count += 4; }
                     ]
                 ]
             ]
         ]
-    };
+    );
 }
 
 
