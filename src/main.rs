@@ -2,10 +2,10 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use c::c;
-use gtk::{ButtonExt, WidgetExt, WindowType};
+use gtk::{ButtonExt, WidgetExt, WindowType, OrientableExt, Orientation};
 use n::n;
 
-use crate::nodes::{*};
+use crate::nodes::*;
 
 mod nodes;
 
@@ -51,20 +51,19 @@ struct MyAppState {
 fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     let cont = Rc::clone(&container);
     let node = cont.clone();
-    
     c!(
         View [
             View [
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
                 View [
-                    Button { set_label = "Hello"; connect_clicked = || state.count += 1; },
-                    Button { set_label = "World"; connect_clicked = || state.count += 1; },
-                    View [
+                    Button { set_label = "Hello"; connect_clicked = || println!("Hello"); },
+                    Button { set_label = "World"; connect_clicked = || println!("World"); },
+                    View { set_orientation = Orientation::Vertical; } [
                         Button { set_label = "1"; connect_clicked = || state.count += 1; },
-                        Button { set_label = "2"; connect_clicked = || state.count += 2; }
+                        Button { set_label = "3"; connect_clicked = || state.count += 3; }
                     ],
-                    View [
-                        Button { set_label = "3"; connect_clicked = || state.count += 3; },
+                    View { set_orientation = Orientation::Vertical; } [
+                        Button { set_label = "2"; connect_clicked = || state.count += 2; },
                         Button { set_label = "4"; connect_clicked = || state.count += 4; }
                     ]
                 ]
@@ -72,7 +71,6 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
         ]
     );
 }
-
 
 /*
 fn render(top_container: AsyncNode, state: Rc<RefCell<MyAppState>>) {

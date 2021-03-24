@@ -24,7 +24,7 @@ impl Parse for FirstChild {
                     syn::__private::Ok(brackets) => {
                         let content = FirstChild::parse(&brackets.content).unwrap();
                         let content_tree = content.tree;
-                        tree = quote! { #tree {  let cont = node.clone(); #content_tree }};
+                        tree = quote! { #tree {  let cont = node.clone(); #content_tree } };
                     }
                     syn::__private::Err(_error) => {}
                 }
