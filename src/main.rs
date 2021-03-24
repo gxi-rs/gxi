@@ -54,7 +54,7 @@ fn render(container: AsyncNode, state: Rc<RefCell<MyAppState>>) {
     c! {
         View [
             View [
-                Button
+                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
             ]
         ]
     };
