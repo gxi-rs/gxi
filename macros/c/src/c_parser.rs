@@ -18,6 +18,10 @@ impl CParser {
         if let Ok(block) = input.parse::<Block>() {
             let content = CParser::custom_parse(&input, InitType::Sibling).unwrap();
             let content_tree = content.tree;
+            let init_type = match init_type {
+                InitType::Child => (quote! {init_child}),
+                _ => (quote! {init_sibling})
+            };
             return Ok(CParser {
                 tree: quote! {
                 let node = {
@@ -25,8 +29,9 @@ impl CParser {
                         let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let cont = Rc::clone(&cont);
-                        node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                        node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
                     };
+                    let cont = node.clone();
                     let mut state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                     #block

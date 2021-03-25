@@ -46,8 +46,7 @@ pub fn n(item: TokenStream) -> TokenStream {
         (TokenStream2::new(), quote! {
             let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
             if pure.current_index != #pure_index {
-                if pure.child.is_some() {
-                    let child = pure.child.as_ref().unwrap();
+                if let Some(child) = pure.child.as_ref() {
                     pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
                     pure.child = None;
                 }
