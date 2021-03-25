@@ -32,10 +32,10 @@ impl Node for MyApp {
         let node = cont.clone();
         c!(
             View [
-                    Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                    View [
-                        HelloWorld,
-                    ]
+                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
+                View [
+                    HelloWorld,
+                ]
             ]
         );
     }
