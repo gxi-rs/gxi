@@ -36,8 +36,10 @@ impl Node for MyApp {
                 forr! ( x in 0..state.count {
                     n! (Button init_sibling { set_label= &x.to_string();});
                 });
+                forr! ( x in 0..2 {
+                    n! (Button init_sibling { set_label= "asd";});
+                });
             }
-
         ]);
     }
 }
