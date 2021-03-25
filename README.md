@@ -1,24 +1,24 @@
 # RustGUI
 
-Cross-Platform Native Widget based Component System in Rust
+CrossPlatform Native Widget based Component System in rust
 
 This project targets cross platform GUI app development with react like function component and state management.
 Built in procedural macros to help devs write minimum code.
 
-*Example*
+*Examples*
 ```rust
 c!(
-    View [
-        View [
-            Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-        ]
+    View {
         {
             if state.count % 2 == 0 {
                 c! ( 1 Button { set_label="Eve"; } );
             } else {
-                c! ( 2 Button { set_label="Odd"; });
+                c! ( 2 Button {set_label="Odd"; });
             }
         }
+    },
+    View [
+        Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
     ]
 );
 ```
