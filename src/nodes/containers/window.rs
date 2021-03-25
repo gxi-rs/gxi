@@ -21,13 +21,19 @@ impl Node for Window {
     ) -> (AsyncNode, bool) {
         panic!("Window can't have a sibling node");
     }
+
+    fn new(_parent: AsyncNode) -> AsyncNode {
+        unimplemented!();
+    }
+
 }
 
 impl Window {
-    pub fn new(window_type: WindowType) -> AsyncNode {
+    pub fn fake_new() -> AsyncNode{
         Rc::new(RefCell::new(Box::new(Window {
             child: None,
-            widget: gtk::Window::new(window_type),
+            widget: gtk::Window::new(WindowType::Toplevel),
         })))
     }
 }
+

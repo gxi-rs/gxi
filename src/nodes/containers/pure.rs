@@ -44,10 +44,7 @@ impl Node for Pure {
         let parent_borrow = self.parent.as_ref().borrow();
         parent_borrow.get_widget_as_container()
     }
-}
-
-impl Pure {
-    pub fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(parent: AsyncNode) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Pure {
             child: None,
             sibling: None,

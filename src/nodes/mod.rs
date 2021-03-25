@@ -1,4 +1,3 @@
-pub use component::*;
 pub use containers::*;
 pub use node::*;
 pub use widget::*;
@@ -11,4 +10,3 @@ mod containers;
 mod node;
 mod widget;
 mod widgets;
-mod component;

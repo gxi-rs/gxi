@@ -40,7 +40,8 @@ impl Parse for Combinations {
                                              node.widget.#left(move |_| {
                                                  let state = state_clone.clone();
                                                  {
-                                                     let mut state = state.as_ref().borrow_mut();
+                                                     let mut state_borrow = state.as_ref().borrow_mut();
+                                                     let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                                                      #closure_body
                                                  }
                                                  Self::render(container_clone.clone(), state.clone());

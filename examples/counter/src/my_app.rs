@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, Component, gtk::prelude::*};
+use rust_gui::{*, AsyncNode, c, gtk::prelude::*};
 
 pub struct MyApp {
     count: i32,
@@ -42,19 +42,16 @@ impl Node for MyApp {
         let parent_borrow = self.parent.as_ref().borrow();
         parent_borrow.get_widget_as_container()
     }
-}
-
-impl Component for MyApp {
-    fn new(parent: AsyncNode) -> Rc<RefCell<Self>> {
-        Rc::new(RefCell::new(Self {
+    fn new(parent: AsyncNode) -> AsyncNode {
+        Rc::new(RefCell::new(Box::new(Self {
             count: 0,
             child: None,
             sibling: None,
             parent,
-        }))
+        })))
     }
 
-    fn render(container: AsyncNode, top_state: Rc<RefCell<MyApp>>) {
+    fn render(container: AsyncNode, top_state: AsyncNode) {
         let cont = Rc::clone(&container);
         let node = cont.clone();
         c!(
@@ -67,7 +64,8 @@ impl Component for MyApp {
                             c!(2 View);
                         }
                     }
-                    Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; }
+                    Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
+                    MyApp {}
                 ]
             ]
         );

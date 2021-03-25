@@ -55,7 +55,10 @@ pub fn n(item: TokenStream) -> TokenStream {
             }
          })
     } else {
-        (quote! { let state = top_state.as_ref().borrow(); }, TokenStream2::new())
+        (quote! {
+            let mut state_borrow = top_state.as_ref().borrow_mut();
+            let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+        }, TokenStream2::new())
     };
 
     (quote! {

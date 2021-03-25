@@ -19,10 +19,7 @@ impl Node for View {
     impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
     impl_node_trait_get_widget!();
-}
-
-impl View {
-    pub fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(parent: AsyncNode) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(View {
             child: None,
             sibling: None,

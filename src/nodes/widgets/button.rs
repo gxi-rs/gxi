@@ -1,8 +1,10 @@
-use crate::nodes::node::{AsyncNode, Node};
-use gtk::ContainerExt;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use gtk::ContainerExt;
+
+use crate::nodes::node::{AsyncNode, Node};
 
 pub struct Button {
     pub widget: gtk::Button,
@@ -20,10 +22,8 @@ impl Node for Button {
     ) -> (AsyncNode, bool) {
         panic!("Attempt to a add node into Button. Button can't have a child.");
     }
-}
 
-impl Button {
-    pub fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(parent: AsyncNode) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Button {
             widget: gtk::Button::new(),
             sibling: None,

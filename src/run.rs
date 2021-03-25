@@ -1,10 +1,10 @@
-use gtk::{WidgetExt, WindowType};
+use gtk::{WidgetExt};
 
-use crate::{Component, Window};
+use crate::{Window, Node, AsyncNode};
 
-pub fn run<App: Component>() {
+pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window = Window::new(WindowType::Toplevel);
+    let window:AsyncNode = Window::fake_new();
     //render
     {
         let app_state = App::new(window.clone());
