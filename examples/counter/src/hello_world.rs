@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, gtk::prelude::*};
+use rust_gui::{c, gtk::prelude::*, AsyncNode, *};
 
 pub struct HelloWorld {
     pub child: Option<AsyncNode>,

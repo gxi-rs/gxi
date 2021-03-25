@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
+use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
 
 use crate::hello_world::HelloWorld;
 
