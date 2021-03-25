@@ -68,7 +68,7 @@ pub fn n(item: TokenStream) -> TokenStream {
                 { #pure_remove_block }
                 let cont = Rc::clone(&cont);
                 let widget = Some(node_borrow.get_widget_as_container());
-                node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), true)
+                node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), if let NodeType::Widget = #name::get_type() { true } else { false })
             };
             {
                 let mut node_borrow = node.as_ref().borrow_mut();

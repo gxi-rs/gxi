@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use gtk::{ContainerExt, WidgetExt};
 
-use crate::nodes::node::{AsyncNode, Node};
+use crate::nodes::node::{AsyncNode, Node, NodeType};
 
 pub struct Pure {
     pub child: Option<AsyncNode>,
@@ -15,7 +15,7 @@ pub struct Pure {
 }
 
 impl Node for Pure {
-    impl_node_container!();
+    impl_node_component!();
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Pure {
             current_index: 0,

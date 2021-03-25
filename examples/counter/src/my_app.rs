@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, gtk::prelude::*};
+use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
 
 use crate::hello_world::HelloWorld;
 
@@ -15,9 +15,9 @@ pub struct MyApp {
 }
 
 impl Node for MyApp {
-    impl_node_container!();
+    impl_node_component!();
 
-    fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode  {
+    fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
             count: 0,
             child: None,
@@ -28,26 +28,14 @@ impl Node for MyApp {
     }
 
     fn render(top_state: AsyncNode) {
-        let container = {
-            let borrow = top_state.as_ref().borrow();
-            let state = borrow.as_any().downcast_ref::<Self>().unwrap();
-            state.parent.clone()
-        };
-        let cont = Rc::clone(&container);
+        let cont = Rc::clone(&top_state);
         let node = cont.clone();
         c!(
             View [
-                View [
-                    {
-                        if state.count % 2 == 0 {
-                            c!(1 Button { set_label = "even"; connect_clicked = || state.count += 1; });
-                        } else {
-                            c!(2 View);
-                        }
-                    }
                     Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                    HelloWorld,
-                ]
+                    View [
+                        HelloWorld,
+                    ]
             ]
         );
     }

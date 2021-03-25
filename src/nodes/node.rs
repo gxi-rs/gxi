@@ -4,6 +4,11 @@ use std::rc::Rc;
 
 pub type AsyncNode = Rc<RefCell<Box<dyn Node>>>;
 
+pub enum NodeType {
+    Widget,
+    Component,
+}
+
 pub trait Node {
     fn get_child(&self) -> &Option<AsyncNode> { unimplemented!() }
     fn get_child_mut(&mut self) -> &mut Option<AsyncNode> { unimplemented!() }
@@ -20,6 +25,7 @@ pub trait Node {
     fn get_widget(&self) -> gtk::Widget;
     fn get_widget_as_container(&self) -> gtk::Container;
     fn get_parent(&self) -> AsyncNode;
+    fn get_type() -> NodeType where Self: Sized { NodeType::Widget }
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode where Self: Sized;
     fn render(_top_state: AsyncNode) where Self: Sized {}
 }

@@ -12,7 +12,7 @@ pub struct HelloWorld {
 }
 
 impl Node for HelloWorld {
-    impl_node_container!();
+    impl_node_component!();
 
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
@@ -24,12 +24,7 @@ impl Node for HelloWorld {
     }
 
     fn render(top_state: AsyncNode) {
-        let container = {
-            let borrow = top_state.as_ref().borrow();
-            let state = borrow.as_any().downcast_ref::<Self>().unwrap();
-            state.parent.clone()
-        };
-        let cont = Rc::clone(&container);
+        let cont = Rc::clone(&top_state);
         let node = cont.clone();
         c!(
             Button { set_label = "Hello World"; }

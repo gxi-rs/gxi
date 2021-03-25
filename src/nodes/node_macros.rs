@@ -82,7 +82,7 @@ macro_rules! impl_node_trait_get_child {
 }
 
 #[macro_export]
-macro_rules! impl_node_container {
+macro_rules! impl_node_component {
     () => {
         impl_node_trait!();
         impl_node_trait_get_child!();
@@ -102,6 +102,8 @@ macro_rules! impl_node_container {
                 _ => (self.child.as_ref().unwrap().clone(), false),
             }
         }
+
+        fn get_type() -> NodeType { NodeType::Component }
 
         fn get_widget(&self) -> gtk::Widget {
             let widget: &gtk::Widget = self.widget.as_ref();
