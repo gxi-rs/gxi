@@ -7,6 +7,7 @@ use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
 use crate::odd_eve::OddEve;
 
 pub struct MyApp {
+    count: u32,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
@@ -18,6 +19,7 @@ impl Node for MyApp {
 
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
+            count: 5,
             child: None,
             sibling: None,
             parent,
@@ -28,15 +30,22 @@ impl Node for MyApp {
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
-        c!(
-            View [
-                {
-                    forr! ( x in 0..10 {
-                        println!("{}",x);
-                        n! (Button init_sibling { set_label="Hello";});
-                    });
+        c!( View [
+            Button { set_label = "click"; connect_clicked = || state.count += 1; },
+            {
+                forr! ( x in 0..state.count {
+                    println!("{}",x);
+                    n! (Button init_sibling { set_label= &x.to_string();});
+                });
+            }
+            View,
+            {
+                if state.count % 2 == 0 {
+                    c!(Button { set_label= "Even";});
+                }else {
+                    c!(Button { set_label= "Odd";});
                 }
-            ]
-        );
+            }
+        ]);
     }
 }
