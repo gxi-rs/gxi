@@ -34,17 +34,10 @@ impl Node for MyApp {
             Button { set_label = "click"; connect_clicked = || state.count += 1; },
             {
                 forr! ( x in 0..state.count {
-                    println!("{}",x);
                     n! (Button init_sibling { set_label= &x.to_string();});
                 });
             }
-            {
-                if state.count % 2 == 0 {
-                    c!(1 Button { set_label= "Even";});
-                } else {
-                    c!(2 Button { set_label= "Odd";});
-                }
-            }
+
         ]);
     }
 }

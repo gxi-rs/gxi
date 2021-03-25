@@ -3,7 +3,7 @@ use std::cell::RefCell;
 
 use std::rc::Rc;
 
-use gtk::{ContainerExt, Orientation};
+use gtk::{prelude::*,Orientation};
 
 use crate::nodes::node::{AsyncNode, Node};
 
