@@ -1,6 +1,4 @@
 use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
 
 use gtk::{Container, Widget};
 
@@ -42,7 +40,7 @@ impl Node for () {
         panic!(PANIC_MSG)
     }
 
-    fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(_parent: AsyncNode) -> AsyncNode {
         panic!(PANIC_MSG)
     }
 }
