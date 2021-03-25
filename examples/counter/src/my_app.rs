@@ -11,22 +11,28 @@ pub struct MyApp {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
+    pub widget: gtk::Container,
 }
 
 impl Node for MyApp {
     impl_node_container!();
 
-    fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode  {
         Rc::new(RefCell::new(Box::new(Self {
             count: 0,
             child: None,
             sibling: None,
             parent,
+            widget: widget.unwrap(),
         })))
     }
 
     fn render(top_state: AsyncNode) {
-        let container = top_state.as_ref().borrow().as_any().downcast_ref::<Self>().unwrap().parent.clone();
+        let container = {
+            let borrow = top_state.as_ref().borrow();
+            let state = borrow.as_any().downcast_ref::<Self>().unwrap();
+            state.parent.clone()
+        };
         let cont = Rc::clone(&container);
         let node = cont.clone();
         c!(
@@ -40,7 +46,7 @@ impl Node for MyApp {
                         }
                     }
                     Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                    HelloWorld
+                    HelloWorld,
                 ]
             ]
         );

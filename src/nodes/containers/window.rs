@@ -18,12 +18,12 @@ impl Node for Window {
     impl_node_trait_init_child!();
 
     fn init_sibling(
-        &mut self, _f: Box<dyn Fn() -> AsyncNode>, _add_widget: bool,
+        &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _add_widget: bool,
     ) -> (AsyncNode, bool) {
         panic!("Window can't have a sibling node");
     }
 
-    fn new(parent: AsyncNode) -> AsyncNode {
+    fn new(parent: AsyncNode, _widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Window {
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),

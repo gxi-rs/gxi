@@ -28,7 +28,7 @@ macro_rules! impl_node_trait_get_widget {
 macro_rules! impl_node_trait_init_sibling {
     () => {
         fn init_sibling(
-            &mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool,
+            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, add_widget: bool,
         ) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
@@ -54,7 +54,7 @@ macro_rules! impl_node_trait_init_sibling {
 macro_rules! impl_node_trait_init_child {
     () => {
         fn init_child(
-            &mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool,
+            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, add_widget: bool,
         ) -> (AsyncNode, bool) {
             match self.child {
                 None => {
@@ -84,35 +84,32 @@ macro_rules! impl_node_trait_get_child {
 #[macro_export]
 macro_rules! impl_node_container {
     () => {
-    impl_node_trait!();
-    impl_node_trait_get_child!();
-    impl_node_trait_init_sibling!();
+        impl_node_trait!();
+        impl_node_trait_get_child!();
+        impl_node_trait_init_sibling!();
 
-    fn init_child(&mut self, f: Box<dyn Fn() -> AsyncNode>, add_widget: bool) -> (AsyncNode, bool) {
-        match self.child {
-            None => {
-                let child = self.child.get_or_insert_with(|| f());
-                if add_widget {
-                    let child_borrow = child.as_ref().borrow();
-                    let parent_borrow = self.parent.as_ref().borrow();
-                    let container = parent_borrow.get_widget_as_container();
-                    container.add(&child_borrow.get_widget());
-                    container.show_all();
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, add_widget: bool) -> (AsyncNode, bool) {
+            match self.child {
+                None => {
+                    let child = self.child.get_or_insert_with(|| f());
+                    if add_widget {
+                        let child_borrow = child.as_ref().borrow();
+                        self.widget.add(&child_borrow.get_widget());
+                        self.widget.show_all();
+                    }
+                    (child.clone(), true)
                 }
-                (child.clone(), true)
+                _ => (self.child.as_ref().unwrap().clone(), false),
             }
-            _ => (self.child.as_ref().unwrap().clone(), false),
         }
-    }
 
-    fn get_widget(&self) -> gtk::Widget {
-        let parent_borrow = self.parent.as_ref().borrow();
-        parent_borrow.get_widget()
-    }
+        fn get_widget(&self) -> gtk::Widget {
+            let widget: &gtk::Widget = self.widget.as_ref();
+            widget.clone()
+        }
 
-    fn get_widget_as_container(&self) -> gtk::Container {
-        let parent_borrow = self.parent.as_ref().borrow();
-        parent_borrow.get_widget_as_container()
-    }
+        fn get_widget_as_container(&self) -> gtk::Container {
+            self.widget.clone()
+        }
     };
 }

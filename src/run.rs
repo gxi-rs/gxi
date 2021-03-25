@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -7,9 +8,12 @@ use crate::{AsyncNode, Node, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window: AsyncNode = Window::new(Rc::new(RefCell::new(Box::new(()))));
+    let window: AsyncNode = Window::new(Rc::new(RefCell::new(Box::new(()))), None);
     //render
-    App::render(App::new(window.clone()));
+    {
+        let widget = Some(window.as_ref().borrow().get_widget_as_container());
+        App::render(App::new(window.clone(), widget));
+    }
     //show window
     {
         let mut window_borrow = window.as_ref().borrow_mut();
