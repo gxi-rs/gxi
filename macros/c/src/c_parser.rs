@@ -22,9 +22,9 @@ impl CParser {
                 tree: quote! {
                 let node = {
                     let (node , cont) = {
+                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let cont = Rc::clone(&cont);
-                        let widget = Some(node_borrow.get_widget_as_container());
                         (node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone(),widget)), false).0, node.clone())
                     };
                     let mut state_borrow = top_state.as_ref().borrow_mut();

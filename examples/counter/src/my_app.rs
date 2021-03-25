@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
+use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
 
 use crate::hello_world::HelloWorld;
 
@@ -33,9 +33,14 @@ impl Node for MyApp {
         c!(
             View [
                 Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                View [
-                    HelloWorld,
-                ]
+                {
+                    if state.count % 2 == 0 {
+                        c! {1 Button {set_label="even";}};
+                    }else {
+                        c! {2 Button {set_label="odd";}};
+                    }
+                }
+                HelloWorld,
             ]
         );
     }
