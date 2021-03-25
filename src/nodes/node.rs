@@ -19,6 +19,7 @@ pub trait Node {
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn get_widget(&self) -> gtk::Widget;
     fn get_widget_as_container(&self) -> gtk::Container;
+    fn get_parent(&self) -> AsyncNode;
     fn new(parent: AsyncNode) -> AsyncNode where Self: Sized;
-    fn render( _top_state: AsyncNode) where Self: Sized {}
+    fn render(_top_state: AsyncNode) where Self: Sized {}
 }

@@ -4,6 +4,8 @@ macro_rules! impl_node_trait {
         fn as_any(&self) -> &dyn Any { self }
 
         fn as_any_mut(&mut self) -> &mut dyn Any { self }
+
+        fn get_parent(&self) -> AsyncNode { self.parent.clone() }
     };
 }
 

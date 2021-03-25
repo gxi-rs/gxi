@@ -9,6 +9,7 @@ use crate::nodes::node::{AsyncNode, Node};
 pub struct Window {
     pub child: Option<AsyncNode>,
     pub widget: gtk::Window,
+    pub parent: AsyncNode,
 }
 
 impl Node for Window {
@@ -22,17 +23,11 @@ impl Node for Window {
         panic!("Window can't have a sibling node");
     }
 
-    fn new(_parent: AsyncNode) -> AsyncNode {
-        unimplemented!();
-    }
-
-}
-
-impl Window {
-    pub fn fake_new() -> AsyncNode{
+    fn new(parent: AsyncNode) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Window {
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),
+            parent,
         })))
     }
 }
