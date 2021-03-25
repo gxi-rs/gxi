@@ -51,7 +51,8 @@ impl Node for MyApp {
         })))
     }
 
-    fn render(container: AsyncNode, top_state: AsyncNode) {
+    fn render(top_state: AsyncNode) {
+        let container = top_state.as_ref().borrow().as_any().downcast_ref::<Self>().unwrap().parent.clone();
         let cont = Rc::clone(&container);
         let node = cont.clone();
         c!(
@@ -65,7 +66,6 @@ impl Node for MyApp {
                         }
                     }
                     Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                    MyApp {}
                 ]
             ]
         );

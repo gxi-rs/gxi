@@ -35,7 +35,6 @@ impl Parse for Combinations {
                                     Expr::Closure(closure) => {
                                         let closure_body = closure.body;
                                         static_exprs.push(quote! {{
-                                             let container_clone = Rc::clone(&container);
                                              let state_clone = Rc::clone(&top_state);
                                              node.widget.#left(move |_| {
                                                  let state = state_clone.clone();
@@ -44,7 +43,7 @@ impl Parse for Combinations {
                                                      let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                                                      #closure_body
                                                  }
-                                                 Self::render(container_clone.clone(), state.clone());
+                                                 Self::render(state.clone());
                                              });
                                         }});
                                     }

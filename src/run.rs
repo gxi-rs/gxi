@@ -6,10 +6,7 @@ pub fn run<App: Node>() {
     gtk::init().unwrap();
     let window:AsyncNode = Window::fake_new();
     //render
-    {
-        let app_state = App::new(window.clone());
-        App::render(window.clone(), app_state);
-    }
+    App::render(App::new(window.clone()));
     //show window
     {
         let mut window_borrow = window.as_ref().borrow_mut();

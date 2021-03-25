@@ -78,7 +78,7 @@ pub fn n(item: TokenStream) -> TokenStream {
                 #pure_state_reference
                 #(#dynamic_exprs)*
             }
-            #name::render(cont.clone(),node.clone());
+            #name::render(node.clone());
             node
         };
     }).into()
