@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{AsyncNode, c, Component, gtk::{prelude::*}, n, run, *};
+use rust_gui::{*, AsyncNode, c, Component, gtk::{prelude::*}};
 
 fn main() {
     run::<MyAppState>();
