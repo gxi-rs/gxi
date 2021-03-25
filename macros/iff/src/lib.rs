@@ -1,8 +1,8 @@
 use proc_macro::TokenStream;
 
-use crate::p_parser::PParser;
+use crate::iff_parser::PParser;
 
-mod p_parser;
+mod iff_parser;
 
 #[proc_macro]
 pub fn p(item: TokenStream) -> TokenStream {

@@ -30,7 +30,12 @@ impl Node for MyApp {
         let node = cont.clone();
         c!(
             View [
-                OddEve
+                {
+                    forr! ( x in 0..10 {
+                        println!("{}",x);
+                        n! (Button init_sibling { set_label="Hello";});
+                    });
+                }
             ]
         );
     }
