@@ -33,7 +33,6 @@ impl Node for MyApp {
         c!( View [
             Button { set_label = "click"; connect_clicked = || state.count += 1; },
             {
-                n! (Button init_child { set_label= "Yo";});
                 forr! ( x in 0..state.count {
                     println!("{}",x);
                     n! (Button init_sibling { set_label= &x.to_string();});

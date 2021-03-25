@@ -14,6 +14,7 @@ impl Parse for ForrParser {
         let stmt = input.parse::<Expr>()?;
         let block_stmts = input.parse::<Block>()?.stmts;
         let tree = quote! {{
+            n! (Pure init_child {});
             let mut top_node = node.clone();
             for #var_name #in_ident #stmt {
                 let node = top_node.clone();
