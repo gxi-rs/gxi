@@ -4,10 +4,9 @@ use std::rc::Rc;
 
 use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
 
-use crate::hello_world::HelloWorld;
+use crate::odd_eve::OddEve;
 
 pub struct MyApp {
-    count: i32,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub parent: AsyncNode,
@@ -19,7 +18,6 @@ impl Node for MyApp {
 
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
-            count: 0,
             child: None,
             sibling: None,
             parent,
@@ -32,15 +30,7 @@ impl Node for MyApp {
         let node = cont.clone();
         c!(
             View [
-                Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
-                {
-                    if state.count % 2 == 0 {
-                        c! {1 Button {set_label="even";}};
-                    }else {
-                        c! {2 Button {set_label="odd";}};
-                    }
-                }
-                HelloWorld,
+                OddEve
             ]
         );
     }
