@@ -1,5 +1,5 @@
 fix:
-	cargo fix && fmt
+	cargo +nightly fix && fmt
 
 fmt:
 	cargo +nightly fmt
