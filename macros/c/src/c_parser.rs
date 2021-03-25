@@ -27,8 +27,8 @@ impl CParser {
                         let cont = Rc::clone(&cont);
                         (node_borrow.init_sibling(Box::new(move || Pure::new(cont.clone(),widget)), false).0, node.clone())
                     };
-                    let mut state_borrow = top_state.as_ref().borrow_mut();
-                    let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                    let mut state_borrow = top_state.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                     #block
                     node
                 };

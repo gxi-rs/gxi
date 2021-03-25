@@ -56,8 +56,8 @@ pub fn n(item: TokenStream) -> TokenStream {
          })
     } else {
         (quote! {
-            let mut state_borrow = top_state.as_ref().borrow_mut();
-            let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+            let mut state_borrow = top_state.as_ref().borrow();
+            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
         }, TokenStream2::new())
     };
 
@@ -84,4 +84,3 @@ pub fn n(item: TokenStream) -> TokenStream {
         };
     }).into()
 }
-
