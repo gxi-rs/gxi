@@ -1,17 +1,14 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
-use gtk::{WindowType,WidgetExt};
+use gtk::{WidgetExt, WindowType};
 
 use crate::{Component, Window};
 
-pub fn run<T: Component>() {
+pub fn run<App: Component>() {
     gtk::init().unwrap();
     let window = Window::new(WindowType::Toplevel);
     //render
     {
-        let my_app_state = Rc::new(RefCell::new(T::default()));
-        T::render(window.clone(), my_app_state);
+        let app_state = App::new(window.clone());
+        App::render(window.clone(), app_state);
     }
     //show window
     {
