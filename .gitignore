@@ -1,3 +1,4 @@
 /target
 Cargo.lock
 macros/*/target
+examples/*/target

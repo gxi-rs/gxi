@@ -43,7 +43,7 @@ impl Parse for Combinations {
                                                      let mut state = state.as_ref().borrow_mut();
                                                      #closure_body
                                                  }
-                                                 render(container_clone.clone(), state.clone());
+                                                 Self::render(container_clone.clone(), state.clone());
                                              });
                                         }});
                                     }
