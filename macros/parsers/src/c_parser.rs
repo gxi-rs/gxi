@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::init_type::InitType;
 
@@ -54,9 +54,9 @@ impl CParser {
             let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
                 if let Ok(_) = input.parse::<syn::token::If>() {
                     let tree = iff_recursive(input, pure_index);
-                    quote!(else if #tree)
+                    quote!(else #tree)
                 } else {
-                    let node =  CParser::custom_parse(input, InitType::Pure(pure_index));
+                    let node = CParser::custom_parse(input, InitType::Pure(pure_index));
                     quote!( else { #node } )
                 }
             } else {
