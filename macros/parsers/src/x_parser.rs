@@ -104,6 +104,6 @@ impl Parse for XParser {
             }
             panic!("Expected an u32")
         }
-        XParser::custom_parse(input, InitType::Child)
+        XParser::custom_parse(input, InitType::Sibling)
     }
 }

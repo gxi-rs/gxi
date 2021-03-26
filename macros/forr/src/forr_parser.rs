@@ -16,16 +16,16 @@ impl Parse for ForrParser {
         let tree = quote! {
             c!({
                 let node = {
-                let mut top_node = node.clone();
-                    for #var_name #in_ident #stmt {
-                        let node = top_node.clone();
-                        {
-                            #(#block_stmts)*
-                            top_node = node.clone();
+                    let mut top_node = node.clone();
+                        for #var_name #in_ident #stmt {
+                            let node = top_node.clone();
+                            {
+                                #(#block_stmts)*
+                                top_node = node.clone();
+                            }
                         }
-                    }
-                    top_node
-                };
+                        top_node
+                    };
             });
         };
         Ok(ForrParser { tree })

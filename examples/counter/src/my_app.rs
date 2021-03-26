@@ -27,24 +27,23 @@ impl Node for MyApp {
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
-        c!( View [
-            Button { set_label = "click"; connect_clicked = || state.count += 1; },
-            {
-                if state.count % 2 == 0 {
-                    c! ( 1 Button { set_label="Eve"; } );
-                } else {
-                    c! ( 2 View );
+        c!(
+            View [
+                View [
+                    Button { set_label = "click"; connect_clicked = || state.count += 1; }
+                ],
+                {
+                    if state.count % 2 == 0 {
+                        c! ( 1 Button { set_label="Eve"; } );
+                    } else {
+                        c! ( 2 View );
+                    }
                 }
-            }
-        ]);
+            ]
+        );
     }
 }
 /*
 {
-                forr! ( x in 0..state.count {
-                    n! (Button init_sibling { set_label= &x.to_string();});
-                });
-                forr! ( x in 0..2 {
-                    n! (View init_sibling {});
-                });
+
 }*/
