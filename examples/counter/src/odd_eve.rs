@@ -36,14 +36,6 @@ impl Node for OddEve {
 
 /*
 {
-                if state.count % 2 == 0 {
-                    c! ( 1 Button { set_label="Eve"; } );
-                } else {
-                    c! ( 2 View [
-                        {
-                            c!(Button {set_label="Odd"; });
-                        }
-                    ]);
-                }
+
             }
  */

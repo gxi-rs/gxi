@@ -30,8 +30,16 @@ impl Node for MyApp {
         let node = cont.clone();
         c!( View [
             Button { set_label = "click"; connect_clicked = || state.count += 1; },
+            {
+                if state.count % 2 == 0 {
+                    c! ( 1 Button { set_label="Eve"; } );
+                } else {
+                    c! ( 2 View );
+                }
+            }
         ]);
     }
+
 }
 /*
 {
