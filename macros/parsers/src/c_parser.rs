@@ -1,12 +1,12 @@
-use quote::{*};
-use syn::{*};
+use quote::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::{InitType, NParser};
 
 pub struct CParser {
-    pub tree: TokenStream2
+    pub tree: TokenStream2,
 }
 
 impl CParser {
@@ -16,11 +16,19 @@ impl CParser {
         if let Ok(name) = input.parse::<Ident>() {
             //check for block
             let mut tree = {
-                let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream() } else { (quote! {{}}).into() };
+                let block = if let Ok(block) = input.parse::<Block>() {
+                    block.to_token_stream()
+                } else {
+                    (quote! {{}}).into()
+                };
                 match init_type {
-                    InitType::Child => NParser::parse(quote! { #name init_child #block }.into()).unwrap().tree,
+                    InitType::Child => {
+                        NParser::parse(quote! { #name init_child #block }.into())
+                            .unwrap()
+                            .tree
+                    }
                     InitType::Sibling => (quote! { n!(#name init_sibling #block); }),
-                    InitType::Pure(i) => quote! { n!(#i #name init_child #block); }
+                    InitType::Pure(i) => quote! { n!(#i #name init_child #block); },
                 }
             };
             {
@@ -63,7 +71,9 @@ impl Parse for CParser {
         } else {
             InitType::Child
         };
-        Ok(CParser { tree: CParser::custom_parse(input, init_type) })
+        Ok(CParser {
+            tree: CParser::custom_parse(input, init_type),
+        })
     }
 }
 
@@ -73,7 +83,7 @@ fn parse_execution_block(input: &ParseStream) -> TokenStream2 {
         let content_tree = content.tree;
         let init_type = match init_type {
             InitType::Child => (quote! {init_child}),
-            _ => (quote! {init_sibling})
+            _ => (quote! {init_sibling}),
         };
         return quote! {
             let node = {
