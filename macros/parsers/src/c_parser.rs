@@ -42,26 +42,35 @@ impl CParser {
 
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         let init_type = init_type.get_init_quote().1;
-        fn iff_recursive(input: ParseStream, pure_index: u32) -> Option<TokenStream2> {
-            if let Ok(_) = input.parse::<syn::token::If>() {
-                let comparison_expr = input.parse::<syn::Expr>().unwrap();
-                let node = CParser::custom_parse(input, InitType::Pure(pure_index));
-                let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
-                    let tree = iff_recursive(input, pure_index + 1);
-                    quote!(else #tree)
+        /*
+            if comp
+                node
+            else if
+        */
+        fn iff_recursive(input: ParseStream, pure_index: u32) -> TokenStream2 {
+            let comparison_expr = input.parse::<syn::Expr>().unwrap();
+            let node = CParser::custom_parse(input, InitType::Pure(pure_index));
+            let pure_index = pure_index + 1;
+            let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
+                if let Ok(_) = input.parse::<syn::token::If>() {
+                    let tree = iff_recursive(input, pure_index);
+                    quote!(else if #tree)
                 } else {
-                    TokenStream2::new()
-                };
-                return Some(quote! {
-                    if #comparison_expr {
-                        #node
-                    } #chain
-                });
+                    let node =  CParser::custom_parse(input, InitType::Pure(pure_index));
+                    quote!( else { #node } )
+                }
             } else {
-                None
-            }
+                quote! { else { c!(#pure_index Pure); } }
+            };
+            return quote! {
+                if #comparison_expr {
+                    #node
+                } #chain
+            };
         }
-        if let Some(tree) = iff_recursive(input, 1) {
+
+        if let Ok(_) = input.parse::<syn::token::If>() {
+            let tree = iff_recursive(input, 1);
             quote!(
                let node = {
                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
@@ -69,10 +78,12 @@ impl CParser {
                    let cont = Rc::clone(&cont);
                    node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
                };
-               let cont = node.clone();
-               let mut state_borrow = top_state.as_ref().borrow();
-               let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-               #tree
+               {
+                    let cont = node.clone();
+                    let mut state_borrow = top_state.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                    #tree
+               }
             )
         } else {
             TokenStream2::new()
@@ -194,10 +205,9 @@ impl CParser {
     }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
-        let execution_block = CParser::parse_execution_block(&input, &init_type);
         let condition_block = CParser::parse_condition_block(&input, &init_type);
         let expr = CParser::parse_expression(input, init_type);
-        quote!(#execution_block #condition_block #expr)
+        quote!(#condition_block #expr)
     }
 }
 
