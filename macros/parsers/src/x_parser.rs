@@ -9,20 +9,20 @@ enum InitType {
     Pure(u32),
 }
 
-pub struct CParser {
+pub struct XParser {
     pub tree: TokenStream2
 }
 
-impl CParser {
+impl XParser {
     fn custom_parse(input: ParseStream, init_type: InitType) -> Result<Self> {
         if let Ok(block) = input.parse::<Block>() {
-            let content = CParser::custom_parse(&input, InitType::Sibling).unwrap();
+            let content = XParser::custom_parse(&input, InitType::Sibling).unwrap();
             let content_tree = content.tree;
             let init_type = match init_type {
                 InitType::Child => (quote! {init_child}),
                 _ => (quote! {init_sibling})
             };
-            return Ok(CParser {
+            return Ok(XParser {
                 tree: quote! {
                 let node = {
                     let node = {
@@ -62,7 +62,7 @@ impl CParser {
                 //check for first block
                 match group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
-                        let content = CParser::parse(&brackets.content).unwrap();
+                        let content = XParser::parse(&brackets.content).unwrap();
                         let content_tree = content.tree;
                         tree = quote! { #tree {  let cont = node.clone(); #content_tree } };
                     }
@@ -71,20 +71,20 @@ impl CParser {
                 //parse ,
                 match input.parse::<syn::Token![,]>() {
                     Ok(_) => {
-                        let content = CParser::custom_parse(&input, InitType::Sibling).unwrap();
+                        let content = XParser::custom_parse(&input, InitType::Sibling).unwrap();
                         let content_tree = content.tree;
                         tree = quote! { #tree #content_tree };
                     }
                     _ => {}
                 }
             }
-            return Ok(CParser { tree });
+            return Ok(XParser { tree });
         }
-        Ok(CParser { tree: TokenStream2::new() })
+        Ok(XParser { tree: TokenStream2::new() })
     }
 }
 
-impl Parse for CParser {
+impl Parse for XParser {
     fn parse(input: ParseStream) -> Result<Self> {
         //check for # which donates a pure child
         //it can only be used at the starting of macro call
@@ -92,12 +92,12 @@ impl Parse for CParser {
             if let Lit::Int(i) = i {
                 let i = i.base10_parse().unwrap();
                 if i > 0 {
-                    return CParser::custom_parse(input, InitType::Pure(i));
+                    return XParser::custom_parse(input, InitType::Pure(i));
                 }
                 panic!("Expected an u32 greater than 1")
             }
             panic!("Expected an u32")
         }
-        CParser::custom_parse(input, InitType::Child)
+        XParser::custom_parse(input, InitType::Child)
     }
 }

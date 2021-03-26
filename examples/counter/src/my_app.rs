@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
+use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
 
 use crate::odd_eve::OddEve;
 
@@ -37,7 +37,7 @@ impl Node for MyApp {
                     n! (Button init_sibling { set_label= &x.to_string();});
                 });
                 forr! ( x in 0..2 {
-                    n! (Button init_sibling { set_label= "asd";});
+                    n! (View init_sibling {});
                 });
             }
         ]);

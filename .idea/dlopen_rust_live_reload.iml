@@ -9,6 +9,9 @@
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/counter/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/forr/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/x/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/c/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/n/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
@@ -17,6 +20,7 @@
       <excludeFolder url="file://$MODULE_DIR$/macros/iff/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/counter/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/forr/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/x/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
