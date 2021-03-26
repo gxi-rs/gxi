@@ -24,7 +24,6 @@ impl Node for MyApp {
             widget: widget.unwrap(),
         })))
     }
-
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
@@ -39,7 +38,6 @@ impl Node for MyApp {
             }
         ]);
     }
-
 }
 /*
 {
@@ -49,4 +47,4 @@ impl Node for MyApp {
                 forr! ( x in 0..2 {
                     n! (View init_sibling {});
                 });
-            }*/
+}*/

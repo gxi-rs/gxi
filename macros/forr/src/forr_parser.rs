@@ -1,10 +1,10 @@
-use quote::{*};
-use syn::{*};
+use quote::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 pub struct ForrParser {
-    pub tree: TokenStream2
+    pub tree: TokenStream2,
 }
 
 impl Parse for ForrParser {

@@ -1,7 +1,7 @@
-use quote::{*};
-use syn::{*};
+use quote::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 enum InitType {
     Child,
@@ -10,7 +10,7 @@ enum InitType {
 }
 
 pub struct XParser {
-    pub tree: TokenStream2
+    pub tree: TokenStream2,
 }
 
 impl XParser {
@@ -20,42 +20,46 @@ impl XParser {
             let content_tree = content.tree;
             let init_type = match init_type {
                 InitType::Child => (quote! {init_child}),
-                _ => (quote! {init_sibling})
+                _ => (quote! {init_sibling}),
             };
             return Ok(XParser {
                 tree: quote! {
-                let node = {
                     let node = {
-                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let cont = Rc::clone(&cont);
-                        node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                        let node = {
+                            let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let cont = Rc::clone(&cont);
+                            node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                        };
+                        let cont = node.clone();
+                        let node = {
+                            let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let cont = Rc::clone(&cont);
+                            node_borrow.init_child(Box::new(move || Pure::new(cont.clone(), widget)), false).0
+                        };
+                        let mut state_borrow = top_state.as_ref().borrow();
+                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        #block
+                        node
                     };
-                    let cont = node.clone();
-                    let node = {
-                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let cont = Rc::clone(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(cont.clone(), widget)), false).0
-                    };
-                    let mut state_borrow = top_state.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    #block
-                    node
-                };
-                #content_tree
-            }
+                    #content_tree
+                },
             });
         }
         //not mandatory to have a bracket or component inside the macro. macro can be empty
         if let Ok(name) = input.parse::<Ident>() {
             //check for block
             let mut tree = {
-                let block = if let Ok(block) = input.parse::<Block>() { block.to_token_stream() } else { (quote! {{}}).into() };
+                let block = if let Ok(block) = input.parse::<Block>() {
+                    block.to_token_stream()
+                } else {
+                    (quote! {{}}).into()
+                };
                 match init_type {
                     InitType::Child => (quote! { n!(#name init_child #block); }),
                     InitType::Sibling => (quote! { n!(#name init_sibling #block); }),
-                    InitType::Pure(i) => quote! { n!(#i #name init_child #block); }
+                    InitType::Pure(i) => quote! { n!(#i #name init_child #block); },
                 }
             };
             {
@@ -80,7 +84,9 @@ impl XParser {
             }
             return Ok(XParser { tree });
         }
-        Ok(XParser { tree: TokenStream2::new() })
+        Ok(XParser {
+            tree: TokenStream2::new(),
+        })
     }
 }
 

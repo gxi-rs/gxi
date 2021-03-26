@@ -11,8 +11,8 @@ impl InitType {
     pub fn get_init_quote(&self) -> (u32, TokenStream2) {
         match self {
             InitType::Child => (0, quote! {init_child}),
-            InitType::Pure(i) => (*i, quote! {init_sibling}),
-            InitType::Sibling => (0, quote! {init_sibling})
+            InitType::Pure(i) => (*i, quote! {init_child}),
+            InitType::Sibling => (0, quote! {init_sibling}),
         }
     }
 }

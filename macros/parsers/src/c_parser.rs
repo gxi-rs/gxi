@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::init_type::InitType;
 
@@ -15,27 +15,27 @@ impl CParser {
             let content = CParser::custom_parse(input, InitType::Sibling);
             let init_type = init_type.get_init_quote().1;
             return quote! {
-            let node = {
                 let node = {
-                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let cont = Rc::clone(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                    let node = {
+                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let cont = Rc::clone(&cont);
+                        node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                    };
+                    let cont = node.clone();
+                    let node = {
+                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let cont = Rc::clone(&cont);
+                        node_borrow.init_child(Box::new(move || Pure::new(cont.clone(), widget)), false).0
+                    };
+                    let mut state_borrow = top_state.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                    #block
+                    node
                 };
-                let cont = node.clone();
-                let node = {
-                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let cont = Rc::clone(&cont);
-                    node_borrow.init_child(Box::new(move || Pure::new(cont.clone(), widget)), false).0
-                };
-                let mut state_borrow = top_state.as_ref().borrow();
-                let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                #block
-                node
+                #content
             };
-            #content
-        };
         };
         return TokenStream2::new();
     }
@@ -48,15 +48,14 @@ impl CParser {
             if let Ok(block) = input.parse::<Block>() {
                 for x in block.stmts {
                     match x {
-                        Stmt::Semi(s, _) => {
-                            match s {
-                                Expr::Assign(e) => {
-                                    let left = e.left;
-                                    let right = e.right;
-                                    match *right {
-                                        Expr::Closure(closure) => {
-                                            let closure_body = closure.body;
-                                            static_exprs.push(quote! {{
+                        Stmt::Semi(s, _) => match s {
+                            Expr::Assign(e) => {
+                                let left = e.left;
+                                let right = e.right;
+                                match *right {
+                                    Expr::Closure(closure) => {
+                                        let closure_body = closure.body;
+                                        static_exprs.push(quote! {{
                                              let state_clone = Rc::clone(&top_state);
                                              node.widget.#left(move |_| {
                                                  let state = state_clone.clone();
@@ -68,36 +67,45 @@ impl CParser {
                                                  Self::render(state.clone());
                                              });
                                         }});
-                                        }
-                                        Expr::Lit(literal) => static_exprs.push(quote! { node.widget.#left(#literal); }),
-                                        _ => dynamic_exprs.push(quote! { node.widget.#left(#right); })
                                     }
+                                    Expr::Lit(literal) => {
+                                        static_exprs.push(quote! { node.widget.#left(#literal); })
+                                    }
+                                    _ => dynamic_exprs.push(quote! { node.widget.#left(#right); }),
                                 }
-                                _ => panic!("expected an Assignment Expression")
                             }
+                            _ => panic!("expected an Assignment Expression"),
+                        },
+                        _ => {
+                            panic!("expected an Expression")
                         }
-                        _ => { panic!("expected an Expression") }
                     }
                 }
             }
             let tree = {
                 let (pure_index, init_type) = init_type.get_init_quote();
                 let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
-                    (TokenStream2::new(), quote! {
-                        let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                        if pure.current_index != #pure_index {
-                            if let Some(child) = pure.child.as_ref() {
-                                pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
-                                pure.child = None;
+                    (
+                        TokenStream2::new(),
+                        quote! {
+                            let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                            if pure.current_index != #pure_index {
+                                if let Some(child) = pure.child.as_ref() {
+                                    pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
+                                    pure.child = None;
+                                }
+                                pure.current_index = #pure_index;
                             }
-                            pure.current_index = #pure_index;
-                        }
-                    })
+                        },
+                    )
                 } else {
-                    (quote! {
-                        let mut state_borrow = top_state.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    }, TokenStream2::new())
+                    (
+                        quote! {
+                            let mut state_borrow = top_state.as_ref().borrow();
+                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        },
+                        TokenStream2::new(),
+                    )
                 };
 
                 quote! {
@@ -107,7 +115,7 @@ impl CParser {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             { #pure_remove_block }
                             let cont = Rc::clone(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), if let NodeType::Widget = #name::get_type() { true } else { false })
+                            node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), #name::get_type().should_add_widget())
                         };
                         {
                             let mut node_borrow = node.as_ref().borrow_mut();
@@ -131,7 +139,7 @@ impl CParser {
                         let content = CParser::custom_parse(&brackets.content, InitType::Child);
                         quote! { #tree {  let cont = node.clone(); #content } }
                     }
-                    _ => tree
+                    _ => tree,
                 };
                 //parse ,
                 return match input.parse::<syn::Token![,]>() {
@@ -139,7 +147,7 @@ impl CParser {
                         let content = CParser::custom_parse(&input, InitType::Sibling);
                         quote! { #tree #content }
                     }
-                    _ => { tree }
+                    _ => tree,
                 };
             }
         }
@@ -162,9 +170,10 @@ impl Parse for CParser {
                     InitType::Pure(i)
                 } else {
                     panic!("Expected an u32 greater than 1")
-                };
+                }
+            } else {
+                panic!("Expected an u32")
             }
-            panic!("Expected an u32")
         } else {
             InitType::Child
         };

@@ -31,4 +31,3 @@ impl Node for Window {
         })))
     }
 }
-

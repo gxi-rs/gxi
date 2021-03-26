@@ -1,11 +1,17 @@
 #[macro_export]
 macro_rules! impl_node_trait {
     () => {
-        fn as_any(&self) -> &dyn Any { self }
+        fn as_any(&self) -> &dyn Any {
+            self
+        }
 
-        fn as_any_mut(&mut self) -> &mut dyn Any { self }
+        fn as_any_mut(&mut self) -> &mut dyn Any {
+            self
+        }
 
-        fn get_parent(&self) -> AsyncNode { self.parent.clone() }
+        fn get_parent(&self) -> AsyncNode {
+            self.parent.clone()
+        }
     };
 }
 
@@ -58,9 +64,13 @@ macro_rules! impl_node_trait_init_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_child {
     () => {
-        fn get_child(&self) -> &Option<AsyncNode> { &self.child }
+        fn get_child(&self) -> &Option<AsyncNode> {
+            &self.child
+        }
 
-        fn get_child_mut(&mut self) -> &mut Option<AsyncNode> { &mut self.child }
+        fn get_child_mut(&mut self) -> &mut Option<AsyncNode> {
+            &mut self.child
+        }
     };
 }
 
@@ -87,7 +97,9 @@ macro_rules! impl_node_component {
         impl_node_trait_init_sibling!();
         impl_node_trait_init_child!();
 
-        fn get_type() -> NodeType { NodeType::Component }
+        fn get_type() -> NodeType {
+            NodeType::Component
+        }
 
         fn get_widget(&self) -> gtk::Widget {
             let widget: &gtk::Widget = self.widget.as_ref();
