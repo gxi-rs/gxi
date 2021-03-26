@@ -3,11 +3,11 @@ use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 
-pub struct ForrParser {
+pub struct IffParser {
     pub tree: TokenStream2,
 }
 
-impl Parse for ForrParser {
+impl Parse for IffParser {
     fn parse(input: ParseStream) -> Result<Self> {
         let var_name = input.parse::<Ident>()?;
         let in_ident = input.parse::<syn::token::In>()?;
@@ -26,6 +26,6 @@ impl Parse for ForrParser {
                 top_node
             };
         };
-        Ok(ForrParser { tree })
+        Ok(IffParser { tree })
     }
 }
