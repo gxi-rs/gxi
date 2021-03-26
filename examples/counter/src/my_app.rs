@@ -4,8 +4,6 @@ use std::rc::Rc;
 
 use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
 
-use crate::odd_eve::OddEve;
-
 pub struct MyApp {
     count: u32,
     pub child: Option<AsyncNode>,
@@ -32,14 +30,15 @@ impl Node for MyApp {
         let node = cont.clone();
         c!( View [
             Button { set_label = "click"; connect_clicked = || state.count += 1; },
-            {
+        ]);
+    }
+}
+/*
+{
                 forr! ( x in 0..state.count {
                     n! (Button init_sibling { set_label= &x.to_string();});
                 });
                 forr! ( x in 0..2 {
                     n! (View init_sibling {});
                 });
-            }
-        ]);
-    }
-}
+            }*/

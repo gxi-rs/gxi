@@ -1,21 +1,21 @@
-use quote::quote;
-use syn::{Block, Error, Expr, Ident, Stmt};
+use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 
-pub struct NParser {
+pub struct ExprParser {
     pub tree: TokenStream2,
 }
 
-impl Parse for NParser {
-    fn parse(input: ParseStream) -> Result<Self, Error> {
+impl Parse for ExprParser {
+    fn parse(input: ParseStream) -> Result<Self> {
         let pure_index: u32 = if let Ok(i) = input.parse::<syn::Lit>() {
             if let syn::Lit::Int(i) = i {
                 i.base10_parse().unwrap()
             } else { panic!("Expected an u32") }
         } else { 0 };
-        let name = input.parse()?;
-        let init_type = input.parse()?;
+        let name: Ident = input.parse()?;
+        let init_type: Ident = input.parse()?;
         let mut static_exprs = vec![];
         let mut dynamic_exprs = vec![];
         {
@@ -73,8 +73,8 @@ impl Parse for NParser {
                 }, TokenStream2::new())
             };
 
-            Ok(NParser {
-                tree: (quote! {
+            Ok(ExprParser {
+                tree: quote! {
                     let node = {
                     let (node, is_new) = {
                         let widget = Some(cont.as_ref().borrow().get_widget_as_container());
@@ -95,7 +95,7 @@ impl Parse for NParser {
                     #name::render(node.clone());
                     node
                     };
-                })
+                }
             })
         }
     }
