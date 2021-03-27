@@ -36,8 +36,6 @@ impl Node for MyApp {
                 if state.count % 5 == 0
                     if state.count == 5
                         Button { set_label = "FIVE"; }
-                    else
-                        Button { set_label = "Any other Multiple of 5"; }
                 else if state.count % 2 == 0
                     if state.count == 2
                         Button { set_label = "Two"; }
