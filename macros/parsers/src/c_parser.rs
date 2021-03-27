@@ -230,14 +230,3 @@ impl Parse for CParser {
         })
     }
 }
-/*
-    if x
-        if x
-            l
-        else if x
-            if t =as
-                k
-        else
-    else
-        l
-*/
