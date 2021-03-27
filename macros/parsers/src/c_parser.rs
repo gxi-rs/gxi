@@ -59,8 +59,22 @@ impl CParser {
                     quote!( else { #node } )
                 }
             } else {
-                let node = CParser::custom_parse(input, InitType::Pure(*pure_index));
-                quote! { else { c!(#pure_index Pure); } }
+                quote! { else {
+                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    {
+                        let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                        if pure.current_index != #pure_index {
+                            if let Some(child) = pure.child.as_ref() {
+                                pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
+                                pure.child = None;
+                            }
+                            pure.current_index = #pure_index;
+                        }
+                    }
+                    let cont = Rc::clone(&cont);
+                    node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false);
+                }}
             };
             return quote! {
                 if #comparison_expr {

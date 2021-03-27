@@ -43,8 +43,6 @@ impl Node for MyApp {
                         Button { set_label = "Two"; }
                     else
                         Button { set_label = "Any other mULTIPLE OF 2"; }
-                else
-                    Pure
             ]
         );
     }
