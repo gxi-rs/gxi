@@ -41,6 +41,7 @@ impl Node for MyApp {
                         Button { set_label = "Two"; }
                     else
                         Button { set_label = "Any other mULTIPLE OF 2"; }
+                Button { set_label = "click"; connect_clicked = || state.count += 1; }
             ]
         );
     }

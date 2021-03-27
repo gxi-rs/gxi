@@ -10,4 +10,3 @@ gtk = "0.9.2"
 c = { path = "macros/c" }
 x = { path = "macros/x" }
 forr = { path = "macros/forr" }
-iff = { path = "macros/iff" }
