@@ -10,35 +10,6 @@ pub struct CParser {
 }
 
 impl CParser {
-    fn parse_execution_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
-        if let Ok(block) = input.parse::<Block>() {
-            let content = CParser::custom_parse(input, InitType::Sibling);
-            let init_type = init_type.get_init_quote().1;
-            return quote! {
-                let node = {
-                    let node = {
-                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let cont = Rc::clone(&cont);
-                        node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
-                    };
-                    let cont = node.clone();
-                    let node = {
-                        let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let cont = Rc::clone(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(cont.clone(), widget)), false).0
-                    };
-                    let mut state_borrow = top_state.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    #block
-                    node
-                };
-                #content
-            };
-        };
-        return TokenStream2::new();
-    }
 
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         let init_type = init_type.get_init_quote().1;
