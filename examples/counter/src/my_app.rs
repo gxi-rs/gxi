@@ -24,6 +24,7 @@ impl Node for MyApp {
             widget: widget.unwrap(),
         })))
     }
+
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
@@ -32,10 +33,18 @@ impl Node for MyApp {
                 View [
                     Button { set_label = "click"; connect_clicked = || state.count += 1; }
                 ],
-                if state.count  == 2
-                    Button { set_label = "Two"; }
-                else if state.count == 5
-                    Button { set_label = "Five"; }
+                if state.count % 5 == 0
+                    if state.count == 5
+                        Button { set_label = "FIVE"; }
+                    else
+                        Button { set_label = "Any other Multiple of 5"; }
+                else if state.count % 2 == 0
+                    if state.count == 2
+                        Button { set_label = "Two"; }
+                    else
+                        Button { set_label = "Any other mULTIPLE OF 2"; }
+                else
+                    Pure
             ]
         );
     }

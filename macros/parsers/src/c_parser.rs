@@ -42,24 +42,24 @@ impl CParser {
 
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         let init_type = init_type.get_init_quote().1;
-        /*
-            if comp
-                node
-            else if
-        */
-        fn iff_recursive(input: ParseStream, pure_index: u32) -> TokenStream2 {
+        fn iff_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
-            let node = CParser::custom_parse(input, InitType::Pure(pure_index));
-            let pure_index = pure_index + 1;
+            let node = if let Ok(_) = input.parse::<syn::token::If>() {
+                iff_recursive(input, pure_index)
+            } else {
+                CParser::custom_parse(input, InitType::Pure(*pure_index))
+            };
+            *pure_index += 1;
             let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
                 if let Ok(_) = input.parse::<syn::token::If>() {
                     let tree = iff_recursive(input, pure_index);
                     quote!(else #tree)
                 } else {
-                    let node = CParser::custom_parse(input, InitType::Pure(pure_index));
+                    let node = CParser::custom_parse(input, InitType::Pure(*pure_index));
                     quote!( else { #node } )
                 }
             } else {
+                let node = CParser::custom_parse(input, InitType::Pure(*pure_index));
                 quote! { else { c!(#pure_index Pure); } }
             };
             return quote! {
@@ -70,7 +70,8 @@ impl CParser {
         }
 
         if let Ok(_) = input.parse::<syn::token::If>() {
-            let tree = iff_recursive(input, 1);
+            let mut pure_index = 1;
+            let tree = iff_recursive(input, &mut pure_index);
             quote!(
                let node = {
                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
@@ -149,13 +150,10 @@ impl CParser {
                         },
                     )
                 } else {
-                    (
-                        quote! {
+                    (quote! {
                             let mut state_borrow = top_state.as_ref().borrow();
                             let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                        },
-                        TokenStream2::new(),
-                    )
+                        }, TokenStream2::new())
                 };
 
                 quote! {
@@ -213,22 +211,19 @@ impl CParser {
 
 impl Parse for CParser {
     fn parse(input: ParseStream) -> Result<Self> {
-        let init_type = if let Ok(i) = input.parse::<syn::Lit>() {
-            if let Lit::Int(i) = i {
-                let i = i.base10_parse().unwrap();
-                if i > 0 {
-                    InitType::Pure(i)
-                } else {
-                    panic!("Expected an u32 greater than 1")
-                }
-            } else {
-                panic!("Expected an u32")
-            }
-        } else {
-            InitType::Child
-        };
         Ok(CParser {
-            tree: CParser::custom_parse(input, init_type),
+            tree: CParser::custom_parse(input, InitType::Child),
         })
     }
 }
+/*
+    if x
+        if x
+            l
+        else if x
+            if t =as
+                k
+        else
+    else
+        l
+*/
