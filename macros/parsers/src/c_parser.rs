@@ -54,6 +54,23 @@ impl CParser {
         }
     }
 
+    fn get_pure_remove_block(pure_index: u32) -> TokenStream2 {
+        quote! {
+            let current_index = {
+                let mut node_borrow = node.as_ref().borrow_mut();
+                let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                let index = pure.current_index.clone();
+                pure.current_index = #pure_index;
+                index
+            };
+            if current_index != #pure_index {
+                let node = {
+                    node.as_ref().borrow_mut().get_child_mut().take()
+                };
+            }
+        }
+    }
+
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         let init_type = init_type.get_init_quote().1;
         fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
@@ -73,22 +90,10 @@ impl CParser {
                     quote!( else { #node } )
                 }
             } else {
+                let pure_remove_block = CParser::get_pure_remove_block(*pure_index);
                 quote! { else {
                     let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                    {
-                        let current_index = {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                            let index = pure.current_index.clone();
-                            pure.current_index = #pure_index;
-                            index
-                        };
-                        if current_index != #pure_index {
-                            let node = {
-                                node.as_ref().borrow_mut().get_child_mut().take()
-                            };
-                        }
-                    }
+                    #pure_remove_block
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let cont = Rc::clone(&cont);
                     node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false);
@@ -168,23 +173,7 @@ impl CParser {
             let tree = {
                 let (pure_index, init_type) = init_type.get_init_quote();
                 let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
-                    (
-                        TokenStream2::new(),
-                        quote! {
-                            let current_index = {
-                                let mut node_borrow = node.as_ref().borrow_mut();
-                                let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                                let index = pure.current_index.clone();
-                                pure.current_index = #pure_index;
-                                index
-                            };
-                            if current_index != #pure_index {
-                                let node = {
-                                    node.as_ref().borrow_mut().get_child_mut().take()
-                                };
-                            }
-                        },
-                    )
+                    (TokenStream2::new(), CParser::get_pure_remove_block(pure_index))
                 } else {
                     (quote! {
                             let mut state_borrow = top_state.as_ref().borrow();
