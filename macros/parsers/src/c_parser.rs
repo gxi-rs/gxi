@@ -1,5 +1,5 @@
 use quote::*;
-use syn::__private::TokenStream2;
+use syn::__private::{TokenStream2, TokenStream};
 use syn::parse::{Parse, ParseStream};
 use syn::*;
 
@@ -10,20 +10,59 @@ pub struct CParser {
 }
 
 impl CParser {
+    fn parse_for_block(input: ParseStream, init_type: &InitType)-> TokenStream2 {
+        fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+            let variable = input.parse::<syn::Ident>().unwrap();
+            input.parse::<syn::token::In>().unwrap();
+            let for_expr = input.parse::<syn::Expr>().unwrap();
+            let content = CParser::custom_parse(input, InitType::Sibling);
+            let init_type = init_type.get_init_quote().1;
+            quote! {
+                let node = {
+                   let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                   let mut node_borrow = node.as_ref().borrow_mut();
+                   let cont = Rc::clone(&cont);
+                   node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                };
+                {
+                    let cont = node.clone();
+                    let state_borrow = top_state.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                    let node = {
+                       let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                       let mut node_borrow = node.as_ref().borrow_mut();
+                       let cont = Rc::clone(&cont);
+                       node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                    };
+                    let mut prev_node = node.clone();
+                    for #variable in #for_expr {
+                        let node = prev_node.clone();
+                        #content
+                        prev_node = node;
+                    }
+                }
+            }
+        }
+        if let Ok(_) = input.parse::<syn::token::For>() {
+            for_recursive(input, init_type)
+        } else {
+            TokenStream2::new()
+        }
+    }
 
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         let init_type = init_type.get_init_quote().1;
-        fn iff_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
+        fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
-                iff_recursive(input, pure_index)
+                if_recursive(input, pure_index)
             } else {
                 CParser::custom_parse(input, InitType::Pure(*pure_index))
             };
             *pure_index += 1;
             let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
                 if let Ok(_) = input.parse::<syn::token::If>() {
-                    let tree = iff_recursive(input, pure_index);
+                    let tree = if_recursive(input, pure_index);
                     quote!(else #tree)
                 } else {
                     let node = CParser::custom_parse(input, InitType::Pure(*pure_index));
@@ -56,7 +95,7 @@ impl CParser {
 
         if let Ok(_) = input.parse::<syn::token::If>() {
             let mut pure_index = 1;
-            let tree = iff_recursive(input, &mut pure_index);
+            let tree = if_recursive(input, &mut pure_index);
             quote!(
                let node = {
                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
@@ -66,7 +105,7 @@ impl CParser {
                };
                {
                     let cont = node.clone();
-                    let mut state_borrow = top_state.as_ref().borrow();
+                    let state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                     #tree
                }
@@ -189,8 +228,9 @@ impl CParser {
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
         let condition_block = CParser::parse_condition_block(&input, &init_type);
+        let for_parse = CParser::parse_for_block(&input, &init_type);
         let expr = CParser::parse_expression(input, init_type);
-        quote!(#condition_block #expr)
+        quote!(#condition_block #for_parse #expr)
     }
 }
 

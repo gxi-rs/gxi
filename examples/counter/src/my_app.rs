@@ -33,15 +33,8 @@ impl Node for MyApp {
                 View [
                     Button { set_label = "click"; connect_clicked = || state.count += 1; }
                 ],
-                if state.count % 5 == 0
-                    if state.count == 5
-                        Button { set_label = "FIVE"; }
-                else if state.count % 2 == 0
-                    if state.count == 2
-                        Button { set_label = "Two"; }
-                    else
-                        Button { set_label = "Any other mULTIPLE OF 2"; }
-                Button { set_label = "click"; connect_clicked = || state.count += 1; }
+                for x in 0..state.count
+                    Button { set_label = "as"; }
             ]
         );
     }
@@ -69,3 +62,13 @@ impl Node for MyApp {
         }
     }
 }*/
+
+/*
+    for x in 0..state.count
+        if state.count == 0
+            BASD
+    This can be converted to
+    Pure
+        init_sibling t key
+
+*/

@@ -24,6 +24,7 @@ impl Node for Button {
     }
 
     fn new(parent: AsyncNode, _widget: Option<gtk::Container>) -> AsyncNode {
+        println!("Button");
         Rc::new(RefCell::new(Box::new(Button {
             widget: gtk::Button::new(),
             sibling: None,
