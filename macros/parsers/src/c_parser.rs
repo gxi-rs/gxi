@@ -166,11 +166,37 @@ impl CParser {
                 }
             }
             let tree = {
-                let init_type = init_type.get_init_quote().1;
+                let (pure_index, init_type) = init_type.get_init_quote();
+                let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
+                    (
+                        TokenStream2::new(),
+                        quote! {
+                            let current_index = {
+                                let mut node_borrow = node.as_ref().borrow_mut();
+                                let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                                let index = pure.current_index.clone();
+                                pure.current_index = #pure_index;
+                                index
+                            };
+                            if current_index != #pure_index {
+                                let node = {
+                                    node.as_ref().borrow_mut().get_child_mut().take()
+                                };
+                            }
+                        },
+                    )
+                } else {
+                    (quote! {
+                            let mut state_borrow = top_state.as_ref().borrow();
+                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        }, TokenStream2::new())
+                };
+
                 quote! {
                     let node = {
                         let (node, is_new) = {
                             let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                            { #pure_remove_block }
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let cont = Rc::clone(&cont);
                             node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), #name::get_type().should_add_widget())
@@ -181,8 +207,7 @@ impl CParser {
                             if is_new {
                                 #(#static_exprs)*
                             }
-                            let mut state_borrow = top_state.as_ref().borrow();
-                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                            #pure_state_reference
                             #(#dynamic_exprs)*
                         }
                         #name::render(node.clone());
