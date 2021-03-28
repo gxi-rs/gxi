@@ -40,10 +40,6 @@ impl Node for () {
         panic!("{}", PANIC_MSG);
     }
 
-    fn get_parent(&self) -> AsyncNode {
-        panic!("{}", PANIC_MSG);
-    }
-
     fn new(_parent: AsyncNode, _widget: Option<gtk::Container>) -> AsyncNode {
         panic!("{}", PANIC_MSG);
     }

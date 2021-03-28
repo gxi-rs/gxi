@@ -106,6 +106,7 @@ macro_rules! impl_node_component {
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
         impl_node_trait_init_child!();
+
         fn get_type() -> NodeType {
             NodeType::Component
         }
