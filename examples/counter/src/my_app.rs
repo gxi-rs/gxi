@@ -39,36 +39,3 @@ impl Node for MyApp {
         );
     }
 }
-/*
-{
-    Node
-    {
-        Pure Block sibling of node, This is container
-        --> Child of Pure Block is now node
-        //iff!()
-        {
-            Pure Block sibling of node
-            if Block
-                child of node
-            else
-                child of node
-        }
-        //forr
-        {
-            Pure Block sibling of node now cont
-            Pure Block child of cont now node
-            for x in y
-                sibling of node
-        }
-    }
-}*/
-
-/*
-    for x in 0..state.count
-        if state.count == 0
-            BASD
-    This can be converted to
-    Pure
-        init_sibling t key
-
-*/
