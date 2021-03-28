@@ -3,9 +3,9 @@ use std::cell::RefCell;
 
 use std::rc::Rc;
 
-use gtk::{prelude::*, Orientation};
+use gtk::{prelude::*, Orientation, Container};
 
-use crate::nodes::node::{AsyncNode, Node};
+use crate::nodes::node::{AsyncNode, Node, NodeType};
 
 pub struct View {
     pub child: Option<AsyncNode>,

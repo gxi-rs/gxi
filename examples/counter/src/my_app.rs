@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
+use std::borrow::Borrow;
 
 pub struct MyApp {
     count: u32,
@@ -17,7 +18,7 @@ impl Node for MyApp {
 
     fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
-            count: 0,
+            count: 10,
             child: None,
             sibling: None,
             parent,
@@ -31,11 +32,10 @@ impl Node for MyApp {
         c!(
             View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || state.count += 1; }
+                    Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
                 for x in 0..state.count
-                    for x in 0..state.count
-                        Button { set_label = "as"; }
+                    Button { set_label = "as"; }
             ]
         );
     }

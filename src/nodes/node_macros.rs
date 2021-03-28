@@ -75,6 +75,19 @@ macro_rules! impl_node_trait_get_child {
 }
 
 #[macro_export]
+macro_rules! impl_node_trait_get_sibling {
+    () => {
+        fn get_sibling(&self) -> &Option<AsyncNode> {
+            &self.sibling
+        }
+
+        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
+            &mut self.sibling
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
         fn get_widget(&self) -> gtk::Widget {
@@ -94,9 +107,9 @@ macro_rules! impl_node_component {
     () => {
         impl_node_trait!();
         impl_node_trait_get_child!();
+        impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
         impl_node_trait_init_child!();
-
         fn get_type() -> NodeType {
             NodeType::Component
         }

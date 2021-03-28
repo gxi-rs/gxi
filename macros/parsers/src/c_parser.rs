@@ -1,5 +1,5 @@
 use quote::*;
-use syn::__private::{TokenStream2, TokenStream};
+use syn::__private::{TokenStream2};
 use syn::parse::{Parse, ParseStream};
 use syn::*;
 
@@ -34,11 +34,15 @@ impl CParser {
                        let cont = Rc::clone(&cont);
                        node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false).0
                     };
+                    let cont = node.clone();
                     let mut prev_node = node.clone();
                     for #variable in #for_expr {
                         let node = prev_node.clone();
                         #content
                         prev_node = node;
+                    }
+                    {
+                        prev_node.as_ref().borrow_mut().get_sibling_mut().take();
                     }
                 }
             }

@@ -16,6 +16,7 @@ impl Node for Button {
     impl_node_trait!();
     impl_node_trait_init_sibling!();
     impl_node_trait_get_widget!();
+    impl_node_trait_get_sibling!();
 
     fn init_child(
         &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _add_widget: bool,
