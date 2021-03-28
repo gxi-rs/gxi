@@ -3,9 +3,9 @@ use std::cell::RefCell;
 
 use std::rc::Rc;
 
-use gtk::{prelude::*, Orientation, Container};
+use gtk::{prelude::*, Orientation};
 
-use crate::nodes::node::{AsyncNode, Node, NodeType};
+use crate::nodes::node::{AsyncNode, Node};
 
 pub struct View {
     pub child: Option<AsyncNode>,
@@ -32,9 +32,4 @@ impl Node for View {
     }
 }
 
-impl Drop for View {
-    fn drop(&mut self) {
-        let parent_borrow =  self.parent.as_ref().borrow_mut();
-        parent_borrow.get_widget_as_container().remove(&self.widget);
-    }
-}
+impl_drop_for_node!(View);

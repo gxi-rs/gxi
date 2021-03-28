@@ -3,11 +3,11 @@ use std::rc::Rc;
 
 use gtk::WidgetExt;
 
-use crate::{AsyncNode, Node, Window, Fake};
+use crate::{AsyncNode, Fake, Node, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window: AsyncNode = Window::new(Rc::new(RefCell::new(Box::new(Fake{}))), None);
+    let window: AsyncNode = Window::new(Rc::new(RefCell::new(Box::new(Fake {}))), None);
     //render
     {
         let widget = Some(window.as_ref().borrow().get_widget_as_container());

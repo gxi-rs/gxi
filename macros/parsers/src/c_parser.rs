@@ -1,5 +1,5 @@
 use quote::*;
-use syn::__private::{TokenStream2};
+use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::*;
 
@@ -173,12 +173,18 @@ impl CParser {
             let tree = {
                 let (pure_index, init_type) = init_type.get_init_quote();
                 let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
-                    (TokenStream2::new(), CParser::get_pure_remove_block(pure_index))
+                    (
+                        TokenStream2::new(),
+                        CParser::get_pure_remove_block(pure_index),
+                    )
                 } else {
-                    (quote! {
+                    (
+                        quote! {
                             let mut state_borrow = top_state.as_ref().borrow();
                             let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                        }, TokenStream2::new())
+                        },
+                        TokenStream2::new(),
+                    )
                 };
 
                 quote! {

@@ -121,3 +121,26 @@ macro_rules! impl_node_component {
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_drop_for_node {
+    ($ident:ident) => {
+        impl Drop for $ident {
+            fn drop(&mut self) {
+                let parent_borrow = self.parent.as_ref().borrow_mut();
+                parent_borrow.get_widget_as_container().remove(&self.widget);
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_drop_for_component {
+    ($ident:ident) => {
+        impl Drop for $ident {
+            fn drop(&mut self) {
+                // Components need to not drop anything
+            }
+        }
+    };
+}

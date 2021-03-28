@@ -39,8 +39,4 @@ impl Node for MyApp {
         );
     }
 }
-impl Drop for MyApp {
-    fn drop(&mut self) {
-        // Components need to not drop anything
-    }
-}
+impl_drop_for_component!(MyApp);
