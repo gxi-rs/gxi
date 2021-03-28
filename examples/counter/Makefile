@@ -8,4 +8,4 @@ macro_trace:
 	RUSTFLAGS="-Z macro-backtrace" cargo +nightly build
 
 macro_expand:
-	cargo expand > my_app_clone.rs
+	cargo expand > macro_expand_output.rs
