@@ -10,7 +10,7 @@ pub struct CParser {
 }
 
 impl CParser {
-    fn parse_for_block(input: ParseStream, init_type: &InitType)-> TokenStream2 {
+    fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
             let variable = input.parse::<syn::Ident>().unwrap();
             input.parse::<syn::token::In>().unwrap();
@@ -75,17 +75,21 @@ impl CParser {
             } else {
                 quote! { else {
                     let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                    let mut node_borrow = node.as_ref().borrow_mut();
                     {
-                        let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                        if pure.current_index != #pure_index {
-                            if let Some(child) = pure.child.as_ref() {
-                                pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
-                                pure.child = None;
-                            }
+                        let current_index = {
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
+                            let index = pure.current_index.clone();
                             pure.current_index = #pure_index;
+                            index
+                        };
+                        if current_index != #pure_index {
+                            let node = {
+                                node.as_ref().borrow_mut().get_child_mut().take()
+                            };
                         }
                     }
+                    let mut node_borrow = node.as_ref().borrow_mut();
                     let cont = Rc::clone(&cont);
                     node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false);
                 }}
@@ -162,34 +166,12 @@ impl CParser {
                 }
             }
             let tree = {
-                let (pure_index, init_type) = init_type.get_init_quote();
-                let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
-                    (
-                        TokenStream2::new(),
-                        quote! {
-                            let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                            if pure.current_index != #pure_index {
-                                if let Some(child) = pure.child.as_ref() {
-                                    pure.get_widget_as_container().remove(&child.as_ref().borrow().get_widget());
-                                    pure.child = None;
-                                }
-                                pure.current_index = #pure_index;
-                            }
-                        },
-                    )
-                } else {
-                    (quote! {
-                            let mut state_borrow = top_state.as_ref().borrow();
-                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                        }, TokenStream2::new())
-                };
-
+                let init_type = init_type.get_init_quote().1;
                 quote! {
                     let node = {
                         let (node, is_new) = {
                             let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                             let mut node_borrow = node.as_ref().borrow_mut();
-                            { #pure_remove_block }
                             let cont = Rc::clone(&cont);
                             node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), #name::get_type().should_add_widget())
                         };
@@ -199,7 +181,8 @@ impl CParser {
                             if is_new {
                                 #(#static_exprs)*
                             }
-                            #pure_state_reference
+                            let mut state_borrow = top_state.as_ref().borrow();
+                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                             #(#dynamic_exprs)*
                         }
                         #name::render(node.clone());

@@ -3,7 +3,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
-use std::borrow::Borrow;
 
 pub struct MyApp {
     count: u32,
@@ -34,8 +33,8 @@ impl Node for MyApp {
                 View [
                     Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
-                for x in 0..state.count
-                    Button { set_label = "as"; }
+                if state.count % 2 == 0
+                    Button { set_label = "Eve"; }
             ]
         );
     }
