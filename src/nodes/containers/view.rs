@@ -31,3 +31,10 @@ impl Node for View {
         })))
     }
 }
+
+impl Drop for View {
+    fn drop(&mut self) {
+        let parent_borrow =  self.parent.as_ref().borrow_mut();
+        parent_borrow.get_widget_as_container().remove(&self.widget);
+    }
+}

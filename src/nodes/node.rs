@@ -18,7 +18,7 @@ impl NodeType {
     }
 }
 
-pub trait Node {
+pub trait Node: Drop {
     fn get_child(&self) -> &Option<AsyncNode> {
         unimplemented!()
     }
