@@ -1,9 +1,6 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-
 use gtk::WidgetExt;
 
-use crate::{AsyncNode, Fake, Node, Window};
+use crate::{AsyncNode, Node, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();

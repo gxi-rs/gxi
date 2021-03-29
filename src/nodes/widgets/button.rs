@@ -17,11 +17,11 @@ impl Node for Button {
     impl_node_trait_get_widget!();
     impl_node_trait_get_sibling!();
 
-    fn init_child(&mut self, _f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: AsyncNode) -> (AsyncNode, bool) {
         panic!("Attempt to a add node into Button. Button can't have a child.");
     }
 
-    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
+    fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Button {
             widget: gtk::Button::new(),
             sibling: None,
