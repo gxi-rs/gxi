@@ -139,13 +139,9 @@ impl CParser {
                                         static_exprs.push(quote! {{
                                              let state_clone = Rc::clone(&top_state);
                                              node.widget.#left(move |_| {
-                                                 let state = state_clone.clone();
-                                                 {
-                                                     let mut state_borrow = state.as_ref().borrow_mut();
-                                                     let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-                                                     #closure_body
+                                                 if let ShouldRender::Yes = Self::update(state_clone.clone(),#closure_body) {
+                                                    Self::render(state_clone.clone());
                                                  }
-                                                 Self::render(state.clone());
                                              });
                                         }});
                                     }

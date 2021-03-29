@@ -26,15 +26,29 @@ impl Node for MyApp {
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
-        c!( View [
+        c!(
+            View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || state.count -= 1; }
+                    Button { set_label = "click"; connect_clicked = || Msg::INC ; }
                 ],
                 for x in 0..state.count
                     if x % 2 == 0
                         Button {set_label=&x.to_string();}
             ]
         );
+    }
+}
+
+enum Msg {
+    INC
+}
+
+impl MyApp {
+    fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
+        let mut state_borrow = state.as_ref().borrow_mut();
+        let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+        state.count += 1;
+        ShouldRender::Yes
     }
 }
 impl_drop_for_component!(MyApp);
