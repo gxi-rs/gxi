@@ -3,24 +3,22 @@ use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::*;
 
-use crate::init_type::InitType;
+use crate::init_type::{InitType};
 
 pub struct CParser {
     pub tree: TokenStream2,
 }
 
 impl CParser {
-    fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+    fn parse_for_block(input: ParseStream, (pure_index, init_type): (u32, &TokenStream2)) -> TokenStream2 {
+        fn for_recursive(input: ParseStream, (pure_index, init_type): (u32, &TokenStream2)) -> TokenStream2 {
             let variable = input.parse::<syn::Ident>().unwrap();
             input.parse::<syn::token::In>().unwrap();
             let for_expr = input.parse::<syn::Expr>().unwrap();
-            let content = CParser::custom_parse(input, InitType::Sibling);
-            let (pure_index,init_type) = init_type.get_init_quote();
-            let pure_node = if pure_index == 0 { quote!(c!(Pure);) } else {quote!(c!(#pure_index Pure);)};
+            let content = CParser::custom_parse(input, InitType::Sibling.get_init_type_tuple());
             quote! {
                 {
-                    #pure_node
+                    c!(#pure_index #init_type Pure);
                     let cont = node.clone();
                     let state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
@@ -44,7 +42,7 @@ impl CParser {
             }
         }
         if let Ok(_) = input.parse::<syn::token::For>() {
-            for_recursive(input, init_type)
+            for_recursive(input, (pure_index, init_type))
         } else {
             TokenStream2::new()
         }
@@ -67,14 +65,13 @@ impl CParser {
         }
     }
 
-    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
-        let init_type = init_type.get_init_quote().1;
+    fn parse_condition_block(input: &ParseStream, pure_index: u32, init_type: &TokenStream2) -> TokenStream2 {
         fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
                 if_recursive(input, pure_index)
             } else {
-                CParser::custom_parse(input, InitType::Pure(*pure_index))
+                CParser::custom_parse(input, InitType::PureChild(*pure_index).get_init_type_tuple())
             };
             *pure_index += 1;
             let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
@@ -82,7 +79,7 @@ impl CParser {
                     let tree = if_recursive(input, pure_index);
                     quote!(else #tree)
                 } else {
-                    let node = CParser::custom_parse(input, InitType::Pure(*pure_index));
+                    let node = CParser::custom_parse(input, InitType::PureChild(*pure_index).get_init_type_tuple());
                     quote!( else { #node } )
                 }
             } else {
@@ -124,7 +121,7 @@ impl CParser {
         }
     }
 
-    fn parse_expression(input: ParseStream, init_type: InitType) -> TokenStream2 {
+    fn parse_expression(input: ParseStream, pure_index: u32, init_type: TokenStream2) -> TokenStream2 {
         if let Ok(name) = input.parse::<Ident>() {
             let mut static_exprs = vec![];
             let mut dynamic_exprs = vec![];
@@ -167,7 +164,6 @@ impl CParser {
                 }
             }
             let tree = {
-                let (pure_index, init_type) = init_type.get_init_quote();
                 let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
                     (
                         TokenStream2::new(),
@@ -211,7 +207,7 @@ impl CParser {
                 //check for first block
                 let tree = match group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
-                        let content = CParser::custom_parse(&brackets.content, InitType::Child);
+                        let content = CParser::custom_parse(&brackets.content, InitType::Child.get_init_type_tuple());
                         quote! { #tree {  let cont = node.clone(); #content } }
                     }
                     _ => tree,
@@ -219,7 +215,7 @@ impl CParser {
                 //parse ,
                 return match input.parse::<syn::Token![,]>() {
                     Ok(_) => {
-                        let content = CParser::custom_parse(&input, InitType::Sibling);
+                        let content = CParser::custom_parse(&input, InitType::Sibling.get_init_type_tuple());
                         quote! { #tree #content }
                     }
                     _ => tree,
@@ -229,32 +225,32 @@ impl CParser {
         TokenStream2::new()
     }
 
-    fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
-        let condition_block = CParser::parse_condition_block(&input, &init_type);
-        let for_parse = CParser::parse_for_block(&input, &init_type);
-        let expr = CParser::parse_expression(input, init_type);
+    fn custom_parse(input: ParseStream, (pure_index, init_type): (u32, TokenStream2)) -> TokenStream2 {
+        let condition_block = CParser::parse_condition_block(&input, pure_index, &init_type);
+        let for_parse = CParser::parse_for_block(&input, (pure_index, &init_type));
+        let expr = CParser::parse_expression(input, pure_index, init_type);
         quote!(#condition_block #for_parse #expr)
     }
 }
 
 impl Parse for CParser {
     fn parse(input: ParseStream) -> Result<Self> {
-        let init_type = if let Ok(i) = input.parse::<syn::Lit>() {
+        let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
             if let Lit::Int(i) = i {
-                let i = i.base10_parse().unwrap();
-                if i > 0 {
-                    InitType::Pure(i)
-                } else {
-                    panic!("Expected an u32 greater than 1")
-                }
+                i.base10_parse().unwrap()
             } else {
                 panic!("Expected an u32")
             }
         } else {
-            InitType::Child
+            0
+        };
+        let init_type = if let Ok(init_type) = input.parse::<syn::Ident>() {
+            init_type.to_token_stream()
+        } else {
+            quote! {init_child}
         };
         Ok(CParser {
-            tree: CParser::custom_parse(input, init_type),
+            tree: CParser::custom_parse(input, (pure_index, init_type)),
         })
     }
 }

@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{c, gtk::prelude::*, AsyncNode, NodeType, *};
+use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
 
 pub struct MyApp {
     count: u32,
@@ -26,14 +26,13 @@ impl Node for MyApp {
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
-        c!(
+        c!( 0 init_child
             View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || state.count += 1; }
+                    Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
-                if state.count % 2 == 0
-                    for x in 0..state.count
-                        Button {set_label=&x.to_string();}
+                for x in 0..state.count
+                    Button {set_label=&x.to_string();}
             ]
         );
     }
