@@ -2,6 +2,8 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+use crate::ShouldRender;
+
 pub type AsyncNode = Rc<RefCell<Box<dyn Node>>>;
 
 pub enum NodeType {

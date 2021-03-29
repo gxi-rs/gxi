@@ -29,7 +29,7 @@ impl Node for MyApp {
         c!(
             View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || Msg::INC ; }
+                    Button { set_label = "click"; connect_clicked = || Msg::INC; }
                 ],
                 for x in 0..state.count
                     if x % 2 == 0
@@ -47,8 +47,12 @@ impl MyApp {
     fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
         let mut state_borrow = state.as_ref().borrow_mut();
         let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-        state.count += 1;
-        ShouldRender::Yes
+        match msg {
+            Msg::INC => {
+                state.count += 1;
+                ShouldRender::Yes
+            }
+        }
     }
 }
 impl_drop_for_component!(MyApp);
