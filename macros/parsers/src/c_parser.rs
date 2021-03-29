@@ -88,11 +88,10 @@ impl CParser {
             } else {
                 let pure_remove_block = CParser::get_pure_remove_block(*pure_index);
                 quote! { else {
-                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                     #pure_remove_block
+                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                     let mut node_borrow = node.as_ref().borrow_mut();
-                    let cont = Rc::clone(&cont);
-                    node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false);
+                    node_borrow.init_child(Box::new(move || Pure::new(widget)),cont.clone());
                 }}
             };
             return quote! {
@@ -109,8 +108,7 @@ impl CParser {
                let node = {
                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                    let mut node_borrow = node.as_ref().borrow_mut();
-                   let cont = Rc::clone(&cont);
-                   node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                   node_borrow.#init_type(Box::new(move || Pure::new(widget)),cont.clone()).0
                };
                {
                     let cont = node.clone();
@@ -186,11 +184,10 @@ impl CParser {
                 quote! {
                     let node = {
                         let (node, is_new) = {
-                            let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                             { #pure_remove_block }
+                            let widget = Some(cont.as_ref().borrow().get_widget_as_container());
                             let mut node_borrow = node.as_ref().borrow_mut();
-                            let cont = Rc::clone(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(cont.clone(),widget)), #name::get_type().should_add_widget())
+                            node_borrow.#init_type(Box::new(move || #name::new(widget)),cont.clone())
                         };
                         {
                             let mut node_borrow = node.as_ref().borrow_mut();

@@ -14,14 +14,12 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(
-            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, add_widget: bool,
-        ) -> (AsyncNode, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
-                    let sibling = self.sibling.get_or_insert_with(|| f());
-                    if add_widget {
-                        let parent_borrow = self.parent.as_ref().borrow();
+                    let sibling = self.sibling.get_or_insert(f());
+                    if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
+                        let parent_borrow = parent.as_ref().borrow();
                         let parent_container = parent_borrow.get_widget_as_container();
                         let sibling_borrow = sibling.as_ref().borrow();
                         parent_container.add(&sibling_borrow.get_widget());
@@ -38,13 +36,11 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(
-            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, add_widget: bool,
-        ) -> (AsyncNode, bool) {
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent: AsyncNode) -> (AsyncNode, bool) {
             match self.child {
                 None => {
-                    let child = self.child.get_or_insert_with(|| f());
-                    if add_widget {
+                    let child = self.child.get_or_insert(f());
+                    if let NodeType::Widget = child.as_ref().borrow().get_type() {
                         let child_borrow = child.as_ref().borrow();
                         self.widget.add(&child_borrow.get_widget());
                         self.widget.show_all();
@@ -107,7 +103,7 @@ macro_rules! impl_node_component {
         impl_node_trait_init_sibling!();
         impl_node_trait_init_child!();
 
-        fn get_type() -> NodeType {
+        fn get_type(&self) -> NodeType {
             NodeType::Component
         }
 
@@ -139,7 +135,6 @@ macro_rules! impl_drop_for_component {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
-                            println!("Dropping COntainer");
                 // Components need to not drop anything
             }
         }

@@ -5,12 +5,11 @@ use std::rc::Rc;
 
 use gtk::{prelude::*, Orientation};
 
-use crate::nodes::node::{AsyncNode, Node};
+use crate::nodes::node::{AsyncNode, Node, NodeType};
 
 pub struct View {
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: AsyncNode,
     pub widget: gtk::Box,
 }
 
@@ -22,11 +21,10 @@ impl Node for View {
     impl_node_trait_get_sibling!();
     impl_node_trait_get_child!();
 
-    fn new(parent: AsyncNode, _widget: Option<gtk::Container>) -> AsyncNode {
+    fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(View {
             child: None,
             sibling: None,
-            parent,
             widget: gtk::Box::new(Orientation::Horizontal, 1),
         })))
     }

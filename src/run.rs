@@ -7,11 +7,11 @@ use crate::{AsyncNode, Fake, Node, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window: AsyncNode = Window::new(Rc::new(RefCell::new(Box::new(Fake {}))), None);
+    let window: AsyncNode = Window::new(None);
     //render
     {
         let widget = Some(window.as_ref().borrow().get_widget_as_container());
-        App::render(App::new(window.clone(), widget));
+        App::render(App::new(widget));
     }
     //show window
     {

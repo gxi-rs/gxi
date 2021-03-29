@@ -8,20 +8,18 @@ pub struct MyApp {
     count: u32,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
-    pub parent: AsyncNode,
     pub widget: gtk::Container,
 }
 
 impl Node for MyApp {
     impl_node_component!();
 
-    fn new(parent: AsyncNode, widget: Option<gtk::Container>) -> AsyncNode {
+    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Self {
             count: 10,
             child: None,
             sibling: None,
-            parent,
-            widget: widget.unwrap(),
+            widget: parent_widget.unwrap(),
         })))
     }
 

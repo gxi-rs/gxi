@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::{AsyncNode, Node};
+use crate::nodes::node::{AsyncNode, Node, NodeType};
 use gtk::{Container, Widget};
 
 const PANIC_MSG: &str = "You can't call any function on (). () can only be used as an empty Node without any child or sibling";
@@ -8,15 +8,11 @@ const PANIC_MSG: &str = "You can't call any function on (). () can only be used 
 pub struct Fake;
 
 impl Node for Fake {
-    fn init_child(
-        &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _add_widget: bool,
-    ) -> (AsyncNode, bool) {
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: AsyncNode) -> (AsyncNode, bool) {
         panic!("{}", PANIC_MSG);
     }
 
-    fn init_sibling(
-        &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _add_widget: bool,
-    ) -> (AsyncNode, bool) {
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
         panic!("{}", PANIC_MSG);
     }
 
@@ -36,7 +32,7 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn new(_parent: AsyncNode, _widget: Option<gtk::Container>) -> AsyncNode {
+    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
         panic!("{}", PANIC_MSG);
     }
 }
