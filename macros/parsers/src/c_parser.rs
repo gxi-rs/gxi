@@ -1,9 +1,9 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
-use crate::init_type::{InitType};
+use crate::init_type::InitType;
 
 pub struct CParser {
     pub tree: TokenStream2,
@@ -244,8 +244,8 @@ impl Parse for CParser {
         } else {
             0
         };
-        let init_type = if let Ok(init_type) = input.parse::<syn::Ident>() {
-            init_type.to_token_stream()
+        let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
+            input.parse::<syn::Ident>()?.into_token_stream()
         } else {
             quote! {init_child}
         };

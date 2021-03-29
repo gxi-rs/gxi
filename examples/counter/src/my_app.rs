@@ -26,8 +26,7 @@ impl Node for MyApp {
     fn render(top_state: AsyncNode) {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
-        c!( 0 init_child
-            View [
+        c!( View [
                 View [
                     Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
