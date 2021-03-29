@@ -31,12 +31,13 @@ impl Node for MyApp {
         c!(
             View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || state.count -= 1; }
+                    Button { set_label = "click"; connect_clicked = || state.count += 1; }
                 ],
                 if state.count % 2 == 0
-                    if true
-                    for x in 0..state.count
-                        Button
+                    View [
+                        Button { set_label = "Hello"; },
+                        Button { set_label = "World"; }
+                    ]
             ]
         );
     }

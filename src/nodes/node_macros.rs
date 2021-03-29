@@ -127,8 +127,8 @@ macro_rules! impl_drop_for_node {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
-                let parent_borrow = self.parent.as_ref().borrow_mut();
-                parent_borrow.get_widget_as_container().remove(&self.widget);
+                println!("Dropping");
+                unsafe { self.widget.destroy(); }
             }
         }
     };
@@ -139,6 +139,7 @@ macro_rules! impl_drop_for_component {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
+                            println!("Dropping COntainer");
                 // Components need to not drop anything
             }
         }

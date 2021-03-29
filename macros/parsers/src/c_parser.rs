@@ -16,15 +16,11 @@ impl CParser {
             input.parse::<syn::token::In>().unwrap();
             let for_expr = input.parse::<syn::Expr>().unwrap();
             let content = CParser::custom_parse(input, InitType::Sibling);
-            let init_type = init_type.get_init_quote().1;
+            let (pure_index,init_type) = init_type.get_init_quote();
+            let pure_node = if pure_index == 0 { quote!(c!(Pure);) } else {quote!(c!(#pure_index Pure);)};
             quote! {
-                let node = {
-                   let widget = Some(cont.as_ref().borrow().get_widget_as_container());
-                   let mut node_borrow = node.as_ref().borrow_mut();
-                   let cont = Rc::clone(&cont);
-                   node_borrow.#init_type(Box::new(move || Pure::new(cont.clone(),widget)), false).0
-                };
                 {
+                    #pure_node
                     let cont = node.clone();
                     let state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
