@@ -34,7 +34,9 @@ impl Node for MyApp {
                     Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
                 if state.count % 2 == 0
-                    Button { set_label = "Eve"; }
+                    if true
+                    for x in 0..state.count
+                        Button
             ]
         );
     }
