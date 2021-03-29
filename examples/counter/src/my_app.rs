@@ -32,7 +32,8 @@ impl Node for MyApp {
                     Button { set_label = "click"; connect_clicked = || state.count -= 1; }
                 ],
                 for x in 0..state.count
-                    Button {set_label=&x.to_string();}
+                    if x % 2 == 0
+                        Button {set_label=&x.to_string();}
             ]
         );
     }
