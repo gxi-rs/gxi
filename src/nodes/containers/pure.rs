@@ -25,8 +25,4 @@ impl Node for Pure {
     }
 }
 
-impl Drop for Pure {
-    fn drop(&mut self) {
-        // Components need to not drop anything
-    }
-}
+impl_drop_for_component!(Pure);
