@@ -243,8 +243,22 @@ impl CParser {
 
 impl Parse for CParser {
     fn parse(input: ParseStream) -> Result<Self> {
+        let init_type = if let Ok(i) = input.parse::<syn::Lit>() {
+            if let Lit::Int(i) = i {
+                let i = i.base10_parse().unwrap();
+                if i > 0 {
+                    InitType::Pure(i)
+                } else {
+                    panic!("Expected an u32 greater than 1")
+                }
+            } else {
+                panic!("Expected an u32")
+            }
+        } else {
+            InitType::Child
+        };
         Ok(CParser {
-            tree: CParser::custom_parse(input, InitType::Child),
+            tree: CParser::custom_parse(input, init_type),
         })
     }
 }
