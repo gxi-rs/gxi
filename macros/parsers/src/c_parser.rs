@@ -65,7 +65,7 @@ impl CParser {
         }
     }
 
-    fn parse_condition_block(input: &ParseStream, pure_index: u32, init_type: &TokenStream2) -> TokenStream2 {
+    fn parse_condition_block(input: &ParseStream, _pure_index: u32, init_type: &TokenStream2) -> TokenStream2 {
         fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
