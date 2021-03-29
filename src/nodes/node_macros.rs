@@ -123,7 +123,6 @@ macro_rules! impl_drop_for_node {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
-                println!("Dropping");
                 unsafe { self.widget.destroy(); }
             }
         }
