@@ -25,10 +25,10 @@ impl CParser {
                     let state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                     let node = {
-                       let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                       let widget = cont.as_ref().borrow().get_widget_as_container();
                        let mut node_borrow = node.as_ref().borrow_mut();
-                       let cont = Rc::clone(&cont);
-                       node_borrow.init_child(Box::new(move || Pure::new(cont.clone(),widget)), false).0
+                       let widget_clone = Some(widget.clone());
+                       node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone()).0
                     };
                     let cont = node.clone();
                     let mut prev_node = node.clone();
@@ -89,9 +89,10 @@ impl CParser {
                 let pure_remove_block = CParser::get_pure_remove_block(*pure_index);
                 quote! { else {
                     #pure_remove_block
-                    let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                    let widget = cont.as_ref().borrow().get_widget_as_container();
                     let mut node_borrow = node.as_ref().borrow_mut();
-                    node_borrow.init_child(Box::new(move || Pure::new(widget)),cont.clone());
+                    let widget_clone = Some(widget.clone());
+                    node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone());
                 }}
             };
             return quote! {
@@ -106,9 +107,10 @@ impl CParser {
             let tree = if_recursive(input, &mut pure_index);
             quote!(
                let node = {
-                   let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                   let widget = cont.as_ref().borrow().get_widget_as_container();
                    let mut node_borrow = node.as_ref().borrow_mut();
-                   node_borrow.#init_type(Box::new(move || Pure::new(widget)),cont.clone()).0
+                   let widget_clone = Some(widget.clone());
+                   node_borrow.#init_type(Box::new(move || Pure::new(widget_clone)),widget.clone()).0
                };
                {
                     let cont = node.clone();
@@ -185,9 +187,10 @@ impl CParser {
                     let node = {
                         let (node, is_new) = {
                             { #pure_remove_block }
-                            let widget = Some(cont.as_ref().borrow().get_widget_as_container());
+                            let widget = cont.as_ref().borrow().get_widget_as_container();
                             let mut node_borrow = node.as_ref().borrow_mut();
-                            node_borrow.#init_type(Box::new(move || #name::new(widget)),cont.clone())
+                            let widget_clone = Some(widget.clone());
+                            node_borrow.#init_type(Box::new(move || #name::new(widget_clone)),widget.clone())
                         };
                         {
                             let mut node_borrow = node.as_ref().borrow_mut();

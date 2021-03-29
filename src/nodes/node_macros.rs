@@ -14,13 +14,11 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent_container: gtk::Container) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
                     if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
-                        let parent_borrow = parent.as_ref().borrow();
-                        let parent_container = parent_borrow.get_widget_as_container();
                         let sibling_borrow = sibling.as_ref().borrow();
                         parent_container.add(&sibling_borrow.get_widget());
                         parent_container.show_all();
@@ -36,7 +34,7 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent: AsyncNode) -> (AsyncNode, bool) {
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent_container: gtk::Container) -> (AsyncNode, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f());
