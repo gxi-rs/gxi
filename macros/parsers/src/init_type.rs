@@ -1,6 +1,7 @@
 use quote::*;
 use syn::__private::TokenStream2;
 
+
 pub enum InitType {
     Child,
     Sibling,
@@ -9,6 +10,7 @@ pub enum InitType {
 }
 
 impl InitType {
+    /// Return: [PureIndex](PureIndex) and [InitType](InitType)
     pub fn get_init_type_tuple(&self) -> (u32, TokenStream2) {
         match self {
             InitType::Child => (0, quote! {init_child}),
