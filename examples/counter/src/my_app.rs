@@ -29,11 +29,11 @@ impl Node for MyApp {
         c!(
             View [
                 View [
-                    Button { set_label = "click"; connect_clicked = || Msg::INC; }
+                    Button ( set_label = "click", connect_clicked = || Msg::INC )
                 ],
                 for x in 0..state.count
                     if x % 2 == 0
-                        Button {set_label=&x.to_string();}
+                        Button ( set_label=&x.to_string() )
             ]
         );
     }

@@ -1,7 +1,7 @@
 use quote::*;
 use syn::*;
 use syn::__private::TokenStream2;
-use syn::parse::{Parse, ParseStream};
+use syn::parse::{Parse, ParseBuffer, ParseStream};
 
 use crate::init_type::InitType;
 
@@ -148,17 +148,17 @@ impl TreeParser {
             let mut static_exprs = vec![];
             let mut dynamic_exprs = vec![];
             //parse property block
-            if let Ok(block) = input.parse::<Block>() {
-                for x in block.stmts {
-                    match x {
-                        Stmt::Semi(s, _) => match s {
-                            Expr::Assign(e) => {
-                                let left = e.left;
-                                let right = e.right;
-                                match *right {
-                                    Expr::Closure(closure) => {
-                                        let closure_body = closure.body;
-                                        static_exprs.push(quote! {{
+            match group::parse_parens(&input) {
+                Ok(parens) => {
+                    let props_buffer = parens.content;
+                    fn parse_props(props_buffer: ParseBuffer, static_exprs: &mut Vec<TokenStream2>, dynamic_exprs: &mut Vec<TokenStream2>) {
+                        if let Ok(e) = props_buffer.parse::<syn::ExprAssign>() {
+                            let left = e.left;
+                            let right = e.right;
+                            match *right {
+                                Expr::Closure(closure) => {
+                                    let closure_body = closure.body;
+                                    static_exprs.push(quote! {{
                                              let state_clone = Rc::clone(&top_state);
                                              node.widget.#left(move |_| {
                                                  if let ShouldRender::Yes = Self::update(state_clone.clone(),#closure_body) {
@@ -166,21 +166,22 @@ impl TreeParser {
                                                  }
                                              });
                                         }});
-                                    }
-                                    Expr::Lit(literal) => {
-                                        static_exprs.push(quote! { node.widget.#left(#literal); })
-                                    }
-                                    _ => dynamic_exprs.push(quote! { node.widget.#left(#right); }),
                                 }
+                                Expr::Lit(literal) => {
+                                    static_exprs.push(quote! { node.widget.#left(#literal); })
+                                }
+                                _ => dynamic_exprs.push(quote! { node.widget.#left(#right); }),
                             }
-                            _ => panic!("expected an Assignment Expression"),
-                        },
-                        _ => {
-                            panic!("expected an Expression")
+                            //parse ,
+                            if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
+                                parse_props(props_buffer, static_exprs, dynamic_exprs);
+                            }
                         }
                     }
+                    parse_props(props_buffer, &mut static_exprs, &mut dynamic_exprs);
                 }
-            }
+                _ => (),
+            };
             let tree = {
                 let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
                     (
