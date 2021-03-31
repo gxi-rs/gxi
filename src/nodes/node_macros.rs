@@ -88,14 +88,18 @@ macro_rules! impl_node_trait_get_widget {
             let widget: &gtk::Widget = self.widget.as_ref();
             widget.clone()
         }
+    };
+}
 
+#[macro_export]
+macro_rules! impl_node_trait_get_widget_as_container {
+    () => {
         fn get_widget_as_container(&self) -> gtk::Container {
             let widget: &gtk::Container = self.widget.as_ref();
             widget.clone()
         }
     };
 }
-
 #[macro_export]
 macro_rules! impl_node_component {
     () => {
@@ -104,14 +108,10 @@ macro_rules! impl_node_component {
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
         impl_node_trait_init_child!();
+        impl_node_trait_get_widget!();
 
         fn get_type(&self) -> NodeType {
             NodeType::Component
-        }
-
-        fn get_widget(&self) -> gtk::Widget {
-            let widget: &gtk::Widget = self.widget.as_ref();
-            widget.clone()
         }
 
         fn get_widget_as_container(&self) -> gtk::Container {

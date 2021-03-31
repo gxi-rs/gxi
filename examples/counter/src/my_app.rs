@@ -13,7 +13,7 @@ comp! {
             ],
             for x in 0..state.count
                 if x % 2 == 0
-                    Button ( set_label=&x.to_string() )
+                    Text ( set_label=&x.to_string() )
         ]
     }
     update {

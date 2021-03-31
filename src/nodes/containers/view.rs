@@ -20,6 +20,7 @@ impl Node for View {
     impl_node_trait_get_widget!();
     impl_node_trait_get_sibling!();
     impl_node_trait_get_child!();
+    impl_node_trait_get_widget_as_container!();
 
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(View {
