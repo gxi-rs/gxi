@@ -1,5 +1,5 @@
 [package]
-name = "x"
+name = "comp"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
@@ -8,6 +8,6 @@ edition = "2018"
 proc-macro = true
 
 [dependencies]
-syn = { version = "", features = ["full"] }
 parsers = { path = "../parsers" }
+syn = { version = "", features = ["full"] }
 quote = "1.0.9"

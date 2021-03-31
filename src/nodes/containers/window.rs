@@ -16,7 +16,9 @@ impl Node for Window {
     impl_node_trait_get_widget!();
     impl_node_trait_init_child!();
 
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: gtk::Container) -> (AsyncNode, bool) {
+    fn init_sibling(
+        &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: gtk::Container,
+    ) -> (AsyncNode, bool) {
         panic!("Window can't have a sibling node");
     }
 

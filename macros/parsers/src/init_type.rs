@@ -1,12 +1,11 @@
 use quote::*;
 use syn::__private::TokenStream2;
 
-
 pub enum InitType {
     Child,
     Sibling,
     PureChild(u32),
-    PureSibling(u32)
+    PureSibling(u32),
 }
 
 impl InitType {

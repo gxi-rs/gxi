@@ -2,9 +2,33 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui::{*, AsyncNode, c, gtk::prelude::*, NodeType};
+use rust_gui::{*, AsyncNode, comp_init, gtk::prelude::*, NodeType};
 
-pub struct MyApp {
+comp! {
+    MyApp {
+        count : u32 = 0
+    }
+    render {
+        View [
+            View [
+                Button ( set_label = "click", connect_clicked = || Msg::INC )
+            ],
+            for x in 0..state.count
+                if x % 2 == 0
+                    Button ( set_label=&x.to_string() )
+        ]
+    }
+    update {
+        state.count+=1;
+        ShouldRender::Yes
+    }
+}
+
+enum Msg { INC }
+
+
+
+/*pub struct MyApp {
     count: u32,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
@@ -27,32 +51,10 @@ impl Node for MyApp {
         let cont = Rc::clone(&top_state);
         let node = cont.clone();
         c!(
-            View [
-                View [
-                    Button ( set_label = "click", connect_clicked = || Msg::INC )
-                ],
-                for x in 0..state.count
-                    if x % 2 == 0
-                        Button ( set_label=&x.to_string() )
-            ]
+
         );
     }
 }
 
-enum Msg {
-    INC
-}
 
-impl MyApp {
-    fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
-        let mut state_borrow = state.as_ref().borrow_mut();
-        let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-        match msg {
-            Msg::INC => {
-                state.count += 1;
-                ShouldRender::Yes
-            }
-        }
-    }
-}
-impl_drop_for_component!(MyApp);
+impl_drop_for_component!(MyApp);*/

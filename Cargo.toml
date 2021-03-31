@@ -8,4 +8,5 @@ description = "CrossPlatform Native Widget based Component System in rust"
 [dependencies]
 gtk = "0.9.2"
 c = { path = "macros/c" }
-x = { path = "macros/x" }
+comp = { path = "macros/comp" }
+parsers = { path = "macros/parsers" }

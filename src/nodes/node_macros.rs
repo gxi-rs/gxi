@@ -14,7 +14,9 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent_container: gtk::Container) -> (AsyncNode, bool) {
+        fn init_sibling(
+            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent_container: gtk::Container,
+        ) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
@@ -34,7 +36,9 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent_container: gtk::Container) -> (AsyncNode, bool) {
+        fn init_child(
+            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent_container: gtk::Container,
+        ) -> (AsyncNode, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f());
@@ -121,7 +125,9 @@ macro_rules! impl_drop_for_node {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
-                unsafe { self.widget.destroy(); }
+                unsafe {
+                    self.widget.destroy();
+                }
             }
         }
     };
