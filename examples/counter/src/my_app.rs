@@ -4,6 +4,8 @@ use std::rc::Rc;
 
 use rust_gui::{*, AsyncNode, comp_init, gtk::prelude::*, NodeType};
 
+enum Msg { INC }
+
 comp! {
     MyApp {
         count : u32 = 0
@@ -23,38 +25,3 @@ comp! {
         ShouldRender::Yes
     }
 }
-
-enum Msg { INC }
-
-
-
-/*pub struct MyApp {
-    count: u32,
-    pub child: Option<AsyncNode>,
-    pub sibling: Option<AsyncNode>,
-    pub widget: gtk::Container,
-}
-
-impl Node for MyApp {
-    impl_node_component!();
-
-    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
-        Rc::new(RefCell::new(Box::new(Self {
-            count: 10,
-            child: None,
-            sibling: None,
-            widget: parent_widget.unwrap(),
-        })))
-    }
-
-    fn render(top_state: AsyncNode) {
-        let cont = Rc::clone(&top_state);
-        let node = cont.clone();
-        c!(
-
-        );
-    }
-}
-
-
-impl_drop_for_component!(MyApp);*/
