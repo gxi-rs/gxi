@@ -7,20 +7,29 @@ Built in procedural macros to help devs write minimum code.
 
 *Example*
 ```rust
-c!(
-    View [
+use rust_gui::{*};
+
+enum Msg { INC }
+
+comp! {
+    MyApp {
+        count : u32 = 0
+    }
+    render {
         View [
-            Button { set_label = state.count.to_string().as_str(); connect_clicked = || state.count += 1; },
+            View [
+                Button ( set_label = "click", connect_clicked = || Msg::INC )
+            ],
+            for x in 0..state.count
+                if x % 2 == 0
+                    Button ( set_label=&x.to_string() )
         ]
-        {
-            if state.count % 2 == 0 {
-                c! ( 1 Button { set_label="Eve"; } );
-            } else {
-                c! ( 2 Button { set_label="Odd"; });
-            }
-        }
-    ]
-);
+    }
+    update {
+        state.count+=1;
+        ShouldRender::Yes
+    }
+}
 ```
 
 More examples [here](examples)
