@@ -23,15 +23,15 @@ impl Node for Text {
         panic!("Attempt to a add node into Text. Text can't have a child.");
     }
 
+    fn get_widget_as_container(&self) -> gtk::Container {
+        panic!("Text is not a container");
+    }
+
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Text {
             widget: gtk::Label::new(None),
             sibling: None,
         })))
-    }
-
-    fn get_widget_as_container(&self) -> gtk::Container {
-        panic!("Text is not a container");
     }
 }
 
