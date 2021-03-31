@@ -3,7 +3,8 @@ use rust_gui::{*};
 enum Msg { INC }
 comp! {
     MyApp {
-        count : u32 = 0
+        count : u32 = 0;
+        hello : String = String::from("Hello")
     }
     render {
         View [

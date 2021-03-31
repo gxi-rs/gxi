@@ -13,7 +13,7 @@ pub struct CompParser {
 
 #[macro_export]
 macro_rules! comp_init {
-    ($name:ident { $($p:ident : $t:ty = $v:literal)? } { $($render:tt)* } { $($update:tt)* } )=> {
+    ($name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } { $($update:tt)* } )=> {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
