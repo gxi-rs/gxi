@@ -177,7 +177,7 @@ impl TreeParser {
                                     let closure_body = closure.body;
                                     static_exprs.push(quote! {{
                                              let state_clone = Rc::clone(&top_state);
-                                             node.widget.#left(move |_| {
+                                             node.#left(move |_| {
                                                  if let ShouldRender::Yes = Self::update(state_clone.clone(),#closure_body) {
                                                     Self::render(state_clone.clone());
                                                  }
@@ -185,9 +185,9 @@ impl TreeParser {
                                         }});
                                 }
                                 Expr::Lit(literal) => {
-                                    static_exprs.push(quote! { node.widget.#left(#literal); })
+                                    static_exprs.push(quote! { node.#left(#literal); })
                                 }
-                                _ => dynamic_exprs.push(quote! { node.widget.#left(#right); }),
+                                _ => dynamic_exprs.push(quote! { node.#left(#right); }),
                             }
                             //parse ,
                             if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {

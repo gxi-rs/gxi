@@ -35,4 +35,10 @@ impl Node for Text {
     }
 }
 
+impl Text {
+    pub fn label(&self, label: &str) {
+        self.widget.set_label(label);
+    }
+}
+
 impl_drop_for_node!(Text);
