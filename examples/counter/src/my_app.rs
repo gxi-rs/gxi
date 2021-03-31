@@ -1,11 +1,6 @@
-use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
-
-use rust_gui::{*, AsyncNode, comp_init, gtk::prelude::*, NodeType};
+use rust_gui::{*};
 
 enum Msg { INC }
-
 comp! {
     MyApp {
         count : u32 = 0
