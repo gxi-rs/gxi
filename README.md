@@ -10,19 +10,19 @@ Built in procedural macros to help devs write minimum code.
 use rust_gui::{*};
 
 enum Msg { INC }
-
 comp! {
     MyApp {
-        count : u32 = 0
+        count : u32 = 0;
+        hello : String = String::from("Hello")
     }
     render {
         View [
             View [
-                Button ( set_label = "click", connect_clicked = || Msg::INC )
+                Button ( label = "click", on_click = || Msg::INC )
             ],
             for x in 0..state.count
                 if x % 2 == 0
-                    Button ( set_label=&x.to_string() )
+                    Text ( label=&x.to_string() )
         ]
     }
     update {
