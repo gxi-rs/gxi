@@ -5,7 +5,6 @@ use std::rc::Rc;
 use gtk::prelude::*;
 
 use crate::nodes::node::{AsyncNode, Node, NodeType};
-use crate::gtk::Container;
 
 pub struct Text {
     pub widget: gtk::Label,
@@ -31,7 +30,7 @@ impl Node for Text {
         })))
     }
 
-    fn get_widget_as_container(&self) -> Container {
+    fn get_widget_as_container(&self) -> gtk::Container {
         panic!("Text is not a container");
     }
 }
