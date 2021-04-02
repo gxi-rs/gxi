@@ -8,7 +8,7 @@ comp! {
     }
     render {
         View [
-            Image ( source = &Path::new("./cat.gif") ),
+            Image ( source = "cat.gif", height = 100, width = 100 ),
             View [
                 Button ( label = "click", on_click = || Msg::INC )
             ],
