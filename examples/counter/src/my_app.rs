@@ -1,5 +1,5 @@
 use rust_gui::{*};
-
+use std::path::Path;
 enum Msg { INC }
 comp! {
     MyApp {
@@ -8,6 +8,7 @@ comp! {
     }
     render {
         View [
+            Image ( source = &Path::new("./cat.gif") ),
             View [
                 Button ( label = "click", on_click = || Msg::INC )
             ],
