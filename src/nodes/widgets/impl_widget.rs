@@ -1,6 +1,9 @@
 #[macro_export]
 macro_rules! impl_widget {
     ($name:ident) => {
+        impl_widget!($name, $name);
+    };
+    ($name:ident,$widget_name:ident) => {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
@@ -10,7 +13,7 @@ macro_rules! impl_widget {
         use crate::nodes::node::{AsyncNode, Node, NodeType};
 
         pub struct $name {
-            pub widget: gtk::$name,
+            pub widget: gtk::$widget_name,
             pub sibling: Option<AsyncNode>,
         }
 
@@ -25,7 +28,8 @@ macro_rules! impl_widget {
             ) -> (AsyncNode, bool) {
                 panic!(
                     "Attempt to a add node into {}. {} can't have a child.",
-                    stringify!($name), stringify!($name)
+                    stringify!($name),
+                    stringify!($name)
                 );
             }
 
