@@ -90,25 +90,3 @@ impl Parse for CompParser {
         })
     }
 }
-
-/*
-{
-            let mut props = vec![];
-            fn parse_struct(content: ParseBuffer, vec: &mut Vec<(TokenStream2, TokenStream2, TokenStream2)>) -> Result<()> {
-                let prop = content.parse::<syn::Ident>()?;
-                let prop_type = content.parse::<syn::Type>()?;
-                content.parse::<syn::token::Eq>()?;
-                let value = content.parse::<syn::Lit>()?;
-                vec.push(prop)
-            }
-            {
-                let brackets = group::parse_brackets(&input)?;
-                let tree = parse_struct(brackets.content, &mut props)?;
-                quote! {
-                    struct #name {
-                        #struct_tree
-                    }
-                }
-            }
-        }
-*/

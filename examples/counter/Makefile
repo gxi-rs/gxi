@@ -10,8 +10,8 @@ macro_trace:
 macro_expand:
 	cargo expand > macro_expand_output.rs
 
-release:
-	cargo build --release
-
 run_release:
-	./target/release/counter
+	cargo run --release
+
+run:
+	GTK_DEBUG=interactive cargo run
