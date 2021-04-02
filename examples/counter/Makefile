@@ -9,3 +9,9 @@ macro_trace:
 
 macro_expand:
 	cargo expand > macro_expand_output.rs
+
+release:
+	cargo build --release
+
+run_release:
+	./target/release/counter
