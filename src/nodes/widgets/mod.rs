@@ -1,10 +1,10 @@
 pub use button::*;
 
-pub use text::*;
 pub use image::*;
+pub use text::*;
 mod button;
 
 #[macro_use]
 pub mod impl_widget;
-mod text;
 mod image;
+mod text;

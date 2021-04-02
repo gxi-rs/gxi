@@ -1,5 +1,4 @@
 use rust_gui::{*};
-use std::path::Path;
 enum Msg { INC }
 comp! {
     MyApp {
