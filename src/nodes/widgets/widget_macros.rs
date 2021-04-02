@@ -13,6 +13,7 @@ macro_rules! create_widget {
         use crate::nodes::node::{AsyncNode, Node, NodeType};
 
         pub struct $name {
+            pub dirty: bool,
             pub widget: gtk::$widget_name,
             pub sibling: Option<AsyncNode>,
         }
@@ -51,6 +52,7 @@ macro_rules! impl_widget {
 
         fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
             Rc::new(RefCell::new(Box::new($name {
+                dirty: false,
                 widget: gtk::$widget_name::new($($args)*),
                 sibling: None,
             })))

@@ -44,12 +44,9 @@ pub trait Node: Drop {
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }
-    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode
-    where
-        Self: Sized;
-    fn render(_top_state: AsyncNode)
-    where
-        Self: Sized,
-    {
-    }
+    fn new(parent_widget: Option<gtk::Container>) -> AsyncNode where Self: Sized;
+    fn render(_top_state: AsyncNode) where Self: Sized {}
+    fn is_dirty(&self) -> &bool;
+    fn mark_dirty(&mut self);
+    fn mark_clean(&mut self);
 }

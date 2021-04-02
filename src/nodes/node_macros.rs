@@ -1,10 +1,18 @@
 #[macro_export]
 macro_rules! impl_node_trait {
     () => {
+        fn is_dirty(&self) -> &bool {
+            &self.dirty
+        }
+        fn mark_dirty(&mut self) {
+            self.dirty == true;
+        }
+        fn mark_clean(&mut self) {
+            self.dirty = false;
+        }
         fn as_any(&self) -> &dyn Any {
             self
         }
-
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }

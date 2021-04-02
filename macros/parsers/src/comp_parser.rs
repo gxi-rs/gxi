@@ -18,6 +18,7 @@ macro_rules! comp_init {
 
         pub struct $name {
             pub $($p:$t),*,
+            pub dirty: bool,
             pub child: Option<AsyncNode>,
             pub sibling: Option<AsyncNode>,
             pub widget: gtk::Container,
@@ -29,6 +30,7 @@ macro_rules! comp_init {
             fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
                 Rc::new(RefCell::new(Box::new(Self {
                     $($p:$v),*,
+                    dirty: false,
                     child: None,
                     sibling: None,
                     widget: parent_widget.unwrap(),

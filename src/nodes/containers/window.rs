@@ -7,6 +7,7 @@ use gtk::{prelude::*, WindowType};
 use crate::nodes::node::{AsyncNode, Node, NodeType};
 
 pub struct Window {
+    pub dirty: bool,
     pub child: Option<AsyncNode>,
     pub widget: gtk::Window,
 }
@@ -25,6 +26,7 @@ impl Node for Window {
 
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Window {
+            dirty: false,
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),
         })))

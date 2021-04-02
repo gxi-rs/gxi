@@ -8,6 +8,7 @@ use gtk::{prelude::*, Orientation};
 use crate::nodes::node::{AsyncNode, Node, NodeType};
 
 pub struct View {
+    pub dirty: bool,
     pub child: Option<AsyncNode>,
     pub sibling: Option<AsyncNode>,
     pub widget: gtk::Box,
@@ -24,6 +25,7 @@ impl Node for View {
 
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(View {
+            dirty: false,
             child: None,
             sibling: None,
             widget: gtk::Box::new(Orientation::Horizontal, 1),
