@@ -1,4 +1,4 @@
-use crate::nodes::node::{*};
+use crate::impl_widget;
 
 impl_widget!(Button);
 
@@ -11,5 +11,3 @@ impl Button {
         self.widget.connect_clicked(f);
     }
 }
-
-

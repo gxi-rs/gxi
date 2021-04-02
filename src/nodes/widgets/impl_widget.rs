@@ -23,11 +23,14 @@ macro_rules! impl_widget {
             fn init_child(
                 &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: gtk::Container,
             ) -> (AsyncNode, bool) {
-                panic!("Attempt to a add node into {}. {} can't have a child.",$name,$name);
+                panic!(
+                    "Attempt to a add node into {}. {} can't have a child.",
+                    stringify!($name), stringify!($name)
+                );
             }
 
             fn get_widget_as_container(&self) -> gtk::Container {
-                panic!("{} is not a container",$name);
+                panic!("{} is not a container", stringify!($name));
             }
 
             fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {

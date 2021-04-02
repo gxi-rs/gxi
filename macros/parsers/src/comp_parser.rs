@@ -1,9 +1,7 @@
-use std::borrow::Borrow;
-
 use quote::*;
-use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::TreeParser;
 
@@ -55,7 +53,9 @@ impl Parse for CompParser {
             fn render(_top_state: AsyncNode) {}
         );
         let mut update_func = quote!(
-            fn update(state: AsyncNode, msg: Msg) -> ShouldRender {ShouldRender::No}
+            fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
+                ShouldRender::No
+            }
         );
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
@@ -81,11 +81,13 @@ impl Parse for CompParser {
                             }
                         }
                     }
-                    _ => panic!("")
+                    _ => panic!(""),
                 }
             }
         }
-        Ok(CompParser { tree: quote!(comp_init!(#name #props {#render_func} {#update_func});) })
+        Ok(CompParser {
+            tree: quote!(comp_init!(#name #props {#render_func} {#update_func});),
+        })
     }
 }
 
