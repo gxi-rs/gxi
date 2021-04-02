@@ -1,9 +1,12 @@
 #[macro_export]
 macro_rules! impl_widget {
     ($name:ident) => {
-        impl_widget!($name, $name);
+        impl_widget!($name, $name,() );
     };
-    ($name:ident,$widget_name:ident) => {
+    ($name:ident,( $($args:tt)* )) => {
+        impl_widget!($name, $name, $($args:tt)*);
+    };
+    ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
@@ -38,8 +41,8 @@ macro_rules! impl_widget {
             }
 
             fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
-                Rc::new(RefCell::new(Box::new(Button {
-                    widget: gtk::Button::new(),
+                Rc::new(RefCell::new(Box::new($name {
+                    widget: gtk::$widget_name::new($($args)*),
                     sibling: None,
                 })))
             }
