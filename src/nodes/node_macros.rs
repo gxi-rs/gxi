@@ -5,7 +5,7 @@ macro_rules! impl_node_trait {
             &self.dirty
         }
         fn mark_dirty(&mut self) {
-            self.dirty == true;
+            self.dirty = true;
         }
         fn mark_clean(&mut self) {
             self.dirty = false;
