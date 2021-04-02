@@ -1,6 +1,10 @@
-use crate::impl_widget;
+use crate::{impl_widget, create_widget};
 
-impl_widget!(Text, Label, (None));
+create_widget!(Text, Label);
+
+impl Node for Text {
+    impl_widget!(Text, Label, (None));
+}
 
 impl Text {
     pub fn label(&self, label: &str) {

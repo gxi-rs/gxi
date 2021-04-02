@@ -1,3 +1,4 @@
+use quote::__private::TokenStream;
 use quote::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
@@ -159,9 +160,9 @@ impl TreeParser {
         input: ParseStream, pure_index: u32, init_type: TokenStream2,
     ) -> TokenStream2 {
         if let Ok(name) = input.parse::<Ident>() {
-            let mut static_exprs = vec![];
-            let mut dynamic_exprs = vec![];
-            //parse property block
+            let mut static_props = vec![];
+            let mut dynamic_props = vec![];
+            //parse properties
             match group::parse_parens(&input) {
                 Ok(parens) => {
                     let props_buffer = parens.content;
@@ -195,23 +196,41 @@ impl TreeParser {
                             }
                         }
                     }
-                    parse_props(props_buffer, &mut static_exprs, &mut dynamic_exprs);
+                    parse_props(props_buffer, &mut static_props, &mut dynamic_props);
                 }
                 _ => (),
             };
             let tree = {
-                let (pure_state_reference, pure_remove_block) = if pure_index > 0 {
+                //if pure_index > 0 then the component is pure
+                let (pure_state_reference, pure_remove_block, render_call) = if pure_index > 0 {
                     (
                         TokenStream2::new(),
                         TreeParser::get_pure_remove_block(pure_index),
+                        //need not call render on pure function
+                        TokenStream2::new(),
                     )
                 } else {
                     (
-                        quote! {
-                            let mut state_borrow = top_state.as_ref().borrow();
-                            let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        //if there are no dynamic props then borrowing state does not make sense
+                        if dynamic_props.is_empty() {
+                            TokenStream2::new()
+                        } else {
+                            quote! {
+                                let mut state_borrow = top_state.as_ref().borrow();
+                                let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                            }
                         },
                         TokenStream2::new(),
+                        //if there are no dynamic props then call render only after initialisation
+                        if dynamic_props.is_empty() {
+                            quote! {
+                                if is_new {
+                                    #name::render(node.clone());
+                                }
+                            }
+                        } else {
+                            quote!(#name::render(node.clone());)
+                        },
                     )
                 };
 
@@ -228,12 +247,12 @@ impl TreeParser {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
                             if is_new {
-                                #(#static_exprs)*
+                                #(#static_props)*
                             }
                             #pure_state_reference
-                            #(#dynamic_exprs)*
+                            #(#dynamic_props)*
                         }
-                        #name::render(node.clone());
+                        #render_call
                         node
                     };
                 }

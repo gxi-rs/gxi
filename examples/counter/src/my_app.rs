@@ -1,4 +1,5 @@
 use rust_gui::{*};
+
 enum Msg { INC }
 comp! {
     MyApp {
@@ -7,7 +8,7 @@ comp! {
     }
     render {
         View [
-            Image ( source = "cat.gif", height = 100, width = 100 ),
+            Image ( source = "cat.gif" ),
             View [
                 Button ( label = "click", on_click = || Msg::INC )
             ],

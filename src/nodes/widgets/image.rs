@@ -1,8 +1,12 @@
 use std::path::Path;
 
-use crate::impl_widget;
+use crate::{create_widget, impl_widget};
 
-impl_widget!(Image);
+create_widget!(Image);
+
+impl Node for Image {
+    impl_widget!(Image);
+}
 
 impl Image {
     pub fn source(&self, path: &str) {

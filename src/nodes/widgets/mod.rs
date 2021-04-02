@@ -5,6 +5,6 @@ pub use text::*;
 mod button;
 
 #[macro_use]
-pub mod impl_widget;
+pub mod widget_macros;
 mod image;
 mod text;

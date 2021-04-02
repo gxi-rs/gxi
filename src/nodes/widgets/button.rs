@@ -1,6 +1,10 @@
-use crate::impl_widget;
+use crate::{create_widget, impl_widget};
 
-impl_widget!(Button);
+create_widget!(Button);
+
+impl Node for Button {
+    impl_widget!(Button);
+}
 
 impl Button {
     pub fn label(&self, label: &str) {
