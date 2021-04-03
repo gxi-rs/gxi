@@ -1,9 +1,9 @@
 use std::any::Any;
+use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
-
 use std::rc::Rc;
 
-use gtk::{prelude::*, Orientation};
+use gtk::{Orientation, prelude::*};
 
 use crate::nodes::node::{AsyncNode, Node, NodeType};
 
@@ -25,11 +25,20 @@ impl Node for View {
 
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(View {
-            dirty: false,
+            dirty: true,
             child: None,
             sibling: None,
             widget: gtk::Box::new(Orientation::Horizontal, 1),
         })))
+    }
+
+    fn render(state: AsyncNode) where Self: Sized {
+        let mut state = state.as_ref().borrow_mut();
+        let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
+        if state.dirty {
+            state.widget.show_all();
+        }
+        state.mark_clean();
     }
 }
 

@@ -26,7 +26,7 @@ impl Node for Window {
 
     fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Window {
-            dirty: false,
+            dirty: true,
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),
         })))

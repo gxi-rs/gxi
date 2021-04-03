@@ -120,11 +120,13 @@ impl TreeParser {
             } else {
                 let pure_remove_block = TreeParser::get_pure_remove_block(*pure_index);
                 quote! { else {
-                    #pure_remove_block
-                    let widget = cont.as_ref().borrow().get_widget_as_container();
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let widget_clone = Some(widget.clone());
-                    node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone());
+                    {
+                        { #pure_remove_block }
+                        let widget = cont.as_ref().borrow().get_widget_as_container();
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let widget_clone = Some(widget.clone());
+                        node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone()).1
+                    };
                 }}
             };
             return quote! {
@@ -138,18 +140,21 @@ impl TreeParser {
             let mut pure_index = 1;
             let tree = if_recursive(input, &mut pure_index);
             quote!(
-               let node = {
-                   let widget = cont.as_ref().borrow().get_widget_as_container();
-                   let mut node_borrow = node.as_ref().borrow_mut();
-                   let widget_clone = Some(widget.clone());
-                   node_borrow.#init_type(Box::new(move || Pure::new(widget_clone)),widget.clone()).0
-               };
-               {
-                    let cont = node.clone();
-                    let state_borrow = top_state.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    #tree
-               }
+                let (node,is_new) = {
+                    let widget = cont.as_ref().borrow().get_widget_as_container();
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let widget_clone = Some(widget.clone());
+                    node_borrow.#init_type(Box::new(move || Pure::new(widget_clone)),widget.clone())
+                };
+                if is_new {
+                     cont.as_ref().borrow_mut().mark_dirty();
+                }
+                {
+                     let cont = node.clone();
+                     let state_borrow = top_state.as_ref().borrow();
+                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                     #tree
+                }
             )
         } else {
             TokenStream2::new()
@@ -224,12 +229,12 @@ impl TreeParser {
                         //if there are no dynamic props then call render only after initialisation
                         if dynamic_props.is_empty() {
                             quote! {
-                                if is_new {
+                                if is_new && node.borrow().is_dirty() {
                                     #name::render(node.clone());
                                 }
                             }
                         } else {
-                            quote!(#name::render(node.clone());)
+                            quote!( if node.borrow().is_dirty() { #name::render(node.clone()); })
                         },
                     )
                 };
@@ -243,6 +248,9 @@ impl TreeParser {
                             let widget_clone = Some(widget.clone());
                             node_borrow.#init_type(Box::new(move || #name::new(widget_clone)),widget.clone())
                         };
+                        if is_new {
+                             cont.as_ref().borrow_mut().mark_dirty();
+                        }
                         {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();

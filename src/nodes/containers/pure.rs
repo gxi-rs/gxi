@@ -18,7 +18,7 @@ impl Node for Pure {
     impl_node_component!();
     fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
         Rc::new(RefCell::new(Box::new(Pure {
-            dirty: false,
+            dirty: true,
             pure_index: 0,
             child: None,
             sibling: None,

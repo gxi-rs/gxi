@@ -52,7 +52,7 @@ macro_rules! impl_widget {
 
         fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
             Rc::new(RefCell::new(Box::new($name {
-                dirty: false,
+                dirty: true,
                 widget: gtk::$widget_name::new($($args)*),
                 sibling: None,
             })))

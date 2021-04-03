@@ -8,7 +8,7 @@ macro_trace:
 	RUSTFLAGS="-Z macro-backtrace" cargo +nightly build
 
 macro_expand:
-	cargo expand > macro_expand_output.rs
+	cargo +nightly expand > macro_expand_output.rs
 
 run_release:
 	cargo run --release

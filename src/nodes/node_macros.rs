@@ -1,8 +1,8 @@
 #[macro_export]
 macro_rules! impl_node_trait {
     () => {
-        fn is_dirty(&self) -> &bool {
-            &self.dirty
+        fn is_dirty(&self) -> bool {
+            self.dirty.clone()
         }
         fn mark_dirty(&mut self) {
             self.dirty = true;
@@ -22,16 +22,15 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(
-            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent_container: gtk::Container,
-        ) -> (AsyncNode, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
                     if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
                         let sibling_borrow = sibling.as_ref().borrow();
+                        let parent_borrow = parent.as_ref().borrow();
+                        parent_borrow.add()
                         parent_container.add(&sibling_borrow.get_widget());
-                        parent_container.show_all();
                     }
                     (sibling.clone(), true)
                 }
@@ -53,7 +52,6 @@ macro_rules! impl_node_trait_init_child {
                     if let NodeType::Widget = child.as_ref().borrow().get_type() {
                         let child_borrow = child.as_ref().borrow();
                         self.widget.add(&child_borrow.get_widget());
-                        self.widget.show_all();
                     }
                     (child.clone(), true)
                 }

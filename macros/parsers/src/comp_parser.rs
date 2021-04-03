@@ -30,7 +30,7 @@ macro_rules! comp_init {
             fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
                 Rc::new(RefCell::new(Box::new(Self {
                     $($p:$v),*,
-                    dirty: false,
+                    dirty: true,
                     child: None,
                     sibling: None,
                     widget: parent_widget.unwrap(),
