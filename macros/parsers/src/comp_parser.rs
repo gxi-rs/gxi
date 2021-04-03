@@ -27,7 +27,7 @@ macro_rules! comp_init {
         }
 
         impl Node for $name {
-            impl_node_component!();
+            impl_node_for_component!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {

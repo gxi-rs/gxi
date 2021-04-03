@@ -103,21 +103,43 @@ macro_rules! impl_node_trait_get_widget_as_container {
     };
 }
 #[macro_export]
-macro_rules! impl_node_component {
+macro_rules! impl_node_for_component {
     () => {
         impl_node_trait!();
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
-        impl_node_trait_init_child!();
-        impl_node_trait_get_widget!();
 
-        fn get_type(&self) -> NodeType {
-            NodeType::Component
+        fn get_widget(&self) -> gtk::Widget {
+            let parent = self.parent.upgrade().unwrap();
+            let parent = parent.as_ref().borrow();
+            parent.get_widget()
         }
 
         fn get_widget_as_container(&self) -> gtk::Container {
-            self.widget.clone()
+            let parent = self.parent.upgrade().unwrap();
+            let parent = parent.as_ref().borrow();
+            parent.get_widget_as_container()
+        }
+
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
+            match self.child {
+                None => {
+                    let child = self.child.get_or_insert(f());
+                    if let NodeType::Widget = child.as_ref().borrow().get_type() {
+                        let child_borrow = child.as_ref().borrow();
+                        let parent = self.parent.upgrade().unwrap();
+                        let parent = parent.as_ref().borrow_mut();
+                        parent.get_widget_as_container().add(&child_borrow.get_widget());
+                    }
+                    (child.clone(), true)
+                }
+                _ => (self.child.as_ref().unwrap().clone(), false),
+            }
+        }
+
+        fn get_type(&self) -> NodeType {
+            NodeType::Component
         }
     };
 }
