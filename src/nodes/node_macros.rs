@@ -22,14 +22,12 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> AsyncNode>, parent: AsyncNode) -> (AsyncNode, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container) -> (NodeRc, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
                     if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
                         let sibling_borrow = sibling.as_ref().borrow();
-                        let parent_borrow = parent.as_ref().borrow();
-                        parent_borrow.add()
                         parent_container.add(&sibling_borrow.get_widget());
                     }
                     (sibling.clone(), true)
@@ -44,8 +42,8 @@ macro_rules! impl_node_trait_init_sibling {
 macro_rules! impl_node_trait_init_child {
     () => {
         fn init_child(
-            &mut self, f: Box<dyn FnOnce() -> AsyncNode>, _parent_container: gtk::Container,
-        ) -> (AsyncNode, bool) {
+            &mut self, f: Box<dyn FnOnce() -> NodeRc>, _parent_container: gtk::Container,
+        ) -> (NodeRc, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f());
@@ -64,11 +62,11 @@ macro_rules! impl_node_trait_init_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_child {
     () => {
-        fn get_child(&self) -> &Option<AsyncNode> {
+        fn get_child(&self) -> &Option<NodeRc> {
             &self.child
         }
 
-        fn get_child_mut(&mut self) -> &mut Option<AsyncNode> {
+        fn get_child_mut(&mut self) -> &mut Option<NodeRc> {
             &mut self.child
         }
     };
@@ -77,11 +75,11 @@ macro_rules! impl_node_trait_get_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_sibling {
     () => {
-        fn get_sibling(&self) -> &Option<AsyncNode> {
+        fn get_sibling(&self) -> &Option<NodeRc> {
             &self.sibling
         }
 
-        fn get_sibling_mut(&mut self) -> &mut Option<AsyncNode> {
+        fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
             &mut self.sibling
         }
     };

@@ -1,4 +1,3 @@
-use quote::__private::TokenStream;
 use quote::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};

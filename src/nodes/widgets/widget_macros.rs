@@ -10,12 +10,12 @@ macro_rules! create_widget {
 
         use gtk::prelude::*;
 
-        use crate::nodes::node::{AsyncNode, Node, NodeType};
+        use crate::nodes::node::{*};
 
         pub struct $name {
             pub dirty: bool,
             pub widget: gtk::$widget_name,
-            pub sibling: Option<AsyncNode>,
+            pub sibling: Option<NodeRc>,
         }
 
         impl_drop_for_node!($name);
@@ -37,8 +37,8 @@ macro_rules! impl_widget {
         impl_node_trait_get_sibling!();
 
         fn init_child(
-            &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: gtk::Container,
-        ) -> (AsyncNode, bool) {
+            &mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent: gtk::Container,
+        ) -> (NodeRc, bool) {
             panic!(
                 "Attempt to a add node into {}. {} can't have a child.",
                 stringify!($name),
@@ -50,7 +50,7 @@ macro_rules! impl_widget {
             panic!("{} is not a container", stringify!($name));
         }
 
-        fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
+        fn new(_parent_widget: Option<gtk::Container>) -> NodeRc {
             Rc::new(RefCell::new(Box::new($name {
                 dirty: true,
                 widget: gtk::$widget_name::new($($args)*),

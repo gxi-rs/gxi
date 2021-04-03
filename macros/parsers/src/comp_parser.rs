@@ -19,15 +19,15 @@ macro_rules! comp_init {
         pub struct $name {
             pub $($p:$t),*,
             pub dirty: bool,
-            pub child: Option<AsyncNode>,
-            pub sibling: Option<AsyncNode>,
+            pub child: Option<NodeRc>,
+            pub sibling: Option<NodeRc>,
             pub widget: gtk::Container,
         }
 
         impl Node for $name {
             impl_node_component!();
 
-            fn new(parent_widget: Option<gtk::Container>) -> AsyncNode {
+            fn new(parent_widget: Option<gtk::Container>) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {
                     $($p:$v),*,
                     dirty: true,
@@ -52,10 +52,10 @@ impl Parse for CompParser {
         let name = input.parse::<syn::Ident>()?;
         let props = input.parse::<syn::Block>()?;
         let mut render_func = quote!(
-            fn render(_top_state: AsyncNode) {}
+            fn render(_top_state: NodeRc) {}
         );
         let mut update_func = quote!(
-            fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
+            fn update(state: NodeRc, msg: Msg) -> ShouldRender {
                 ShouldRender::No
             }
         );
@@ -66,7 +66,7 @@ impl Parse for CompParser {
                         let block_content = group::parse_braces(&input)?.content;
                         let content = TreeParser::parse(&block_content)?.tree;
                         render_func = quote!(
-                            fn render(top_state: AsyncNode) {
+                            fn render(top_state: NodeRc) {
                                 let cont = Rc::clone(&top_state);
                                 let node = cont.clone();
                                 #content
@@ -76,7 +76,7 @@ impl Parse for CompParser {
                     "update" => {
                         let block = input.parse::<syn::Block>()?;
                         update_func = quote! {
-                            fn update(state: AsyncNode, msg: Msg) -> ShouldRender {
+                            fn update(state: NodeRc, msg: Msg) -> ShouldRender {
                                 let mut state_borrow = state.as_ref().borrow_mut();
                                 let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                                 #block

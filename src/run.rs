@@ -2,11 +2,11 @@ use std::process::exit;
 
 use gtk::WidgetExt;
 
-use crate::{AsyncNode, Node, Window};
+use crate::{NodeRc, Node, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window: AsyncNode = Window::new(None);
+    let window: NodeRc = Window::new(None);
     //render
     {
         let widget = Some(window.as_ref().borrow().get_widget_as_container());

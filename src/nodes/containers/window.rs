@@ -4,11 +4,11 @@ use std::rc::Rc;
 
 use gtk::{prelude::*, WindowType};
 
-use crate::nodes::node::{AsyncNode, Node, NodeType};
+use crate::nodes::node::{NodeRc, Node, NodeType};
 
 pub struct Window {
     pub dirty: bool,
-    pub child: Option<AsyncNode>,
+    pub child: Option<NodeRc>,
     pub widget: gtk::Window,
 }
 
@@ -19,12 +19,12 @@ impl Node for Window {
     impl_node_trait_init_child!();
 
     fn init_sibling(
-        &mut self, _f: Box<dyn FnOnce() -> AsyncNode>, _parent: gtk::Container,
-    ) -> (AsyncNode, bool) {
+        &mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent: gtk::Container,
+    ) -> (NodeRc, bool) {
         panic!("Window can't have a sibling node");
     }
 
-    fn new(_parent_widget: Option<gtk::Container>) -> AsyncNode {
+    fn new(_parent_widget: Option<gtk::Container>) -> NodeRc {
         Rc::new(RefCell::new(Box::new(Window {
             dirty: true,
             child: None,
