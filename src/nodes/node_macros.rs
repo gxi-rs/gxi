@@ -22,7 +22,9 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container) -> (NodeRc, bool) {
+        fn init_sibling(
+            &mut self, f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container,
+        ) -> (NodeRc, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());

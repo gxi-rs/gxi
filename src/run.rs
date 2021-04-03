@@ -1,16 +1,18 @@
+use std::cell::RefCell;
 use std::process::exit;
+use std::rc::{Rc, Weak};
 
 use gtk::WidgetExt;
 
-use crate::{NodeRc, Node, Window};
+use crate::{Fake, Node, NodeRc, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let window: NodeRc = Window::new(None);
+    let fake_parent:NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
+    let window:NodeRc = Window::new(Rc::downgrade(&fake_parent));
     //render
     {
-        let widget = Some(window.as_ref().borrow().get_widget_as_container());
-        App::render(App::new(widget));
+        App::render(App::new(Rc::downgrade(&window)));
     }
     //show window
     {

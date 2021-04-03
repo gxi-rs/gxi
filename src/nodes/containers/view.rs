@@ -2,11 +2,13 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{Orientation, prelude::*};
+use gtk::{prelude::*, Orientation};
 
-use crate::nodes::node::{NodeRc, Node, NodeType};
+use crate::nodes::node::{Node, NodeRc, NodeType};
+use crate::WeakNodeRc;
 
 pub struct View {
+    pub parent: WeakNodeRc,
     pub dirty: bool,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
@@ -22,8 +24,9 @@ impl Node for View {
     impl_node_trait_get_child!();
     impl_node_trait_get_widget_as_container!();
 
-    fn new(_parent_widget: Option<gtk::Container>) -> NodeRc {
+    fn new(parent: WeakNodeRc) -> NodeRc {
         Rc::new(RefCell::new(Box::new(View {
+            parent,
             dirty: true,
             child: None,
             sibling: None,
@@ -31,7 +34,10 @@ impl Node for View {
         })))
     }
 
-    fn render(state: NodeRc) where Self: Sized {
+    fn render(state: NodeRc)
+    where
+        Self: Sized,
+    {
         let mut state = state.as_ref().borrow_mut();
         let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
         if state.dirty {

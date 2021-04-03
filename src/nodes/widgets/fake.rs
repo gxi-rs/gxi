@@ -1,0 +1,56 @@
+use crate::{Node, WeakNodeRc, NodeRc};
+use std::any::Any;
+use std::cell::RefCell;
+use std::rc::Rc;
+
+const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
+
+pub struct Fake;
+
+impl Node for Fake {
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container) -> (NodeRc, bool) {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent_container: gtk::Container) -> (NodeRc, bool) {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn get_widget(&self) -> gtk::Widget {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn get_widget_as_container(&self) -> gtk::Container {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn new(_parent:WeakNodeRc) -> NodeRc {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn is_dirty(&self) -> bool {
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn mark_dirty(&mut self) {
+        todo!()
+    }
+
+    fn mark_clean(&mut self) {
+        todo!()
+    }
+}
+
+impl Drop for Fake {
+    fn drop(&mut self) {
+        // Components need to not drop anything
+    }
+}

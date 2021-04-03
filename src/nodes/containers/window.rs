@@ -4,9 +4,11 @@ use std::rc::Rc;
 
 use gtk::{prelude::*, WindowType};
 
-use crate::nodes::node::{NodeRc, Node, NodeType};
+use crate::nodes::node::{Node, NodeRc, NodeType};
+use crate::WeakNodeRc;
 
 pub struct Window {
+    pub parent: WeakNodeRc,
     pub dirty: bool,
     pub child: Option<NodeRc>,
     pub widget: gtk::Window,
@@ -24,8 +26,9 @@ impl Node for Window {
         panic!("Window can't have a sibling node");
     }
 
-    fn new(_parent_widget: Option<gtk::Container>) -> NodeRc {
+    fn new(parent: WeakNodeRc) -> NodeRc {
         Rc::new(RefCell::new(Box::new(Window {
+            parent,
             dirty: true,
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),

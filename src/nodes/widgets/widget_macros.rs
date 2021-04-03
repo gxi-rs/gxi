@@ -10,9 +10,10 @@ macro_rules! create_widget {
 
         use gtk::prelude::*;
 
-        use crate::nodes::node::{*};
+        use crate::nodes::node::*;
 
         pub struct $name {
+            pub parent: WeakNodeRc,
             pub dirty: bool,
             pub widget: gtk::$widget_name,
             pub sibling: Option<NodeRc>,
@@ -50,8 +51,9 @@ macro_rules! impl_widget {
             panic!("{} is not a container", stringify!($name));
         }
 
-        fn new(_parent_widget: Option<gtk::Container>) -> NodeRc {
+        fn new(parent: WeakNodeRc) -> NodeRc {
             Rc::new(RefCell::new(Box::new($name {
+                parent,
                 dirty: true,
                 widget: gtk::$widget_name::new($($args)*),
                 sibling: None,

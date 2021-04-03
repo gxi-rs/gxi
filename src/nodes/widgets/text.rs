@@ -1,4 +1,4 @@
-use crate::{impl_widget, create_widget};
+use crate::{create_widget, impl_widget};
 
 create_widget!(Text, Label);
 
