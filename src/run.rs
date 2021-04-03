@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::process::exit;
-use std::rc::{Rc, Weak};
+use std::rc::Rc;
 
 use gtk::WidgetExt;
 
@@ -8,8 +8,8 @@ use crate::{Fake, Node, NodeRc, Window};
 
 pub fn run<App: Node>() {
     gtk::init().unwrap();
-    let fake_parent:NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
-    let window:NodeRc = Window::new(Rc::downgrade(&fake_parent));
+    let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
+    let window: NodeRc = Window::new(Rc::downgrade(&fake_parent));
     //render
     {
         App::render(App::new(Rc::downgrade(&window)));

@@ -1,18 +1,17 @@
-use crate::{Node, WeakNodeRc, NodeRc};
 use std::any::Any;
-use std::cell::RefCell;
-use std::rc::Rc;
+
+use crate::{Node, NodeRc, WeakNodeRc};
 
 const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
 
 pub struct Fake;
 
 impl Node for Fake {
-    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container) -> (NodeRc, bool) {
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("{}", PANIC_MSG);
     }
 
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent_container: gtk::Container) -> (NodeRc, bool) {
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("{}", PANIC_MSG);
     }
 
@@ -32,7 +31,7 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn new(_parent:WeakNodeRc) -> NodeRc {
+    fn new(_parent: WeakNodeRc) -> NodeRc {
         panic!("{}", PANIC_MSG);
     }
 

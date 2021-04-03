@@ -20,11 +20,6 @@ impl Node for Window {
     impl_node_trait_get_widget_as_container!();
     impl_node_trait_init_child!();
 
-    fn init_sibling(
-        &mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent: gtk::Container,
-    ) -> (NodeRc, bool) {
-        panic!("Window can't have a sibling node");
-    }
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         Rc::new(RefCell::new(Box::new(Window {
@@ -33,6 +28,10 @@ impl Node for Window {
             child: None,
             widget: gtk::Window::new(WindowType::Toplevel),
         })))
+    }
+
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
+        panic!("Window can't have a sibling node");
     }
 }
 

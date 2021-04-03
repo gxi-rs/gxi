@@ -32,12 +32,8 @@ pub trait Node: Drop {
     fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
         unimplemented!()
     }
-    fn init_child(
-        &mut self, _f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container,
-    ) -> (NodeRc, bool);
-    fn init_sibling(
-        &mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent_container: gtk::Container,
-    ) -> (NodeRc, bool);
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool);
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool);
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn get_widget(&self) -> gtk::Widget;

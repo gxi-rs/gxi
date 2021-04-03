@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
 
 use crate::init_type::InitType;
 
@@ -49,10 +49,9 @@ impl TreeParser {
                     let state_borrow = top_state.as_ref().borrow();
                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                     let node = {
-                       let widget = cont.as_ref().borrow().get_widget_as_container();
                        let mut node_borrow = node.as_ref().borrow_mut();
                        let weak_cont = Rc::downgrade(&cont);
-                       node_borrow.init_child(Box::new(move || Pure::new(weak_cont)),widget.clone()).0
+                       node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
                     };
                     let cont = node.clone();
                     let mut prev_node = node.clone();
@@ -121,9 +120,8 @@ impl TreeParser {
                 quote! { else {
                     {
                         { #pure_remove_block }
-                        let widget = cont.as_ref().borrow().get_widget_as_container();
                         let mut node_borrow = node.as_ref().borrow_mut();
-                        node_borrow.init_child(Box::new(move || Pure::new(Rc::downgrade(&cont))),widget.clone()).1
+                        node_borrow.init_child(Box::new(move || Pure::new(Rc::downgrade(&cont)))).1
                     };
                 }}
             };
@@ -139,10 +137,9 @@ impl TreeParser {
             let tree = if_recursive(input, &mut pure_index);
             quote!(
                 let (node,is_new) = {
-                    let widget = cont.as_ref().borrow().get_widget_as_container();
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)),widget.clone())
+                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)))
                 };
                 if is_new {
                      cont.as_ref().borrow_mut().mark_dirty();
@@ -241,10 +238,9 @@ impl TreeParser {
                     let node = {
                         let (node, is_new) = {
                             { #pure_remove_block }
-                            let widget = cont.as_ref().borrow().get_widget_as_container();
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)),widget.clone())
+                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
                         };
                         if is_new {
                              cont.as_ref().borrow_mut().mark_dirty();

@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -21,7 +20,9 @@ impl Node for Pure {
     impl_node_component!();
     fn new(parent: WeakNodeRc) -> NodeRc {
         Rc::new(RefCell::new(Box::new(Pure {
-            widget: parent.upgrade().unwrap()
+            widget: parent
+                .upgrade()
+                .unwrap()
                 .as_ref()
                 .borrow()
                 .get_widget_as_container(),

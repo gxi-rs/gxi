@@ -22,15 +22,13 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(
-            &mut self, f: Box<dyn FnOnce() -> NodeRc>, parent_container: gtk::Container,
-        ) -> (NodeRc, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
                     if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
                         let sibling_borrow = sibling.as_ref().borrow();
-                        parent_container.add(&sibling_borrow.get_widget());
+                        // parent_container.add(&sibling_borrow.get_widget());
                     }
                     (sibling.clone(), true)
                 }
@@ -43,9 +41,7 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(
-            &mut self, f: Box<dyn FnOnce() -> NodeRc>, _parent_container: gtk::Container,
-        ) -> (NodeRc, bool) {
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f());

@@ -37,9 +37,7 @@ macro_rules! impl_widget {
         impl_node_trait_get_widget!();
         impl_node_trait_get_sibling!();
 
-        fn init_child(
-            &mut self, _f: Box<dyn FnOnce() -> NodeRc>, _parent: gtk::Container,
-        ) -> (NodeRc, bool) {
+        fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             panic!(
                 "Attempt to a add node into {}. {} can't have a child.",
                 stringify!($name),
