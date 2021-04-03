@@ -13,11 +13,13 @@ pub struct CompParser {
 macro_rules! comp_init {
     ($name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } { $($update:tt)* } )=> {
         use std::any::Any;
+        use std::borrow::Borrow;
         use std::cell::RefCell;
         use std::rc::Rc;
 
         pub struct $name {
             pub $($p:$t),*,
+            pub parent: WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
             pub sibling: Option<NodeRc>,
@@ -27,13 +29,14 @@ macro_rules! comp_init {
         impl Node for $name {
             impl_node_component!();
 
-            fn new(parent_widget: Option<gtk::Container>) -> NodeRc {
+            fn new(parent: WeakNodeRc) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {
                     $($p:$v),*,
+                    widget: parent.upgrade().unwrap().as_ref().borrow().get_widget_as_container(),
+                    parent,
                     dirty: true,
                     child: None,
                     sibling: None,
-                    widget: parent_widget.unwrap(),
                 })))
             }
             $($render)*

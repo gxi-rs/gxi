@@ -51,8 +51,8 @@ impl TreeParser {
                     let node = {
                        let widget = cont.as_ref().borrow().get_widget_as_container();
                        let mut node_borrow = node.as_ref().borrow_mut();
-                       let widget_clone = Some(widget.clone());
-                       node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone()).0
+                       let weak_cont = Rc::downgrade(&cont);
+                       node_borrow.init_child(Box::new(move || Pure::new(weak_cont)),widget.clone()).0
                     };
                     let cont = node.clone();
                     let mut prev_node = node.clone();
@@ -123,8 +123,7 @@ impl TreeParser {
                         { #pure_remove_block }
                         let widget = cont.as_ref().borrow().get_widget_as_container();
                         let mut node_borrow = node.as_ref().borrow_mut();
-                        let widget_clone = Some(widget.clone());
-                        node_borrow.init_child(Box::new(move || Pure::new(widget_clone)),widget.clone()).1
+                        node_borrow.init_child(Box::new(move || Pure::new(Rc::downgrade(&cont))),widget.clone()).1
                     };
                 }}
             };
@@ -142,8 +141,8 @@ impl TreeParser {
                 let (node,is_new) = {
                     let widget = cont.as_ref().borrow().get_widget_as_container();
                     let mut node_borrow = node.as_ref().borrow_mut();
-                    let widget_clone = Some(widget.clone());
-                    node_borrow.#init_type(Box::new(move || Pure::new(widget_clone)),widget.clone())
+                    let weak_cont = Rc::downgrade(&cont);
+                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)),widget.clone())
                 };
                 if is_new {
                      cont.as_ref().borrow_mut().mark_dirty();
@@ -228,7 +227,7 @@ impl TreeParser {
                         //if there are no dynamic props then call render only after initialisation
                         if dynamic_props.is_empty() {
                             quote! {
-                                if is_new && node.borrow().is_dirty() {
+                                if is_new && node.as_ref().borrow().is_dirty() {
                                     #name::render(node.clone());
                                 }
                             }
@@ -244,8 +243,8 @@ impl TreeParser {
                             { #pure_remove_block }
                             let widget = cont.as_ref().borrow().get_widget_as_container();
                             let mut node_borrow = node.as_ref().borrow_mut();
-                            let widget_clone = Some(widget.clone());
-                            node_borrow.#init_type(Box::new(move || #name::new(widget_clone)),widget.clone())
+                            let weak_cont = Rc::downgrade(&cont);
+                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)),widget.clone())
                         };
                         if is_new {
                              cont.as_ref().borrow_mut().mark_dirty();
