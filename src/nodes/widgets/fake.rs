@@ -47,7 +47,7 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn add(&mut self, child: NodeRc) {
+    fn add(&mut self, _child: NodeRc) {
         panic!("{}", PANIC_MSG);
     }
 }

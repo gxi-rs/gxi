@@ -19,6 +19,7 @@ impl NodeType {
     }
 }
 
+#[allow(drop_bounds)]
 pub trait Node: Drop {
     fn get_child(&self) -> &Option<NodeRc> { unimplemented!() }
     fn get_child_mut(&mut self) -> &mut Option<NodeRc> { unimplemented!() }
