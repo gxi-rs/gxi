@@ -35,10 +35,7 @@ impl Node for View {
         })))
     }
 
-    fn render(state: NodeRc)
-    where
-        Self: Sized,
-    {
+    fn render(state: NodeRc) {
         let mut state = state.as_ref().borrow_mut();
         let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
         if state.dirty {
