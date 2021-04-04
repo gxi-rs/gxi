@@ -36,7 +36,7 @@ macro_rules! impl_widget {
         impl_node_trait_init_sibling!();
         impl_node_trait_get_widget!();
         impl_node_trait_get_sibling!();
-        fn add(&mut self, child:NodeRc) {
+        fn add(&mut self, _child:NodeRc) {
             panic!(
                 "Attempt to a add node into {}. {} can't have a child.",
                 stringify!($name),
