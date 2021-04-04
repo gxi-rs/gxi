@@ -1,6 +1,9 @@
-use rust_gui::{*};
+use rust_gui::*;
 
-enum Msg { INC, DEC }
+enum Msg {
+    INC,
+    DEC,
+}
 comp! {
     MyApp {
         count : u32 = 0;
