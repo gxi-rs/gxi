@@ -19,7 +19,7 @@ impl Node for Window {
     impl_node_trait_get_widget!();
     impl_node_trait_get_widget_as_container!();
     impl_node_trait_init_child!();
-
+    impl_node_trait_add!();
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         Rc::new(RefCell::new(Box::new(Window {

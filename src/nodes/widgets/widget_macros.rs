@@ -36,7 +36,13 @@ macro_rules! impl_widget {
         impl_node_trait_init_sibling!();
         impl_node_trait_get_widget!();
         impl_node_trait_get_sibling!();
-
+        fn add(&mut self, child:NodeRc) {
+            panic!(
+                "Attempt to a add node into {}. {} can't have a child.",
+                stringify!($name),
+                stringify!($name)
+            );
+        }
         fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             panic!(
                 "Attempt to a add node into {}. {} can't have a child.",

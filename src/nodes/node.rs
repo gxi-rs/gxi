@@ -46,4 +46,8 @@ pub trait Node: Drop {
     fn is_dirty(&self) -> bool;
     fn mark_dirty(&mut self);
     fn mark_clean(&mut self);
+    //adds the widget of child to self widget
+    //this method allow to draw clear lines between
+    //OS specific and component system specific code
+    fn add(&mut self, child: NodeRc);
 }

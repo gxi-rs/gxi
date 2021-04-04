@@ -27,8 +27,8 @@ macro_rules! impl_node_trait_init_sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
                     if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
-                        let sibling_borrow = sibling.as_ref().borrow();
-                        // parent_container.add(&sibling_borrow.get_widget());
+                        let parent = self.parent.upgrade().unwrap();
+                        parent.as_ref().borrow_mut().add(sibling.clone());
                     }
                     (sibling.clone(), true)
                 }
@@ -44,12 +44,11 @@ macro_rules! impl_node_trait_init_child {
         fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.child {
                 None => {
-                    let child = self.child.get_or_insert(f());
+                    let child = self.child.get_or_insert(f()).clone();
                     if let NodeType::Widget = child.as_ref().borrow().get_type() {
-                        let child_borrow = child.as_ref().borrow();
-                        self.widget.add(&child_borrow.get_widget());
+                        self.add(child.clone());
                     }
-                    (child.clone(), true)
+                    (child, true)
                 }
                 _ => (self.child.as_ref().unwrap().clone(), false),
             }
@@ -102,6 +101,15 @@ macro_rules! impl_node_trait_get_widget_as_container {
         }
     };
 }
+
+macro_rules! impl_node_trait_add {
+    () => {
+        fn add(&mut self, child:NodeRc) {
+            self.widget.add(&child.as_ref().borrow().get_widget());
+            self.mark_dirty();
+        }
+    };
+}
 #[macro_export]
 macro_rules! impl_node_for_component {
     () => {
@@ -109,6 +117,11 @@ macro_rules! impl_node_for_component {
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
+
+        fn add(&mut self,child:NodeRc) {
+            let parent = self.parent.upgrade().unwrap();
+            parent.as_ref().borrow_mut().add(child);
+        }
 
         fn get_widget(&self) -> gtk::Widget {
             let parent = self.parent.upgrade().unwrap();
@@ -127,10 +140,8 @@ macro_rules! impl_node_for_component {
                 None => {
                     let child = self.child.get_or_insert(f());
                     if let NodeType::Widget = child.as_ref().borrow().get_type() {
-                        let child_borrow = child.as_ref().borrow();
                         let parent = self.parent.upgrade().unwrap();
-                        let parent = parent.as_ref().borrow_mut();
-                        parent.get_widget_as_container().add(&child_borrow.get_widget());
+                        parent.as_ref().borrow_mut().add(child.clone());
                     }
                     (child.clone(), true)
                 }

@@ -40,11 +40,15 @@ impl Node for Fake {
     }
 
     fn mark_dirty(&mut self) {
-        todo!()
+        panic!("{}", PANIC_MSG);
     }
 
     fn mark_clean(&mut self) {
-        todo!()
+        panic!("{}", PANIC_MSG);
+    }
+
+    fn add(&mut self, child: NodeRc) {
+        panic!("{}", PANIC_MSG);
     }
 }
 
