@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
 
 use crate::init_type::InitType;
 
@@ -197,7 +197,7 @@ impl TreeParser {
                 }
                 _ => (),
             };
-            let tree = {
+            let (tree, render_call) = {
                 //if pure_index > 0 then the component is pure
                 let (pure_state_reference, pure_remove_block, render_call) = if pure_index > 0 {
                     (
@@ -221,8 +221,8 @@ impl TreeParser {
                         quote!( #name::render(node.clone()); ),
                     )
                 };
-
-                quote! {
+                (
+                    quote! {
                     let node = {
                         let (node, is_new) = {
                             { #pure_remove_block }
@@ -239,24 +239,27 @@ impl TreeParser {
                             #pure_state_reference
                             #(#dynamic_props)*
                         }
-                        #render_call
                         node
                     };
-                }
+                }, render_call)
             };
             //parse children
             {
                 //check for first block
-                let tree = match group::parse_brackets(&input) {
+                let children = match group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
                         let content = TreeParser::custom_parse(
                             &brackets.content,
                             InitType::Child.get_init_type_tuple(),
                         );
-                        quote! { #tree {  let cont = node.clone(); #content } }
+                        quote! { { let cont = node.clone(); #content }  }
                     }
-                    _ => tree,
+                    _ => TokenStream2::new(),
                 };
+                let tree = quote! { #tree #children #render_call };
+                //recursive function therefore drop whatever memory possible
+                drop(render_call);
+                drop(children);
                 //parse ,
                 return match input.parse::<syn::Token![,]>() {
                     Ok(_) => {

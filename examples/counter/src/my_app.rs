@@ -13,9 +13,8 @@ comp! {
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            for x in 0..state.count
-                if x % 2 == 0
-                    Text ( label=&x.to_string() )
+            if state.count == 5
+                Text ( label=&state.count.to_string() )
         ]
     }
     update {
