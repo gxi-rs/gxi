@@ -1,6 +1,6 @@
 use rust_gui::{*};
 
-enum Msg { INC }
+enum Msg { INC, DEC }
 comp! {
     MyApp {
         count : u32 = 0;
@@ -10,7 +10,8 @@ comp! {
         View [
             Image ( source = "cat.gif" ),
             View [
-                Button ( label = "click", on_click = || Msg::INC )
+                Button ( label = "Inc", on_click = || Msg::INC ),
+                Button ( label = "Dec", on_click = || Msg::DEC )
             ],
             for x in 0..state.count
                 if x % 2 == 0
@@ -18,7 +19,16 @@ comp! {
         ]
     }
     update {
-        state.count+=1;
+        match msg {
+            Msg::INC => {
+                state.count+=1;
+            }
+            _ => {
+                if state.count > 0 {
+                    state.count-=1;
+                }
+            }
+        }
         ShouldRender::Yes
     }
 }
