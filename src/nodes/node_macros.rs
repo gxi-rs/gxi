@@ -104,7 +104,7 @@ macro_rules! impl_node_trait_get_widget_as_container {
 
 macro_rules! impl_node_trait_add {
     () => {
-        fn add(&mut self, child:NodeRc) {
+        fn add(&mut self, child: NodeRc) {
             self.widget.add(&child.as_ref().borrow().get_widget());
             self.mark_dirty();
         }
@@ -118,7 +118,7 @@ macro_rules! impl_node_for_component {
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
 
-        fn add(&mut self,child:NodeRc) {
+        fn add(&mut self, child: NodeRc) {
             let parent = self.parent.upgrade().unwrap();
             parent.as_ref().borrow_mut().add(child);
         }

@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
+use syn::*;
 
 use crate::init_type::InitType;
 
@@ -218,7 +218,7 @@ impl TreeParser {
                             }
                         },
                         TokenStream2::new(),
-                        quote!( #name::render(node.clone()); )
+                        quote!( #name::render(node.clone()); ),
                     )
                 };
 

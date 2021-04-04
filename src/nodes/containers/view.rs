@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{Orientation, prelude::*};
+use gtk::{prelude::*, Orientation};
 
 use crate::nodes::node::{Node, NodeRc, NodeType};
 use crate::WeakNodeRc;
