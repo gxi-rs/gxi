@@ -7,7 +7,5 @@ impl Node for Text {
 }
 
 impl Text {
-    pub fn label(&self, label: &str) {
-        self.widget.set_label(label);
-    }
+    pub fn label(&self, label: &str) { self.widget.set_label(label); }
 }
