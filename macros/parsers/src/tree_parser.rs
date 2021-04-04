@@ -141,9 +141,6 @@ impl TreeParser {
                     let weak_cont = Rc::downgrade(&cont);
                     node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)))
                 };
-                if is_new {
-                     cont.as_ref().borrow_mut().mark_dirty();
-                }
                 {
                      let cont = node.clone();
                      let state_borrow = top_state.as_ref().borrow();
@@ -221,16 +218,7 @@ impl TreeParser {
                             }
                         },
                         TokenStream2::new(),
-                        //if there are no dynamic props then call render only after initialisation
-                        if dynamic_props.is_empty() {
-                            quote! {
-                                if is_new && node.as_ref().borrow().is_dirty() {
-                                    #name::render(node.clone());
-                                }
-                            }
-                        } else {
-                            quote!( if node.borrow().is_dirty() { #name::render(node.clone()); })
-                        },
+                        quote!( #name::render(node.clone()); )
                     )
                 };
 
@@ -242,9 +230,6 @@ impl TreeParser {
                             let weak_cont = Rc::downgrade(&cont);
                             node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
                         };
-                        if is_new {
-                             cont.as_ref().borrow_mut().mark_dirty();
-                        }
                         {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
