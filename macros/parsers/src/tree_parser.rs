@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
+use syn::*;
 
 use crate::init_type::InitType;
 
@@ -223,25 +223,27 @@ impl TreeParser {
                 };
                 (
                     quote! {
-                    let node = {
-                        let (node, is_new) = {
-                            { #pure_remove_block }
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
-                        };
-                        {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
-                            if is_new {
-                                #(#static_props)*
+                        let node = {
+                            let (node, is_new) = {
+                                { #pure_remove_block }
+                                let mut node_borrow = node.as_ref().borrow_mut();
+                                let weak_cont = Rc::downgrade(&cont);
+                                node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
+                            };
+                            {
+                                let mut node_borrow = node.as_ref().borrow_mut();
+                                let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
+                                if is_new {
+                                    #(#static_props)*
+                                }
+                                #pure_state_reference
+                                #(#dynamic_props)*
                             }
-                            #pure_state_reference
-                            #(#dynamic_props)*
-                        }
-                        node
-                    };
-                }, render_call)
+                            node
+                        };
+                    },
+                    render_call,
+                )
             };
             //parse children
             {

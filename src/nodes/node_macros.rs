@@ -1,11 +1,21 @@
 #[macro_export]
 macro_rules! impl_node_trait {
     () => {
-        fn is_dirty(&self) -> bool { self.dirty.clone() }
-        fn mark_dirty(&mut self) { self.dirty = true; }
-        fn mark_clean(&mut self) { self.dirty = false; }
-        fn as_any(&self) -> &dyn Any { self }
-        fn as_any_mut(&mut self) -> &mut dyn Any { self }
+        fn is_dirty(&self) -> bool {
+            self.dirty.clone()
+        }
+        fn mark_dirty(&mut self) {
+            self.dirty = true;
+        }
+        fn mark_clean(&mut self) {
+            self.dirty = false;
+        }
+        fn as_any(&self) -> &dyn Any {
+            self
+        }
+        fn as_any_mut(&mut self) -> &mut dyn Any {
+            self
+        }
     };
 }
 
@@ -49,18 +59,26 @@ macro_rules! impl_node_trait_init_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_child {
     () => {
-        fn get_child(&self) -> &Option<NodeRc> { &self.child }
+        fn get_child(&self) -> &Option<NodeRc> {
+            &self.child
+        }
 
-        fn get_child_mut(&mut self) -> &mut Option<NodeRc> { &mut self.child }
+        fn get_child_mut(&mut self) -> &mut Option<NodeRc> {
+            &mut self.child
+        }
     };
 }
 
 #[macro_export]
 macro_rules! impl_node_trait_get_sibling {
     () => {
-        fn get_sibling(&self) -> &Option<NodeRc> { &self.sibling }
+        fn get_sibling(&self) -> &Option<NodeRc> {
+            &self.sibling
+        }
 
-        fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> { &mut self.sibling }
+        fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
+            &mut self.sibling
+        }
     };
 }
 
@@ -131,7 +149,9 @@ macro_rules! impl_node_for_component {
             }
         }
 
-        fn get_type(&self) -> NodeType { NodeType::Component }
+        fn get_type(&self) -> NodeType {
+            NodeType::Component
+        }
     };
 }
 
