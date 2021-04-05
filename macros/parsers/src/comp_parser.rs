@@ -16,9 +16,10 @@ macro_rules! comp_init {
         use std::borrow::Borrow;
         use std::cell::RefCell;
         use std::rc::Rc;
+        use std::sync::{Mutex, Arc};
 
         pub struct $name {
-            pub $($p:$t),*,
+            pub state: AsyncState<state::$name>,
             pub parent: WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
@@ -26,12 +27,20 @@ macro_rules! comp_init {
             pub widget: gtk::Container,
         }
 
+        mod state {
+            pub struct $name {
+                pub $($p:$t),*
+            }
+        }
+
         impl Node for $name {
             impl_node_for_component!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {
-                    $($p:$v),*,
+                    state: Arc::new(Mutex::new(state::$name {
+                        $($p:$v),*
+                    })),
                     widget: parent.upgrade().unwrap().as_ref().borrow().get_widget_as_container(),
                     parent,
                     dirty: true,

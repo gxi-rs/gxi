@@ -1,9 +1,11 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
+use std::sync::{Arc, Mutex};
 
 pub type NodeRc = Rc<RefCell<Box<dyn Node>>>;
 pub type WeakNodeRc = Weak<RefCell<Box<dyn Node>>>;
+pub type AsyncState<T> = Arc<Mutex<T>>;
 
 pub enum NodeType {
     Widget,
@@ -43,13 +45,12 @@ pub trait Node: Drop {
         NodeType::Widget
     }
     fn new(parent: WeakNodeRc) -> NodeRc
-    where
-        Self: Sized;
+        where
+            Self: Sized;
     fn render(_top_state: NodeRc)
-    where
-        Self: Sized,
-    {
-    }
+        where
+            Self: Sized,
+    {}
     fn is_dirty(&self) -> bool;
     fn mark_dirty(&mut self);
     fn mark_clean(&mut self);
