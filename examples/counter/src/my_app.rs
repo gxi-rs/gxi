@@ -4,10 +4,10 @@ enum Msg {
     INC,
     DEC,
 }
+
 comp! {
     MyApp {
-        count : u32 = 0;
-        hello : String = String::from("Hello")
+        count : u32 = 0
     }
     render {
         View [
@@ -17,8 +17,8 @@ comp! {
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
             for x in 0..state.count
-                if x % 2 == 0
-                    Text ( label = &x.to_string() )
+                Text ( label = &x.to_string() )
+            Button ( label = "Last" )
         ]
     }
     update {

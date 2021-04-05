@@ -43,27 +43,30 @@ impl TreeParser {
             let for_expr = input.parse::<syn::Expr>().unwrap();
             let content = TreeParser::custom_parse(input, InitType::Sibling.get_init_type_tuple());
             quote! {
-                {
+                let node = {
                     c!(#pure_index #init_type Pure);
-                    let cont = node.clone();
-                    let state_borrow = top_state.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    let node = {
-                       let mut node_borrow = node.as_ref().borrow_mut();
-                       let weak_cont = Rc::downgrade(&cont);
-                       node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
-                    };
-                    let cont = node.clone();
-                    let mut prev_node = node.clone();
-                    for #variable in #for_expr {
-                        let node = prev_node.clone();
-                        #content
-                        prev_node = node;
-                    }
                     {
-                        prev_node.as_ref().borrow_mut().get_sibling_mut().take();
+                        let cont = node.clone();
+                        let state_borrow = top_state.as_ref().borrow();
+                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        let node = {
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let weak_cont = Rc::downgrade(&cont);
+                            node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
+                        };
+                        let cont = node.clone();
+                        let mut prev_node = node.clone();
+                        for #variable in #for_expr {
+                            let node = prev_node.clone();
+                            #content
+                            prev_node = node;
+                        }
+                        {
+                            prev_node.as_ref().borrow_mut().get_sibling_mut().take();
+                        }
                     }
-                }
+                    node
+                };
             }
         }
         if let Ok(_) = input.parse::<syn::token::For>() {
