@@ -90,7 +90,8 @@ impl Parse for CompParser {
                         update_func = quote! {
                             fn update(state: NodeRc, msg: Msg) -> ShouldRender {
                                 let mut state_borrow = state.as_ref().borrow_mut();
-                                let state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                let mut state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                let mut state = state.state.lock().unwrap();
                                 #block
                             }
                         }

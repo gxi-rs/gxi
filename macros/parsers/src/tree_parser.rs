@@ -49,6 +49,7 @@ impl TreeParser {
                         let cont = node.clone();
                         let state_borrow = top_state.as_ref().borrow();
                         let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        let state = state.state.lock().unwrap();
                         let node = {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let weak_cont = Rc::downgrade(&cont);
@@ -148,6 +149,7 @@ impl TreeParser {
                      let cont = node.clone();
                      let state_borrow = top_state.as_ref().borrow();
                      let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                     let state = state.state.lock().unwrap();
                      #tree
                 }
             )
@@ -216,8 +218,9 @@ impl TreeParser {
                             TokenStream2::new()
                         } else {
                             quote! {
-                                let mut state_borrow = top_state.as_ref().borrow();
+                                let state_borrow = top_state.as_ref().borrow();
                                 let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                                let state = state.state.lock().unwrap();
                             }
                         },
                         TokenStream2::new(),
