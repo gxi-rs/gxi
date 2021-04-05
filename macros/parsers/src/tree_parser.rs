@@ -47,9 +47,6 @@ impl TreeParser {
                     c!(#pure_index #init_type Pure);
                     {
                         let cont = node.clone();
-                        let state_borrow = top_state.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                        let state = state.state.lock().unwrap();
                         let node = {
                             let mut node_borrow = node.as_ref().borrow_mut();
                             let weak_cont = Rc::downgrade(&cont);
@@ -147,9 +144,6 @@ impl TreeParser {
                 };
                 {
                      let cont = node.clone();
-                     let state_borrow = top_state.as_ref().borrow();
-                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                     let state = state.state.lock().unwrap();
                      #tree
                 }
             )
@@ -204,25 +198,14 @@ impl TreeParser {
             };
             let (tree, render_call) = {
                 //if pure_index > 0 then the component is pure
-                let (pure_state_reference, pure_remove_block, render_call) = if pure_index > 0 {
+                let ( pure_remove_block, render_call) = if pure_index > 0 {
                     (
-                        TokenStream2::new(),
                         TreeParser::get_pure_remove_block(pure_index),
                         //need not call render on pure function
                         TokenStream2::new(),
                     )
                 } else {
                     (
-                        //if there are no dynamic props then borrowing state does not make sense
-                        if dynamic_props.is_empty() {
-                            TokenStream2::new()
-                        } else {
-                            quote! {
-                                let state_borrow = top_state.as_ref().borrow();
-                                let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                                let state = state.state.lock().unwrap();
-                            }
-                        },
                         TokenStream2::new(),
                         quote!( #name::render(node.clone()); ),
                     )
@@ -242,7 +225,6 @@ impl TreeParser {
                                 if is_new {
                                     #(#static_props)*
                                 }
-                                #pure_state_reference
                                 #(#dynamic_props)*
                             }
                             node

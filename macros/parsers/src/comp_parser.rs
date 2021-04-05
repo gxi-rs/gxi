@@ -81,6 +81,12 @@ impl Parse for CompParser {
                             fn render(top_state: NodeRc) {
                                 let cont = Rc::clone(&top_state);
                                 let node = cont.clone();
+                                let state = {
+                                    let state_borrow = top_state.as_ref().borrow();
+                                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                                    state.state.clone()
+                                };
+                                let state = state.lock().unwrap();
                                 #content
                             }
                         );
@@ -89,9 +95,12 @@ impl Parse for CompParser {
                         let block = input.parse::<syn::Block>()?;
                         update_func = quote! {
                             fn update(state: NodeRc, msg: Msg) -> ShouldRender {
-                                let mut state_borrow = state.as_ref().borrow_mut();
-                                let mut state = state_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-                                let mut state = state.state.lock().unwrap();
+                                let state = {
+                                    let state_borrow = state.as_ref().borrow();
+                                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                                    state.state.clone()
+                                };
+                                let mut state = state.lock().unwrap();
                                 #block
                             }
                         }
