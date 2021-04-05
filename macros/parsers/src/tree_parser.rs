@@ -173,7 +173,7 @@ impl TreeParser {
                                 Expr::Closure(closure) => {
                                     let closure_body = closure.body;
                                     static_exprs.push(quote! {{
-                                             let state_clone = Rc::clone(&top_state);
+                                             let state_clone = Rc::clone(&this);
                                              node.#left(move |_| {
                                                  if let ShouldRender::Yes = Self::update(state_clone.clone(),#closure_body) {
                                                     Self::render(state_clone.clone());

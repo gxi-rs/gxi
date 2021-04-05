@@ -47,7 +47,7 @@ pub trait Node: Drop {
     fn new(parent: WeakNodeRc) -> NodeRc
         where
             Self: Sized;
-    fn render(_top_state: NodeRc)
+    fn render(_this: NodeRc)
         where
             Self: Sized,
     {}

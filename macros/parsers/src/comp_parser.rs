@@ -64,7 +64,7 @@ impl Parse for CompParser {
         let name = input.parse::<syn::Ident>()?;
         let props = input.parse::<syn::Block>()?;
         let mut render_func = quote!(
-            fn render(_top_state: NodeRc) {}
+            fn render(_this: NodeRc) {}
         );
         let mut update_func = quote!(
             fn update(state: NodeRc, msg: Msg) -> ShouldRender {
@@ -78,11 +78,11 @@ impl Parse for CompParser {
                         let block_content = group::parse_braces(&input)?.content;
                         let content = TreeParser::parse(&block_content)?.tree;
                         render_func = quote!(
-                            fn render(top_state: NodeRc) {
-                                let cont = Rc::clone(&top_state);
+                            fn render(this: NodeRc) {
+                                let cont = Rc::clone(&this);
                                 let node = cont.clone();
                                 let state = {
-                                    let state_borrow = top_state.as_ref().borrow();
+                                    let state_borrow = this.as_ref().borrow();
                                     let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
                                     state.state.clone()
                                 };
