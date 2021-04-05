@@ -16,8 +16,10 @@ comp! {
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            for x in 0..state.count
-                Text ( label = &x.to_string() )
+            View [
+                for x in 0..state.count
+                    Text ( label = &x.to_string() )
+            ],
             Button ( label = "Last" )
         ]
     }
