@@ -26,9 +26,11 @@ comp! {
             Msg::INC => {
                 state.count+=1;
             }
-            _ => {
+            _ =>  {
                 if state.count > 0 {
                     state.count-=1;
+                } else {
+                    return ShouldRender::No
                 }
             }
         }
