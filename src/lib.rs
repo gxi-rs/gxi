@@ -10,7 +10,3 @@ pub use run::*;
 
 mod nodes;
 pub mod run;
-
-fn foo() {
-    poll!()
-}
