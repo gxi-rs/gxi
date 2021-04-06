@@ -108,9 +108,14 @@ impl Parse for CompParser {
 
                                 task::spawn(async move {
                                     let should_render = update_logic(state,msg).await;
+                                }).then(move |_| {
                                     /*if let ShouldRender::Yes = should_render {
                                         Self::render(this);
                                     }*/
+
+                                    async {
+
+                                    }
                                 });
                             }
                         }

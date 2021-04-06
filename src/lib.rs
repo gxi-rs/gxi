@@ -1,4 +1,5 @@
-pub use async_std::*;
+pub use async_std::{task};
+pub use futures_util::{*};
 pub use c::c;
 pub use comp::comp;
 pub use gtk;
@@ -9,3 +10,7 @@ pub use run::*;
 
 mod nodes;
 pub mod run;
+
+fn foo() {
+    poll!()
+}
