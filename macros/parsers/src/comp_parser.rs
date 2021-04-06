@@ -11,7 +11,7 @@ pub struct CompParser {
 
 #[macro_export]
 macro_rules! comp_init {
-    ($name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } { $($update:tt)* } )=> {
+    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } { $($update:tt)* } )=> {
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
@@ -19,7 +19,7 @@ macro_rules! comp_init {
         use std::sync::{Mutex, Arc};
 
         pub struct $name {
-            pub state: AsyncState<state::$name>,
+            pub state: AsyncState<$state_name>,
             pub parent: WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
@@ -27,10 +27,8 @@ macro_rules! comp_init {
             pub widget: gtk::Container,
         }
 
-        mod state {
-            pub struct $name {
-                pub $($p:$t),*
-            }
+        pub struct $state_name {
+            pub $($p:$t),*
         }
 
         impl Node for $name {
@@ -38,7 +36,7 @@ macro_rules! comp_init {
 
             fn new(parent: WeakNodeRc) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {
-                    state: Arc::new(Mutex::new(state::$name {
+                    state: Arc::new(Mutex::new($state_name {
                         $($p:$v),*
                     })),
                     widget: parent.upgrade().unwrap().as_ref().borrow().get_widget_as_container(),
@@ -62,6 +60,7 @@ macro_rules! comp_init {
 impl Parse for CompParser {
     fn parse(input: ParseStream) -> Result<Self> {
         let name = input.parse::<syn::Ident>()?;
+        let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
         let props = input.parse::<syn::Block>()?;
         let mut render_func = quote!(
             fn render(_this: NodeRc) {}
@@ -94,14 +93,25 @@ impl Parse for CompParser {
                     "update" => {
                         let block = input.parse::<syn::Block>()?;
                         update_func = quote! {
-                            fn update(state: NodeRc, msg: Msg) -> ShouldRender {
+                            fn update(this: NodeRc, msg: Msg) {
+
+                                async fn update_logic(state:Arc<Mutex<#state_name>>, msg: Msg) -> ShouldRender {
+                                    let mut state = state.lock().unwrap();
+                                    #block
+                                }
+
                                 let state = {
-                                    let state_borrow = state.as_ref().borrow();
-                                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                                    let state_borrow = this.as_ref().borrow();
+                                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
                                     state.state.clone()
                                 };
-                                let mut state = state.lock().unwrap();
-                                #block
+
+                                task::spawn(async move {
+                                    let should_render = update_logic(state,msg).await;
+                                    /*if let ShouldRender::Yes = should_render {
+                                        Self::render(this);
+                                    }*/
+                                });
                             }
                         }
                     }
@@ -110,7 +120,7 @@ impl Parse for CompParser {
             }
         }
         Ok(CompParser {
-            tree: quote!(comp_init!(#name #props {#render_func} {#update_func});),
+            tree: quote!(comp_init!(#name #state_name #props {#render_func} {#update_func});),
         })
     }
 }

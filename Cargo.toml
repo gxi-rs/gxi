@@ -10,3 +10,4 @@ gtk = "0.9.2"
 c = { path = "macros/c" }
 comp = { path = "macros/comp" }
 parsers = { path = "macros/parsers" }
+async-std = "1.9.0"

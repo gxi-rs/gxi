@@ -1,3 +1,4 @@
+pub use async_std::*;
 pub use c::c;
 pub use comp::comp;
 pub use gtk;
