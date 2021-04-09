@@ -69,6 +69,36 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-782080e67bc605dc/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/log-fe070becbfe5bf39/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/tokio-b6caf3c016c9190e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/anyhow-cfc36c5f1fe26f46/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/atk-9fc5e571a59917c6/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/atk-sys-5eb9be8bf63e4aec/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/bitflags-634666590931cfe0/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/cairo-rs-3743289c9bb15edb/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/cairo-sys-rs-f4271ea175086f0d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gdk-7c0e8c83db5772a1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gdk-pixbuf-2a6a9de24cfc406c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gdk-pixbuf-sys-931902aa393fd094/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gdk-sys-9954010b2dee92e6/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gio-05491569308fa77b/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gio-sys-724b5b25802a468f/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/glib-sys-71f58d50f724fc09/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gobject-sys-4b84fd4180d8beb0/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gtk-9d7a75f13a165f26/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/gtk-sys-792703c49e96093e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/libc-f5166f25d9e07010/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/log-fe070becbfe5bf39/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/memchr-c7396fac22137468/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/pango-c5d871daca9da1ee/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/pango-sys-d31726b285c960a9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/proc-macro-error-93efd308d90b670d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/proc-macro-error-attr-762577fa4487aabf/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/proc-macro-hack-0a3cd903cc881ffa/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/proc-macro-nested-1ba081fec4e0616c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/proc-macro2-cdaea910a8fe9bfb/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/serde-97439d9733bf4302/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/syn-f77f6e99fee86e2a/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/http_req/target/debug/build/tokio-b6caf3c016c9190e/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
@@ -78,6 +108,7 @@
       <excludeFolder url="file://$MODULE_DIR$/examples/counter/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/forr/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/comp/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/http_req/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
