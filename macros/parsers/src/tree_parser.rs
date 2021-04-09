@@ -194,17 +194,14 @@ impl TreeParser {
             };
             let (tree, render_call) = {
                 //if pure_index > 0 then the component is pure
-                let ( pure_remove_block, render_call) = if pure_index > 0 {
+                let (pure_remove_block, render_call) = if pure_index > 0 {
                     (
                         TreeParser::get_pure_remove_block(pure_index),
                         //need not call render on pure function
                         TokenStream2::new(),
                     )
                 } else {
-                    (
-                        TokenStream2::new(),
-                        quote!( #name::render(node.clone()); ),
-                    )
+                    (TokenStream2::new(), quote!( #name::render(node.clone()); ))
                 };
                 (
                     quote! {

@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::TreeParser;
 

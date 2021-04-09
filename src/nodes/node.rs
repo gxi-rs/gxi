@@ -45,12 +45,13 @@ pub trait Node: Drop {
         NodeType::Widget
     }
     fn new(parent: WeakNodeRc) -> NodeRc
-        where
-            Self: Sized;
+    where
+        Self: Sized;
     fn render(_this: NodeRc)
-        where
-            Self: Sized,
-    {}
+    where
+        Self: Sized,
+    {
+    }
     fn is_dirty(&self) -> bool;
     fn mark_dirty(&mut self);
     fn mark_clean(&mut self);
