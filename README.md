@@ -2,6 +2,8 @@
 
 Cross-Platform Native Widget based Component System in Rust
 
+🎉🥂🥳 `Async` Support is here
+
 This project targets cross platform GUI app development with react like function component and state management.
 Built in procedural macros to help devs write minimum code.
 
