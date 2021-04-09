@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
 use crate::TreeParser;
 
@@ -17,9 +17,11 @@ macro_rules! comp_init {
         use std::cell::RefCell;
         use std::rc::Rc;
         use std::sync::{Mutex, Arc};
+        use crate::glib::Sender;
 
         pub struct $name {
             pub state: AsyncState<$state_name>,
+            pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
@@ -35,16 +37,26 @@ macro_rules! comp_init {
             impl_node_for_component!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
-                Rc::new(RefCell::new(Box::new(Self {
+                let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+                let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
                     state: Arc::new(Mutex::new($state_name {
                         $($p:$v),*
                     })),
+                    channel_sender,
                     widget: parent.upgrade().unwrap().as_ref().borrow().get_widget_as_container(),
                     parent,
                     dirty: true,
                     child: None,
                     sibling: None,
-                })))
+                })));
+                {
+                    let this = this.clone();
+                    re.attach(None, move |_| {
+                        Self::render(Rc::clone(&this));
+                        glib::Continue(true)
+                    });
+                }
+                this
             }
             $($render)*
         }
@@ -99,25 +111,18 @@ impl Parse for CompParser {
                                     let mut state = state.lock().unwrap();
                                     #block
                                 }
-
-                                let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-
-                                let state = {
+                                //the channel logic can be abstracted away to be platform specific
+                                let (channel_sender, state) = {
                                     let state_borrow = this.as_ref().borrow();
                                     let state = state_borrow.as_any().downcast_ref::<MyApp>().unwrap();
-                                    state.state.clone()
+                                    (state.channel_sender.clone(), state.state.clone())
                                 };
 
                                 task::spawn(async move {
                                     let should_render = update_logic(state, msg).await;
                                     if let ShouldRender::Yes = should_render {
-                                        tx.send(()).unwrap();
+                                        channel_sender.send(()).unwrap();
                                     }
-                                });
-                                let this_clone = this.clone();
-                                rx.attach(None, move |_| {
-                                    Self::render(Rc::clone(&this_clone));
-                                    glib::Continue(true)
                                 });
                             }
                         }
