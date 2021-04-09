@@ -322,7 +322,7 @@ impl MyApp {
     fn update(this: NodeRc, msg: Msg) {
         fn update_logic(state: Arc<Mutex<MyAppState>>, msg: Msg) -> ShouldRender {
             {
-        f        println!("sleeping for 60 secs");
+                println!("sleeping for 60 secs");
                 //tokio::time::sleep(Duration::from_secs(1)).await;
                 let mut state = state.lock().unwrap();
                 println!("slept for 60 secs");
