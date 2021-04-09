@@ -107,14 +107,14 @@ impl Parse for CompParser {
                         update_func = quote! {
                             fn update(this: NodeRc, msg: Msg) {
                                 //update logic
-                                async fn update_logic(state: Arc<Mutex<MyAppState>>, msg: Msg) -> ShouldRender {
+                                async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg) -> ShouldRender {
                                     let mut state = state.lock().unwrap();
                                     #block
                                 }
                                 //the channel logic can be abstracted away to be platform specific
                                 let (channel_sender, state) = {
                                     let state_borrow = this.as_ref().borrow();
-                                    let state = state_borrow.as_any().downcast_ref::<MyApp>().unwrap();
+                                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
                                     (state.channel_sender.clone(), state.state.clone())
                                 };
 

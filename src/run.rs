@@ -6,7 +6,7 @@ use gtk::WidgetExt;
 use crate::{Fake, Node, NodeRc, Window};
 
 pub fn run<App: Node>() {
-    let mut rt = tokio::runtime::Runtime::new().unwrap();
+    let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();
         let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
