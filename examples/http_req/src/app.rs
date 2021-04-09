@@ -23,7 +23,7 @@ comp! {
             Button ( on_click = || Msg::Fetch, label = "Fetch Cat Memes" ),
             View [
                 if state.cat_fact.is_none()
-                    Spinner
+                    Spinner ( spin = true )
                 else
                     Text ( label = &state.cat_fact.as_ref().unwrap().fact)
             ],
