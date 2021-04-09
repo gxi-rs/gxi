@@ -12,6 +12,61 @@
       <sourceFolder url="file://$MODULE_DIR$/macros/comp/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/c/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/n/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/anyhow-cfc36c5f1fe26f46/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/atk-f17a7a238e4d09d2/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/atk-sys-29b890581eda824e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/bitflags-634666590931cfe0/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/cairo-rs-1b30560b10c164a7/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/cairo-sys-rs-0d03e9acd45454fe/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gdk-48510cc0a1a6d18d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gdk-pixbuf-33001c4196ecbd98/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gdk-pixbuf-sys-61a8af75aacf2b16/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gdk-sys-c64f9a71453c3efa/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gio-13ee323557e79066/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gio-sys-7d45181dd6742749/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/glib-sys-49f3b66ea5afdfa9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gobject-sys-d6dd036c17b5e35a/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gtk-6dd469fab4e5eee9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/gtk-sys-3e7855f0146b92a4/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/libc-f66edaaef037acb4/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/log-fe070becbfe5bf39/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/memchr-c7396fac22137468/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/pango-c550462b059a0178/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/pango-sys-25686904cf3ba7a5/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/proc-macro-error-93efd308d90b670d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/proc-macro-error-attr-762577fa4487aabf/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/proc-macro-hack-0a3cd903cc881ffa/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/proc-macro-nested-1ba081fec4e0616c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/proc-macro2-81bed02536663df1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/serde-97439d9733bf4302/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/syn-782080e67bc605dc/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/anyhow-cfc36c5f1fe26f46/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-f17a7a238e4d09d2/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-sys-29b890581eda824e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/bitflags-634666590931cfe0/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/cairo-rs-1b30560b10c164a7/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/cairo-sys-rs-0d03e9acd45454fe/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-48510cc0a1a6d18d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-pixbuf-33001c4196ecbd98/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-pixbuf-sys-61a8af75aacf2b16/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-sys-c64f9a71453c3efa/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gio-13ee323557e79066/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gio-sys-7d45181dd6742749/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/glib-sys-49f3b66ea5afdfa9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gobject-sys-d6dd036c17b5e35a/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gtk-6dd469fab4e5eee9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gtk-sys-3e7855f0146b92a4/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/libc-f66edaaef037acb4/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/memchr-c7396fac22137468/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-c550462b059a0178/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-sys-25686904cf3ba7a5/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro-error-93efd308d90b670d/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro-error-attr-762577fa4487aabf/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro-hack-0a3cd903cc881ffa/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro-nested-1ba081fec4e0616c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro2-81bed02536663df1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde-97439d9733bf4302/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-782080e67bc605dc/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
