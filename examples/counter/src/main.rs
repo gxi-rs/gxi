@@ -1,20 +1,11 @@
-use std::borrow::BorrowMut;
-use std::cell::RefCell;
-
-use tokio::task::*;
-use tokio::task;
-
 use my_app::MyApp;
-use rust_gui::run;
+use rust_gui::*;
 
 mod my_app;
 
-#[tokio::main]
-async fn main() {
-    let set = LocalSet::new();
-    set.spawn_local(async {
+fn main() {
+    let mut rt = runtime::Runtime::new().unwrap();
+    rt.block_on(async {
         run::<MyApp>();
-        println!("Am i Really Blocking ?")
     });
-    set.await;
 }

@@ -6,6 +6,3 @@ edition = "2018"
 
 [dependencies]
 rust_gui = { path = "../../" }
-tokio = { version = "", features = ["full"] }
-futures = "0.3.13"
-glib = "0.10.3"

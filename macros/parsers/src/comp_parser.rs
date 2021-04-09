@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
 use crate::TreeParser;
 
@@ -94,28 +94,30 @@ impl Parse for CompParser {
                         let block = input.parse::<syn::Block>()?;
                         update_func = quote! {
                             fn update(this: NodeRc, msg: Msg) {
-
-                                async fn update_logic(state:Arc<Mutex<#state_name>>, msg: Msg) -> ShouldRender {
+                                //update logic
+                                async fn update_logic(state: Arc<Mutex<MyAppState>>, msg: Msg) -> ShouldRender {
                                     let mut state = state.lock().unwrap();
                                     #block
                                 }
 
+                                let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
                                 let state = {
                                     let state_borrow = this.as_ref().borrow();
-                                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                                    let state = state_borrow.as_any().downcast_ref::<MyApp>().unwrap();
                                     state.state.clone()
                                 };
 
                                 task::spawn(async move {
-                                    let should_render = update_logic(state,msg).await;
-                                }).then(move |_| {
-                                    /*if let ShouldRender::Yes = should_render {
-                                        Self::render(this);
-                                    }*/
-
-                                    async {
-
+                                    let should_render = update_logic(state, msg).await;
+                                    if let ShouldRender::Yes = should_render {
+                                        tx.send(()).unwrap();
                                     }
+                                });
+                                let this_clone = this.clone();
+                                rx.attach(None, move |_| {
+                                    Self::render(Rc::clone(&this_clone));
+                                    glib::Continue(true)
                                 });
                             }
                         }

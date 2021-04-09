@@ -11,3 +11,4 @@ c = { path = "macros/c" }
 comp = { path = "macros/comp" }
 parsers = { path = "macros/parsers" }
 tokio = { version = "", features = ["full"] }
+glib = "0.10.3"

@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-use std::process::exit;
 use std::rc::Rc;
 
 use gtk::WidgetExt;
