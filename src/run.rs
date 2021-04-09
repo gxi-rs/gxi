@@ -19,10 +19,11 @@ pub fn run<App: Node>() {
         let mut window_borrow = window.as_ref().borrow_mut();
         let window = window_borrow.as_any_mut().downcast_mut::<Window>().unwrap();
         window.widget.connect_destroy(|_| {
-            exit(0);
+            gtk::main_quit();
         });
         window.widget.show_all();
     }
+    println!("Starting main");
     //start main loop
     gtk::main();
 }

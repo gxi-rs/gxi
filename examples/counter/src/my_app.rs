@@ -1,15 +1,18 @@
 use std::any::Any;
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
-use futures::task::{LocalSpawnExt, SpawnExt};
-use tokio::task;
-use tokio::task::spawn_local;
-use tokio_global::{AutoRuntime, Runtime};
+use futures::{FutureExt, TryFutureExt};
+use tokio::*;
+use tokio::prelude::*;
+use tokio::prelude::*;
+use tokio::task::LocalSet;
 
 use rust_gui::*;
+use rust_gui::gtk::DialogExt;
 
 enum Msg {
     INC,
@@ -320,10 +323,10 @@ impl Node for MyApp {
 
 impl MyApp {
     fn update(this: NodeRc, msg: Msg) {
-        fn update_logic(state: Arc<Mutex<MyAppState>>, msg: Msg) -> ShouldRender {
+        async fn update_logic(state: Arc<Mutex<MyAppState>>, msg: Msg) -> ShouldRender {
             {
                 println!("sleeping for 60 secs");
-                //tokio::time::sleep(Duration::from_secs(1)).await;
+                time::delay_for(Duration::from_secs(1)).await;
                 let mut state = state.lock().unwrap();
                 println!("slept for 60 secs");
                 match msg {
@@ -342,27 +345,26 @@ impl MyApp {
             }
         }
 
+        let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
         let state = {
             let state_borrow = this.as_ref().borrow();
             let state = state_borrow.as_any().downcast_ref::<MyApp>().unwrap();
             state.state.clone()
         };
-        if let ShouldRender::Yes = update_logic(state, msg) {
-            Self::render(this);
-        }
-        /*task::spawn_local(async {
-            println!("Lcoal");
 
-        });*/
-        /*
-                local.run_until(task::spawn(async move {
-                    update_logic(state, msg).await
-                }).inspect(move |k| {
-                    eprintln!("Rendering");
-                    if let ShouldRender::Yes = k.as_ref().unwrap() {
-                        Self::render(this);
-                    }
-                }));*/
+        task::spawn(async move {
+            let should_render = update_logic(state, msg).await;
+            if let ShouldRender::Yes = should_render {
+                tx.send(()).unwrap();
+            }
+        });
+
+        let this_clone = this.clone();
+        rx.attach(None, move |_| {
+            Self::render(Rc::clone(&this_clone));
+            glib::Continue(true)
+        });
     }
 }
 
