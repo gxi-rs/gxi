@@ -24,7 +24,6 @@ pub fn run<App: Node>() {
             });
             window.widget.show_all();
         }
-        println!("Starting main");
         //start main loop
         gtk::main();
     });

@@ -1,27 +1,45 @@
+use serde::{Deserialize, Serialize};
+
 use rust_gui::*;
+use crate::counter::Counter;
 
 enum Msg {
     Fetch
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CatFact {
+    pub length: u32,
+    pub fact: String,
+}
+
 comp! {
     App {
-        corona_count : Option<u32> = None
+        cat_fact : Option<CatFact> = None
     }
     render {
         View [
-            if state.corona_count.is_none()
-                Spinner
-            else
-                Text ( label = &format!("Today's Corona Count is {}", state.corona_count.unwrap()))
+            Image ( source = "cat.gif" ),
+            Button ( on_click = || Msg::Fetch, label = "Fetch Cat Memes" ),
+            View [
+                if state.cat_fact.is_none()
+                    Spinner
+                else
+                    Text ( label = &state.cat_fact.as_ref().unwrap().fact)
+            ],
+            Counter
         ]
     }
     update {
         match msg {
             Msg::Fetch => {
-                state.corona_count = Some(20);
+                //Todo! call render()
+                let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
+                let json = resp.json::<CatFact>().await?;
+                let mut state = state.lock().unwrap();
+                state.cat_fact = Some(json);
             }
         }
-        ShouldRender::Yes
+        Ok(ShouldRender::Yes)
     }
 }

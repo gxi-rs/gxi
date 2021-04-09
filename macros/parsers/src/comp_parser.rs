@@ -107,8 +107,8 @@ impl Parse for CompParser {
                         update_func = quote! {
                             fn update(this: NodeRc, msg: Msg) {
                                 //update logic
-                                async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg) -> ShouldRender {
-                                    let mut state = state.lock().unwrap();
+                                async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg) -> Result<ShouldRender, Box<dyn std::error::Error>> {
+                                   // let mut state = state.lock().unwrap();
                                     #block
                                 }
                                 //the channel logic can be abstracted away to be platform specific
@@ -120,7 +120,7 @@ impl Parse for CompParser {
 
                                 task::spawn(async move {
                                     let should_render = update_logic(state, msg).await;
-                                    if let ShouldRender::Yes = should_render {
+                                    if let ShouldRender::Yes = should_render.unwrap() {
                                         channel_sender.send(()).unwrap();
                                     }
                                 });
