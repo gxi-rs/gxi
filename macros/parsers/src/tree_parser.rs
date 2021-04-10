@@ -174,7 +174,7 @@ impl TreeParser {
                                     let closure_body = closure.body;
                                     static_exprs.push(quote! {{
                                         let state_clone = Rc::clone(&this);
-                                        node.#left(move |_| Self::update(state_clone.clone(),#closure_body) );
+                                        node.#left(move | | Self::update(state_clone.clone(),#closure_body) );
                                     }});
                                 }
                                 Expr::Lit(literal) => {
