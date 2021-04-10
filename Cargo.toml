@@ -10,5 +10,6 @@ gtk = "0.9.2"
 c = { path = "macros/c" }
 comp = { path = "macros/comp" }
 parsers = { path = "macros/parsers" }
+update = { path = "macros/update" }
 tokio = { version = "", features = ["full"] }
 glib = "0.10.3"

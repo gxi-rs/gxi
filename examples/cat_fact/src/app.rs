@@ -33,28 +33,27 @@ comp! {
             ]
         ]
     }
-    update {
-        match msg {
-            //to prevent multiple api calls only fetch when initializing or a fact is already there
-            Msg::Fetch(force) => {
-                if {
-                    let mut state = state.lock().unwrap();
-                    if state.cat_fact.is_some() {
-                        state.cat_fact = None;
-                        render();
-                        true
-                    } else {
-                        false
-                    }
-                } || force {
-                    let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
-                    let cat_fact = resp.json::<CatFact>().await?;
-                    let mut state = state.lock().unwrap();
-                    state.cat_fact = Some(cat_fact);
-                    Ok(ShouldRender::Yes)
-                }else {
-                    Ok(ShouldRender::No)
-                }
+}
+
+#[update(App)]
+async fn update<F: Fn() + 'static>(state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+    match msg {
+        Msg::Fetch(force) => {
+            if {
+                let mut state = state.lock().unwrap();
+                if state.cat_fact.is_some() {
+                    state.cat_fact = None;
+                    render();
+                    true
+                } else { false }
+            } || force {
+                let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
+                let cat_fact = resp.json::<CatFact>().await?;
+                let mut state = state.lock().unwrap();
+                state.cat_fact = Some(cat_fact);
+                Ok(ShouldRender::Yes)
+            } else {
+                Ok(ShouldRender::No)
             }
         }
     }

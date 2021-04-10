@@ -78,9 +78,6 @@ impl Parse for CompParser {
             fn render(_this: NodeRc) {}
         );
         let mut update_func = quote!(
-            fn update(state: NodeRc, msg: Msg) -> ShouldRender {
-                ShouldRender::No
-            }
         );
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {

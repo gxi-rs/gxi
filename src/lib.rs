@@ -1,5 +1,6 @@
 pub use c::c;
 pub use comp::comp;
+pub use update::update;
 pub use glib;
 pub use gtk;
 pub use parsers::comp_init;

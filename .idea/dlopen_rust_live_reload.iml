@@ -142,6 +142,9 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/syn-bbb00fb547177413/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/syn-f77f6e99fee86e2a/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/tokio-b6caf3c016c9190e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/update/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/update/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/update/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
@@ -152,6 +155,7 @@
       <excludeFolder url="file://$MODULE_DIR$/macros/forr/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/comp/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/cat_fact/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/update/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
