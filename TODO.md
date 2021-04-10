@@ -5,7 +5,7 @@ Cross-Platform Native Widget based Component System in Rust
 ### TO DO
 
 - [ ] Render call only when custom components are flagged dirty
-
+- [ ] Derive macro for `update` function
 ### Completed ✓
 
 - [x] Async Rendering
