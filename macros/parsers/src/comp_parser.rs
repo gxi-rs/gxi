@@ -106,11 +106,6 @@ impl Parse for CompParser {
                         let block = input.parse::<syn::Block>()?;
                         update_func = quote! {
                             fn update(this: NodeRc, msg: Msg) {
-                                //update logic
-                                async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg) -> Result<ShouldRender, Box<dyn std::error::Error>> {
-                                   // let mut state = state.lock().unwrap();
-                                    #block
-                                }
                                 //the channel logic can be abstracted away to be platform specific
                                 let (channel_sender, state) = {
                                     let state_borrow = this.as_ref().borrow();
@@ -119,9 +114,13 @@ impl Parse for CompParser {
                                 };
 
                                 task::spawn(async move {
-                                    let should_render = update_logic(state, msg).await;
-                                    if let ShouldRender::Yes = should_render.unwrap() {
-                                        channel_sender.send(()).unwrap();
+                                    //update logic. Made to return should render to force dev to decide render state
+                                    async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg, channel_sender: Sender<()>) -> Result<ShouldRender, Box<dyn std::error::Error>> {
+                                        let render = move || channel_sender.send(()).unwrap();
+                                        #block
+                                    }
+                                    if let ShouldRender::Yes = update_logic(state,msg,channel_sender.clone()).await.unwrap() {
+                                        channel_sender.send(()).unwrap()
                                     }
                                 });
                             }

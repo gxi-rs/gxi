@@ -39,3 +39,7 @@ comp! {
         ShouldRender::Yes
     }
 }
+
+fn hello() {
+
+}
