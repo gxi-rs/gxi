@@ -33,7 +33,7 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     (quote! {
         type State = Arc<Mutex<#state_name>>;
 
-        impl App {
+        impl #name {
 
             fn update(this: NodeRc, msg: Msg) {
                 //the channel logic can be abstracted away to be platform specific

@@ -11,7 +11,7 @@ pub struct CompParser {
 
 #[macro_export]
 macro_rules! comp_init {
-    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } { $($update:tt)* } )=> {
+    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } )=> {
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
@@ -61,10 +61,6 @@ macro_rules! comp_init {
             $($render)*
         }
 
-        impl $name {
-            $($update)*
-        }
-
         impl_drop_for_component!($name);
     };
 }
@@ -76,8 +72,6 @@ impl Parse for CompParser {
         let props = input.parse::<syn::Block>()?;
         let mut render_func = quote!(
             fn render(_this: NodeRc) {}
-        );
-        let mut update_func = quote!(
         );
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
@@ -99,36 +93,12 @@ impl Parse for CompParser {
                             }
                         );
                     }
-                    "update" => {
-                        let block = input.parse::<syn::Block>()?;
-                        update_func = quote! {
-                            fn update(this: NodeRc, msg: Msg) {
-                                //the channel logic can be abstracted away to be platform specific
-                                let (channel_sender, state) = {
-                                    let state_borrow = this.as_ref().borrow();
-                                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                                    (state.channel_sender.clone(), state.state.clone())
-                                };
-
-                                task::spawn(async move {
-                                    //update logic. Made to return should render to force dev to decide render state
-                                    async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg, channel_sender: Sender<()>) -> AsyncResult<ShouldRender> {
-                                        let render = move || channel_sender.send(()).unwrap();
-                                        #block
-                                    }
-                                    if let ShouldRender::Yes = update_logic(state,msg,channel_sender.clone()).await.unwrap() {
-                                        channel_sender.send(()).unwrap()
-                                    }
-                                });
-                            }
-                        }
-                    }
-                    _ => panic!(""),
+                    _ => panic!("Didn't expect this attribute here"),
                 }
             }
         }
         Ok(CompParser {
-            tree: quote!(comp_init!(#name #state_name #props {#render_func} {#update_func});),
+            tree: quote!(comp_init!(#name #state_name #props {#render_func});),
         })
     }
 }
