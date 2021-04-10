@@ -29,7 +29,7 @@ comp! {
                     else
                         Text ( label = &state.cat_fact.as_ref().unwrap().fact)
                 ],
-                Counter
+                Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } )
             ]
         ]
     }

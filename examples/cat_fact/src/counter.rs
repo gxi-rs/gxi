@@ -38,3 +38,16 @@ async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> A
     }
     Ok(ShouldRender::Yes)
 }
+
+
+impl Counter {
+    pub fn count(&mut self, count: Option<u32>) {
+        if let Some(count) = count {
+            {
+                let mut state = self.state.lock().unwrap();
+                state.count = count;
+            }
+            self.mark_dirty();
+        }
+    }
+}
