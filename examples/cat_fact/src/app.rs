@@ -20,14 +20,17 @@ comp! {
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
-            View [
+            View ( orientation = Orientation::Vertical ) [
                 Image ( source = "cat.gif" ),
                 Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                 View [
                     if state.cat_fact.is_none()
-                        Spinner ( spin = true )
+                        Pure [
+                            Text ( label = "loading" ),
+                            Spinner ( spin = true )
+                        ]
                     else
-                        Text ( label = &state.cat_fact.as_ref().unwrap().fact)
+                        Text ( label = &state.cat_fact.as_ref().unwrap().fact )
                 ],
                 Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } )
             ]

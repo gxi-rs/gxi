@@ -2,10 +2,15 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{prelude::*, Orientation};
+use gtk::{prelude::*};
 
 use crate::nodes::node::{Node, NodeRc, NodeType};
 use crate::WeakNodeRc;
+
+pub enum Orientation {
+    Horizontal,
+    Vertical,
+}
 
 pub struct View {
     pub parent: WeakNodeRc,
@@ -31,7 +36,7 @@ impl Node for View {
             dirty: true,
             child: None,
             sibling: None,
-            widget: gtk::Box::new(Orientation::Horizontal, 1),
+            widget: gtk::Box::new(gtk::Orientation::Horizontal, 0),
         })))
     }
 
@@ -42,6 +47,25 @@ impl Node for View {
             state.widget.show_all();
         }
         state.mark_clean();
+    }
+}
+
+impl View {
+    pub fn orientation(&mut self, orientation: Orientation) {
+        match orientation {
+            Orientation::Horizontal => {
+                if let gtk::Orientation::Vertical = self.widget.get_orientation() {
+                    self.widget.set_orientation(gtk::Orientation::Horizontal);
+                    self.mark_dirty();
+                }
+            }
+            Orientation::Vertical => {
+                if let gtk::Orientation::Horizontal = self.widget.get_orientation() {
+                    self.widget.set_orientation(gtk::Orientation::Vertical);
+                    self.mark_dirty();
+                }
+            }
+        }
     }
 }
 

@@ -11,7 +11,7 @@ comp! {
     }
     render {
         View [
-            View [
+            View (orientation = Orientation::Vertical) [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
