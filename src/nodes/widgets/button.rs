@@ -11,7 +11,7 @@ impl Button {
         self.widget.set_label(label);
     }
 
-    pub fn on_click<F: Fn(&gtk::Button) + 'static>(&self, f: F) {
-        self.widget.connect_clicked(f);
+    pub fn on_click<F: Fn() + 'static>(&self, f: F) {
+        self.widget.connect_clicked(move |_| f());
     }
 }
