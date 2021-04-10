@@ -19,8 +19,10 @@ macro_rules! comp_init {
         use std::sync::{Mutex, Arc};
         use crate::glib::Sender;
 
+        type AsyncState = Arc<Mutex<$state_name>>;
+
         pub struct $name {
-            pub state: AsyncState<$state_name>,
+            pub state: AsyncState,
             pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
             pub dirty: bool,

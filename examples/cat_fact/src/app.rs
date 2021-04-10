@@ -36,7 +36,7 @@ comp! {
 }
 
 #[update(App)]
-async fn update<F: Fn() + 'static>(state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::Fetch(force) => {
             if {

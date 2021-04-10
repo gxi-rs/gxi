@@ -21,7 +21,7 @@ comp! {
 }
 
 #[update(Counter)]
-async fn update<F: Fn() + 'static>(state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::INC => {
             let mut state = state.lock().unwrap();

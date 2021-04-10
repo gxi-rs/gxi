@@ -28,13 +28,9 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     }
 
     let name = syn::parse_macro_input!(name as syn::Ident);
-    let state_name = syn::Ident::new(&format!("{}State", quote!(#name)), Span::call_site());
 
     (quote! {
-        type State = Arc<Mutex<#state_name>>;
-
         impl #name {
-
             fn update(this: NodeRc, msg: Msg) {
                 //the channel logic can be abstracted away to be platform specific
                 let (channel_sender, state) = {
