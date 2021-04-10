@@ -67,6 +67,20 @@ impl View {
             }
         }
     }
+
+    pub fn h_expand(&mut self, h_expand : bool) {
+        if h_expand != self.widget.get_hexpand() {
+            self.widget.set_hexpand(true);
+            self.mark_dirty();
+        }
+    }
+
+    pub fn v_expand(&mut self, v_expand : bool) {
+        if v_expand != self.widget.get_vexpand() {
+            self.widget.set_vexpand(true);
+            self.mark_dirty();
+        }
+    }
 }
 
 impl_drop_for_node!(View);

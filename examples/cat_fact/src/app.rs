@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use rust_gui::*;
 
 use crate::counter::Counter;
+use rust_gui::Orientation::{Vertical};
 
 enum Msg {
     Fetch(bool),
@@ -20,8 +21,16 @@ comp! {
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
-            View ( orientation = Orientation::Vertical ) [
-                Image ( source = "cat.gif" ),
+            View ( orientation = Vertical ) [
+                View [
+                    View ( v_expand = true ),
+                    View [
+                        View ( h_expand = true ),
+                        Image ( source = "cat.gif" ),
+                        View ( h_expand = true )
+                    ],
+                    View ( v_expand = true )
+                ],
                 Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                 View [
                     if state.cat_fact.is_none()
