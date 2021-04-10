@@ -54,7 +54,13 @@ macro_rules! comp_init {
                 {
                     let this = this.clone();
                     re.attach(None, move |_| {
-                        Self::render(Rc::clone(&this));
+                        let this = Rc::clone(&this);
+                        //mark dirty
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
                         glib::Continue(true)
                     });
                 }
@@ -86,9 +92,13 @@ impl Parse for CompParser {
                                 let cont = Rc::clone(&this);
                                 let node = cont.clone();
                                 let state = {
-                                    let state_borrow = this.as_ref().borrow();
-                                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                                    state.state.clone()
+                                    let mut node_borrow = this.as_ref().borrow_mut();
+                                    let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                    if !node.is_dirty() {
+                                        return;
+                                    }
+                                    node.mark_clean();
+                                    node.state.clone()
                                 };
                                 let state = state.lock().unwrap();
                                 #content
