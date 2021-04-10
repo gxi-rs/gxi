@@ -10,3 +10,5 @@ pub use run::*;
 
 mod nodes;
 pub mod run;
+
+pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;

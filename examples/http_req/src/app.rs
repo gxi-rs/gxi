@@ -5,7 +5,7 @@ use rust_gui::*;
 use crate::counter::Counter;
 
 enum Msg {
-    Fetch
+    Fetch(bool),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,10 +19,10 @@ comp! {
         cat_fact : Option<CatFact> = None
     }
     render {
-        Init ( on_init = || Msg::Fetch ) [
+        Init ( on_init = || Msg::Fetch(true) ) [
             View [
                 Image ( source = "cat.gif" ),
-                Button ( on_click = || Msg::Fetch, label = "Fetch Cat Memes" ),
+                Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                 View [
                     if state.cat_fact.is_none()
                         Spinner ( spin = true )
@@ -35,14 +35,27 @@ comp! {
     }
     update {
         match msg {
-            Msg::Fetch => {
-                //Todo! call render()
-                let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
-                let json = resp.json::<CatFact>().await?;
-                let mut state = state.lock().unwrap();
-                state.cat_fact = Some(json);
+            //to prevent multiple api calls only fetch when initializing or a fact is already there
+            Msg::Fetch(force) => {
+                if {
+                    let mut state = state.lock().unwrap();
+                    if state.cat_fact.is_some() {
+                        state.cat_fact = None;
+                        render();
+                        true
+                    } else {
+                        false
+                    }
+                } || force {
+                    let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
+                    let cat_fact = resp.json::<CatFact>().await?;
+                    let mut state = state.lock().unwrap();
+                    state.cat_fact = Some(cat_fact);
+                    Ok(ShouldRender::Yes)
+                }else {
+                    Ok(ShouldRender::No)
+                }
             }
         }
-        Ok(ShouldRender::Yes)
     }
 }

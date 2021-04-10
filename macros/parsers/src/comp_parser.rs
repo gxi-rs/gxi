@@ -115,7 +115,7 @@ impl Parse for CompParser {
 
                                 task::spawn(async move {
                                     //update logic. Made to return should render to force dev to decide render state
-                                    async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg, channel_sender: Sender<()>) -> Result<ShouldRender, Box<dyn std::error::Error>> {
+                                    async fn update_logic(state: Arc<Mutex<#state_name>>, msg: Msg, channel_sender: Sender<()>) -> AsyncResult<ShouldRender> {
                                         let render = move || channel_sender.send(()).unwrap();
                                         #block
                                     }
