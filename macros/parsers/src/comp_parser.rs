@@ -27,8 +27,7 @@ macro_rules! comp_init {
             pub parent: WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
-            pub sibling: Option<NodeRc>,
-            pub widget: gtk::Container,
+            pub sibling: Option<NodeRc>
         }
 
         pub struct $state_name {
@@ -45,7 +44,6 @@ macro_rules! comp_init {
                         $($p:$v),*
                     })),
                     channel_sender,
-                    widget: parent.upgrade().unwrap().as_ref().borrow().get_widget_as_container(),
                     parent,
                     dirty: true,
                     child: None,
