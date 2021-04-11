@@ -1,12 +1,11 @@
 use rust_gui::*;
 
-//TODO: Pure not working as node here
 comp! {
     Centre {
          cat_fact : Option<String> = None
     }
     render {
-        View [
+        Pure [
             View ( v_expand = true ),
             View [
                 View ( h_expand = true ),
