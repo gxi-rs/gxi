@@ -65,10 +65,10 @@ async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> As
 }
 /*
 Parent substitute for child
-let mut node_borrow = node.as_ref().borrow_mut();
-                            let cont = node_borrow.as_any_mut().downcast_mut::<Centre>().unwrap();
-                            let cont = cont.parent_substitute.clone();
-                            let cont_borrow = cont.upgrade().unwrap();
-                            let mut cont_borrow = cont_borrow.borrow_mut();
-                            cont_borrow.init_child(Box::new(move || Image::new(cont)))
-                            */
+    let mut node_borrow = node.as_ref().borrow_mut();
+    let cont = node_borrow.as_any_mut().downcast_mut::<Centre>().unwrap();
+    let cont = cont.parent_substitute.clone();
+    let cont_borrow = cont.upgrade().unwrap();
+    let mut cont_borrow = cont_borrow.borrow_mut();
+    cont_borrow.init_child(Box::new(move || Image::new(cont)))
+*/
