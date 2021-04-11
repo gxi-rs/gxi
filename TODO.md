@@ -4,7 +4,7 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### TO DO
 
-- [] Render child of a component from withing the component
+- [ ] Render child of a component from withing the component
 
 ### Completed ✓
 
