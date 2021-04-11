@@ -25,6 +25,7 @@ macro_rules! comp_init {
             pub state: AsyncState,
             pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
+            pub parent_substitute : WeakNodeRc,
             pub dirty: bool,
             pub child: Option<NodeRc>,
             pub sibling: Option<NodeRc>
@@ -44,6 +45,7 @@ macro_rules! comp_init {
                         $($p:$v),*
                     })),
                     channel_sender,
+                    parent_substitute : parent.clone(),
                     parent,
                     dirty: true,
                     child: None,
