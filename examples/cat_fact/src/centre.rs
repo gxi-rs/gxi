@@ -1,9 +1,7 @@
 use rust_gui::*;
 
 comp! {
-    Centre {
-         cat_fact : Option<String> = None
-    }
+    Centre {}
     render {
         Pure [
             View ( v_expand = true ),

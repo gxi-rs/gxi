@@ -11,7 +11,7 @@ pub struct CompParser {
 
 #[macro_export]
 macro_rules! comp_init {
-    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr);* } { $($render:tt)* } )=> {
+    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr)* } { $($render:tt)* } )=> {
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
@@ -32,7 +32,7 @@ macro_rules! comp_init {
         }
 
         pub struct $state_name {
-            pub $($p:$t),*
+            $(pub $p:$t),*
         }
 
         impl Node for $name {
@@ -83,7 +83,7 @@ impl Parse for CompParser {
     fn parse(input: ParseStream) -> Result<Self> {
         let name = input.parse::<syn::Ident>()?;
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
-        let props = input.parse::<syn::Block>()?;
+        let state_block = input.parse::<syn::Block>()?;
         let mut render_func = quote!(
             fn render(_this: NodeRc) {}
         );
@@ -115,8 +115,8 @@ impl Parse for CompParser {
                 }
             }
         }
-        Ok(CompParser {
-            tree: quote!(comp_init!(#name #state_name #props {#render_func});),
+       Ok(CompParser {
+            tree: quote!(comp_init!(#name #state_name #state_block {#render_func});),
         })
     }
 }
