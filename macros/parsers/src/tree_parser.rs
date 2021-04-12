@@ -72,7 +72,7 @@ impl TreeParser {
     }
 
     fn get_pure_remove_block(pure_index: u32) -> TokenStream2 {
-        quote! {
+        quote! {{
             let pure_index = {
                 let mut node_borrow = node.as_ref().borrow_mut();
                 let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
@@ -85,7 +85,7 @@ impl TreeParser {
                     node.as_ref().borrow_mut().get_child_mut().take()
                 };
             }
-        }
+        }}
     }
 
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
@@ -191,10 +191,7 @@ impl TreeParser {
                 let pre_init = match init_type {
                     InitType::Child(i) => {
                         quote! {
-                            let cont = {
-                                let node_borrow = node.as_ref().borrow();
-                                node_borrow.get_self_substitute()
-                            };
+                            let node = cont.clone();
                         }
                     }
                     InitType::Sibling(i) => {
@@ -217,7 +214,7 @@ impl TreeParser {
                     quote! {
                         let node = {
                             let (node, is_new) = {
-                                { #pure_remove_block }
+                                #pure_remove_block
                                 #pre_init
                                 let mut node_borrow = node.as_ref().borrow_mut();
                                 let weak_cont = Rc::downgrade(&cont);
@@ -250,7 +247,14 @@ impl TreeParser {
                         if content.is_empty(){
                            TokenStream2::new()
                         } else {
-                            quote! { { let cont = node.clone(); #content #render_call }  }
+                            quote! {{
+                                let cont = {
+                                    let node_borrow = node.as_ref().borrow();
+                                    node_borrow.get_self_substitute()
+                                };
+                                #content
+                                #render_call
+                            }}
                         }
                     }
                     _ => TokenStream2::new(),
