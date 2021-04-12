@@ -47,6 +47,10 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
+    fn get_parent_substitute(&self) -> NodeRc {
+        panic!("{}", PANIC_MSG);
+    }
+
     fn add(&mut self, _child: NodeRc) {
         panic!("{}", PANIC_MSG);
     }

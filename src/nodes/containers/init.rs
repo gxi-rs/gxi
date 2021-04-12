@@ -21,6 +21,10 @@ impl Node for Init {
             sibling: None,
         })))
     }
+
+    fn get_parent_substitute(&self) -> NodeRc {
+        self.parent.upgrade().unwrap()
+    }
 }
 
 impl Init {

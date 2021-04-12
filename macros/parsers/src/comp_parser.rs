@@ -25,7 +25,7 @@ macro_rules! comp_init {
             pub state: AsyncState,
             pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
-            pub parent_substitute : WeakNodeRc,
+            pub parent_substitute : Option<WeakNodeRc>,
             pub dirty: bool,
             pub child: Option<NodeRc>,
             pub sibling: Option<NodeRc>
@@ -45,7 +45,7 @@ macro_rules! comp_init {
                         $($p:$v),*
                     })),
                     channel_sender,
-                    parent_substitute : parent.clone(),
+                    parent_substitute : None,
                     parent,
                     dirty: true,
                     child: None,
@@ -65,6 +65,14 @@ macro_rules! comp_init {
                     });
                 }
                 this
+            }
+
+            fn get_parent_substitute(&self) -> NodeRc {
+                if let Some(parent_substitute) = &self.parent_substitute {
+                    parent_substitute.upgrade().unwrap()
+                } else {
+                    panic!("{} doesn't have #child attribute. Can't add external child to it.", stringify!($name));
+                }
             }
             $($render)*
         }

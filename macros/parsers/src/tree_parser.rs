@@ -107,7 +107,7 @@ impl TreeParser {
                 } else {
                     let node = TreeParser::custom_parse(
                         input,
-                        InitType::Child(*pure_index)
+                        InitType::Child(*pure_index),
                     );
                     quote!( else { #node } )
                 }
@@ -117,7 +117,8 @@ impl TreeParser {
                     {
                         { #pure_remove_block }
                         let mut node_borrow = node.as_ref().borrow_mut();
-                        node_borrow.init_child(Box::new(move || Pure::new(Rc::downgrade(&cont)))).1
+                        let weak_cont = Rc::downgrade(&cont);
+                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).1
                     };
                 }}
             };
@@ -187,6 +188,20 @@ impl TreeParser {
                 _ => (),
             };
             let (tree, render_call) = {
+                let pre_init = match init_type {
+                    InitType::Child(i) => {
+                        quote! {
+                            let node_borrow = node.as_ref().borrow();
+                            let cont = node_borrow.get_parent_substitute();
+                            let mut node_borrow = cont.borrow_mut();
+                        }
+                    }
+                    InitType::Sibling(i) => {
+                        quote! {
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                        }
+                    }
+                };
                 let (pure_index, init_type) = init_type.get_init_type_tuple();
                 //if pure_index > 0 then the component is pure
                 let (pure_remove_block, render_call) = if pure_index > 0 {
@@ -203,7 +218,7 @@ impl TreeParser {
                         let node = {
                             let (node, is_new) = {
                                 { #pure_remove_block }
-                                let mut node_borrow = node.as_ref().borrow_mut();
+                                #pre_init
                                 let weak_cont = Rc::downgrade(&cont);
                                 node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
                             };

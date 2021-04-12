@@ -23,6 +23,9 @@ impl Node for Pure {
             sibling: None,
         })))
     }
+    fn get_parent_substitute(&self) -> NodeRc {
+        self.parent.upgrade().unwrap()
+    }
 }
 
 impl_drop_for_component!(Pure);

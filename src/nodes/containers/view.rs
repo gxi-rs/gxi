@@ -48,6 +48,10 @@ impl Node for View {
         }
         state.mark_clean();
     }
+
+    fn get_parent_substitute(&self) -> NodeRc {
+        self.parent.upgrade().unwrap()
+    }
 }
 
 impl View {

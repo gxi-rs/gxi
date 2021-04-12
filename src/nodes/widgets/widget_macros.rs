@@ -63,5 +63,9 @@ macro_rules! impl_widget {
                 sibling: None,
             })))
         }
+
+        fn get_parent_substitute(&self) -> NodeRc {
+            panic!("{} can't have a child", stringify!($name));
+        }
     };
 }

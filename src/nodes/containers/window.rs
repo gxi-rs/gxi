@@ -33,6 +33,9 @@ impl Node for Window {
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("Window can't have a sibling node");
     }
+    fn get_parent_substitute(&self) -> NodeRc {
+        self.parent.upgrade().unwrap()
+    }
 }
 
 impl_drop_for_node!(Window);
