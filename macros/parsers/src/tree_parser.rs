@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
 
 use crate::init_type::InitType;
 
@@ -32,16 +32,13 @@ pub struct TreeParser {
 }
 
 impl TreeParser {
-    fn parse_for_block(
-        input: ParseStream, (pure_index, init_type): (u32, &TokenStream2),
-    ) -> TokenStream2 {
-        fn for_recursive(
-            input: ParseStream, (pure_index, init_type): (u32, &TokenStream2),
-        ) -> TokenStream2 {
+    fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+        fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
             let variable = input.parse::<syn::Ident>().unwrap();
             input.parse::<syn::token::In>().unwrap();
             let for_expr = input.parse::<syn::Expr>().unwrap();
-            let content = TreeParser::custom_parse(input, InitType::Sibling.get_init_type_tuple());
+            let content = TreeParser::custom_parse(input, InitType::Sibling(0));
+            let (pure_index, init_type) = init_type.get_init_type_tuple();
             quote! {
                 let node = {
                     c!(#pure_index #init_type Pure);
@@ -68,7 +65,7 @@ impl TreeParser {
             }
         }
         if let Ok(_) = input.parse::<syn::token::For>() {
-            for_recursive(input, (pure_index, init_type))
+            for_recursive(input, init_type)
         } else {
             TokenStream2::new()
         }
@@ -91,9 +88,7 @@ impl TreeParser {
         }
     }
 
-    fn parse_condition_block(
-        input: &ParseStream, _pure_index: u32, init_type: &TokenStream2,
-    ) -> TokenStream2 {
+    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
@@ -101,7 +96,7 @@ impl TreeParser {
             } else {
                 TreeParser::custom_parse(
                     input,
-                    InitType::PureChild(*pure_index).get_init_type_tuple(),
+                    InitType::Child(*pure_index),
                 )
             };
             *pure_index += 1;
@@ -112,7 +107,7 @@ impl TreeParser {
                 } else {
                     let node = TreeParser::custom_parse(
                         input,
-                        InitType::PureChild(*pure_index).get_init_type_tuple(),
+                        InitType::Child(*pure_index)
                     );
                     quote!( else { #node } )
                 }
@@ -136,6 +131,7 @@ impl TreeParser {
         if let Ok(_) = input.parse::<syn::token::If>() {
             let mut pure_index = 1;
             let tree = if_recursive(input, &mut pure_index);
+            let init_type = init_type.get_init_type_tuple().1;
             quote!(
                 let (node,is_new) = {
                     let mut node_borrow = node.as_ref().borrow_mut();
@@ -152,9 +148,7 @@ impl TreeParser {
         }
     }
 
-    fn parse_expression(
-        input: ParseStream, pure_index: u32, init_type: TokenStream2,
-    ) -> TokenStream2 {
+    fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(name) = input.parse::<Ident>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
@@ -193,6 +187,7 @@ impl TreeParser {
                 _ => (),
             };
             let (tree, render_call) = {
+                let (pure_index, init_type) = init_type.get_init_type_tuple();
                 //if pure_index > 0 then the component is pure
                 let (pure_remove_block, render_call) = if pure_index > 0 {
                     (
@@ -233,7 +228,7 @@ impl TreeParser {
                     syn::__private::Ok(brackets) => {
                         let content = TreeParser::custom_parse(
                             &brackets.content,
-                            InitType::Child.get_init_type_tuple(),
+                            InitType::Child(0),
                         );
                         quote! { { let cont = node.clone(); #content }  }
                     }
@@ -248,7 +243,7 @@ impl TreeParser {
                     Ok(_) => {
                         let content = TreeParser::custom_parse(
                             &input,
-                            InitType::Sibling.get_init_type_tuple(),
+                            InitType::Sibling(0),
                         );
                         quote! { #tree #content }
                     }
@@ -259,12 +254,16 @@ impl TreeParser {
         TokenStream2::new()
     }
 
-    fn custom_parse(
-        input: ParseStream, (pure_index, init_type): (u32, TokenStream2),
-    ) -> TokenStream2 {
-        let condition_block = TreeParser::parse_condition_block(&input, pure_index, &init_type);
-        let for_parse = TreeParser::parse_for_block(&input, (pure_index, &init_type));
-        let expr = TreeParser::parse_expression(input, pure_index, init_type);
+
+    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+        // if let Ok(k) = input.parse::<syn::>()
+        quote! {}
+    }
+
+    fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
+        let condition_block = TreeParser::parse_condition_block(&input, &init_type);
+        let for_parse = TreeParser::parse_for_block(&input, &init_type);
+        let expr = TreeParser::parse_expression(input, &init_type);
         quote!(#condition_block #for_parse #expr)
     }
 }
@@ -283,12 +282,23 @@ impl Parse for TreeParser {
         };
         // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
         let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
-            input.parse::<syn::Ident>()?.into_token_stream()
+            match &input.parse::<syn::Ident>()?.to_string()[..] {
+                "init_child" => {
+                    InitType::Child(pure_index)
+                }
+                "init_sibling" => {
+                    InitType::Sibling(pure_index)
+                }
+                _ => {
+                    panic!("Expected init_type as init_child or init_sibling ");
+                }
+            }
         } else {
-            quote! {init_child}
+            InitType::Child(pure_index)
         };
+
         Ok(TreeParser {
-            tree: TreeParser::custom_parse(input, (pure_index, init_type)),
+            tree: TreeParser::custom_parse(input, init_type),
         })
     }
 }

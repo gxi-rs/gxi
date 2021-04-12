@@ -23,7 +23,8 @@ comp! {
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
             View ( orientation = Vertical ) [
-                Centre,
+                Centre [
+                ],
                 Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                 View [
                     if state.cat_fact.is_none()
