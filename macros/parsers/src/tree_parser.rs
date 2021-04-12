@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
 
 use crate::init_type::InitType;
 
@@ -297,13 +297,21 @@ impl TreeParser {
             TokenStream2::new()
         }
     }
+    fn parse_block(input: ParseStream) -> TokenStream2 {
+        if let Ok(b) = input.parse::<syn::Block>() {
+            quote!{{ #b }}
+        } else {
+            TokenStream2::new()
+        }
+    }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
         let condition_block = TreeParser::parse_condition_block(&input, &init_type);
         let for_parse = TreeParser::parse_for_block(&input, &init_type);
         let child = TreeParser::parse_child_injection(&input, &init_type);
+        let block = TreeParser::parse_block(&input);
         let expr = TreeParser::parse_expression(input, &init_type);
-        quote!(#condition_block #for_parse #child #expr)
+        quote!(#condition_block #for_parse #child #block #expr)
     }
 }
 
