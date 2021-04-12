@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
+use syn::*;
 
 use crate::init_type::InitType;
 
@@ -94,10 +94,7 @@ impl TreeParser {
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
                 if_recursive(input, pure_index)
             } else {
-                TreeParser::custom_parse(
-                    input,
-                    InitType::Child(*pure_index),
-                )
+                TreeParser::custom_parse(input, InitType::Child(*pure_index))
             };
             *pure_index += 1;
             let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
@@ -105,10 +102,7 @@ impl TreeParser {
                     let tree = if_recursive(input, pure_index);
                     quote!(else #tree)
                 } else {
-                    let node = TreeParser::custom_parse(
-                        input,
-                        InitType::Child(*pure_index),
-                    );
+                    let node = TreeParser::custom_parse(input, InitType::Child(*pure_index));
                     quote!( else { #node } )
                 }
             } else {
@@ -194,9 +188,7 @@ impl TreeParser {
                             let node = cont.clone();
                         }
                     }
-                    InitType::Sibling(_) => {
-                        TokenStream2::new()
-                    }
+                    InitType::Sibling(_) => TokenStream2::new(),
                 };
                 let (pure_index, init_type) = init_type.get_init_type_tuple();
                 //if pure_index > 0 then the component is pure
@@ -240,12 +232,10 @@ impl TreeParser {
                 //check for first block
                 let children = match group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
-                        let content = TreeParser::custom_parse(
-                            &brackets.content,
-                            InitType::Child(0),
-                        );
-                        if content.is_empty(){
-                           TokenStream2::new()
+                        let content =
+                            TreeParser::custom_parse(&brackets.content, InitType::Child(0));
+                        if content.is_empty() {
+                            TokenStream2::new()
                         } else {
                             quote! {
                                 {
@@ -268,10 +258,7 @@ impl TreeParser {
                 //parse ,
                 return match input.parse::<syn::Token![,]>() {
                     Ok(_) => {
-                        let content = TreeParser::custom_parse(
-                            &input,
-                            InitType::Sibling(0),
-                        );
+                        let content = TreeParser::custom_parse(&input, InitType::Sibling(0));
                         quote! { #tree #content }
                     }
                     _ => tree,
@@ -280,7 +267,6 @@ impl TreeParser {
         }
         TokenStream2::new()
     }
-
 
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
@@ -336,12 +322,8 @@ impl Parse for TreeParser {
         // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
         let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
             match &input.parse::<syn::Ident>()?.to_string()[..] {
-                "init_child" => {
-                    InitType::Child(pure_index)
-                }
-                "init_sibling" => {
-                    InitType::Sibling(pure_index)
-                }
+                "init_child" => InitType::Child(pure_index),
+                "init_sibling" => InitType::Sibling(pure_index),
                 _ => {
                     panic!("Expected init_type as init_child or init_sibling ");
                 }

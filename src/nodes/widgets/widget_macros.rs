@@ -11,7 +11,7 @@ macro_rules! create_widget {
         use gtk::prelude::*;
 
         use crate::nodes::node::*;
-        use crate::{*};
+        use crate::*;
         pub struct $name {
             pub parent: WeakNodeRc,
             pub dirty: bool,

@@ -153,7 +153,6 @@ macro_rules! impl_node_for_component {
         fn get_type(&self) -> NodeType {
             NodeType::Component
         }
-
     };
 }
 

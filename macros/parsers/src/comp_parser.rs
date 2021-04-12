@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::TreeParser;
 
@@ -115,7 +115,8 @@ impl Parse for CompParser {
                 }
             }
         }
-       Ok(CompParser {
+
+        Ok(CompParser {
             tree: quote!(comp_init!(#name #state_name #state_block {#render_func});),
         })
     }

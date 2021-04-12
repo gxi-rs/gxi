@@ -23,7 +23,7 @@ impl Node for Pure {
             pure_index: 0,
             child: None,
             sibling: None,
-            self_substitute: None
+            self_substitute: None,
         })));
         {
             let mut this_borrow = this.as_ref().borrow_mut();

@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::{*};
+use crate::*;
 
 const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
 
@@ -47,9 +47,13 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn get_self_substitute(&self) -> NodeRc { panic!("{}", PANIC_MSG); }
+    fn get_self_substitute(&self) -> NodeRc {
+        panic!("{}", PANIC_MSG);
+    }
 
-    fn set_self_substitute(&mut self, _self_substitute: NodeRc) { panic!("{}", PANIC_MSG); }
+    fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
+        panic!("{}", PANIC_MSG);
+    }
 
     fn add(&mut self, _child: NodeRc) {
         panic!("{}", PANIC_MSG);

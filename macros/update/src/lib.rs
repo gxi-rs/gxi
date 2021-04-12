@@ -51,5 +51,6 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                 });
             }
         }
-    }).into()
+    })
+    .into()
 }

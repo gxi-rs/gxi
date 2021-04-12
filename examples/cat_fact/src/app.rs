@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
-use rust_gui::*;
 use rust_gui::Orientation::Vertical;
+use rust_gui::*;
 
 use crate::centre::Centre;
 use crate::counter::Counter;
@@ -43,7 +43,9 @@ comp! {
 }
 
 #[update(App)]
-async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+async fn update<F: Fn() + 'static>(
+    state: AsyncState, msg: Msg, render: F,
+) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::Fetch(force) => {
             if {
@@ -52,8 +54,11 @@ async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> As
                     state.cat_fact = None;
                     render();
                     true
-                } else { false }
-            } || force {
+                } else {
+                    false
+                }
+            } || force
+            {
                 let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
                 let cat_fact = resp.json::<CatFact>().await?;
                 let mut state = state.lock().unwrap();

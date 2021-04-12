@@ -2,10 +2,10 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{prelude::*};
+use gtk::prelude::*;
 
 use crate::nodes::node::{Node, NodeRc, NodeType};
-use crate::{*};
+use crate::*;
 
 pub enum Orientation {
     Horizontal,
@@ -79,7 +79,7 @@ impl View {
     pub fn h_expand(&mut self, h_expand: bool) {
         if h_expand != self.widget.get_hexpand() {
             self.widget.set_hexpand(true);
-           // self.mark_dirty();
+            // self.mark_dirty();
         }
     }
 
