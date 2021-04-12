@@ -212,6 +212,7 @@ impl TreeParser {
                 } else {
                     (TokenStream2::new(), quote!( #name::render(node.clone()); ))
                 };
+
                 (
                     quote! {
                         let node = {
@@ -230,6 +231,7 @@ impl TreeParser {
                                 }
                                 #(#dynamic_props)*
                             }
+                            #render_call
                             node
                         };
                     },
@@ -245,11 +247,15 @@ impl TreeParser {
                             &brackets.content,
                             InitType::Child(0),
                         );
-                        quote! { { let cont = node.clone(); #content }  }
+                        if content.is_empty(){
+                           TokenStream2::new()
+                        } else {
+                            quote! { { let cont = node.clone(); #content #render_call }  }
+                        }
                     }
                     _ => TokenStream2::new(),
                 };
-                let tree = quote! { #tree #children #render_call };
+                let tree = quote! { #tree #children };
                 //recursive function therefore drop whatever memory possible
                 drop(render_call);
                 drop(children);
