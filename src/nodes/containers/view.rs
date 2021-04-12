@@ -64,13 +64,13 @@ impl View {
             Orientation::Horizontal => {
                 if let gtk::Orientation::Vertical = self.widget.get_orientation() {
                     self.widget.set_orientation(gtk::Orientation::Horizontal);
-                    self.mark_dirty();
+                    //self.mark_dirty();
                 }
             }
             Orientation::Vertical => {
                 if let gtk::Orientation::Horizontal = self.widget.get_orientation() {
                     self.widget.set_orientation(gtk::Orientation::Vertical);
-                    self.mark_dirty();
+                    //self.mark_dirty();
                 }
             }
         }
@@ -79,14 +79,14 @@ impl View {
     pub fn h_expand(&mut self, h_expand: bool) {
         if h_expand != self.widget.get_hexpand() {
             self.widget.set_hexpand(true);
-            self.mark_dirty();
+           // self.mark_dirty();
         }
     }
 
     pub fn v_expand(&mut self, v_expand: bool) {
         if v_expand != self.widget.get_vexpand() {
             self.widget.set_vexpand(true);
-            self.mark_dirty();
+            //self.mark_dirty();
         }
     }
 }
