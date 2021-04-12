@@ -189,12 +189,12 @@ impl TreeParser {
             };
             let (tree, render_call) = {
                 let pre_init = match init_type {
-                    InitType::Child(i) => {
+                    InitType::Child(_) => {
                         quote! {
                             let node = cont.clone();
                         }
                     }
-                    InitType::Sibling(i) => {
+                    InitType::Sibling(_) => {
                         TokenStream2::new()
                     }
                 };
@@ -283,7 +283,7 @@ impl TreeParser {
 
 
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        if let Ok(k) = input.parse::<syn::token::Pound>() {
+        if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>().unwrap();
             let (_, init_type) = init_type.get_init_type_tuple();
             match &ident.to_string()[..] {

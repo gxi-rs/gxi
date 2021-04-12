@@ -69,7 +69,7 @@ macro_rules! impl_widget {
         fn get_self_substitute(&self) -> NodeRc {
             panic!("{} can't have a child", stringify!($name));
         }
-        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
+        fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
             panic!("{} can't have a child", stringify!($name));
         }
     };
