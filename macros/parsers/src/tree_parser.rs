@@ -191,15 +191,14 @@ impl TreeParser {
                 let pre_init = match init_type {
                     InitType::Child(i) => {
                         quote! {
-                            let node_borrow = node.as_ref().borrow();
-                            let cont = node_borrow.get_parent_substitute();
-                            let mut node_borrow = cont.borrow_mut();
+                            let cont = {
+                                let node_borrow = node.as_ref().borrow();
+                                node_borrow.get_self_substitute()
+                            };
                         }
                     }
                     InitType::Sibling(i) => {
-                        quote! {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                        }
+                        TokenStream2::new()
                     }
                 };
                 let (pure_index, init_type) = init_type.get_init_type_tuple();
@@ -219,6 +218,7 @@ impl TreeParser {
                             let (node, is_new) = {
                                 { #pure_remove_block }
                                 #pre_init
+                                let mut node_borrow = node.as_ref().borrow_mut();
                                 let weak_cont = Rc::downgrade(&cont);
                                 node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
                             };

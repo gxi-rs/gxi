@@ -24,7 +24,6 @@ comp! {
         Init ( on_init = || Msg::Fetch(true) ) [
             View ( orientation = Vertical ) [
                 Centre [
-                    Image ( source = "cat.gif" ),
                 ],
                 Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                 View [
@@ -41,7 +40,7 @@ comp! {
         ]
     }
 }
-
+// Image ( source = "cat.gif" ),
 #[update(App)]
 async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
     match msg {

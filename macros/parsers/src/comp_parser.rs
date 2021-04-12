@@ -25,7 +25,7 @@ macro_rules! comp_init {
             pub state: AsyncState,
             pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
-            pub parent_substitute : Option<WeakNodeRc>,
+            pub self_substitute : Option<WeakNodeRc>,
             pub dirty: bool,
             pub child: Option<NodeRc>,
             pub sibling: Option<NodeRc>
@@ -45,12 +45,17 @@ macro_rules! comp_init {
                         $($p:$v),*
                     })),
                     channel_sender,
-                    parent_substitute : None,
+                    self_substitute : None,
                     parent,
                     dirty: true,
                     child: None,
                     sibling: None,
                 })));
+                {
+                    let mut this_borrow = this.as_ref().borrow_mut();
+                    let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                    this_borrow.self_substitute = Some(Rc::downgrade(&this));
+                }
                 {
                     let this = this.clone();
                     re.attach(None, move |_| {
@@ -67,13 +72,6 @@ macro_rules! comp_init {
                 this
             }
 
-            fn get_parent_substitute(&self) -> NodeRc {
-                if let Some(parent_substitute) = &self.parent_substitute {
-                    parent_substitute.upgrade().unwrap()
-                } else {
-                    panic!("{} doesn't have #child attribute. Can't add external child to it.", stringify!($name));
-                }
-            }
             $($render)*
         }
 

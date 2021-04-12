@@ -42,18 +42,14 @@ pub trait Node: Drop {
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }
-    fn new(parent: WeakNodeRc) -> NodeRc
-        where
-            Self: Sized;
-    fn render(_this: NodeRc)
-        where
-            Self: Sized,
-    {}
+    fn new(parent: WeakNodeRc) -> NodeRc where Self: Sized;
+    fn render(_this: NodeRc) where Self: Sized, {}
     fn is_dirty(&self) -> bool;
     fn mark_dirty(&mut self);
     fn mark_clean(&mut self);
     // parent substitute is the the parent in which outer children are added
-    fn get_parent_substitute(&self) -> NodeRc;
+    fn get_self_substitute(&self) -> NodeRc;
+    fn set_self_substitute(&mut self, self_substitute: NodeRc);
     //adds the widget of child to self widget
     //this method allow to draw clear lines between
     //OS specific and component system specific code

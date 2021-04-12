@@ -117,6 +117,7 @@ macro_rules! impl_node_for_component {
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();
+        impl_node_trait_substitute!();
 
         fn add(&mut self, child: NodeRc) {
             let parent = self.parent.upgrade().unwrap();
@@ -176,6 +177,20 @@ macro_rules! impl_drop_for_component {
             fn drop(&mut self) {
                 // Components need to not drop anything
             }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_node_trait_substitute {
+    () => {
+        fn get_self_substitute(&self) -> NodeRc {
+            let prost = self.self_substitute.as_ref().unwrap();
+            prost.upgrade().unwrap()
+        }
+
+        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
+            self.self_substitute = Some(Rc::downgrade(&self_substitute));
         }
     };
 }

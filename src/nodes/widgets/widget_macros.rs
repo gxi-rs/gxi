@@ -15,6 +15,7 @@ macro_rules! create_widget {
         pub struct $name {
             pub parent: WeakNodeRc,
             pub dirty: bool,
+            pub self_substitute: Option<WeakNodeRc>,
             pub widget: gtk::$widget_name,
             pub sibling: Option<NodeRc>,
         }
@@ -56,15 +57,19 @@ macro_rules! impl_widget {
         }
 
         fn new(parent: WeakNodeRc) -> NodeRc {
-            Rc::new(RefCell::new(Box::new($name {
+            Rc::new(RefCell::new(Box::new(Self {
                 parent,
+                self_substitute: None,
                 dirty: true,
                 widget: gtk::$widget_name::new($($args)*),
                 sibling: None,
             })))
         }
 
-        fn get_parent_substitute(&self) -> NodeRc {
+        fn get_self_substitute(&self) -> NodeRc {
+            panic!("{} can't have a child", stringify!($name));
+        }
+        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
             panic!("{} can't have a child", stringify!($name));
         }
     };

@@ -19,5 +19,5 @@ comp! {
 let cont = node.clone();
 let mut this_borrow = this.as_ref().borrow_mut();
 let this =  this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-this.parent_substitute = Rc::downgrade(&cont);
+this.self_substitute = Rc::downgrade(&cont);
 */

@@ -7,6 +7,7 @@ use crate::nodes::node::*;
 pub struct Init {
     pub parent: WeakNodeRc,
     pub dirty: bool,
+    pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
 }
@@ -14,16 +15,18 @@ pub struct Init {
 impl Node for Init {
     impl_node_for_component!();
     fn new(parent: WeakNodeRc) -> NodeRc {
-        Rc::new(RefCell::new(Box::new(Init {
+        let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
             dirty: true,
+            self_substitute: None,
             child: None,
             sibling: None,
-        })))
-    }
-
-    fn get_parent_substitute(&self) -> NodeRc {
-        self.parent.upgrade().unwrap()
+        })));
+        {
+            let mut this_borrow = this.as_ref().borrow_mut();
+            this_borrow.set_self_substitute(this.clone());
+        }
+        this
     }
 }
 
