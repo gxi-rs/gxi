@@ -11,7 +11,7 @@ macro_rules! create_widget {
         use gtk::prelude::*;
 
         use crate::nodes::node::*;
-
+        use crate::{*};
         pub struct $name {
             pub parent: WeakNodeRc,
             pub dirty: bool,
@@ -52,7 +52,7 @@ macro_rules! impl_widget {
             );
         }
 
-        fn get_widget_as_container(&self) -> gtk::Container {
+        fn get_widget_as_container(&self) -> NativeWidgetContainer {
             panic!("{} is not a container", stringify!($name));
         }
 

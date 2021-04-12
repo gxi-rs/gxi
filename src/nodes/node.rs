@@ -4,6 +4,9 @@ use std::rc::{Rc, Weak};
 
 pub type NodeRc = Rc<RefCell<Box<dyn Node>>>;
 pub type WeakNodeRc = Weak<RefCell<Box<dyn Node>>>;
+//these 2 can be transformed using cfg macros for different platforms
+pub type NativeWidget = gtk::Widget;
+pub type NativeWidgetContainer = gtk::Container;
 
 pub enum NodeType {
     Widget,
@@ -37,8 +40,8 @@ pub trait Node: Drop {
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool);
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn get_widget(&self) -> gtk::Widget;
-    fn get_widget_as_container(&self) -> gtk::Container;
+    fn get_widget(&self) -> NativeWidget;
+    fn get_widget_as_container(&self) -> NativeWidgetContainer;
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }

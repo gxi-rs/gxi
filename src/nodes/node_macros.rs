@@ -85,8 +85,8 @@ macro_rules! impl_node_trait_get_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
-        fn get_widget(&self) -> gtk::Widget {
-            let widget: &gtk::Widget = self.widget.as_ref();
+        fn get_widget(&self) -> NativeWidget {
+            let widget: &NativeWidget = self.widget.as_ref();
             widget.clone()
         }
     };
@@ -95,8 +95,8 @@ macro_rules! impl_node_trait_get_widget {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget_as_container {
     () => {
-        fn get_widget_as_container(&self) -> gtk::Container {
-            let widget: &gtk::Container = self.widget.as_ref();
+        fn get_widget_as_container(&self) -> NativeWidgetContainer {
+            let widget: &NativeWidgetContainer = self.widget.as_ref();
             widget.clone()
         }
     };
@@ -124,13 +124,13 @@ macro_rules! impl_node_for_component {
             parent.as_ref().borrow_mut().add(child);
         }
 
-        fn get_widget(&self) -> gtk::Widget {
+        fn get_widget(&self) -> NativeWidget {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget()
         }
 
-        fn get_widget_as_container(&self) -> gtk::Container {
+        fn get_widget_as_container(&self) -> NativeWidgetContainer {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget_as_container()

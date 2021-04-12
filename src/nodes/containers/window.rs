@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gtk::{prelude::*, WindowType};
 
 use crate::nodes::node::{Node, NodeRc, NodeType};
-use crate::WeakNodeRc;
+use crate::{*};
 
 pub struct Window {
     pub parent: WeakNodeRc,

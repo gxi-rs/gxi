@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gtk::{prelude::*};
 
 use crate::nodes::node::{Node, NodeRc, NodeType};
-use crate::WeakNodeRc;
+use crate::{*};
 
 pub enum Orientation {
     Horizontal,
