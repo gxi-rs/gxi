@@ -271,15 +271,41 @@ impl TreeParser {
 
 
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        // if let Ok(k) = input.parse::<syn::>()
-        quote! {}
+        if let Ok(k) = input.parse::<syn::token::Pound>() {
+            let ident = input.parse::<syn::Ident>().unwrap();
+            let (_, init_type) = init_type.get_init_type_tuple();
+            match &ident.to_string()[..] {
+                "children" => {
+                    quote! {
+                        let node = {
+                            let node = {
+                                let mut node_borrow = node.as_ref().borrow_mut();
+                                let weak_cont = Rc::downgrade(&cont);
+                                node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
+                            };
+                            {
+                                let mut this_borrow = this.as_ref().borrow_mut();
+                                this_borrow.set_self_substitute(node.clone());
+                            }
+                            node
+                        };
+                    }
+                }
+                _ => {
+                    panic!("Expected an attribute here. Eg [children]")
+                }
+            }
+        } else {
+            TokenStream2::new()
+        }
     }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
         let condition_block = TreeParser::parse_condition_block(&input, &init_type);
         let for_parse = TreeParser::parse_for_block(&input, &init_type);
+        let child = TreeParser::parse_child_injection(&input, &init_type);
         let expr = TreeParser::parse_expression(input, &init_type);
-        quote!(#condition_block #for_parse #expr)
+        quote!(#condition_block #for_parse #child #expr)
     }
 }
 

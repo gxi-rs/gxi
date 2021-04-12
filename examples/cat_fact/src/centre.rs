@@ -9,6 +9,7 @@ comp! {
             View ( v_expand = true ),
             View [
                 View ( h_expand = true ),
+                #children
                 View ( h_expand = true )
             ],
             View ( v_expand = true )
