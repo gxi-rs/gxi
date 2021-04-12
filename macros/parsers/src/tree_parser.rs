@@ -247,14 +247,16 @@ impl TreeParser {
                         if content.is_empty(){
                            TokenStream2::new()
                         } else {
-                            quote! {{
-                                let cont = {
-                                    let node_borrow = node.as_ref().borrow();
-                                    node_borrow.get_self_substitute()
-                                };
-                                #content
+                            quote! {
+                                {
+                                    let cont = {
+                                        let node_borrow = node.as_ref().borrow();
+                                        node_borrow.get_self_substitute()
+                                    };
+                                    #content
+                                }
                                 #render_call
-                            }}
+                            }
                         }
                     }
                     _ => TokenStream2::new(),
