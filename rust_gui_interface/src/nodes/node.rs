@@ -45,8 +45,14 @@ pub trait Node: Drop {
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }
-    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self> where Self: Sized;
-    fn render(_this: NodeRc<Self>) where Self: Sized, {}
+    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self>
+    where
+        Self: Sized;
+    fn render(_this: NodeRc<Self>)
+    where
+        Self: Sized,
+    {
+    }
     fn is_dirty(&self) -> bool;
     fn mark_dirty(&mut self);
     fn mark_clean(&mut self);

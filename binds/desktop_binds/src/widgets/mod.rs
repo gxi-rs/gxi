@@ -1,5 +1,4 @@
 pub use button::*;
-pub use fake::*;
 pub use image::*;
 pub use spinner::*;
 pub use text::*;

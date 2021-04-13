@@ -85,8 +85,8 @@ macro_rules! impl_node_trait_get_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
-        fn get_widget(&self) -> Self::NativeWidget{
-            let widget: &Self::NativeWidget= self.widget.as_ref();
+        fn get_widget(&self) -> Self::NativeWidget {
+            let widget: &Self::NativeWidget = self.widget.as_ref();
             widget.clone()
         }
     };
@@ -102,6 +102,7 @@ macro_rules! impl_node_trait_get_widget_as_container {
     };
 }
 
+#[macro_export]
 macro_rules! impl_node_trait_add {
     () => {
         fn add(&mut self, child: NodeRc<Self>) {
@@ -124,7 +125,7 @@ macro_rules! impl_node_for_component {
             parent.as_ref().borrow_mut().add(child);
         }
 
-        fn get_widget(&self) -> Self::NativeWidget{
+        fn get_widget(&self) -> Self::NativeWidget {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget()

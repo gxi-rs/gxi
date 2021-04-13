@@ -34,7 +34,10 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self> where Self: Sized {
+    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self>
+    where
+        Self: Sized,
+    {
         panic!("{}", PANIC_MSG);
     }
 

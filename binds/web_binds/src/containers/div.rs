@@ -58,8 +58,6 @@ impl Node for Div {
     }
 }
 
-impl Div {
-    
-}
+impl Div {}
 
 impl_drop_for_node!(Div);

@@ -1,7 +1,7 @@
 pub use fake::*;
-pub use pure::*;
 pub use init::*;
+pub use pure::*;
 
-mod pure;
 mod fake;
 mod init;
+mod pure;

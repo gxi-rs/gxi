@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use rust_gui::Orientation::Vertical;
 use rust_gui::*;
 
 use crate::centre::Centre;

@@ -4,7 +4,8 @@ use std::rc::Rc;
 
 use gtk::prelude::*;
 
-use crate::nodes::node::{Node, NodeRc, NodeType};
+use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
+
 use crate::*;
 
 pub enum Orientation {
@@ -13,15 +14,18 @@ pub enum Orientation {
 }
 
 pub struct View {
-    pub parent: WeakNodeRc,
+    pub parent: WeakNodeRc<Self>,
     pub dirty: bool,
-    pub self_substitute: Option<WeakNodeRc>,
-    pub child: Option<NodeRc>,
-    pub sibling: Option<NodeRc>,
+    pub self_substitute: Option<WeakNodeRc<Self>>,
+    pub child: Option<NodeRc<Self>>,
+    pub sibling: Option<NodeRc<Self>>,
     pub widget: gtk::Box,
 }
 
 impl Node for View {
+    type NativeWidget = gtk::Widget;
+    type NativeWidgetContainer = gtk::Container;
+
     impl_node_trait!();
     impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
@@ -32,8 +36,8 @@ impl Node for View {
     impl_node_trait_add!();
     impl_node_trait_substitute!();
 
-    fn new(parent: WeakNodeRc) -> NodeRc {
-        let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self> {
+        let this: NodeRc<Self> = Rc::new(RefCell::new(Box::new(Self {
             parent,
             dirty: true,
             self_substitute: None,
@@ -48,7 +52,7 @@ impl Node for View {
         this
     }
 
-    fn render(state: NodeRc) {
+    fn render(state: NodeRc<Self>) {
         let mut state = state.as_ref().borrow_mut();
         let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
         if state.dirty {

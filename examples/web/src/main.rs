@@ -1,6 +1,6 @@
 mod app;
-use rust_gui::*;
 use app::App;
+use rust_gui::*;
 
 fn main() {
     run::<App>();
