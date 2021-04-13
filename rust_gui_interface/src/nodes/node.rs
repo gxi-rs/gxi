@@ -25,9 +25,9 @@ pub type NativeWidget = gtk::Widget;
 pub type NativeWidgetContainer = gtk::Container;
 
 #[cfg(feature = "web")]
-pub type NativeWidget = web_sys::Node;
+pub type NativeWidget = web_sys::Element;
 #[cfg(feature = "web")]
-pub type NativeWidgetContainer = web_sys::Node;
+pub type NativeWidgetContainer = web_sys::Element;
 
 #[allow(drop_bounds)]
 pub trait Node: Drop {

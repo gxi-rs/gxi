@@ -2,9 +2,8 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
-
-use crate::*;
+use rust_gui_interface::{*};
+use crate::log;
 
 pub struct H1 {
     pub parent: WeakNodeRc,
@@ -19,11 +18,15 @@ impl Node for H1 {
     impl_node_trait!();
     impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
-    impl_node_trait_get_widget!();
+//    impl_node_trait_get_widget!();
     impl_node_trait_get_sibling!();
     impl_node_trait_get_child!();
     impl_node_trait_get_widget_as_container!();
     impl_node_trait_substitute!();
+
+    fn get_widget(&self) -> NativeWidget {
+        self.widget.clone()
+    }
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
@@ -51,11 +54,12 @@ impl Node for H1 {
         if state.dirty {
             //
         }
+        log!("rendering");
         state.mark_clean();
     }
 
     fn add(&mut self, child: NodeRc) {
-        self.widget.append_child(&child.as_ref().borrow().get_widget());
+        self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
         self.mark_dirty();
     }
 }
@@ -68,6 +72,6 @@ impl H1 {
 
 impl Drop for H1 {
     fn drop(&mut self) {
-        self.widget.parent_node().unwrap().remove_child(&self.widget);
+        self.widget.parent_node().unwrap().remove_child(&self.widget).unwrap();
     }
 }

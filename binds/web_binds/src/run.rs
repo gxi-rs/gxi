@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui_interface::{Fake, Node, NodeRc, runtime};
+use rust_gui_interface::{*};
 use std::panic;
 use crate::Body;
 

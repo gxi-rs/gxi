@@ -11,7 +11,7 @@ pub struct Body {
     pub dirty: bool,
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
-    pub widget: web_sys::HtmlElement,
+    pub widget: web_sys::Element,
 }
 
 impl Node for Body {
@@ -34,7 +34,9 @@ impl Node for Body {
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.body().unwrap()
+                let root = document.get_element_by_id("root").unwrap();
+                root.append_child(&document.create_element("div").unwrap());
+                root
             },
         })));
         {
@@ -54,6 +56,7 @@ impl Node for Body {
     }
 
     fn add(&mut self, child: NodeRc) {
+        crate::log!("Adding");
         self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
         self.mark_dirty();
     }
