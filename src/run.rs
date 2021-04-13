@@ -1,11 +1,11 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-
-use gtk::WidgetExt;
-
 use crate::{Fake, Node, NodeRc, Window};
 
-pub fn run<App: Node>() {
+#[cfg(feature = "native")]
+fn run<App: Node + 'static>() {
+    use gtk::WidgetExt;
+
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();
@@ -26,5 +26,14 @@ pub fn run<App: Node>() {
         }
         //start main loop
         gtk::main();
+    });
+}
+
+#[cfg(feature = "web")]
+fn run<App: Node + 'static>() {
+    use web_sys::*;
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.block_on(async {
+        let window = web_sys::Window::new();
     });
 }
