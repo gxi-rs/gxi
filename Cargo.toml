@@ -7,6 +7,7 @@ description = "CrossPlatform Native Widget based Component System in rust"
 
 [workspace]
 members = [
+    "examples/web",
     "examples/cat_fact",
     "macros/update",
     "macros/c",
