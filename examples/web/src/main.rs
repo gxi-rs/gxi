@@ -1,3 +1,7 @@
+mod app;
+use rust_gui::*;
+use app::App;
+
 fn main() {
-    println!("Hello, world!");
+    run::<App>();
 }
