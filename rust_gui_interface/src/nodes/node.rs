@@ -24,6 +24,11 @@ pub type NativeWidget = gtk::Widget;
 #[cfg(feature = "desktop")]
 pub type NativeWidgetContainer = gtk::Container;
 
+#[cfg(feature = "web")]
+pub type NativeWidget = web_sys::Node;
+#[cfg(feature = "web")]
+pub type NativeWidgetContainer = web_sys::Node;
+
 #[allow(drop_bounds)]
 pub trait Node: Drop {
     fn get_child(&self) -> &Option<NodeRc> {

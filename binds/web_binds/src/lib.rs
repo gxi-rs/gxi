@@ -1,5 +1,8 @@
-mod containers;
+use wasm_bindgen::prelude::*;
 
-//these 2 can be transformed using cfg macros for different platforms
-pub type NativeWidget = gtk::Widget;
-pub type NativeWidgetContainer = gtk::Container;
+pub use containers::*;
+pub use run::*;
+use rust_gui_interface::*;
+
+mod containers;
+mod run;

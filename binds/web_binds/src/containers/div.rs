@@ -2,10 +2,8 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::prelude::*;
-
-use crate::nodes::node::{Node, NodeRc, NodeType};
 use crate::*;
+use rust_gui_interface::{WeakNodeRc, NodeRc, Node};
 
 pub enum Orientation {
     Horizontal,
@@ -18,7 +16,7 @@ pub struct Div {
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
-    pub widget: gtk::Box,
+    pub widget: web_sys::HtmlElement,
 }
 
 impl Node for Div {
@@ -39,7 +37,7 @@ impl Node for Div {
             self_substitute: None,
             child: None,
             sibling: None,
-            widget: gtk::Box::new(gtk::Orientation::Horizontal, 0),
+            widget: web_sys::document(),
         })));
         {
             let mut this_borrow = this.as_ref().borrow_mut();
