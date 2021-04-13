@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use rust_gui_interface::{*};
+
 use crate::log;
 
 pub struct H1 {
@@ -18,15 +19,11 @@ impl Node for H1 {
     impl_node_trait!();
     impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
-//    impl_node_trait_get_widget!();
+    impl_node_trait_get_widget!();
     impl_node_trait_get_sibling!();
     impl_node_trait_get_child!();
     impl_node_trait_get_widget_as_container!();
     impl_node_trait_substitute!();
-
-    fn get_widget(&self) -> NativeWidget {
-        self.widget.clone()
-    }
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
@@ -48,19 +45,8 @@ impl Node for H1 {
         this
     }
 
-    fn render(state: NodeRc) {
-        let mut state = state.as_ref().borrow_mut();
-        let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
-        if state.dirty {
-            //
-        }
-        log!("rendering");
-        state.mark_clean();
-    }
-
     fn add(&mut self, child: NodeRc) {
         self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
-        self.mark_dirty();
     }
 }
 

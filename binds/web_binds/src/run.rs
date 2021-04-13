@@ -13,8 +13,4 @@ pub fn run<App: Node + 'static>() {
     {
         App::render(App::new(Rc::downgrade(&body)));
     }
-    /*let rt = runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-
-    });*/
 }

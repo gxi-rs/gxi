@@ -50,26 +50,13 @@ impl Node for Div {
         this
     }
 
-    fn render(state: NodeRc) {
-        let mut state = state.as_ref().borrow_mut();
-        let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
-        if state.dirty {
-            //
-        }
-        state.mark_clean();
-    }
-
     fn add(&mut self, child: NodeRc) {
         self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
-        self.mark_dirty();
     }
 }
-
-impl Div {}
 
 impl Drop for Div {
     fn drop(&mut self) {
         self.widget.parent_node().unwrap().remove_child(&self.widget).unwrap();
     }
 }
-//impl_drop_for_node!(Div);

@@ -34,9 +34,7 @@ impl Node for Body {
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                let root = document.get_element_by_id("root").unwrap();
-                root.append_child(&document.create_element("div").unwrap());
-                root
+                document.get_element_by_id("root").unwrap()
             },
         })));
         {
@@ -46,33 +44,14 @@ impl Node for Body {
         this
     }
 
-    fn render(state: NodeRc) {
-        let mut state = state.as_ref().borrow_mut();
-        let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
-        if state.dirty {
-            //
-        }
-        state.mark_clean();
-    }
-
     fn add(&mut self, child: NodeRc) {
         crate::log!("Adding");
         self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
-        self.mark_dirty();
     }
 }
 
-//impl_drop_for_node!(Window);
 impl Drop for Body {
     fn drop(&mut self) {
-        // self.widget.parent_node().unwrap().remove_child(&self.widget);
+        self.widget.parent_node().unwrap().remove_child(&self.widget);
     }
 }
-/*
-let window: Window = web_sys::window().unwrap();
-        let document: Document = window.document().unwrap();
-        let body: HtmlElement = document.body().expect("document should have a body");
-        let val:Element = document.create_element("p").unwrap();
-        val.set_inner_html("<div>Hello</div>");
-        body.append_child(&val).unwrap();
-        */
