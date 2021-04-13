@@ -109,7 +109,7 @@ impl TreeParser {
                 let pure_remove_block = TreeParser::get_pure_remove_block(*pure_index);
                 quote! { else {
                     {
-                        { #pure_remove_block }
+                        #pure_remove_block
                         let mut node_borrow = node.as_ref().borrow_mut();
                         let weak_cont = Rc::downgrade(&cont);
                         node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).1
