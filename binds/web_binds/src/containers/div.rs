@@ -33,7 +33,7 @@ impl Node for Div {
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
-            dirty: true,
+            dirty: false,
             self_substitute: None,
             child: None,
             sibling: None,

@@ -11,7 +11,7 @@ pub struct Body {
     pub dirty: bool,
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
-    pub widget: web_sys::Element,
+    pub widget: web_sys::HtmlElement,
 }
 
 impl Node for Body {
@@ -28,13 +28,13 @@ impl Node for Body {
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
-            dirty: true,
+            dirty: false,
             self_substitute: None,
             child: None,
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.get_element_by_id("root").unwrap()
+                document.body().unwrap()
             },
         })));
         {
@@ -45,13 +45,13 @@ impl Node for Body {
     }
 
     fn add(&mut self, child: NodeRc) {
-        crate::log!("Adding");
+        crate::log!("Adding into Body");
         self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
     }
 }
 
 impl Drop for Body {
     fn drop(&mut self) {
-        self.widget.parent_node().unwrap().remove_child(&self.widget);
+        self.widget.parent_node().unwrap().remove_child(&self.widget).unwrap();
     }
 }

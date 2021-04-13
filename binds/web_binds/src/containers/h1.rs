@@ -4,8 +4,6 @@ use std::rc::Rc;
 
 use rust_gui_interface::{*};
 
-use crate::log;
-
 pub struct H1 {
     pub parent: WeakNodeRc,
     pub dirty: bool,
@@ -26,9 +24,9 @@ impl Node for H1 {
     impl_node_trait_substitute!();
 
     fn new(parent: WeakNodeRc) -> NodeRc {
-        let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
+        Rc::new(RefCell::new(Box::new(Self {
             parent,
-            dirty: true,
+            dirty: false,
             self_substitute: None,
             child: None,
             sibling: None,
@@ -37,12 +35,7 @@ impl Node for H1 {
                 let document = window.document().unwrap();
                 document.create_element("h1").unwrap()
             },
-        })));
-        {
-            let mut this_borrow = this.as_ref().borrow_mut();
-            this_borrow.set_self_substitute(this.clone());
-        }
-        this
+        })))
     }
 
     fn add(&mut self, child: NodeRc) {
