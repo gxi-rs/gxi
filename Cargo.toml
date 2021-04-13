@@ -5,6 +5,15 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
 
+[workspace]
+members = [
+    "examples/cat_fact",
+    "macros/update",
+    "macros/c",
+    "macros/comp",
+    "macros/parsers",
+]
+
 [dependencies]
 gtk = "0.9.2"
 c = { path = "macros/c" }

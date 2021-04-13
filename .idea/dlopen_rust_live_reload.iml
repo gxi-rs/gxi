@@ -148,6 +148,36 @@
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/parsers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-44e1b918cb3531db/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-sys-e8b8b328d89c2255/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/cairo-rs-eedbe4668730d1dd/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/cairo-sys-rs-0b732f73fc80b6bf/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/encoding_rs-0b24ccb9db4c4635/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-41c9c506e6f6347f/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-pixbuf-00840bb4fb1d25d1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-pixbuf-sys-ef739b9a1bb9304c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gdk-sys-3fe5d9dba3bba2cc/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gio-66163bc394a330e2/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gio-sys-38d0f89e4d59417b/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/glib-sys-63a8fa3406e14b5c/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gobject-sys-017166ebfdb07097/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gtk-86b3c72d9575791e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/gtk-sys-4ed6c7cde14e4a34/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/httparse-283e563e10c5b522/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/indexmap-a7280ddfc993ed72/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/native-tls-efcee39f338bfec4/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/openssl-c914317b889bd693/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/openssl-sys-4867216a536d5b28/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-64bc0aca12f3b73e/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-sys-2ddcafbf47947406/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro2-b1d88d0d4de6fcdb/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/ryu-5c68ab8696240bfb/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde-7e46fe10b3b3faac/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_derive-2980b6a1046dfdb2/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-1a71f2fbf9ebe479/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-16da490e1a2de761/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-28c5ee91ed686ba9/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
