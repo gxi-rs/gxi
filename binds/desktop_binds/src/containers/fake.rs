@@ -1,14 +1,13 @@
 use std::any::Any;
-
-use crate::*;
+use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
 
 const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
 
 pub struct Fake;
 
 impl Node for Fake {
-    type NativeWidget = ();
-    type NativeWidgetContainer = ();
+    type NativeWidget = gtk::Widget;
+    type NativeWidgetContainer = gtk::Container;
 
     fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
         panic!("{}", PANIC_MSG);
@@ -34,7 +33,7 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self>
+    fn new(_parent: WeakNodeRc<Self>) -> NodeRc<Self>
     where
         Self: Sized,
     {
@@ -57,11 +56,11 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn set_self_substitute(&mut self, self_substitute: NodeRc<Self>) {
+    fn set_self_substitute(&mut self, _self_substitute: NodeRc<Self>) {
         panic!("{}", PANIC_MSG);
     }
 
-    fn add(&mut self, child: NodeRc<Self>) {
+    fn add(&mut self, _child: NodeRc<Self>) {
         panic!("{}", PANIC_MSG);
     }
 }

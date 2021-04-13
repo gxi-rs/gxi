@@ -34,7 +34,6 @@ macro_rules! impl_widget {
     ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
         type NativeWidget = gtk::Widget;
         type NativeWidgetContainer = gtk::Container;
-
         impl_node_trait!();
         impl_node_trait_init_sibling!();
         impl_node_trait_get_widget!();
@@ -54,7 +53,7 @@ macro_rules! impl_widget {
             );
         }
 
-        fn get_widget_as_container(&self) -> NativeWidgetContainer {
+        fn get_widget_as_container(&self) -> Self::NativeWidgetContainer {
             panic!("{} is not a container", stringify!($name));
         }
 

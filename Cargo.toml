@@ -24,6 +24,7 @@ members = [
 ]
 
 [dependencies]
+rust_gui_interface = { path = "rust_gui_interface" }
 #binds
 web_binds = { path = "binds/web_binds", optional = true }
 desktop_binds = { path = "binds/desktop_binds", optional = true }

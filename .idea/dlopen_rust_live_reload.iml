@@ -182,6 +182,7 @@
       <sourceFolder url="file://$MODULE_DIR$/binds/web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/web/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust_gui_interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rust_gui_interface/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-405e7a1b61bd4f16/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-d4021d3065e0fec3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-650b66413660efde/out" isTestSource="false" />
