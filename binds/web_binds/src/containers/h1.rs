@@ -6,24 +6,24 @@ use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
 
 use crate::*;
 
-pub struct Window {
+pub struct H1 {
     pub parent: WeakNodeRc,
     pub dirty: bool,
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
-    pub widget: web_sys::HtmlElement,
+    pub sibling: Option<NodeRc>,
+    pub widget: web_sys::Element,
 }
 
-impl Node for Window {
+impl Node for H1 {
     impl_node_trait!();
-    impl_node_trait_get_widget!();
-    impl_node_trait_get_widget_as_container!();
+    impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
+    impl_node_trait_get_widget!();
+    impl_node_trait_get_sibling!();
+    impl_node_trait_get_child!();
+    impl_node_trait_get_widget_as_container!();
     impl_node_trait_substitute!();
-
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-        panic!("Window can't have a sibling node");
-    }
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
@@ -31,10 +31,11 @@ impl Node for Window {
             dirty: true,
             self_substitute: None,
             child: None,
+            sibling: None,
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.body().unwrap()
+                document.create_element("h1").unwrap()
             },
         })));
         {
@@ -54,22 +55,19 @@ impl Node for Window {
     }
 
     fn add(&mut self, child: NodeRc) {
-        self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+        self.widget.append_child(&child.as_ref().borrow().get_widget());
         self.mark_dirty();
     }
 }
 
-//impl_drop_for_node!(Window);
-impl Drop for Window {
-    fn drop(&mut self) {
-        // self.widget.parent_node().unwrap().remove_child(&self.widget);
+impl H1 {
+    pub fn label(&self, text: &str) {
+        self.widget.set_inner_html(&text);
     }
 }
-/*
-let window: Window = web_sys::window().unwrap();
-        let document: Document = window.document().unwrap();
-        let body: HtmlElement = document.body().expect("document should have a body");
-        let val:Element = document.create_element("p").unwrap();
-        val.set_inner_html("<div>Hello</div>");
-        body.append_child(&val).unwrap();
-        */
+
+impl Drop for H1 {
+    fn drop(&mut self) {
+        self.widget.parent_node().unwrap().remove_child(&self.widget);
+    }
+}

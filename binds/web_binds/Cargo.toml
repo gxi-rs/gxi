@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 rust_gui_interface = { path = "../../rust_gui_interface", features = ["web"] }
+console_error_panic_hook = "0.1.6"
