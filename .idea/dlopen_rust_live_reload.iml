@@ -179,6 +179,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-16da490e1a2de761/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-28c5ee91ed686ba9/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/web/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-d4021d3065e0fec3/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />

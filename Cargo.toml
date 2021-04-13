@@ -5,6 +5,10 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
 
+[features]
+desktop = ["gtk", "glib"]
+web = ["web-sys"]
+
 [workspace]
 members = [
     "examples/web",
@@ -16,10 +20,13 @@ members = [
 ]
 
 [dependencies]
-gtk = "0.9.2"
 c = { path = "macros/c" }
 comp = { path = "macros/comp" }
 parsers = { path = "macros/parsers" }
 update = { path = "macros/update" }
 tokio = { version = "", features = ["full"] }
-glib = "0.10.3"
+#desktop
+gtk = { version = "0.9.2", optional = true }
+glib = { version = "0.10.3", optional = true }
+#web
+web-sys = { version = "0.3.50", features = ['Document', 'Element', 'HtmlElement', 'Node', 'Window'], optional = true }
