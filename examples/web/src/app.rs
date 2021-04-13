@@ -3,6 +3,9 @@ use rust_gui::*;
 comp! {
     App {}
     render {
-        H1 ( label = "Hello" )
+        Div [
+            H1 ( label = "Hello" ),
+            H1 ( label = "World" )
+        ]
     }
 }
