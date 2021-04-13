@@ -178,8 +178,14 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-1a71f2fbf9ebe479/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-16da490e1a2de761/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-28c5ee91ed686ba9/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/binds/desktop_binds/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/binds/web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/web/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rust_gui_interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-405e7a1b61bd4f16/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-d4021d3065e0fec3/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-650b66413660efde/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-shared-fd15c6e6bf58ad66/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />

@@ -4,9 +4,7 @@ use std::rc::{Rc, Weak};
 
 pub type NodeRc = Rc<RefCell<Box<dyn Node>>>;
 pub type WeakNodeRc = Weak<RefCell<Box<dyn Node>>>;
-//these 2 can be transformed using cfg macros for different platforms
-pub type NativeWidget = gtk::Widget;
-pub type NativeWidgetContainer = gtk::Container;
+
 
 pub enum NodeType {
     Widget,

@@ -8,9 +8,6 @@ pub use widgets::*;
 #[macro_use]
 pub mod node_macros;
 
-mod containers;
 mod node;
 mod should_render;
-mod widget;
-mod widgets;
 mod components;

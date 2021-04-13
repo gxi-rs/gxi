@@ -1,7 +1,7 @@
-pub use init::*;
 pub use view::*;
 pub use window::*;
 
-mod init;
+pub use crate::nodes::components::init::*;
+
 pub mod view;
 pub mod window;

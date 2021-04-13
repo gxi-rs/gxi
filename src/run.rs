@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::{Fake, Node, NodeRc, Window};
 
-#[cfg(feature = "native")]
+#[cfg(feature = "desktop")]
 fn run<App: Node + 'static>() {
     use gtk::WidgetExt;
 

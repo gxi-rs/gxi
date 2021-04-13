@@ -6,27 +6,24 @@ edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
 
 [features]
-desktop = ["gtk", "glib"]
-web = ["web-sys"]
+default = []
+desktop = ["desktop_binds"]
+web = ["web_binds"]
 
 [workspace]
 members = [
+    "rust_gui_interface",
+    "binds/web_binds",
+    "binds/desktop_binds",
     "examples/web",
     "examples/cat_fact",
     "macros/update",
     "macros/c",
     "macros/comp",
-    "macros/parsers",
+    "macros/parsers"
 ]
 
 [dependencies]
-c = { path = "macros/c" }
-comp = { path = "macros/comp" }
-parsers = { path = "macros/parsers" }
-update = { path = "macros/update" }
-tokio = { version = "", features = ["full"] }
-#desktop
-gtk = { version = "0.9.2", optional = true }
-glib = { version = "0.10.3", optional = true }
-#web
-web-sys = { version = "0.3.50", features = ['Document', 'Element', 'HtmlElement', 'Node', 'Window'], optional = true }
+#binds
+web_binds = { path = "binds/web_binds", optional = true }
+desktop_binds = { path = "binds/desktop_binds", optional = true }
