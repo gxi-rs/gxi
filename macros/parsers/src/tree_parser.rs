@@ -299,19 +299,44 @@ impl TreeParser {
     }
     fn parse_block(input: ParseStream) -> TokenStream2 {
         if let Ok(b) = input.parse::<syn::Block>() {
-            quote!{{ #b }}
+            quote! {{ #b }}
         } else {
             TokenStream2::new()
         }
     }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
-        let condition_block = TreeParser::parse_condition_block(&input, &init_type);
-        let for_parse = TreeParser::parse_for_block(&input, &init_type);
-        let child = TreeParser::parse_child_injection(&input, &init_type);
-        let block = TreeParser::parse_block(&input);
-        let expr = TreeParser::parse_expression(input, &init_type);
-        quote!(#condition_block #for_parse #child #block #expr)
+        {
+            let condition_block = TreeParser::parse_condition_block(&input, &init_type);
+            if !condition_block.is_empty() {
+                return condition_block;
+            }
+        }
+        {
+            let for_parse = TreeParser::parse_for_block(&input, &init_type);
+            if !for_parse.is_empty() {
+                return for_parse;
+            }
+        }
+        {
+            let child = TreeParser::parse_child_injection(&input, &init_type);
+            if !child.is_empty() {
+                return child;
+            }
+        }
+        {
+            let block = TreeParser::parse_block(&input);
+            if !block.is_empty() {
+                return block;
+            }
+        }
+        {
+            let expr = TreeParser::parse_expression(input, &init_type);
+            if !expr.is_empty() {
+                return expr;
+            }
+        }
+        return TokenStream2::new();
     }
 }
 
