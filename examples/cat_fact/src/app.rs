@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use rust_gui::*;
 
-use crate::centre::Centre;
-use crate::counter::Counter;
+use crate::centre::*;
+use crate::counter::*;
 
 enum Msg {
     Fetch(bool),
@@ -21,7 +21,7 @@ comp! {
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
-            View ( orientation = Vertical ) [
+            View ( orientation = Orientation::Vertical ) [
                 Centre [
                     Image ( source = "cat.gif" )
                 ],

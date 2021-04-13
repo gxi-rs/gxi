@@ -22,7 +22,7 @@ macro_rules! impl_node_trait {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
+        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.sibling {
                 None => {
                     let sibling = self.sibling.get_or_insert(f());
@@ -41,7 +41,7 @@ macro_rules! impl_node_trait_init_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f()).clone();
@@ -59,11 +59,11 @@ macro_rules! impl_node_trait_init_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_child {
     () => {
-        fn get_child(&self) -> &Option<NodeRc<Self>> {
+        fn get_child(&self) -> &Option<NodeRc> {
             &self.child
         }
 
-        fn get_child_mut(&mut self) -> &mut Option<NodeRc<Self>> {
+        fn get_child_mut(&mut self) -> &mut Option<NodeRc> {
             &mut self.child
         }
     };
@@ -72,11 +72,11 @@ macro_rules! impl_node_trait_get_child {
 #[macro_export]
 macro_rules! impl_node_trait_get_sibling {
     () => {
-        fn get_sibling(&self) -> &Option<NodeRc<Self>> {
+        fn get_sibling(&self) -> &Option<NodeRc> {
             &self.sibling
         }
 
-        fn get_sibling_mut(&mut self) -> &mut Option<NodeRc<Self>> {
+        fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
             &mut self.sibling
         }
     };
@@ -85,8 +85,8 @@ macro_rules! impl_node_trait_get_sibling {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget {
     () => {
-        fn get_widget(&self) -> Self::NativeWidget {
-            let widget: &Self::NativeWidget = self.widget.as_ref();
+        fn get_widget(&self) -> NativeWidget {
+            let widget: &NativeWidget = self.widget.as_ref();
             widget.clone()
         }
     };
@@ -95,8 +95,8 @@ macro_rules! impl_node_trait_get_widget {
 #[macro_export]
 macro_rules! impl_node_trait_get_widget_as_container {
     () => {
-        fn get_widget_as_container(&self) -> Self::NativeWidgetContainer {
-            let widget: &Self::NativeWidgetContainer = self.widget.as_ref();
+        fn get_widget_as_container(&self) -> NativeWidgetContainer {
+            let widget: &NativeWidgetContainer = self.widget.as_ref();
             widget.clone()
         }
     };
@@ -105,7 +105,7 @@ macro_rules! impl_node_trait_get_widget_as_container {
 #[macro_export]
 macro_rules! impl_node_trait_add {
     () => {
-        fn add(&mut self, child: NodeRc<Self>) {
+        fn add(&mut self, child: NodeRc) {
             self.widget.add(&child.as_ref().borrow().get_widget());
             self.mark_dirty();
         }
@@ -120,24 +120,24 @@ macro_rules! impl_node_for_component {
         impl_node_trait_init_sibling!();
         impl_node_trait_substitute!();
 
-        fn add(&mut self, child: NodeRc<Self>) {
+        fn add(&mut self, child: NodeRc) {
             let parent = self.parent.upgrade().unwrap();
             parent.as_ref().borrow_mut().add(child);
         }
 
-        fn get_widget(&self) -> Self::NativeWidget {
+        fn get_widget(&self) -> NativeWidget {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget()
         }
 
-        fn get_widget_as_container(&self) -> Self::NativeWidgetContainer {
+        fn get_widget_as_container(&self) -> NativeWidgetContainer {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget_as_container()
         }
 
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
+        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             match self.child {
                 None => {
                     let child = self.child.get_or_insert(f());
@@ -184,12 +184,12 @@ macro_rules! impl_drop_for_component {
 #[macro_export]
 macro_rules! impl_node_trait_substitute {
     () => {
-        fn get_self_substitute(&self) -> NodeRc<Self> {
+        fn get_self_substitute(&self) -> NodeRc {
             let prost = self.self_substitute.as_ref().unwrap();
             prost.upgrade().unwrap()
         }
 
-        fn set_self_substitute(&mut self, self_substitute: NodeRc<Self>) {
+        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
             self.self_substitute = Some(Rc::downgrade(&self_substitute));
         }
     };

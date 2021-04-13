@@ -5,21 +5,19 @@ use std::rc::Rc;
 use crate::nodes::node::*;
 
 pub struct Pure {
-    pub parent: WeakNodeRc<Self>,
+    pub parent: WeakNodeRc,
     pub dirty: bool,
-    pub self_substitute: Option<WeakNodeRc<Self>>,
-    pub child: Option<NodeRc<Self>>,
-    pub sibling: Option<NodeRc<Self>>,
+    pub self_substitute: Option<WeakNodeRc>,
+    pub child: Option<NodeRc>,
+    pub sibling: Option<NodeRc>,
     pub pure_index: u32, //Index of current if block where 0 is default i.e when no if block was rendered before
 }
 
 impl Node for Pure {
-    type NativeWidget = ();
-    type NativeWidgetContainer = ();
     impl_node_for_component!();
 
-    fn new(parent: WeakNodeRc<Self>) -> NodeRc<Self> {
-        let this: NodeRc<Self> = Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakNodeRc) -> NodeRc {
+        let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
             dirty: true,
             pure_index: 0,

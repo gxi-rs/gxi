@@ -1,19 +1,17 @@
 use std::any::Any;
-use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
+
+use crate::{NodeRc, WeakNodeRc, Node, NativeWidgetContainer, NativeWidget};
 
 const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
 
 pub struct Fake;
 
 impl Node for Fake {
-    type NativeWidget = gtk::Widget;
-    type NativeWidgetContainer = gtk::Container;
-
-    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
+    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("{}", PANIC_MSG);
     }
 
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc<Self>>) -> (NodeRc<Self>, bool) {
+    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("{}", PANIC_MSG);
     }
 
@@ -25,17 +23,17 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn get_widget(&self) -> Self::NativeWidget {
+    fn get_widget(&self) -> NativeWidget {
         panic!("{}", PANIC_MSG);
     }
 
-    fn get_widget_as_container(&self) -> Self::NativeWidgetContainer {
+    fn get_widget_as_container(&self) -> NativeWidgetContainer {
         panic!("{}", PANIC_MSG);
     }
 
-    fn new(_parent: WeakNodeRc<Self>) -> NodeRc<Self>
-    where
-        Self: Sized,
+    fn new(_parent: WeakNodeRc) -> NodeRc
+        where
+            Self: Sized,
     {
         panic!("{}", PANIC_MSG);
     }
@@ -52,15 +50,15 @@ impl Node for Fake {
         panic!("{}", PANIC_MSG);
     }
 
-    fn get_self_substitute(&self) -> NodeRc<Self> {
+    fn get_self_substitute(&self) -> NodeRc {
         panic!("{}", PANIC_MSG);
     }
 
-    fn set_self_substitute(&mut self, _self_substitute: NodeRc<Self>) {
+    fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
         panic!("{}", PANIC_MSG);
     }
 
-    fn add(&mut self, _child: NodeRc<Self>) {
+    fn add(&mut self, _child: NodeRc) {
         panic!("{}", PANIC_MSG);
     }
 }

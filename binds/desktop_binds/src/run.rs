@@ -1,18 +1,17 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui_interface::{runtime};
+use gtk::WidgetExt;
 
-use crate::{DesktopNodeRc, Node, Window};
-use crate::containers::fake::Fake;
+use rust_gui_interface::{gtk, NodeRc, runtime, Fake};
+
+use crate::{Node, Window};
 
 pub fn run<App: Node + 'static>() {
-    use gtk::WidgetExt;
-
     let rt = runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();
-        /*let fake_parent: DesktopNodeRc = Rc::new(RefCell::new(Box::new(Fake)));
+        let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
         let window = Window::new(Rc::downgrade(&fake_parent));
         //render
         {
@@ -26,7 +25,7 @@ pub fn run<App: Node + 'static>() {
                 gtk::main_quit();
             });
             window.widget.show_all();
-        }*/
+        }
         //start main loop
         gtk::main();
     });

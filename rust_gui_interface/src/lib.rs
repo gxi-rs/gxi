@@ -1,3 +1,5 @@
+#[cfg(feature = "desktop")]
+pub use gtk;
 pub use tokio::*;
 
 pub use c::c;

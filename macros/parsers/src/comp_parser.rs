@@ -17,7 +17,7 @@ macro_rules! comp_init {
         use std::cell::RefCell;
         use std::rc::Rc;
         use std::sync::{Mutex, Arc};
-        use crate::glib::Sender;
+        use glib::Sender;
 
         type AsyncState = Arc<Mutex<$state_name>>;
 
