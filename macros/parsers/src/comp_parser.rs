@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
 use crate::TreeParser;
 
@@ -11,21 +11,18 @@ pub struct CompParser {
 
 #[macro_export]
 macro_rules! comp_init {
-    ($name:ident $state_name:ident { $($p:ident : $t:ty = $v:expr)* } { $($render:tt)* } )=> {
+    ($name:ident $state_name:ident { { $($desktop_field:tt)* } { $($desktop_value:tt)* } { $($desktop_channel_it:tt)* } { $($desktop_channel_attach:tt)* } } { $($p:ident : $t:ty = $v:expr)* } { $($render:tt)* } )=> {
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
         use std::rc::Rc;
         use std::sync::{Mutex, Arc};
-        #[cfg(feature = "desktop")]
-        use glib::Sender;
 
         type AsyncState = Arc<Mutex<$state_name>>;
 
         pub struct $name {
             pub state: AsyncState,
-            #[cfg(feature = "desktop")]
-            pub channel_sender: Sender<()>,
+            $($desktop_field)*
             pub parent: WeakNodeRc,
             pub self_substitute : Option<WeakNodeRc>,
             pub dirty: bool,
@@ -41,14 +38,12 @@ macro_rules! comp_init {
             impl_node_for_component!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
-                #[cfg(feature = "desktop")]
-                let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+                $($desktop_channel_it)*
                 let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
                     state: Arc::new(Mutex::new($state_name {
                         $($p:$v),*
                     })),
-                    #[cfg(feature = "desktop")]
-                    channel_sender,
+                    $($desktop_value)*
                     self_substitute : None,
                     parent,
                     dirty: true,
@@ -60,20 +55,7 @@ macro_rules! comp_init {
                     let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                     this_borrow.self_substitute = Some(Rc::downgrade(&this));
                 }
-                #[cfg(feature = "desktop")]
-                {
-                    let this = this.clone();
-                    re.attach(None, move |_| {
-                        let this = Rc::clone(&this);
-                        //mark dirty
-                        {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
-                        }
-                        Self::render(this);
-                        glib::Continue(true)
-                    });
-                }
+                $($desktop_channel_attach)*
                 this
             }
 
@@ -121,8 +103,34 @@ impl Parse for CompParser {
             }
         }
 
+        #[cfg(feature = "desktop")]
+            let win_block = quote! {{
+                { pub channel_sender: Sender<()>, }
+                { channel_sender, }
+                { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); }
+                {/*{
+                    let this = this.clone();
+                    re.attach(None, move |_| {
+                        let this = Rc::clone(&this);
+                        //mark dirty
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
+                        glib::Continue(true)
+                    });
+                }*/}
+            }};
+
+        #[cfg(feature = "web")]
+            let win_block = quote! {{{ }{ }{ }{ }}};
+
         Ok(CompParser {
-            tree: quote!(comp_init!(#name #state_name #state_block {#render_func});),
+            tree: quote!(
+                use glib::Sender;
+                comp_init!(#name #state_name #win_block #state_block {#render_func});
+            ),
         })
     }
 }

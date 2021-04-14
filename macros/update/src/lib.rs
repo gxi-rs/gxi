@@ -36,7 +36,7 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                 let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
                 (state.channel_sender.clone(), state.state.clone())
             };
-            task::spawn(async move {
+            tokio::task::spawn(async move {
                 let render = {
                     let channel_sender = channel_sender.clone();
                     move || channel_sender.send(()).unwrap()

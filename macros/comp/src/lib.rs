@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use parsers::CompParser;
+use parsers::comp_parser::CompParser;
 
 ///
 /// ## Format

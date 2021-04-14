@@ -4,10 +4,14 @@ version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
+[features]
+web = ["parsers/web"]
+desktop = ["parsers/desktop"]
+
 [lib]
 proc-macro = true
 
 [dependencies]
-parsers = { path = "../parsers" }
+parsers = { path = "../parsers", optional = true }
 syn = { version = "", features = ["full"] }
 quote = "1.0.9"
