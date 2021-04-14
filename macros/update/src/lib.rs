@@ -29,61 +29,62 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
 
     let name = syn::parse_macro_input!(name as syn::Ident);
 
+    let update_inner = if cfg!(feature = "desktop") {
+        quote! {
+            let (channel_sender, state) = {
+                let state_borrow = this.as_ref().borrow();
+                let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                (state.channel_sender.clone(), state.state.clone())
+            };
+            task::spawn(async move {
+                let render = {
+                    let channel_sender = channel_sender.clone();
+                    move || channel_sender.send(()).unwrap()
+                };
+                //update logic. Made to return should render to force dev to decide render state
+                #update_fn
+                if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                    channel_sender.send(()).unwrap()
+                }
+            });
+        }
+    } else {
+        quote! {
+            let state = {
+                let state_borrow = this.as_ref().borrow();
+                let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                state.state.clone()
+            };
+            spawn_local(async move {
+                let render =  {
+                    let this = Rc::clone(&this);
+                    move || {
+                        let this = Rc::clone(&this);
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
+                    }
+                };
+                //update logic. Made to return should render to force dev to decide render state
+                #update_fn
+                if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                    {
+                        let mut node = this.as_ref().borrow_mut();
+                        node.mark_dirty();
+                    }
+                    Self::render(this);
+                }
+            });
+        }
+    };
+
     (quote! {
         impl #name {
             fn update(this: NodeRc, msg: Msg) {
-                //the channel logic can be abstracted away to be platform specific
-                #[cfg(feature = "desktop")]
-                {
-                    let (channel_sender, state) = {
-                        let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                        (state.channel_sender.clone(), state.state.clone())
-                    };
-
-                    task::spawn(async move {
-                        let render = {
-                            let channel_sender = channel_sender.clone();
-                            move || channel_sender.send(()).unwrap()
-                        };
-                        //update logic. Made to return should render to force dev to decide render state
-                        #update_fn
-                        if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
-                            channel_sender.send(()).unwrap()
-                        }
-                    });
-                }
-                #[cfg(feature = "web")]
-                {
-                    let state = {
-                        let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                        state.state.clone()
-                    };
-
-                    spawn_local(async move {
-                        let render =  move || {
-                            let this = Rc::clone(&this);
-                            {
-                                let mut node = this.as_ref().borrow_mut();
-                                node.mark_dirty();
-                            }
-                            Self::render(this);
-                        };
-                        //update logic. Made to return should render to force dev to decide render state
-                        #update_fn
-                        if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
-                            let this = Rc::clone(&this);
-                            {
-                                let mut node = this.as_ref().borrow_mut();
-                                node.mark_dirty();
-                            }
-                            Self::render(this);
-                        }
-                    });
-                }
+                #update_inner
             }
         }
-    })
-    .into()
+    }).into()
 }
