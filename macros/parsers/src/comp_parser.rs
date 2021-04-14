@@ -40,27 +40,29 @@ impl Parse for CompParser {
         let name = input.parse::<syn::Ident>()?;
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
         let state_block = input.parse::<syn::Block>()?;
-        let mut render_func_inner = TokenStream2::new();
+        let mut render_func = TokenStream2::new();
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
                 match &s.to_string()[..] {
                     "render" => {
                         let block_content = group::parse_braces(&input)?.content;
                         let content = TreeParser::parse(&block_content)?.tree;
-                        render_func_inner = quote!(
-                            let cont = Rc::clone(&this);
-                            let node = cont.clone();
-                            let state = {
-                                let mut node_borrow = this.as_ref().borrow_mut();
-                                let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-                                if !node.is_dirty() {
-                                    return;
-                                }
-                                node.mark_clean();
-                                node.state.clone()
-                            };
-                            let state = state.lock().unwrap();
-                            #content
+                        render_func = quote!(
+                            fn render(this: NodeRc) {
+                                let cont = Rc::clone(&this);
+                                let node = cont.clone();
+                                let state = {
+                                    let mut node_borrow = this.as_ref().borrow_mut();
+                                    let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                    if !node.is_dirty() {
+                                        return;
+                                    }
+                                    node.mark_clean();
+                                    node.state.clone()
+                                };
+                                let state = state.lock().unwrap();
+                                #content
+                            }
                         );
                     }
                     _ => panic!("Didn't expect this attribute here"),
@@ -133,9 +135,7 @@ impl Parse for CompParser {
                         this
                     }
 
-                    fn render(this: NodeRc) {
-                        #render_func_inner
-                    }
+                    #render_func
                 }
 
                 impl_drop_for_component!(#name);
