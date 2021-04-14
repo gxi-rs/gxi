@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui_interface::{*};
+use rust_gui_interface::*;
 
 pub struct H1 {
     pub parent: WeakNodeRc,
@@ -39,7 +39,9 @@ impl Node for H1 {
     }
 
     fn add(&mut self, child: NodeRc) {
-        self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+        self.widget
+            .append_child(&child.as_ref().borrow().get_widget())
+            .unwrap();
     }
 }
 
@@ -51,6 +53,10 @@ impl H1 {
 
 impl Drop for H1 {
     fn drop(&mut self) {
-        self.widget.parent_node().unwrap().remove_child(&self.widget).unwrap();
+        self.widget
+            .parent_node()
+            .unwrap()
+            .remove_child(&self.widget)
+            .unwrap();
     }
 }

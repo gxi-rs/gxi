@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use gtk::WidgetExt;
 
-use rust_gui_interface::{gtk, NodeRc, Fake};
+use rust_gui_interface::{gtk, Fake, NodeRc};
 
 use crate::{Node, Window};
 

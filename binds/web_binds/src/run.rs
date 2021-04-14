@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::panic;
 use std::rc::Rc;
 
-use rust_gui_interface::{*};
+use rust_gui_interface::*;
 
 use crate::Body;
 
@@ -18,7 +18,9 @@ pub fn run<App: Node + 'static>() {
         //render
         let app = {
             let body_clone = Rc::downgrade(&body);
-            body.borrow_mut().init_child(Box::new(|| App::new(body_clone))).0
+            body.borrow_mut()
+                .init_child(Box::new(|| App::new(body_clone)))
+                .0
         };
         App::render(app);
         root.borrow_mut().replace(body);

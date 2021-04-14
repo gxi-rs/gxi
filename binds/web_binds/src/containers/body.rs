@@ -45,13 +45,19 @@ impl Node for Body {
     }
 
     fn add(&mut self, child: NodeRc) {
-        self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+        self.widget
+            .append_child(&child.as_ref().borrow().get_widget())
+            .unwrap();
     }
 }
 
 impl Drop for Body {
     fn drop(&mut self) {
         crate::log!("Dropping body");
-        self.widget.parent_node().unwrap().remove_child(&self.widget).unwrap();
+        self.widget
+            .parent_node()
+            .unwrap()
+            .remove_child(&self.widget)
+            .unwrap();
     }
 }
