@@ -3,7 +3,6 @@
 Cross-Platform Native Widget based Component System in Rust
 
 ### TO DO
-- [ ] mpsc channels for web
 
 ### Completed ✓
 
@@ -15,3 +14,4 @@ Cross-Platform Native Widget based Component System in Rust
 - [x] Derive macro for `update` function
 - [x] Render child of a component from withing the component
 - [X] Web Basic Support
+- [X] mpsc channels for web
