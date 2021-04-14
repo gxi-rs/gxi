@@ -1,12 +1,21 @@
 use rust_gui::*;
 
-enum Msg {}
+enum Msg {
+    INC,
+    DEC
+}
+
 comp! {
-    App {}
+    App {
+        count: u32 = 0
+    }
     render {
         Div [
-            H1 ( label = "Hello" ),
-            H1 ( label = "World" )
+            Div [
+                Button ( label = "Inc", on_click = || Msg::INC ),
+                Button ( label = "Dec", on_click = || Msg::DEC )
+            ],
+            H1 ( label = &state.count.to_string() )
         ]
     }
 }
@@ -15,5 +24,19 @@ comp! {
 async fn update<F: Fn() + 'static>(
     state: AsyncState, msg: Msg, _render: F,
 ) -> AsyncResult<ShouldRender> {
+    match msg {
+        Msg::INC => {
+            let mut state = state.lock().unwrap();
+            state.count += 1;
+        }
+        _ => {
+            let mut state = state.lock().unwrap();
+            if state.count > 0 {
+                state.count -= 1;
+            } else {
+                return Ok(ShouldRender::No);
+            }
+        }
+    }
     Ok(ShouldRender::Yes)
 }
