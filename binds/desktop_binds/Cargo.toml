@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 rust_gui_interface = { path = "../../rust_gui_interface", features = ["desktop"] }
 glib = { version = "0.10.3" }
+tokio = { version = "", features = ["sync", "rt", "rt-multi-thread"] }

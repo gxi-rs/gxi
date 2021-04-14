@@ -3,12 +3,12 @@ use std::rc::Rc;
 
 use gtk::WidgetExt;
 
-use rust_gui_interface::{gtk, NodeRc, runtime, Fake};
+use rust_gui_interface::{gtk, NodeRc, Fake};
 
 use crate::{Node, Window};
 
 pub fn run<App: Node + 'static>() {
-    let rt = runtime::Runtime::new().unwrap();
+    let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();
         let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));

@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
 use crate::TreeParser;
 
@@ -17,13 +17,15 @@ macro_rules! comp_init {
         use std::cell::RefCell;
         use std::rc::Rc;
         use std::sync::{Mutex, Arc};
-       // use glib::Sender;
+        #[cfg(feature = "desktop")]
+        use glib::Sender;
 
         type AsyncState = Arc<Mutex<$state_name>>;
 
         pub struct $name {
             pub state: AsyncState,
-           // pub channel_sender: Sender<()>,
+            #[cfg(feature = "desktop")]
+            pub channel_sender: Sender<()>,
             pub parent: WeakNodeRc,
             pub self_substitute : Option<WeakNodeRc>,
             pub dirty: bool,
@@ -39,12 +41,14 @@ macro_rules! comp_init {
             impl_node_for_component!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
-            //    let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+                #[cfg(feature = "desktop")]
+                let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
                 let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
                     state: Arc::new(Mutex::new($state_name {
                         $($p:$v),*
                     })),
-                 //   channel_sender,
+                    #[cfg(feature = "desktop")]
+                    channel_sender,
                     self_substitute : None,
                     parent,
                     dirty: true,
@@ -56,7 +60,8 @@ macro_rules! comp_init {
                     let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                     this_borrow.self_substitute = Some(Rc::downgrade(&this));
                 }
-                /*{
+                #[cfg(feature = "desktop")]
+                {
                     let this = this.clone();
                     re.attach(None, move |_| {
                         let this = Rc::clone(&this);
@@ -68,7 +73,7 @@ macro_rules! comp_init {
                         Self::render(this);
                         glib::Continue(true)
                     });
-                }*/
+                }
                 this
             }
 

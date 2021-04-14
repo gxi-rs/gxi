@@ -1,6 +1,5 @@
 #[cfg(feature = "desktop")]
 pub use gtk;
-pub use tokio::*;
 #[cfg(feature = "web")]
 pub use wasm_bindgen;
 #[cfg(feature = "web")]
