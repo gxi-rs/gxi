@@ -4,7 +4,6 @@ macro_rules! create_widget {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
-        use rust_gui_interface::*;
 
         pub struct $name {
             pub parent: WeakNodeRc,
@@ -28,18 +27,30 @@ macro_rules! create_widget {
 }
 
 #[macro_export]
-macro_rules! impl_widget {
-    ($name:ident $widget_block:block) => {
-        impl Node for $name {
-            impl_node_trait!();
-            impl_node_trait_init_sibling!();
-            impl_node_trait_init_child!();
-            impl_node_trait_get_widget!();
-            impl_node_trait_get_sibling!();
-            impl_node_trait_get_child!();
-            impl_node_trait_get_widget_as_container!();
-            impl_node_trait_substitute!();
+macro_rules! impl_web_node {
+    () => {
+        impl_node_trait!();
+        impl_node_trait_init_sibling!();
+        impl_node_trait_init_child!();
+        impl_node_trait_get_widget!();
+        impl_node_trait_get_sibling!();
+        impl_node_trait_get_child!();
+        impl_node_trait_get_widget_as_container!();
+        impl_node_trait_substitute!();
 
+        fn add(&mut self, child: NodeRc) {
+            self.widget
+            .append_child(&child.as_ref().borrow().get_widget())
+            .unwrap();
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_web_widget {
+    ($name:ident, $element_name:literal) => {
+        impl Node for $name {
+            impl_web_node!();
             fn new(parent: WeakNodeRc) -> NodeRc {
                 Rc::new(RefCell::new(Box::new(Self {
                     parent,
@@ -47,14 +58,40 @@ macro_rules! impl_widget {
                     self_substitute: None,
                     child: None,
                     sibling: None,
-                    widget: $widget_block,
+                    widget: {
+                        let window = web_sys::window().unwrap();
+                        let document = window.document().unwrap();
+                        document.create_element($element_name).unwrap()
+                    },
                 })))
             }
+        }
+    };
+}
 
-            fn add(&mut self, child: NodeRc) {
-                self.widget
-                    .append_child(&child.as_ref().borrow().get_widget())
-                    .unwrap();
+#[macro_export]
+macro_rules! impl_web_container {
+    ($name:ident, $element_name:literal) => {
+        impl Node for $name {
+            impl_web_node!();
+            fn new(parent: WeakNodeRc) -> NodeRc {
+                let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
+                    parent,
+                    dirty: false,
+                    self_substitute: None,
+                    child: None,
+                    sibling: None,
+                    widget: {
+                        let window = web_sys::window().unwrap();
+                        let document = window.document().unwrap();
+                        document.create_element(stringify!($name)).unwrap()
+                    },
+                })));
+                {
+                    let mut this_borrow = this.as_ref().borrow_mut();
+                    this_borrow.set_self_substitute(this.clone());
+                }
+                this
             }
         }
     };

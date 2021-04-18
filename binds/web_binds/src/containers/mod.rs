@@ -1,5 +1,9 @@
 pub use body::*;
 pub use div::*;
+pub use button::*;
+pub use h1::*;
 
-pub mod body;
-pub mod div;
+mod body;
+mod div;
+mod h1;
+mod button;
