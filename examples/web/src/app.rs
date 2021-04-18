@@ -2,7 +2,7 @@ use rust_gui::*;
 
 enum Msg {
     INC,
-    DEC
+    DEC,
 }
 
 comp! {
@@ -11,6 +11,7 @@ comp! {
     }
     render {
         Div [
+            A ( label = "Get latest blogs here", href = "https://webbuddy360.com" ),
             H1 ( label = "hello world" ),
             Div [
                 Button ( label = "Inc", on_click = || Msg::INC ),
