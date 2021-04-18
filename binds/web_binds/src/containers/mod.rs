@@ -1,7 +1,7 @@
 pub use body::*;
 pub use button::*;
 pub use div::*;
-pub use heading::*;
+pub use text::*;
 pub use table::*;
 pub use a::*;
 
@@ -10,6 +10,6 @@ mod div;
 mod button;
 #[macro_use]
 mod container_impl_macro;
-mod heading;
+mod text;
 mod a;
 mod table;
