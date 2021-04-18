@@ -11,8 +11,9 @@ comp! {
     }
     render {
         Div [
-            A ( label = "Get latest blogs here", href = "https://webbuddy360.com" ),
-            H1 ( label = "hello world" ),
+            A ( href = "https://webbuddy360.com" ) [
+                H1 ( label = "hello world" ),
+            ],
             Div [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
