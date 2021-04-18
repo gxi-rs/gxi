@@ -122,6 +122,7 @@ macro_rules! impl_node_trait_add {
 macro_rules! impl_node_for_component {
     () => {
         impl_node_as_any!();
+        impl_node_dirty!();
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();

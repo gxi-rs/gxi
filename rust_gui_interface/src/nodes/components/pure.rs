@@ -6,6 +6,7 @@ use crate::nodes::node::*;
 
 pub struct Pure {
     pub parent: WeakNodeRc,
+    pub dirty: bool,
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
@@ -18,6 +19,7 @@ impl Node for Pure {
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
+            dirty: true,
             pure_index: 0,
             child: None,
             sibling: None,
