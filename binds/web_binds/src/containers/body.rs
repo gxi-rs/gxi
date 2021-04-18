@@ -53,7 +53,6 @@ impl Node for Body {
 
 impl Drop for Body {
     fn drop(&mut self) {
-        crate::log!("Dropping body");
         self.widget
             .parent_node()
             .unwrap()
