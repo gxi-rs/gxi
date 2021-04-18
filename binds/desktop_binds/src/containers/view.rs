@@ -21,7 +21,8 @@ pub struct View {
 }
 
 impl Node for View {
-    impl_node_trait!();
+    impl_node_as_any!();
+    impl_node_dirty!();
     impl_node_trait_init_sibling!();
     impl_node_trait_init_child!();
     impl_node_trait_get_widget!();

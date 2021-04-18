@@ -30,7 +30,8 @@ macro_rules! impl_widget {
         impl_widget!($name, $name, $($args:tt)*);
     };
     ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
-        impl_node_trait!();
+        impl_node_as_any!();
+        impl_node_dirty!();
         impl_node_trait_init_sibling!();
         impl_node_trait_get_widget!();
         impl_node_trait_get_sibling!();
