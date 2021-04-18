@@ -2,7 +2,6 @@ pub use wasm_bindgen::prelude::*;
 pub use wasm_bindgen_futures::*;
 
 pub use containers::*;
-pub use node_impl_macros::*;
 pub use run::*;
 use rust_gui_interface::*;
 pub use widgets::*;

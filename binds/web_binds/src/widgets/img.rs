@@ -1,5 +1,5 @@
 use crate::*;
 
-create_widget!(Img);
+create_web_widget!(Img);
 
-impl_web_widget!(Img,"img");
+impl_web_widget!(Img "img");

@@ -15,7 +15,7 @@ pub struct Body {
 }
 
 impl Node for Body {
-    impl_node_trait!();
+    impl_node_as_any!();
     impl_node_trait_get_widget!();
     impl_node_trait_get_widget_as_container!();
     impl_node_trait_init_child!();

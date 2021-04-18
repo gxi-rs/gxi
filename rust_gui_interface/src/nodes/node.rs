@@ -53,16 +53,17 @@ pub trait Node: Drop {
         NodeType::Widget
     }
     fn new(parent: WeakNodeRc) -> NodeRc
-    where
-        Self: Sized;
+        where
+            Self: Sized;
     fn render(_this: NodeRc)
-    where
-        Self: Sized,
-    {
+        where
+            Self: Sized,
+    {}
+    fn is_dirty(&self) -> bool {
+        false
     }
-    fn is_dirty(&self) -> bool;
-    fn mark_dirty(&mut self);
-    fn mark_clean(&mut self);
+    fn mark_dirty(&mut self) {}
+    fn mark_clean(&mut self) {}
     // parent substitute is the the parent in which outer children are added
     fn get_self_substitute(&self) -> NodeRc;
     fn set_self_substitute(&mut self, self_substitute: NodeRc);

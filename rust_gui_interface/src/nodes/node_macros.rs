@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! impl_node_trait {
+macro_rules! impl_node_dirty {
     () => {
         fn is_dirty(&self) -> bool {
             self.dirty.clone()
@@ -10,6 +10,12 @@ macro_rules! impl_node_trait {
         fn mark_clean(&mut self) {
             self.dirty = false;
         }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_node_as_any {
+    () => {
         fn as_any(&self) -> &dyn Any {
             self
         }
@@ -111,10 +117,11 @@ macro_rules! impl_node_trait_add {
         }
     };
 }
+
 #[macro_export]
 macro_rules! impl_node_for_component {
     () => {
-        impl_node_trait!();
+        impl_node_as_any!();
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
         impl_node_trait_init_sibling!();

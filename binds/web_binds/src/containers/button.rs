@@ -1,9 +1,9 @@
 use crate::*;
 use rust_gui_interface::wasm_bindgen::JsCast;
 
-create_widget!(Button);
+create_web_container!(Button);
 
-impl_web_container!(Button,"button");
+impl_web_container!(Button "button");
 
 impl Button {
     pub fn label(&self, text: &str) {

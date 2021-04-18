@@ -1,5 +1,5 @@
 use crate::*;
 
-create_widget!(Div);
+create_web_container!(Div);
 
-impl_web_container!(Div,"div");
+impl_web_container!(Div "div");
