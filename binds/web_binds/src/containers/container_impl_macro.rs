@@ -44,7 +44,7 @@ macro_rules! impl_web_container {
                     widget: {
                         let window = web_sys::window().unwrap();
                         let document = window.document().unwrap();
-                        document.create_element(stringify!($name)).unwrap()
+                        document.create_element($element_name).unwrap()
                     },
                 })));
                 {

@@ -27,16 +27,15 @@ macro_rules! impl_web_widget {
 
             fn add(&mut self, _child:NodeRc) {
                 panic!(
-                    "Attempt to a add node into {}. {} can't have a child.",
-                    stringify!($name),
-                    stringify!($name)
+                    "Attempt to a add node into {name}. {name} can't have a child.",
+                    name = stringify!($name)
                 );
             }
+
             fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
                 panic!(
-                    "Attempt to a add node into {}. {} can't have a child.",
-                    stringify!($name),
-                    stringify!($name)
+                    "Attempt to a add node into {name}. {name} can't have a child.",
+                    name = stringify!($name)
                 );
             }
 
