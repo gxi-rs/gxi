@@ -22,7 +22,7 @@ impl Node for Body {
     impl_node_trait_substitute!();
 
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-        panic!("Window can't have a sibling node");
+        panic!("Window can't have a.rs sibling node");
     }
 
     fn new(parent: WeakNodeRc) -> NodeRc {

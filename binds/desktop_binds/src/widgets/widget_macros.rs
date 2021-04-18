@@ -37,21 +37,21 @@ macro_rules! impl_widget {
         impl_node_trait_get_sibling!();
         fn add(&mut self, _child:NodeRc) {
             panic!(
-                "Attempt to a add node into {}. {} can't have a child.",
+                "Attempt to a.rs add node into {}. {} can't have a.rs child.",
                 stringify!($name),
                 stringify!($name)
             );
         }
         fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             panic!(
-                "Attempt to a add node into {}. {} can't have a child.",
+                "Attempt to a.rs add node into {}. {} can't have a.rs child.",
                 stringify!($name),
                 stringify!($name)
             );
         }
 
         fn get_widget_as_container(&self) -> NativeWidgetContainer {
-            panic!("{} is not a container", stringify!($name));
+            panic!("{} is not a.rs container", stringify!($name));
         }
 
         fn new(parent: WeakNodeRc) -> NodeRc {
@@ -65,11 +65,11 @@ macro_rules! impl_widget {
         }
 
         fn get_self_substitute(&self) -> NodeRc {
-            panic!("{} can't have a child", stringify!($name));
+            panic!("{} can't have a.rs child", stringify!($name));
         }
 
         fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
-            panic!("{} can't have a child", stringify!($name));
+            panic!("{} can't have a.rs child", stringify!($name));
         }
     };
 }

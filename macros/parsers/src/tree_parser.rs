@@ -13,7 +13,7 @@ use crate::init_type::InitType;
 ///  [PureIndex](PureIndex) [InitType](InitType) { [Properties](Properties) } \[ [TreeParser](TreeParser) or [if](IF) or [for](For) ] \]
 ///
 /// # PureIndex (Optional)
-///      PureIndex (u32) indicates that the given node is a child of a pure node in an if block.
+///      PureIndex (u32) indicates that the given node is a.rs child of a.rs pure node in an if block.
 ///      See [Pure](Pure).
 ///
 /// # InitType (Optional)
