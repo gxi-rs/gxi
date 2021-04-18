@@ -11,14 +11,12 @@ comp! {
     }
     render {
         Div [
-            El [
-
-            ],
+            H1 ( label = "hello world" ),
             Div [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            H1 ( label = &state.count.to_string() )
+            H2 ( label = &state.count.to_string() )
         ]
     }
 }
