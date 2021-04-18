@@ -11,6 +11,9 @@ comp! {
     }
     render {
         Div [
+            El [
+
+            ],
             Div [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )

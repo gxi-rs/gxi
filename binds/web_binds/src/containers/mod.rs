@@ -1,19 +1,8 @@
-pub use a::*;
 pub use body::*;
 pub use button::*;
 pub use div::*;
 pub use h1::*;
-pub use h2::*;
-pub use h3::*;
-pub use h4::*;
-pub use h5::*;
-pub use h6::*;
-pub use hr::*;
-pub use li::*;
-pub use ol::*;
-pub use p::*;
-pub use span::*;
-pub use ul::*;
+pub use el::*;
 
 mod body;
 mod div;
@@ -21,15 +10,4 @@ mod h1;
 mod button;
 #[macro_use]
 mod container_impl_macro;
-mod a;
-mod ul;
-mod span;
-mod p;
-mod ol;
-mod li;
-mod hr;
-mod h6;
-mod h5;
-mod h4;
-mod h3;
-mod h2;
+mod el;
