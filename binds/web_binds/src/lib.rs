@@ -13,3 +13,4 @@ pub mod util_macros;
 #[macro_use]
 mod node_impl_macros;
 mod widgets;
+mod web_node_ext;
