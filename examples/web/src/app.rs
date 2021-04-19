@@ -11,12 +11,13 @@ comp! {
     }
     render {
         Div [
+            Meta ( name = "viewport", content = "width=device-width, initial-scale=1" ),
             A ( href = "https://webbuddy360.com" ) [
                 H1 ( label = "hello world" ),
             ],
             Div [
-                Button ( label = "Inc", on_click = || Msg::INC ),
-                Button ( label = "Dec", on_click = || Msg::DEC )
+                Button ( label = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
+                Button ( label = "Dec", on_click = || Msg::DEC , class="btn btn-white")
             ],
             H2 ( label = &state.count.to_string() )
         ]

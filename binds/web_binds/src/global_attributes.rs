@@ -3,26 +3,6 @@ use rust_gui_interface::wasm_bindgen::JsCast;
 
 use crate::Closure;
 
-macro_rules! generate_on_func {
-    ($name:ident $event:literal) => {
-        #[inline]
-        fn $name<F: Fn() + 'static>(&self, f: F) {
-            self.on($event, f);
-        }
-    };
-}
-
-macro_rules! generate_attr {
-    ($name:ident) => {
-        #[inline]
-        fn $name(&self, value: &str) {
-            self.get_widget()
-                .set_attribute(stringify!($name), value)
-                .unwrap();
-        }
-    };
-}
-
 pub trait GlobalAttributes: Node {
 
     #[inline]

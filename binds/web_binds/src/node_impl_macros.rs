@@ -12,3 +12,38 @@ macro_rules! impl_drop_for_web_node {
         }
     };
 }
+
+
+#[macro_export]
+macro_rules! generate_on_func {
+    ($name:ident $event:literal) => {
+        #[inline]
+        fn $name<F: Fn() + 'static>(&self, f: F) {
+            self.on($event, f);
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! generate_attr {
+    ($name:ident) => {
+        #[inline]
+        fn $name(&self, value: &str) {
+            self.get_widget()
+                .set_attribute(stringify!($name), value)
+                .unwrap();
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! generate_pub_attr {
+    ($name:ident) => {
+        #[inline]
+        pub fn $name(&self, value: &str) {
+            self.get_widget()
+                .set_attribute(stringify!($name), value)
+                .unwrap();
+        }
+    };
+}
