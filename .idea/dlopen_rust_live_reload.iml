@@ -208,6 +208,8 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-effc3bae5a1c05a5/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/pango-sys-6ad151de44842b9a/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-df1fe12fe1e580ff/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-shared-fd15c6e6bf58ad66/out" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />

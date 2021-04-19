@@ -8,7 +8,7 @@ pub use web_sys;
 pub use c::c;
 pub use comp::comp;
 pub use nodes::*;
-pub use parsers::{comp_new,comp_state};
+pub use parsers::{comp_new, comp_state};
 pub use update::update;
 
 mod nodes;

@@ -17,7 +17,6 @@ macro_rules! create_web_container {
     };
 }
 
-
 #[macro_export]
 macro_rules! impl_web_container {
     ($name:ident $element_name:literal) => {
@@ -32,7 +31,9 @@ macro_rules! impl_web_container {
             impl_node_trait_substitute!();
 
             fn add(&mut self, child: NodeRc) {
-                self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+                self.widget
+                    .append_child(&child.as_ref().borrow().get_widget())
+                    .unwrap();
             }
 
             fn new(parent: WeakNodeRc) -> NodeRc {

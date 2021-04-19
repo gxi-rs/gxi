@@ -15,7 +15,6 @@ macro_rules! create_web_widget {
     };
 }
 
-
 #[macro_export]
 macro_rules! impl_web_widget {
     ($name:ident $element_name:literal) => {
@@ -25,7 +24,7 @@ macro_rules! impl_web_widget {
             impl_node_trait_get_widget!();
             impl_node_trait_get_sibling!();
 
-            fn add(&mut self, _child:NodeRc) {
+            fn add(&mut self, _child: NodeRc) {
                 panic!(
                     "Attempt to a.rs add node into {name}. {name} can't have a.rs child.",
                     name = stringify!($name)
