@@ -63,5 +63,7 @@ macro_rules! impl_web_widget {
                 })))
             }
         }
+
+        impl GlobalAttributes for $name {}
     };
 }

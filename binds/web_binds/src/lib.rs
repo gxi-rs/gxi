@@ -4,6 +4,7 @@ pub use wasm_bindgen_futures::*;
 pub use containers::*;
 pub use run::*;
 use rust_gui_interface::*;
+pub use web_node_ext::*;
 pub use widgets::*;
 
 mod containers;

@@ -54,5 +54,6 @@ macro_rules! impl_web_container {
                 this
             }
         }
+        impl GlobalAttributes for $name {}
     };
 }
