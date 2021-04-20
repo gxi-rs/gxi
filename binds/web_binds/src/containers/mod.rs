@@ -14,12 +14,14 @@ pub use br::*;
 pub use button::*;
 pub use canvas::*;
 pub use caption::*;
+pub use caption::*;
 pub use cite::*;
 pub use code::*;
 pub use col::*;
 pub use colgroup::*;
 pub use data::*;
 pub use dd::*;
+pub use del::*;
 pub use dfn::*;
 pub use div::*;
 pub use dl::*;
@@ -39,6 +41,7 @@ pub use h6::*;
 pub use head::*;
 pub use header::*;
 pub use i::*;
+pub use ins::*;
 pub use kbd::*;
 pub use li::*;
 pub use main::*;
@@ -46,6 +49,7 @@ pub use map::*;
 pub use mark::*;
 pub use math::*;
 pub use nav::*;
+pub use noscript::*;
 pub use object::*;
 pub use ol::*;
 pub use p::*;
@@ -67,13 +71,37 @@ pub use sub::*;
 pub use sup::*;
 pub use svg::*;
 pub use table::*;
+pub use tbody::*;
+pub use td::*;
+pub use tfoot::*;
+pub use th::*;
+pub use thead::*;
 pub use time::*;
+pub use tr::*;
 pub use track::*;
 pub use u::*;
 pub use ul::*;
 pub use var::*;
 pub use video::*;
 pub use wbr::*;
+
+mod del;
+
+mod ins;
+
+mod caption;
+
+mod tbody;
+
+mod td;
+
+mod tfoot;
+
+mod th;
+
+mod thead;
+
+mod tr;
 
 mod area;
 mod audio;
@@ -129,7 +157,6 @@ mod u;
 mod ul;
 mod var;
 mod wbr;
-
 mod body;
 mod button;
 mod div;
@@ -156,3 +183,4 @@ mod p;
 mod table;
 mod ruby;
 mod source;
+mod noscript;
