@@ -5,6 +5,7 @@ pub use div::*;
 pub use head::*;
 pub use table::*;
 pub use text::*;
+pub use form::*;
 
 mod body;
 mod button;
@@ -15,3 +16,4 @@ mod a;
 mod head;
 mod table;
 mod text;
+mod form;
