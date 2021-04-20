@@ -5,6 +5,7 @@ pub use script::*;
 pub use style::*;
 pub use title::*;
 pub use hr::*;
+pub use iframe::*;
 
 mod img;
 #[macro_use]
@@ -16,3 +17,4 @@ mod style;
 mod title;
 mod input;
 mod hr;
+mod iframe;
