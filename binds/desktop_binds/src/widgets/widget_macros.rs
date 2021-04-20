@@ -50,10 +50,6 @@ macro_rules! impl_widget {
             );
         }
 
-        fn get_widget_as_container(&self) -> NativeWidgetContainer {
-            panic!("{} is not a.rs container", stringify!($name));
-        }
-
         fn new(parent: WeakNodeRc) -> NodeRc {
             Rc::new(RefCell::new(Box::new(Self {
                 parent,

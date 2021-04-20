@@ -99,16 +99,6 @@ macro_rules! impl_node_trait_get_widget {
 }
 
 #[macro_export]
-macro_rules! impl_node_trait_get_widget_as_container {
-    () => {
-        fn get_widget_as_container(&self) -> NativeWidgetContainer {
-            let widget: &NativeWidgetContainer = self.widget.as_ref();
-            widget.clone()
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! impl_node_trait_add {
     () => {
         fn add(&mut self, child: NodeRc) {
@@ -137,12 +127,6 @@ macro_rules! impl_node_for_component {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget()
-        }
-
-        fn get_widget_as_container(&self) -> NativeWidgetContainer {
-            let parent = self.parent.upgrade().unwrap();
-            let parent = parent.as_ref().borrow();
-            parent.get_widget_as_container()
         }
 
         fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {

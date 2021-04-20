@@ -1,6 +1,6 @@
 use std::any::Any;
 
-use crate::{NativeWidget, NativeWidgetContainer, Node, NodeRc, WeakNodeRc};
+use crate::{NativeWidget, Node, NodeRc, WeakNodeRc};
 
 const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
 
@@ -24,10 +24,6 @@ impl Node for Fake {
     }
 
     fn get_widget(&self) -> NativeWidget {
-        panic!("{}", PANIC_MSG);
-    }
-
-    fn get_widget_as_container(&self) -> NativeWidgetContainer {
         panic!("{}", PANIC_MSG);
     }
 

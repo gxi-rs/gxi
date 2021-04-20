@@ -21,13 +21,9 @@ pub type WeakNodeRc = Weak<RefCell<Box<dyn Node>>>;
 
 #[cfg(feature = "desktop")]
 pub type NativeWidget = gtk::Widget;
-#[cfg(feature = "desktop")]
-pub type NativeWidgetContainer = gtk::Container;
 
 #[cfg(feature = "web")]
 pub type NativeWidget = web_sys::Element;
-#[cfg(feature = "web")]
-pub type NativeWidgetContainer = web_sys::Element;
 
 #[allow(drop_bounds)]
 pub trait Node: Drop {
@@ -48,7 +44,6 @@ pub trait Node: Drop {
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn get_widget(&self) -> NativeWidget;
-    fn get_widget_as_container(&self) -> NativeWidgetContainer;
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }
