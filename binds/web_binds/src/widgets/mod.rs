@@ -6,6 +6,7 @@ pub use style::*;
 pub use title::*;
 pub use hr::*;
 pub use iframe::*;
+pub use base::*;
 
 mod img;
 #[macro_use]
@@ -18,3 +19,4 @@ mod title;
 mod input;
 mod hr;
 mod iframe;
+mod base;
