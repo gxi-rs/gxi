@@ -38,22 +38,10 @@ macro_rules! generate_attr {
 #[macro_export]
 macro_rules! generate_pub_attr {
     ($name:ident) => {
-        generate_pub_attr!($name stringify!($name));
+        generate_pub_attr!($name &str ; stringify!($name));
     };
-    ($name:ident $key:expr) => {
-        #[inline]
-        pub fn $name(&self, value: &str) {
-            self.get_widget()
-                .set_attribute($key, value)
-                .unwrap();
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! generate_pub_attr_type_args {
     ($name:ident $typ:ty) => {
-        generate_pub_attr_type_args!($name $typ ; stringify!($name));
+        generate_pub_attr!($name $typ ; stringify!($name));
     };
     ($name:ident $typ:ty ; $key:expr) => {
         #[inline]

@@ -13,3 +13,4 @@ mod meta;
 mod script;
 mod style;
 mod title;
+mod input;
