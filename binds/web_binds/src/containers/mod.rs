@@ -1,11 +1,12 @@
 pub use a::*;
 pub use body::*;
 pub use button::*;
+pub use caption::*;
 pub use div::*;
+pub use form::*;
 pub use head::*;
 pub use table::*;
 pub use text::*;
-pub use form::*;
 
 mod body;
 mod button;
@@ -17,3 +18,4 @@ mod head;
 mod table;
 mod text;
 mod form;
+mod caption;
