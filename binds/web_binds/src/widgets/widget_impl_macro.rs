@@ -38,10 +38,6 @@ macro_rules! impl_web_widget {
                 );
             }
 
-            fn get_widget_as_container(&self) -> NativeWidgetContainer {
-                panic!("{} is not a.rs container", stringify!($name));
-            }
-
             fn get_self_substitute(&self) -> NodeRc {
                 panic!("{} can't have a.rs child", stringify!($name));
             }

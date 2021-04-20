@@ -11,7 +11,10 @@ comp! {
     }
     render {
         Div [
-            Meta ( name = "viewport", content = "width=device-width, initial-scale=1" ),
+            Head [
+                Link ( rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ),
+                Meta ( name = "viewport", content = "width=device-width, initial-scale=1" )
+            ],
             A ( href = "https://webbuddy360.com" ) [
                 H1 ( label = "hello world" ),
             ],
