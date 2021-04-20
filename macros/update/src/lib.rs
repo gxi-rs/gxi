@@ -39,11 +39,11 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
             tokio::task::spawn(async move {
                 let render = {
                     let channel_sender = channel_sender.clone();
-                    Box::new( move || channel_sender.send(()).unwrap() )
+                    move || channel_sender.send(()).unwrap()
                 };
                 //update logic. Made to return should render to force dev to decide render state
                 #update_fn
-                if let ShouldRender::Yes = update(UpdateArgs { state,msg,render }).await.unwrap() {
+                if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
                     channel_sender.send(()).unwrap()
                 }
             });
@@ -56,20 +56,20 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                 state.state.clone()
             };
             spawn_local(async move {
-                let render = {
+                let render =  {
                     let this = Rc::clone(&this);
-                    Box::new(move || {
+                    move || {
                         let this = Rc::clone(&this);
                         {
                             let mut node = this.as_ref().borrow_mut();
                             node.mark_dirty();
                         }
                         Self::render(this);
-                    })
+                    }
                 };
                 //update logic. Made to return should render to force dev to decide render state
                 #update_fn
-                if let ShouldRender::Yes = update(UpdateArgs { state,msg,render }).await.unwrap() {
+                if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
                     {
                         let mut node = this.as_ref().borrow_mut();
                         node.mark_dirty();
@@ -83,14 +83,8 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     (quote! {
         impl #name {
             fn update(this: NodeRc, msg: Msg) {
-                struct UpdateArgs {
-                    msg : Msg,
-                    render : Box<dyn Fn()>,
-                    state : AsyncState
-                }
                 #update_inner
             }
         }
-    })
-        .into()
+    }).into()
 }
