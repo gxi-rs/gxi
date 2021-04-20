@@ -18,13 +18,13 @@ comp! {
                 Meta ( name = "viewport", content = "width=device-width, initial-scale=1" )
             ],
             A ( href = "https://webbuddy360.com" ) [
-                H1 ( label = "hello world" ),
+                H1 ( inner_html = "hello world" ),
             ],
             Div [
-                Button ( label = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
-                Button ( label = "Dec", on_click = || Msg::DEC , class="btn btn-light")
+                Button ( inner_html = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
+                Button ( inner_html = "Dec", on_click = || Msg::DEC , class="btn btn-light")
             ],
-            H2 ( label = &state.count.to_string() , class = "text-info")
+            H2 ( inner_html = &state.count.to_string() , class = "text-info")
         ]
     }
 }
