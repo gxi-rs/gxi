@@ -86,5 +86,6 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                 #update_inner
             }
         }
-    }).into()
+    })
+    .into()
 }

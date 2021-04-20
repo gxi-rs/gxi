@@ -51,7 +51,6 @@ impl Node for Head {
 
 impl GlobalAttributes for Head {}
 
-
 impl Drop for Head {
     fn drop(&mut self) {
         //need not drop head tag
