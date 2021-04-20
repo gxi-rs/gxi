@@ -12,7 +12,8 @@ comp! {
     render {
         Div [
             Head [
-                Link ( rel="stylesheet", href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ),
+                Title ( inner_html = "Hello World" ),
+                Link ( rel = "stylesheet", href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ),
                 Meta ( name = "viewport", content = "width=device-width, initial-scale=1" )
             ],
             A ( href = "https://webbuddy360.com" ) [

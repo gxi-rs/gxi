@@ -2,7 +2,7 @@ use crate::*;
 
 create_web_widget!(Link);
 
-impl_web_widget!(Link "view");
+impl_web_widget!(Link "link");
 
 impl Link {
     generate_pub_attr!(_as);
