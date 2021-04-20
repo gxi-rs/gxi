@@ -19,6 +19,7 @@ pub use h6::*;
 pub use head::*;
 pub use p::*;
 pub use table::*;
+pub use header::*;
 
 mod body;
 mod button;
@@ -43,3 +44,4 @@ mod h4;
 mod h5;
 mod h6;
 mod p;
+mod header;
