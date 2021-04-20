@@ -171,14 +171,10 @@ impl TreeParser {
                                 }
                                 _ => dynamic_exprs.push(quote! { node.#left(#right); }),
                             }
-                        } else if let Ok(ident) = props_buffer.parse::<syn::Ident>() {
-                            static_exprs.push(quote! { node.#ident(); })
-                        } else {
-                            return;
-                        }
-                        //parse ,
-                        if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
-                            parse_props(props_buffer, static_exprs, dynamic_exprs);
+                            //parse ,
+                            if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
+                                parse_props(props_buffer, static_exprs, dynamic_exprs);
+                            }
                         }
                     }
                     parse_props(props_buffer, &mut static_props, &mut dynamic_props);
