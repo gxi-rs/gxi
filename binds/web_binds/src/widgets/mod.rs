@@ -4,6 +4,7 @@ pub use meta::*;
 pub use script::*;
 pub use style::*;
 pub use title::*;
+pub use hr::*;
 
 mod img;
 #[macro_use]
@@ -14,3 +15,4 @@ mod script;
 mod style;
 mod title;
 mod input;
+mod hr;

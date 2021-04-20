@@ -8,6 +8,7 @@ pub use form::*;
 pub use head::*;
 pub use table::*;
 pub use text::*;
+pub use colgroup::*;
 
 mod body;
 mod button;
@@ -21,3 +22,4 @@ mod text;
 mod form;
 mod caption;
 mod col;
+mod colgroup;

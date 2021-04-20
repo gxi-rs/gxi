@@ -14,7 +14,6 @@ mod h4;
 mod h5;
 mod h6;
 mod p;
-mod colgroup;
 
 pub trait TextExt: Node {
     fn label(&self, text: &str) {

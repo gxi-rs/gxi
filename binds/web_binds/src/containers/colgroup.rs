@@ -1,4 +1,3 @@
-
 use crate::*;
 
 create_web_container!(Colgroup);
