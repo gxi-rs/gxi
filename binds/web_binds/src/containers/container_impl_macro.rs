@@ -27,14 +27,8 @@ macro_rules! impl_web_container {
             impl_node_trait_get_widget!();
             impl_node_trait_get_sibling!();
             impl_node_trait_get_child!();
-
             impl_node_trait_substitute!();
-
-            fn add(&mut self, child: NodeRc) {
-                self.widget
-                    .append_child(&child.as_ref().borrow().get_widget())
-                    .unwrap();
-            }
+            impl_add_for_web_node!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
                 let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {

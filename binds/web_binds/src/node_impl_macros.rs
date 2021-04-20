@@ -47,3 +47,12 @@ macro_rules! generate_pub_attr {
         }
     };
 }
+#[macro_export]
+macro_rules! impl_add_for_web_node {
+    () => {
+        #[inline]
+        fn add(&mut self, child: NodeRc) {
+            self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+        }
+    };
+}

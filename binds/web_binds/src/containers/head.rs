@@ -46,9 +46,7 @@ impl Node for Head {
         this
     }
 
-    fn add(&mut self, child: NodeRc) {
-        self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
-    }
+    impl_add_for_web_node!();
 }
 
 impl Drop for Head {
