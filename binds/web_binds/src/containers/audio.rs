@@ -14,4 +14,3 @@ impl Audio {
     generate_pub_attr!(preload);
     generate_pub_attr!(src);
 }
-    
