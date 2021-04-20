@@ -56,7 +56,7 @@ macro_rules! generate_pub_attr {
 #[macro_export]
 macro_rules! generate_pub_bool_attr {
     ($name:ident) => {
-        generate_pub_attr!($name stringify!($name));
+        generate_pub_bool_attr!($name stringify!($name));
     };
     ($name:ident $key:expr) => {
         #[inline]
