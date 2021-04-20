@@ -33,8 +33,7 @@ comp! {
 }
 
 #[update(Counter)]
-async fn update(args: UpdateArgs) -> AsyncResult<ShouldRender> {
-    let UpdateArgs { msg, state, .. } = args;
+async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::INC => {
             let mut state = state.lock().unwrap();
@@ -88,8 +87,7 @@ comp! {
 }
 
 #[update(App)]
-async fn update(args: UpdateArgs) -> AsyncResult<ShouldRender> {
-    let UpdateArgs { msg, state, .. } = args;
+async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::INC => {
             let mut state = state.lock().unwrap();
