@@ -10,4 +10,3 @@ impl Source {
     generate_pub_attr!(srcset);
     generate_pub_attr!(_type);
 }
-    

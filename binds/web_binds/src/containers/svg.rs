@@ -11,4 +11,3 @@ impl Svg {
     generate_pub_attr!(x);
     generate_pub_attr!(y);
 }
-    

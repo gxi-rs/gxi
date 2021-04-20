@@ -11,4 +11,3 @@ impl Object {
     generate_pub_attr!(usemap);
     generate_pub_attr!(width u32);
 }
-    

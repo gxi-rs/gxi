@@ -7,4 +7,3 @@ impl Ins {
     generate_pub_attr!(datetime);
     generate_pub_attr!(cite);
 }
-    

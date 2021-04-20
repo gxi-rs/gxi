@@ -6,4 +6,3 @@ impl Portal {
     generate_pub_attr!(referrerpolicy);
     generate_pub_attr!(src);
 }
-    

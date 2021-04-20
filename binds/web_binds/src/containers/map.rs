@@ -6,4 +6,3 @@ impl_web_container!(Map "map");
 impl Map {
     generate_pub_attr!(name);
 }
-    

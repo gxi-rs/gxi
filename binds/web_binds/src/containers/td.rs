@@ -8,4 +8,3 @@ impl Td {
     generate_pub_attr!(headers);
     generate_pub_attr!(rowspan u32);
 }
-    

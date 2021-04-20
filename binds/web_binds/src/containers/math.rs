@@ -10,4 +10,3 @@ impl Math {
     generate_pub_attr!(mathcolor);
     generate_pub_attr!(display);
 }
-    

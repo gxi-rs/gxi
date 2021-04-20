@@ -22,4 +22,3 @@ impl Video {
     generate_pub_attr!(src);
     generate_pub_attr!(width u32);
 }
-    

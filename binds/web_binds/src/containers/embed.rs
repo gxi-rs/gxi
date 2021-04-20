@@ -9,4 +9,3 @@ impl Embed {
     generate_pub_attr!(_type);
     generate_pub_attr!(width u32);
 }
-    

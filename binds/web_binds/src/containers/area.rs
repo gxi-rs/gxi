@@ -15,4 +15,3 @@ impl Area {
     generate_pub_attr!(shape);
     generate_pub_attr!(target);
 }
-    

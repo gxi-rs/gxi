@@ -6,4 +6,3 @@ impl Param {
     generate_pub_attr!(name);
     generate_pub_attr!(value);
 }
-    

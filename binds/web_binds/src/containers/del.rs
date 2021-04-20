@@ -7,4 +7,3 @@ impl Del {
     generate_pub_attr!(cite);
     generate_pub_attr!(datetime);
 }
-    
