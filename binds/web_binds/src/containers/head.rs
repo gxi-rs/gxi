@@ -49,12 +49,11 @@ impl Node for Head {
     impl_add_for_web_node!();
 }
 
+impl GlobalAttributes for Head {}
+
+
 impl Drop for Head {
     fn drop(&mut self) {
-        self.widget
-            .parent_node()
-            .unwrap()
-            .remove_child(&self.widget)
-            .unwrap();
+        //need not drop head tag
     }
 }
