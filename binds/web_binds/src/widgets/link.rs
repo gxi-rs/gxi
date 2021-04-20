@@ -19,5 +19,5 @@ impl Link {
     generate_pub_attr!(rel);
     generate_pub_attr!(sizes);
     generate_pub_attr!(title);
-    generate_pub_attr!(_type);
+    generate_pub_attr!(r#type);
 }

@@ -7,7 +7,7 @@ impl Object {
     generate_pub_attr!(form);
     generate_pub_attr!(height u32);
     generate_pub_attr!(name);
-    generate_pub_attr!(_type);
+    generate_pub_attr!(r#type);
     generate_pub_attr!(usemap);
     generate_pub_attr!(width u32);
 }

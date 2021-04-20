@@ -8,5 +8,5 @@ impl Source {
     generate_pub_attr!(sizes);
     generate_pub_attr!(src);
     generate_pub_attr!(srcset);
-    generate_pub_attr!(_type);
+    generate_pub_attr!(r#type);
 }

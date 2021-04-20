@@ -34,7 +34,7 @@ impl Input {
     generate_pub_attr!(size);
     generate_pub_attr!(src);
     generate_pub_attr!(step f32);
-    generate_pub_attr!(_type);
+    generate_pub_attr!(r#type);
     generate_pub_attr!(value);
     generate_pub_attr!(width u32);
 }

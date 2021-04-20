@@ -14,6 +14,6 @@ impl Button {
     generate_pub_attr!(formnovalidate);
     generate_pub_attr!(formtarget);
     generate_pub_attr!(name);
-    generate_pub_attr!(_type);
+    generate_pub_attr!(r#type);
     generate_pub_attr!(value);
 }
