@@ -12,6 +12,7 @@ pub use form::*;
 pub use head::*;
 pub use table::*;
 pub use text::*;
+pub use footer::*;
 
 mod body;
 mod button;
@@ -29,3 +30,4 @@ mod colgroup;
 mod address;
 mod article;
 mod aside;
+mod footer;
