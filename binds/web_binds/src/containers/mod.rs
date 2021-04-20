@@ -1,16 +1,17 @@
 pub use a::*;
+pub use address::*;
+pub use article::*;
+pub use aside::*;
 pub use body::*;
 pub use button::*;
 pub use caption::*;
 pub use col::*;
+pub use colgroup::*;
 pub use div::*;
 pub use form::*;
 pub use head::*;
 pub use table::*;
 pub use text::*;
-pub use colgroup::*;
-pub use address::*;
-pub use article::*;
 
 mod body;
 mod button;
@@ -27,3 +28,4 @@ mod col;
 mod colgroup;
 mod address;
 mod article;
+mod aside;
