@@ -5,7 +5,7 @@ impl_web_container!(Button "button");
 
 impl Button {
     generate_pub_bool_attr!(autofocus);
-    generate_pub_bool_attr!(autofocus);
+    generate_pub_bool_attr!(autocomplete);
     generate_pub_bool_attr!(disabled);
     generate_pub_attr!(form);
     generate_pub_attr!(formaction);

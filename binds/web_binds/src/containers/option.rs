@@ -1,9 +1,9 @@
 use crate::*;
 
-create_web_container!(Option);
-impl_web_container!(Option "option");
+create_web_container!(OpTion);
+impl_web_container!(OpTion "option");
 
-impl Option {
+impl OpTion {
     generate_pub_bool_attr!(disabled);
     generate_pub_attr!(label);
     generate_pub_bool_attr!(selected);

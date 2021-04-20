@@ -16,7 +16,6 @@ impl Textarea {
     generate_pub_attr!(name);
     generate_pub_attr!(placeholder);
     generate_pub_bool_attr!(readonly);
-    generate_pub_bool_attr!(readonly);
     generate_pub_bool_attr!(required);
     generate_pub_attr!(rows u32);
     generate_pub_attr!(spellcheck);
