@@ -10,6 +10,7 @@ pub use table::*;
 pub use text::*;
 pub use colgroup::*;
 pub use address::*;
+pub use article::*;
 
 mod body;
 mod button;
@@ -25,3 +26,4 @@ mod caption;
 mod col;
 mod colgroup;
 mod address;
+mod article;
