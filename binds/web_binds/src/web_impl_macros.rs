@@ -13,7 +13,6 @@ macro_rules! impl_drop_for_web_node {
     };
 }
 
-
 #[macro_export]
 macro_rules! generate_on_func {
     ($name:ident $event:literal) => {
@@ -52,7 +51,9 @@ macro_rules! impl_add_for_web_node {
     () => {
         #[inline]
         fn add(&mut self, child: NodeRc) {
-            self.widget.append_child(&child.as_ref().borrow().get_widget()).unwrap();
+            self.widget
+                .append_child(&child.as_ref().borrow().get_widget())
+                .unwrap();
         }
     };
 }

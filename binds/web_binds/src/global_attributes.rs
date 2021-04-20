@@ -1,10 +1,9 @@
-use rust_gui_interface::{Node, web_sys};
 use rust_gui_interface::wasm_bindgen::JsCast;
+use rust_gui_interface::{web_sys, Node};
 
 use crate::Closure;
 
 pub trait GlobalAttributes: Node {
-
     #[inline]
     fn inner_html(&self, str: &str) {
         self.get_widget().set_inner_html(str)

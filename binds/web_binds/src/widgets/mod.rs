@@ -1,13 +1,13 @@
 pub use img::*;
-pub use style::*;
+pub use link::*;
 pub use meta::*;
 pub use script::*;
-pub use link::*;
+pub use style::*;
 
 mod img;
 #[macro_use]
 mod widget_impl_macro;
-mod style;
+mod link;
 mod meta;
 mod script;
-mod link;
+mod style;
