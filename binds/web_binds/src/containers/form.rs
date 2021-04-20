@@ -13,6 +13,6 @@ impl Form {
     generate_pub_attr!(action);
     generate_pub_attr!(enctype);
     generate_pub_attr!(method);
-    generate_pub_attr!(novalidate bool);
+    generate_pub_bool_attr!(novalidate);
     generate_pub_attr!(target);
 }

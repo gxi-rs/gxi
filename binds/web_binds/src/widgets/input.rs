@@ -8,11 +8,11 @@ impl Input {
     generate_pub_attr!(accept);
     generate_pub_attr!(alt);
     generate_pub_attr!(autocomplete);
-    generate_pub_attr!(autofocus bool);
+    generate_pub_bool_attr!(autofocus);
     generate_pub_attr!(capture);
-    generate_pub_attr!(checked bool);
+    generate_pub_bool_attr!(checked);
     generate_pub_attr!(dirname);
-    generate_pub_attr!(disabled bool);
+    generate_pub_bool_attr!(disabled);
     generate_pub_attr!(form);
     generate_pub_attr!(formaction);
     generate_pub_attr!(formenctype);
@@ -29,8 +29,8 @@ impl Input {
     generate_pub_attr!(name);
     generate_pub_attr!(pattern);
     generate_pub_attr!(placeholder);
-    generate_pub_attr!(readonly bool);
-    generate_pub_attr!(required bool);
+    generate_pub_bool_attr!(readonly);
+    generate_pub_bool_attr!(required);
     generate_pub_attr!(size);
     generate_pub_attr!(src);
     generate_pub_attr!(step f32);

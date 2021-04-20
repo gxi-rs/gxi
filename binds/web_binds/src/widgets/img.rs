@@ -9,7 +9,7 @@ impl Img {
     generate_pub_attr!(crossorigin);
     generate_pub_attr!(decoding);
     generate_pub_attr!(height u32);
-    generate_pub_attr!(ismap bool);
+    generate_pub_bool_attr!(ismap);
     generate_pub_attr!(loading);
     generate_pub_attr!(referrerpolicy);
     generate_pub_attr!(sizes);
