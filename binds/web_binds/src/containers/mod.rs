@@ -166,7 +166,6 @@ mod a;
 mod address;
 mod article;
 mod aside;
-mod caption;
 mod col;
 mod colgroup;
 mod footer;
