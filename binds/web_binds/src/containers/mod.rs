@@ -60,6 +60,7 @@ pub use u::*;
 pub use ul::*;
 pub use var::*;
 pub use wbr::*;
+pub use ruby::*;
 
 mod abbr;
 mod b;
@@ -126,3 +127,4 @@ mod head;
 mod header;
 mod p;
 mod table;
+mod ruby;
