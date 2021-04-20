@@ -99,16 +99,6 @@ macro_rules! impl_node_trait_get_widget {
 }
 
 #[macro_export]
-macro_rules! impl_node_trait_add {
-    () => {
-        fn add(&mut self, child: NodeRc) {
-            self.widget.add(&child.as_ref().borrow().get_widget());
-            self.mark_dirty();
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! impl_node_for_component {
     () => {
         impl_node_as_any!();

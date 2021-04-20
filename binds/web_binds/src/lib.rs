@@ -12,6 +12,6 @@ mod run;
 #[macro_use]
 pub mod util_macros;
 #[macro_use]
-mod node_impl_macros;
+mod web_impl_macros;
 mod global_attributes;
 mod widgets;
