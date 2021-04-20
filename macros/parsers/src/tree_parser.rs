@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
 
 use crate::init_type::InitType;
 
@@ -171,10 +171,14 @@ impl TreeParser {
                                 }
                                 _ => dynamic_exprs.push(quote! { node.#left(#right); }),
                             }
-                            //parse ,
-                            if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
-                                parse_props(props_buffer, static_exprs, dynamic_exprs);
-                            }
+                        } else if let Ok(ident) = props_buffer.parse::<syn::Ident>() {
+                            static_exprs.push(quote! { node.#ident(); })
+                        } else {
+                            return;
+                        }
+                        //parse ,
+                        if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
+                            parse_props(props_buffer, static_exprs, dynamic_exprs);
                         }
                     }
                     parse_props(props_buffer, &mut static_props, &mut dynamic_props);
