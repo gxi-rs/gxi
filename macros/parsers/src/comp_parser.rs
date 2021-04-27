@@ -41,6 +41,8 @@ impl Parse for CompParser {
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
         let state_block = input.parse::<syn::Block>()?;
         let mut render_func = TokenStream2::new();
+        let mut update_func = TokenStream2::new();
+
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
                 match &s.to_string()[..] {
@@ -65,13 +67,22 @@ impl Parse for CompParser {
                             }
                         );
                     }
+                    "update" => {
+                        println!("In update");
+                        let content = input.parse::<syn::Block>()?;
+                        update_func = quote!(
+                            #[update(#name)]
+                            async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
+                                #content
+                        );
+                    }
                     _ => panic!("Didn't expect this attribute here"),
                 }
             }
         }
 
         #[cfg(feature = "desktop")]
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
             quote! { channel_sender, },
             quote! { pub channel_sender: glib::Sender<()>, },
@@ -91,7 +102,7 @@ impl Parse for CompParser {
         );
 
         #[cfg(feature = "web")]
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             TokenStream2::new(),
             TokenStream2::new(),
             TokenStream2::new(),
@@ -137,6 +148,8 @@ impl Parse for CompParser {
 
                     #render_func
                 }
+
+                #update_func
 
                 impl_drop_for_component!(#name);
             },
