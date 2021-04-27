@@ -5,6 +5,7 @@ use syn::*;
 
 use crate::TreeParser;
 
+/// Parser for the [comp macro](../../comp/macro.comp.html).
 pub struct CompParser {
     pub tree: TokenStream2,
 }
