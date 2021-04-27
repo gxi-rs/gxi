@@ -7,7 +7,6 @@ description = "CrossPlatform Native Widget based Component System in rust"
 resolver = "2"
 
 [features]
-default = []
 desktop = ["desktop_binds"]
 web = ["web_binds"]
 
