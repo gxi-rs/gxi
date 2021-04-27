@@ -9,6 +9,8 @@ pub struct CompParser {
     pub tree: TokenStream2,
 }
 
+/// initialises the component
+#[doc(hidden)]
 #[macro_export]
 macro_rules! comp_new {
     ($state_name:ident $parent:ident { $($sender:tt)* } { $($p:ident : $t:ty = $v:expr)* }) => {
@@ -26,6 +28,8 @@ macro_rules! comp_new {
     };
 }
 
+/// creates the State Struct
+#[doc(hidden)]
 #[macro_export]
 macro_rules! comp_state {
     ($state_name:ident { $($p:ident : $t:ty = $v:expr)* }) => {
@@ -36,6 +40,7 @@ macro_rules! comp_state {
 }
 
 impl Parse for CompParser {
+    /// parses the `input` parse_steam according to the syntax defined in the [comp macro](../../comp/macro.comp.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
         let name = input.parse::<syn::Ident>()?;
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
