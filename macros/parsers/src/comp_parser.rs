@@ -82,7 +82,7 @@ impl Parse for CompParser {
         }
 
         #[cfg(feature = "desktop")]
-            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
             quote! { channel_sender, },
             quote! { pub channel_sender: glib::Sender<()>, },
@@ -102,7 +102,7 @@ impl Parse for CompParser {
         );
 
         #[cfg(feature = "web")]
-            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             TokenStream2::new(),
             TokenStream2::new(),
             TokenStream2::new(),
