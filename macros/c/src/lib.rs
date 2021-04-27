@@ -21,7 +21,7 @@ use parsers::TreeParser;
 ///
 /// * `component_name` - The name of the component.
 ///
-/// * `properties` - `,` separated properties in the form of [ExprAssign](syn::ExprAssign).
+/// * `properties` - `,` separated properties in the form of [ExprAssign](https://docs.rs/syn/1.0.70/syn/struct.ExprAssign.html).
 ///
 /// * `children` - `,` separated children recursive to the macro itself.
 ///
