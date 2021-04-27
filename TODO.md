@@ -4,6 +4,9 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### TO DO
 
+- [ ] Complete unit tests for the compiler
+- [ ] Complete the docs
+
 ### Completed ✓
 
 - [x] Async Rendering
