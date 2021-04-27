@@ -20,7 +20,8 @@ members = [
     "macros/update",
     "macros/c",
     "macros/comp",
-    "macros/parsers"
+    "macros/parsers",
+    "tests"
 ]
 
 [dependencies]
