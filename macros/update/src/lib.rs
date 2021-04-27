@@ -4,21 +4,23 @@ use quote::quote;
 use syn::__private::*;
 
 ///
-/// ## Format
+/// `Derive macro` for generating the `update` function for the component.
+/// ## Syntax
 ///
 /// ```rust
-///   comp! (
-///       MyApp { //name of component
-///           count : u32 = 0 // property : type = default value (optional)
-///       }
-///       update { //update function
-///
-///       }
-///       render { //render function
-///           Component
-///       }
-///   );
+/// #[update(NameOfComponent)]
+/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
+///     // --update-logic--
+/// }
 /// ```
+///
+/// ## Use
+///
+/// > This is same as the `update` block of the [comp macro](../comp/macro.comp.html#update-block)
+///
+/// Syntax highlighting on most IDE's and text editors for proc-macros in rust is very poor.
+/// Therefore to resolve this issue this macro allows you to write a function wrapped in this macro.
+/// This allows the IDE to provide proper syntax highlighting and code completion for the business logic.
 #[proc_macro_attribute]
 pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     let update_fn = syn::parse_macro_input!(item as syn::ItemFn);
