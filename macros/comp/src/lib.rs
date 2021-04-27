@@ -45,7 +45,7 @@ use parsers::comp_parser::CompParser;
 /// ```
 ///
 /// It is recommended not to write the render function manually. Use the render block instead.
-/// Synctax for the render block can be found [here](macro@c)
+/// Synctax for the render block can be found [here](../c/macro.c.html#Syntax)
 /// ## Update Block
 /// *The update block produces*
 ///
