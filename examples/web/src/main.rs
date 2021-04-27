@@ -1,5 +1,8 @@
 mod app;
-use app::App;
+mod counter;
+
+use app::*;
+use counter::*;
 use rust_gui::*;
 
 fn main() {
