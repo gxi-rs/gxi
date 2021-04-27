@@ -31,6 +31,37 @@ pub struct TreeParser {
     pub tree: TokenStream2,
 }
 
+impl Parse for TreeParser {
+    fn parse(input: ParseStream) -> Result<Self> {
+        //check for pure_index
+        let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
+            if let Lit::Int(i) = i {
+                i.base10_parse().unwrap()
+            } else {
+                panic!("Expected an u32")
+            }
+        } else {
+            0
+        };
+        // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
+        let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
+            match &input.parse::<syn::Ident>()?.to_string()[..] {
+                "init_child" => InitType::Child(pure_index),
+                "init_sibling" => InitType::Sibling(pure_index),
+                _ => {
+                    panic!("Expected init_type as init_child or init_sibling ");
+                }
+            }
+        } else {
+            InitType::Child(pure_index)
+        };
+
+        Ok(TreeParser {
+            tree: TreeParser::custom_parse(input, init_type),
+        })
+    }
+}
+
 impl TreeParser {
     fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
@@ -337,36 +368,5 @@ impl TreeParser {
             }
         }
         return TokenStream2::new();
-    }
-}
-
-impl Parse for TreeParser {
-    fn parse(input: ParseStream) -> Result<Self> {
-        //check for pure_index
-        let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
-            if let Lit::Int(i) = i {
-                i.base10_parse().unwrap()
-            } else {
-                panic!("Expected an u32")
-            }
-        } else {
-            0
-        };
-        // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
-        let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
-            match &input.parse::<syn::Ident>()?.to_string()[..] {
-                "init_child" => InitType::Child(pure_index),
-                "init_sibling" => InitType::Sibling(pure_index),
-                _ => {
-                    panic!("Expected init_type as init_child or init_sibling ");
-                }
-            }
-        } else {
-            InitType::Child(pure_index)
-        };
-
-        Ok(TreeParser {
-            tree: TreeParser::custom_parse(input, init_type),
-        })
     }
 }
