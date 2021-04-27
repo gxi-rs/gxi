@@ -8,8 +8,9 @@ use parsers::TreeParser;
 /// ```rust
 /// c! (
 ///    pure_index init_type component_name ( properties ) [
-///         children,
+///         Component,
 ///         { /* Code can be executed here on every render */ },
+///         #children
 ///    ]
 /// )
 /// ```
@@ -52,6 +53,11 @@ use parsers::TreeParser;
 /// The syntax scheme as if can be used here.
 ///
 /// Both `if/else` and `for` expect only 1 statement after them. It can be a `Component` or other `if/else` or a for statement.
+///
+/// ## #children statement
+///
+/// The `#children` statement is used to inject children given during the initialisation of the component to the place where
+/// this statement is present. This is the same as the `children` prop in react js.
 ///
 #[proc_macro]
 pub fn c(item: TokenStream) -> TokenStream {

@@ -5,33 +5,13 @@ use syn::*;
 
 use crate::init_type::InitType;
 
-///
-///  parses the given node tree
-///
-///  Syntax:
-///
-///  [PureIndex](PureIndex) [InitType](InitType) { [Properties](Properties) } \[ [TreeParser](TreeParser) or [if](IF) or [for](For) ] \]
-///
-/// # PureIndex (Optional)
-///      PureIndex (u32) indicates that the given node is a.rs child of a.rs pure node in an if block.
-///      See [Pure](Pure).
-///
-/// # InitType (Optional)
-///      [InitType](InitType) represents the init_ function call on the node. It can of two types init_child and init_sibling
-///
-/// # Node (Required)
-///     Name of the Node
-///
-/// # Properties
-///     Properties of the given node in the syntax { property = }
-///
-///     Translates to
-///     `node.property(value)`
+/// Parser for the [c macro](macros@c).
 pub struct TreeParser {
     pub tree: TokenStream2,
 }
 
 impl Parse for TreeParser {
+    /// Parses the `input` parse-stream to the syntax defined by the [c macro](macros@c).
     fn parse(input: ParseStream) -> Result<Self> {
         //check for pure_index
         let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
@@ -63,6 +43,7 @@ impl Parse for TreeParser {
 }
 
 impl TreeParser {
+    /// Parses the `for` block as defined in the [Looping Section][macros@c/Looping] of the [c macro](macros@c).
     fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
             let variable = input.parse::<syn::Ident>().unwrap();
@@ -102,6 +83,7 @@ impl TreeParser {
         }
     }
 
+    /// generates the block to correctly drop `Pure` component without violating mutable rules.
     fn get_pure_remove_block(pure_index: u32) -> TokenStream2 {
         quote! {{
             let pure_index = {
@@ -119,6 +101,18 @@ impl TreeParser {
         }}
     }
 
+    /// Parses the `if` block as defined in the [Conditional Rendering Section][/macros@c/Conditional Rendering] of the [c macro](macros@c).
+    ///
+    /// *internals*
+    ///
+    /// Each `if` block is wrapped inside a `Pure` component. The Pure node has a `pure_index` of 0. Each wing of the if block is given a `pure_index`.
+    /// When a `branch` of the if block is true, its `pure_index` is compared to the `pure_index` of the parent. If it is true then it means that
+    /// during the previous render this `branch` was true which means that the element in this `branch` is already initialized. Therefore it is not required
+    /// to be initialized. If the pure_index of parent and the if branch is not the same then it means that during the previous render `branch` was not
+    /// initialized therefore it needs to be initialized now.
+    ///
+    /// If an else branch is not provided then an else branch with a Pure node is appended.
+    ///
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
         fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
@@ -174,6 +168,7 @@ impl TreeParser {
         }
     }
 
+    /// Parses the Component with its properties and its children recursively from the syntax defined by the [c macro][/macros@c]
     fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(name) = input.parse::<Ident>() {
             let mut static_props = vec![];
@@ -299,6 +294,7 @@ impl TreeParser {
         TokenStream2::new()
     }
 
+    /// Parses the `#children` statement as defined in the [#children statement section][macros@c/#children statement] of the [c macro](macros@c).
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>().unwrap();
@@ -328,6 +324,8 @@ impl TreeParser {
             TokenStream2::new()
         }
     }
+
+    /// Parses the `{ }` block which allows user to execute code on every render.
     fn parse_block(input: ParseStream) -> TokenStream2 {
         if let Ok(b) = input.parse::<syn::Block>() {
             quote! {{ #b }}
