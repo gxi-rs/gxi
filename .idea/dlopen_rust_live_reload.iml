@@ -9,8 +9,6 @@
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/counter/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/forr/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/comp/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/c/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/n/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/anyhow-cfc36c5f1fe26f46/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/counter/target/debug/build/atk-f17a7a238e4d09d2/out" isTestSource="false" />
@@ -142,13 +140,9 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/syn-bbb00fb547177413/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/syn-f77f6e99fee86e2a/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/cat_fact/target/debug/build/tokio-b6caf3c016c9190e/out" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/update/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/update/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/update/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/prop/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/parsers/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-44e1b918cb3531db/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/atk-sys-e8b8b328d89c2255/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/cairo-rs-eedbe4668730d1dd/out" isTestSource="false" />
@@ -213,19 +207,25 @@
       <sourceFolder url="file://$MODULE_DIR$/binds/gxi_desktop_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/binds/gxi_web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_interface/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_c_macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_comp_macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_parsers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/target" />
-      <excludeFolder url="file://$MODULE_DIR$/macros/c/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/n/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/iff/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/counter/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/forr/target" />
-      <excludeFolder url="file://$MODULE_DIR$/macros/comp/target" />
       <excludeFolder url="file://$MODULE_DIR$/examples/cat_fact/target" />
-      <excludeFolder url="file://$MODULE_DIR$/macros/update/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/prop/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/gxi_c_macro/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/gxi_comp_macro/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

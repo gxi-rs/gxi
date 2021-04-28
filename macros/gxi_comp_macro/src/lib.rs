@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use parsers::comp_parser::CompParser;
+use gxi_parsers::comp_parser::CompParser;
 
 /// This proc-macro is the most efficient and the only recommended way of writing components.
 ///
@@ -11,7 +11,7 @@ use parsers::comp_parser::CompParser;
 ///     NameOfComponent { // Constructor block
 ///          count : u32 = 0 // property : type = default value ; (optional)
 ///     }
-///     update { // update function (Optional)
+///     gxi_update_macro { // gxi_update_macro function (Optional)
 ///         // The business logic goes here
 ///     }
 ///     render { // render function (Optional)
@@ -38,21 +38,21 @@ use parsers::comp_parser::CompParser;
 ///        node.state.clone()
 ///    };
 ///    let state = state.lock().unwrap();
-///    c!{
+///    gxi_c_macro!{
 ///        // the content of the render block is moved here
 ///    };
 /// }
 /// ```
 ///
 /// It is recommended not to write the render function manually. Use the render block instead.
-/// Synctax for the render block can be found [here](../c/macro.c.html#Syntax)
+/// Synctax for the render block can be found [here](../gxi_c_macro/macro.gxi_c_macro.html#Syntax)
 /// ## Update Block
-/// *The update block produces*
+/// *The gxi_update_macro block produces*
 ///
 /// ```rust
-/// #[update(NameOfComponent)]
-/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
-///     // the content of the update block is moved here
+/// #[gxi_update_macro(NameOfComponent)]
+/// async fn gxi_update_macro<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+///     // the content of the gxi_update_macro block is moved here
 /// }
 /// ```
 ///

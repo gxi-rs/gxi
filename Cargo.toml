@@ -22,10 +22,10 @@ members = [
     "binds/gxi_desktop_binds",
     "examples/web",
     "examples/cat_fact",
-    "macros/update",
-    "macros/c",
-    "macros/comp",
-    "macros/parsers",
+    "macros/gxi_update_macro",
+    "macros/gxi_c_macro",
+    "macros/gxi_comp_macro",
+    "macros/gxi_parsers",
     "tests"
 ]
 

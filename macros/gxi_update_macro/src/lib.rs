@@ -4,19 +4,19 @@ use quote::quote;
 use syn::__private::*;
 
 ///
-/// `Derive macro` for generating the `update` function for the component.
+/// `Derive macro` for generating the `gxi_update_macro` function for the component.
 /// ## Syntax
 ///
 /// ```rust
-/// #[update(NameOfComponent)]
-/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
-///     // --update-logic--
+/// #[gxi_update_macro(NameOfComponent)]
+/// async fn gxi_update_macro<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
+///     // --gxi_update_macro-logic--
 /// }
 /// ```
 ///
 /// ## Use
 ///
-/// > This is same as the `update` block of the [comp macro](../comp/macro.comp.html#update-block)
+/// > This is same as the `gxi_update_macro` block of the [gxi_comp_macro macro](../gxi_comp_macro/macro.gxi_comp_macro.html#gxi_update_macro-block)
 ///
 /// Syntax highlighting on most IDE's and text editors for proc-macros in rust is very poor.
 /// Therefore to resolve this issue this macro allows you to write a function wrapped in this macro.
@@ -24,9 +24,9 @@ use syn::__private::*;
 #[proc_macro_attribute]
 pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     let update_fn = syn::parse_macro_input!(item as syn::ItemFn);
-    //check if update_fn has the name update
-    if update_fn.sig.ident.to_string() != "update" {
-        panic!("Function must be named update");
+    //check if update_fn has the name gxi_update_macro
+    if update_fn.sig.ident.to_string() != "gxi_update_macro" {
+        panic!("Function must be named gxi_update_macro");
     }
 
     let name = syn::parse_macro_input!(name as syn::Ident);
@@ -43,7 +43,7 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                     let channel_sender = channel_sender.clone();
                     move || channel_sender.send(()).unwrap()
                 };
-                //update logic. Made to return should render to force dev to decide render state
+                //gxi_update_macro logic. Made to return should render to force dev to decide render state
                 #update_fn
                 if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
                     channel_sender.send(()).unwrap()
@@ -69,7 +69,7 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                         Self::render(this);
                     }
                 };
-                //update logic. Made to return should render to force dev to decide render state
+                //gxi_update_macro logic. Made to return should render to force dev to decide render state
                 #update_fn
                 if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
                     {

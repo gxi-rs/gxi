@@ -5,13 +5,13 @@ use syn::*;
 
 use crate::init_type::InitType;
 
-/// Parser for the [c macro](../c/macro.c.html).
+/// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
 pub struct TreeParser {
     pub tree: TokenStream2,
 }
 
 impl Parse for TreeParser {
-    /// Parses the `input` parse-stream to the syntax defined by the [c macro](../c/macro.c.html).
+    /// Parses the `input` parse-stream to the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse(input: ParseStream) -> Result<Self> {
         //check for pure_index
         let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
@@ -43,7 +43,7 @@ impl Parse for TreeParser {
 }
 
 impl TreeParser {
-    /// Parses the `for` block as defined in the [Looping Section][../c/macro.c.html#Looping] of the [c macro](../c/macro.c.html).
+    /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
             let variable = input.parse::<syn::Ident>().unwrap();
@@ -101,7 +101,7 @@ impl TreeParser {
         }}
     }
 
-    /// Parses the `if` block as defined in the [Conditional Rendering Section][../c/macro.c.html#Conditional-Rendering] of the [c macro](../c/macro.c.html).
+    /// Parses the `if` block as defined in the [Conditional Rendering Section][../gxi_c_macro/macro.gxi_c_macro.html#Conditional-Rendering] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     ///
     /// *internals*
     ///
@@ -168,7 +168,7 @@ impl TreeParser {
         }
     }
 
-    /// Parses the Component with its properties and its children recursively from the syntax defined by the [c macro](../c/macro.c.html)
+    /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
     fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(name) = input.parse::<Ident>() {
             let mut static_props = vec![];
@@ -294,7 +294,7 @@ impl TreeParser {
         TokenStream2::new()
     }
 
-    /// Parses the `#children` statement as defined in the [#children statement section][../c/macro.c.html#children-statement] of the [c macro](../c/macro.c.html).
+    /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>().unwrap();

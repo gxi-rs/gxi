@@ -1,17 +1,17 @@
 [package]
-name = "comp"
+name = "gxi_comp_macro"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
 [features]
-web = ["parsers/web"]
-desktop = ["parsers/desktop"]
+web = ["gxi_parsers/web"]
+desktop = ["gxi_parsers/desktop"]
 
 [lib]
 proc-macro = true
 
 [dependencies]
-parsers = { path = "../parsers", optional = true }
+gxi_parsers = { path = "../gxi_parsers", optional = true, version = "" }
 syn = { version = "", features = ["full"] }
 quote = "1.0.9"

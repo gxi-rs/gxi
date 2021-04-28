@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use parsers::TreeParser;
+use gxi_parsers::TreeParser;
 
 /// This macro is used to write the component tree. It is recommended to not use the macro manually.
 /// ## Syntax

@@ -5,7 +5,7 @@ use syn::*;
 
 use crate::TreeParser;
 
-/// Parser for the [comp macro](../../comp/macro.comp.html).
+/// Parser for the [gxi_comp_macro macro](../../gxi_comp_macro/macro.gxi_comp_macro.html).
 pub struct CompParser {
     pub tree: TokenStream2,
 }
@@ -41,7 +41,7 @@ macro_rules! comp_state {
 }
 
 impl Parse for CompParser {
-    /// parses the `input` parse_steam according to the syntax defined in the [comp macro](../../comp/macro.comp.html#syntax)
+    /// parses the `input` parse_steam according to the syntax defined in the [gxi_comp_macro macro](../../gxi_comp_macro/macro.gxi_comp_macro.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
         let name = input.parse::<syn::Ident>()?;
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
@@ -73,8 +73,8 @@ impl Parse for CompParser {
                             }
                         );
                     }
-                    "update" => {
-                        println!("In update");
+                    "gxi_update_macro" => {
+                        println!("In gxi_update_macro");
                         let content = input.parse::<syn::Block>()?;
                         update_func = quote!(
                             #[update(#name)]

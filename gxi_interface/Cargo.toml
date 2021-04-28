@@ -5,14 +5,14 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
 [features]
-desktop = ["gtk", "update/desktop", "comp/desktop", "parsers/desktop"]
-web = ["web-sys", "wasm-bindgen", "update/web", "comp/web", "parsers/web"]
+desktop = ["gtk", "gxi_update_macro/desktop", "gxi_comp_macro/desktop", "gxi_parsers/desktop"]
+web = ["web-sys", "wasm-bindgen", "gxi_update_macro/web", "gxi_comp_macro/web", "gxi_parsers/web"]
 
 [dependencies]
-c = { path = "../macros/c" }
-comp = { path = "../macros/comp", optional = true }
-update = { path = "../macros/update", optional = true }
-parsers = { path = "../macros/parsers", optional = true }
+gxi_c_macro = { path = "../macros/gxi_c_macro", version = "" }
+gxi_comp_macro = { path = "../macros/gxi_comp_macro", optional = true, version = "" }
+gxi_update_macro = { path = "../macros/gxi_update_macro", optional = true, version = "" }
+gxi_parsers = { path = "../macros/gxi_parsers", optional = true, version = "" }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 #web
