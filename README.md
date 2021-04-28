@@ -20,7 +20,7 @@ Since the framework is a compiler, therefore, it allows mixing of platform depen
 + [ ] Android
 + [ ] Ios
 
-## Example
+## Examples
 
 *Example For Desktop GTK App*
 
