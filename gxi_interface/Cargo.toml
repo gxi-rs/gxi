@@ -11,9 +11,9 @@ desktop = ["gtk", "gxi_update_macro/desktop", "gxi_macro/desktop", "gxi_parsers/
 web = ["web-sys", "wasm-bindgen", "gxi_update_macro/web", "gxi_macro/web", "gxi_parsers/web"]
 
 [dependencies]
-gxi_macro = { path = "../macros/gxi_macro", optional = true, version = "" }
-gxi_update_macro = { path = "../macros/gxi_update_macro", optional = true, version = "" }
-gxi_parsers = { path = "../macros/gxi_parsers", optional = true, version = "" }
+gxi_macro = { path = "../macros/gxi_macro", optional = true, version = "0" }
+gxi_update_macro = { path = "../macros/gxi_update_macro", optional = true, version = "0" }
+gxi_parsers = { path = "../macros/gxi_parsers", optional = true, version = "0" }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 #web
