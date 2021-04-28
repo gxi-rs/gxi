@@ -3,6 +3,7 @@ name = "gxi_parsers"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 description = "parsers for gxi macros"
+license = "MIT"
 edition = "2018"
 
 [features]
