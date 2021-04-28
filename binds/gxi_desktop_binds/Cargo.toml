@@ -1,5 +1,5 @@
 [package]
-name = "desktop_binds"
+name = "gxi_desktop_binds"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"

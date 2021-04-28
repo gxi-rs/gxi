@@ -178,8 +178,6 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/serde_json-1a71f2fbf9ebe479/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-16da490e1a2de761/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-28c5ee91ed686ba9/out" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/binds/desktop_binds/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/binds/web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/web/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust_gui_interface/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/rust_gui_interface/src" isTestSource="false" />
@@ -212,6 +210,8 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-shared-fd15c6e6bf58ad66/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/binds/gxi_desktop_binds/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/binds/gxi_web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_interface/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />

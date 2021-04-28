@@ -7,14 +7,14 @@ description = "CrossPlatform Native Widget based Component System in rust"
 resolver = "2"
 
 [features]
-desktop = ["desktop_binds"]
-web = ["web_binds"]
+desktop = ["gxi_desktop_binds"]
+web = ["gxi_web_binds"]
 
 [workspace]
 members = [
     "gxi_interface",
-    "binds/web_binds",
-    "binds/desktop_binds",
+    "binds/gxi_web_binds",
+    "binds/gxi_desktop_binds",
     "examples/web",
     "examples/cat_fact",
     "macros/update",
@@ -27,5 +27,5 @@ members = [
 [dependencies]
 gxi_interface = { path = "gxi_interface" }
 #binds
-web_binds = { path = "binds/web_binds", optional = true }
-desktop_binds = { path = "binds/desktop_binds", optional = true }
+gxi_web_binds = { path = "binds/gxi_web_binds", optional = true }
+gxi_desktop_binds = { path = "binds/gxi_desktop_binds", optional = true }
