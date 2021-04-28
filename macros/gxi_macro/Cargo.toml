@@ -16,4 +16,3 @@ proc-macro = true
 [dependencies]
 gxi_parsers = { path = "../gxi_parsers", optional = true, version = "0" }
 syn = { version = "1.0", features = ["full"] }
-quote = "1.0.9"
