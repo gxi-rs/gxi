@@ -1,6 +1,6 @@
 use crate::*;
 
-comp! {
+gxi! {
     App {}
     render {
         Div [

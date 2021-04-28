@@ -73,8 +73,7 @@ impl Parse for CompParser {
                             }
                         );
                     }
-                    "gxi_update_macro" => {
-                        println!("In gxi_update_macro");
+                    "update" => {
                         let content = input.parse::<syn::Block>()?;
                         update_func = quote!(
                             #[update(#name)]
