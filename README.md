@@ -38,7 +38,7 @@ enum Msg {
     DEC,
 }
 
-comp! {
+gxi! {
     Counter {
         count : u32 = 0
     }
@@ -81,7 +81,7 @@ enum Msg {
     DEC,
 }
 
-comp! {
+gxi! {
     App {
         count: u32 = 0
     }
