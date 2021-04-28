@@ -1,11 +1,26 @@
 # RustGUI
 
-Cross-Platform Native Widget based Component System in Rust
+*Cross-Platform Native Widget based Component System in Rust*
 
 🎉🥂🥳 `Async` Support is here
 
-This project targets cross platform GUI app development with react like function component and state management. Built
-in procedural macros to help devs write minimum code.
+This project implements a component system of GUI widgets and nodes. Using rust [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html) compiles 
+the component tree to optimized logical n-binary tree flow which `prevents` the use of any [virtual dom](https://reactjs.org/docs/faq-internals.html) 
+or [diffin algorithms](https://reactjs.org/docs/reconciliation.html). Making the component system `zero cost`. Hence the components are 
+`highly optimized`, `performant`, and `customized` to meet the needs of each project while maintaining the standard features of frameworks like `React`.
+Built-in `async support` allows for quick and performant abstractions to rust futures.
+
+Since the framework is a compiler, therefore, it allows mixing of platform dependent and independent components, i.e the framework provides components like `div`, `h1` (platform dependent) and [React Native](https://reactnative.dev/) like platform-independent components like `Text` and `View`. Therefore making the code portable without losing deep control of the native system.
+
+## Platforms
+
++ [X] Desktop (GTK)
++ [X] Web
++ [X] Platform Independent (Web and GTK)
++ [ ] Android
++ [ ] Ios
+
+## Example
 
 *Example For Desktop GTK App*
 
@@ -108,19 +123,6 @@ async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> A
 
 More examples [here](examples)
 
-# Status
-
-This project is stable but at a very early stage. Very basic support for each platform is currently present
-
-Operating systems:
-
-+ [x] Linux (GTK)
-+ [x] Mac (GTK)
-+ [x] Windows (GTK)
-+ [x] Web
-+ [ ] Android
-+ [ ] Ios
-
-# Contribution
+## Contribution
 
 Contributors can help by writing bindings.
