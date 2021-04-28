@@ -5,17 +5,7 @@
 //!
 //! Since the framework is a compiler, therefore, it allows mixing of platform dependent and independent components, i.e the framework provides components like `div`, `h1` (platform dependent) and [React Native](https://reactnative.dev/) like platform-independent components like `Text` and `View`. Therefore making the code portable without losing deep control of the native system.
 //!
-//! ## Platforms
-//!
-//! + [X] Desktop (GTK) Windows, Mac and Linux
-//! + [X] Web `wasm32-unknown-unknown`
-//! + [X] Platform Independent (Web and GTK)
-//! + [ ] Android
-//! + [ ] Ios
-//!
-//! ## Quick Start
-//!
-//!
+//! Read more [here](https://github.com/aniketfuryrocks/rust_gui)
 
 #[cfg(feature = "desktop")]
 pub use desktop_binds::*;
