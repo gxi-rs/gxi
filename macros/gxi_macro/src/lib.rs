@@ -7,11 +7,11 @@ use gxi_parsers::GxiParser;
 /// ## Syntax
 ///
 /// ```rust
-/// comp! {
+/// gxi! {
 ///     NameOfComponent { // Constructor block
 ///          count : u32 = 0 // property : type = default value ; (optional)
 ///     }
-///     gxi_update_macro { // gxi_update_macro function (Optional)
+///     update { // gxi_update_macro function (Optional)
 ///         // The business logic goes here
 ///     }
 ///     render { // render function (Optional)
@@ -38,9 +38,7 @@ use gxi_parsers::GxiParser;
 ///        node.state.clone()
 ///    };
 ///    let state = state.lock().unwrap();
-///    gxi_c_macro!{
-///        // the content of the render block is moved here
-///    };
+///    // the content of the render block is moved here
 /// }
 /// ```
 ///
@@ -50,8 +48,8 @@ use gxi_parsers::GxiParser;
 /// *The gxi_update_macro block produces*
 ///
 /// ```rust
-/// #[gxi_update_macro(NameOfComponent)]
-/// async fn gxi_update_macro<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+/// #[update(NameOfComponent)]
+/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
 ///     // the content of the gxi_update_macro block is moved here
 /// }
 /// ```
