@@ -15,7 +15,11 @@ comp! {
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            Text ( label = &state.count.to_string() )
+            Text ( label = &state.count.to_string() ),
+            View (orientation = Orientation::Vertical) [
+                for i in 0..2
+                    Text ( label = &i.to_string() )
+            ]
         ]
     }
 }
