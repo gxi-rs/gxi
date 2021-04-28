@@ -7,11 +7,14 @@
 //!
 //! ## Platforms
 //!
-//! + [X] Desktop (GTK)
-//! + [X] Web
+//! + [X] Desktop (GTK) Windows, Mac and Linux
+//! + [X] Web `wasm32-unknown-unknown`
 //! + [X] Platform Independent (Web and GTK)
 //! + [ ] Android
 //! + [ ] Ios
+//!
+//! ## Quick Start
+//!
 //!
 
 #[cfg(feature = "desktop")]
