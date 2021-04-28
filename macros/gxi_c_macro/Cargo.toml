@@ -3,11 +3,13 @@ name = "gxi_c_macro"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
+description = "This macro is used to write the component tree for gxi-rs. It is recommended to not use the macro manually."
+license = "MIT"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-syn = { version = "", features = ["full"] }
+syn = { version = "1.0", features = ["full"] }
 quote = "1.0.9"
-gxi_parsers = { path = "../gxi_parsers" , version = "" }
+gxi_parsers = { path = "../gxi_parsers" , version = "0" }
