@@ -5,7 +5,7 @@ pub use wasm_bindgen;
 #[cfg(feature = "web")]
 pub use web_sys;
 
-pub use gxi_comp_macro::comp;
+pub use gxi_macro::gxi;
 pub use gxi_parsers::{comp_new, comp_state};
 pub use gxi_update_macro::update;
 pub use nodes::*;

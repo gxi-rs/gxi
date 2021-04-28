@@ -16,7 +16,7 @@ use syn::__private::*;
 ///
 /// ## Use
 ///
-/// > This is same as the `gxi_update_macro` block of the [gxi_comp_macro macro](../gxi_comp_macro/macro.gxi_comp_macro.html#gxi_update_macro-block)
+/// > This is same as the `gxi_update_macro` block of the [gxi_macro macro](../gxi_macro/macro.gxi_macro.html#gxi_update_macro-block)
 ///
 /// Syntax highlighting on most IDE's and text editors for proc-macros in rust is very poor.
 /// Therefore to resolve this issue this macro allows you to write a function wrapped in this macro.

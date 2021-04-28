@@ -208,7 +208,7 @@
       <sourceFolder url="file://$MODULE_DIR$/binds/gxi_web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_interface/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_c_macro/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_comp_macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_parsers/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
@@ -225,7 +225,7 @@
       <excludeFolder url="file://$MODULE_DIR$/macros/prop/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/gxi_c_macro/target" />
-      <excludeFolder url="file://$MODULE_DIR$/macros/gxi_comp_macro/target" />
+      <excludeFolder url="file://$MODULE_DIR$/macros/gxi_macro/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

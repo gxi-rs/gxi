@@ -75,7 +75,7 @@ use gxi_parsers::comp_parser::CompParser;
 ///     A popular example is progress bars.
 ///
 #[proc_macro]
-pub fn comp(item: TokenStream) -> TokenStream {
+pub fn gxi(item: TokenStream) -> TokenStream {
     let CompParser { tree } = syn::parse_macro_input!(item as CompParser);
     tree.into()
 }

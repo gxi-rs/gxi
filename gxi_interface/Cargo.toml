@@ -5,11 +5,11 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
 [features]
-desktop = ["gtk", "gxi_update_macro/desktop", "gxi_comp_macro/desktop", "gxi_parsers/desktop"]
-web = ["web-sys", "wasm-bindgen", "gxi_update_macro/web", "gxi_comp_macro/web", "gxi_parsers/web"]
+desktop = ["gtk", "gxi_update_macro/desktop", "gxi_macro/desktop", "gxi_parsers/desktop"]
+web = ["web-sys", "wasm-bindgen", "gxi_update_macro/web", "gxi_macro/web", "gxi_parsers/web"]
 
 [dependencies]
-gxi_comp_macro = { path = "../macros/gxi_comp_macro", optional = true, version = "" }
+gxi_macro = { path = "../macros/gxi_macro", optional = true, version = "" }
 gxi_update_macro = { path = "../macros/gxi_update_macro", optional = true, version = "" }
 gxi_parsers = { path = "../macros/gxi_parsers", optional = true, version = "" }
 #desktop

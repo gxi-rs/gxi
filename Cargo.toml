@@ -23,7 +23,7 @@ members = [
     "examples/web",
     "examples/cat_fact",
     "macros/gxi_update_macro",
-    "macros/gxi_comp_macro",
+    "macros/gxi_macro",
     "macros/gxi_parsers",
     "tests"
 ]

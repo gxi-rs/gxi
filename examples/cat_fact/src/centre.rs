@@ -1,6 +1,6 @@
 use gxi::*;
 
-comp! {
+gxi! {
     Centre {}
     render {
         Pure [

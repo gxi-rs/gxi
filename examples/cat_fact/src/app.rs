@@ -15,7 +15,7 @@ pub struct CatFact {
     pub fact: String,
 }
 
-comp! {
+gxi! {
     App {
         cat_fact : Option<CatFact> = None
     }
