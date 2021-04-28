@@ -11,5 +11,5 @@ web = []
 desktop = []
 
 [dependencies]
-syn = { version = "1.0", features = ["full"] }
 quote = "1.0.9"
+syn = { version = "1.0", features = ["full"] }

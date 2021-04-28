@@ -1,7 +1,7 @@
-use quote::*;
+use quote::quote;
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::*;
+use syn::Result;
 
 use crate::init_type::InitType;
 
@@ -14,8 +14,8 @@ impl Parse for TreeParser {
     /// Parses the `input` parse-stream to the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse(input: ParseStream) -> Result<Self> {
         //check for pure_index
-        let pure_index: u32 = if let Ok(i) = input.parse::<Lit>() {
-            if let Lit::Int(i) = i {
+        let pure_index: u32 = if let Ok(i) = input.parse::<syn::Lit>() {
+            if let syn::Lit::Int(i) = i {
                 i.base10_parse().unwrap()
             } else {
                 panic!("Expected an u32")
@@ -51,9 +51,14 @@ impl TreeParser {
             let for_expr = input.parse::<syn::Expr>().unwrap();
             let content = TreeParser::custom_parse(input, InitType::Sibling(0));
             let (pure_index, init_type) = init_type.get_init_type_tuple();
+            let pure = {
+                let pure = quote!(#pure_index #init_type Pure);
+                let tree_parser: TreeParser = syn::parse2(pure).unwrap();
+                tree_parser.tree
+            };
             quote! {
                 let node = {
-                    c!(#pure_index #init_type Pure);
+                    #pure
                     {
                         let cont = node.clone();
                         let node = {
@@ -170,11 +175,11 @@ impl TreeParser {
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
     fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        if let Ok(name) = input.parse::<Ident>() {
+        if let Ok(name) = input.parse::<syn::Ident>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
             //parse properties
-            match group::parse_parens(&input) {
+            match syn::group::parse_parens(&input) {
                 Ok(parens) => {
                     let props_buffer = parens.content;
                     fn parse_props(
@@ -185,14 +190,14 @@ impl TreeParser {
                             let left = e.left;
                             let right = e.right;
                             match *right {
-                                Expr::Closure(closure) => {
+                                syn::Expr::Closure(closure) => {
                                     let closure_body = closure.body;
                                     static_exprs.push(quote! {{
                                         let state_clone = Rc::clone(&this);
                                         node.#left(move | | Self::update(state_clone.clone(),#closure_body) );
                                     }});
                                 }
-                                Expr::Lit(literal) => {
+                                syn::Expr::Lit(literal) => {
                                     static_exprs.push(quote! { node.#left(#literal); })
                                 }
                                 _ => dynamic_exprs.push(quote! { node.#left(#right); }),
@@ -256,7 +261,7 @@ impl TreeParser {
             //parse children
             {
                 //check for first block
-                let children = match group::parse_brackets(&input) {
+                let children = match syn::group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
                         let content =
                             TreeParser::custom_parse(&brackets.content, InitType::Child(0));

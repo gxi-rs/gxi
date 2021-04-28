@@ -9,7 +9,7 @@ use syn::__private::*;
 ///
 /// ```rust
 /// #[gxi_update_macro(NameOfComponent)]
-/// async fn gxi_update_macro<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
+/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
 ///     // --gxi_update_macro-logic--
 /// }
 /// ```
@@ -25,7 +25,7 @@ use syn::__private::*;
 pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
     let update_fn = syn::parse_macro_input!(item as syn::ItemFn);
     //check if update_fn has the name gxi_update_macro
-    if update_fn.sig.ident.to_string() != "gxi_update_macro" {
+    if update_fn.sig.ident.to_string() != "update" {
         panic!("Function must be named gxi_update_macro");
     }
 
