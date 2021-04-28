@@ -6,7 +6,7 @@ use syn::*;
 use crate::TreeParser;
 
 /// Parser for the [gxi_macro macro](../../gxi_macro/macro.gxi_macro.html).
-pub struct CompParser {
+pub struct GxiParser {
     pub tree: TokenStream2,
 }
 
@@ -40,7 +40,7 @@ macro_rules! comp_state {
     };
 }
 
-impl Parse for CompParser {
+impl Parse for GxiParser {
     /// parses the `input` parse_steam according to the syntax defined in the [gxi_macro macro](../../gxi_macro/macro.gxi_macro.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
         let name = input.parse::<syn::Ident>()?;
@@ -114,7 +114,7 @@ impl Parse for CompParser {
             TokenStream2::new(),
         );
 
-        Ok(CompParser {
+        Ok(GxiParser {
             tree: quote! {
                 use std::any::Any;
                 use std::borrow::Borrow;

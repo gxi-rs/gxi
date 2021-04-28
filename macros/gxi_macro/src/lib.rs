@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use gxi_parsers::comp_parser::CompParser;
+use gxi_parsers::gxi_parser::GxiParser;
 
 /// This proc-macro is the most efficient and the only recommended way of writing components.
 ///
@@ -76,6 +76,6 @@ use gxi_parsers::comp_parser::CompParser;
 ///
 #[proc_macro]
 pub fn gxi(item: TokenStream) -> TokenStream {
-    let CompParser { tree } = syn::parse_macro_input!(item as CompParser);
+    let GxiParser { tree } = syn::parse_macro_input!(item as GxiParser);
     tree.into()
 }
