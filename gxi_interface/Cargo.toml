@@ -2,6 +2,8 @@
 name = "gxi_interface"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
+description = "Gxi interface"
+license = "MIT"
 edition = "2018"
 
 [features]

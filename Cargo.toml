@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
+license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
 resolver = "2"
 exclude = [
