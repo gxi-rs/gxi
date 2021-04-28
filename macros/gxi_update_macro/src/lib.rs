@@ -4,7 +4,7 @@ use quote::quote;
 use syn::__private::*;
 
 ///
-/// `Derive macro` for generating the `gxi_update_macro` function for the component.
+/// `Derive macro` for generating the `update` function for the component.
 /// ## Syntax
 ///
 /// ```rust

@@ -3,7 +3,9 @@ name = "gxi_update_macro"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "`Derive macro` for generating the `update` function for the component."
+license = "MIT"
+
 [features]
 web = []
 desktop = []
