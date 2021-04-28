@@ -30,7 +30,7 @@ members = [
 ]
 
 [dependencies]
-gxi_interface = { path = "gxi_interface", version = "" }
+gxi_interface = { path = "gxi_interface", version = "0" }
 #binds
-gxi_web_binds = { path = "binds/gxi_web_binds", optional = true , version = "" }
-gxi_desktop_binds = { path = "binds/gxi_desktop_binds", optional = true, version = "" }
+gxi_web_binds = { path = "binds/gxi_web_binds", optional = true , version = "0" }
+gxi_desktop_binds = { path = "binds/gxi_desktop_binds", optional = true, version = "0" }
