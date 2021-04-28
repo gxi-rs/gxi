@@ -5,6 +5,10 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
 resolver = "2"
+exclude = [
+    "examples",
+    "tests",
+]
 
 [features]
 desktop = ["gxi_desktop_binds"]
