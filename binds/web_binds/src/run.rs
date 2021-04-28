@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::panic;
 use std::rc::Rc;
 
-use rust_gui_interface::*;
+use gxi_interface::*;
 
 use crate::Body;
 

@@ -4,8 +4,8 @@ pub use tokio;
 //re-exports
 pub use containers::*;
 pub use run::*;
-use rust_gui_interface::gtk::prelude::*;
-use rust_gui_interface::*;
+use gxi_interface::gtk::prelude::*;
+use gxi_interface::*;
 pub use widgets::*;
 
 mod containers;

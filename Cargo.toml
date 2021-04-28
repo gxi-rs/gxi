@@ -1,5 +1,5 @@
 [package]
-name = "rust_gui"
+name = "gxi"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
@@ -12,7 +12,7 @@ web = ["web_binds"]
 
 [workspace]
 members = [
-    "rust_gui_interface",
+    "gxi_interface",
     "binds/web_binds",
     "binds/desktop_binds",
     "examples/web",
@@ -25,7 +25,7 @@ members = [
 ]
 
 [dependencies]
-rust_gui_interface = { path = "rust_gui_interface" }
+gxi_interface = { path = "gxi_interface" }
 #binds
 web_binds = { path = "binds/web_binds", optional = true }
 desktop_binds = { path = "binds/desktop_binds", optional = true }

@@ -1,6 +1,6 @@
 use app::*;
 use counter::*;
-use rust_gui::*;
+use gxi::*;
 
 mod app;
 mod counter;

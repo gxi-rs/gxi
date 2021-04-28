@@ -1,5 +1,5 @@
-use rust_gui_interface::wasm_bindgen::JsCast;
-use rust_gui_interface::{web_sys, Node};
+use gxi_interface::wasm_bindgen::JsCast;
+use gxi_interface::{web_sys, Node};
 
 use crate::Closure;
 

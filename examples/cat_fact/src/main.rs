@@ -1,5 +1,5 @@
 use app::App;
-use rust_gui::run;
+use gxi::run;
 
 mod app;
 mod centre;

@@ -1,4 +1,4 @@
-use rust_gui::*;
+use gxi::*;
 
 enum Msg {
     INC,

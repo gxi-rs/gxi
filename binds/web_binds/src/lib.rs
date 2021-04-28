@@ -4,7 +4,7 @@ pub use wasm_bindgen_futures::*;
 pub use containers::*;
 pub use global_attributes::*;
 pub use run::*;
-use rust_gui_interface::*;
+use gxi_interface::*;
 pub use widgets::*;
 
 mod containers;

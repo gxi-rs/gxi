@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
+use gxi_interface::{Node, NodeRc, WeakNodeRc};
 
 use crate::*;
 

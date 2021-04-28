@@ -1,4 +1,4 @@
-# RustGUI
+# GXI
 
 *Cross-Platform Native Widget based Component System in Rust*
 
@@ -31,7 +31,7 @@ of the native system.
 *Example For Desktop GTK App*
 
 ```rust
-use rust_gui::*;
+use gxi::*;
 
 enum Msg {
     INC,
@@ -74,7 +74,7 @@ comp! {
 *Example For Web App*
 
 ```rust
-use rust_gui::*;
+use gxi::*;
 
 enum Msg {
     INC,

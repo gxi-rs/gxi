@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use rust_gui::*;
+use gxi::*;
 
 use crate::centre::*;
 use crate::counter::*;

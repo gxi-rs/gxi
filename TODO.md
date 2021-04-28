@@ -1,4 +1,4 @@
-# Rust Gui
+# GXI
 
 Cross-Platform Native Widget based Component System in Rust
 

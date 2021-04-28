@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 use gtk::WindowType;
-use rust_gui_interface::{Node, NodeRc, WeakNodeRc};
+use gxi_interface::{Node, NodeRc, WeakNodeRc};
 
 use crate::*;
 
