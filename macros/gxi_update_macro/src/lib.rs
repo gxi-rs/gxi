@@ -8,7 +8,7 @@ use syn::__private::*;
 /// ## Syntax
 ///
 /// ```rust
-/// #[gxi_update_macro(NameOfComponent)]
+/// #[update(NameOfComponent)]
 /// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
 ///     // --gxi_update_macro-logic--
 /// }
