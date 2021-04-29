@@ -6,6 +6,7 @@ edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
 license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.github.io/"
 resolver = "2"
 exclude = [
     "examples",
@@ -19,18 +20,16 @@ web = ["gxi_web_binds"]
 [workspace]
 members = [
     "gxi_interface",
-    "binds/gxi_web_binds",
-    "binds/gxi_desktop_binds",
     "examples/web",
     "examples/cat_fact",
     "macros/gxi_update_macro",
     "macros/gxi_macro",
     "macros/gxi_parsers",
-    "tests"
+    "tests",
 ]
 
 [dependencies]
 gxi_interface = { path = "gxi_interface", version = "0" }
 #binds
-gxi_web_binds = { path = "binds/gxi_web_binds", optional = true , version = "0" }
-gxi_desktop_binds = { path = "binds/gxi_desktop_binds", optional = true, version = "0" }
+gxi_web_binds = { path = "../gxi_web_binds", optional = true , version = "0" }
+gxi_desktop_binds = { path = "../gxi_desktop_binds", optional = true, version = "0" }
