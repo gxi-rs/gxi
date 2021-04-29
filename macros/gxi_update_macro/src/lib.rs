@@ -3,8 +3,8 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::__private::*;
 
+/// *derive-macro for generating the update function of a gxi component*
 ///
-/// `Derive macro` for generating the `update` function for the component.
 /// ## Syntax
 ///
 /// ```rust
@@ -16,7 +16,7 @@ use syn::__private::*;
 ///
 /// ## Use
 ///
-/// > This is same as the `gxi_update_macro` block of the [gxi_macro macro](../gxi_macro/macro.gxi_macro.html#gxi_update_macro-block)
+/// > This is same as the `update` block of the [gxi_macro](../gxi_macro/macro.gxi_macro.html#gxi_update_macro-block)
 ///
 /// Syntax highlighting on most IDE's and text editors for proc-macros in rust is very poor.
 /// Therefore to resolve this issue this macro allows you to write a function wrapped in this macro.

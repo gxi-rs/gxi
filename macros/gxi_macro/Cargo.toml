@@ -3,8 +3,14 @@ name = "gxi_macro"
 version = "0.1.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
-description = "This proc-macro is the most efficient and the only recommended way of writing components in gxi."
+description = "proc-macro for writing gxi components"
 license = "MIT"
+repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.github.io/"
+keywords = [
+    "gxi-rs",
+    "gxi-macro"
+]
 
 [features]
 web = ["gxi_parsers/web"]

@@ -5,6 +5,11 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 description = "parsers for gxi macros"
 license = "MIT"
 edition = "2018"
+repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.github.io/"
+keywords = [
+    "gxi-rs"
+]
 
 [features]
 web = []

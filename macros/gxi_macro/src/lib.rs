@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 
 use gxi_parsers::GxiParser;
 
-/// This proc-macro is the most efficient and the only recommended way of writing components.
+/// proc-macro for writing gxi components
 ///
 /// ## Syntax
 ///

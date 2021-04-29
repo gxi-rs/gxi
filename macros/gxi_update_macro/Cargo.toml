@@ -3,8 +3,14 @@ name = "gxi_update_macro"
 version = "0.1.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
-description = "`Derive macro` for generating the `update` function for the component."
+description = "derive-macro for generating the update function of a gxi component"
 license = "MIT"
+repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.github.io/"
+keywords = [
+    "gxi-rs",
+    "gxi-macro"
+]
 
 [features]
 web = []
