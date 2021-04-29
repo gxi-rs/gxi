@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
@@ -8,8 +8,9 @@ license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
 homepage = "https://gxi-rs.github.io/"
 categories = [
-    "GUI",
-    "WebAssembly"
+    "gui",
+    "wasm",
+    "web-programming"
 ]
 keywords = [
     "gxi-rs",
