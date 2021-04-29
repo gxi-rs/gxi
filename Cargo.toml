@@ -7,10 +7,19 @@ description = "CrossPlatform Native Widget based Component System in rust"
 license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
 homepage = "https://gxi-rs.github.io/"
+categories = [
+    "GUI",
+    "WebAssembly"
+]
+keywords = [
+    "wasm",
+    "gtk",
+    "gui",
+    "framework"
+]
 resolver = "2"
 exclude = [
-    "examples",
-    "tests",
+    "examples"
 ]
 
 [features]
@@ -24,8 +33,7 @@ members = [
     "examples/cat_fact",
     "macros/gxi_update_macro",
     "macros/gxi_macro",
-    "macros/gxi_parsers",
-    "tests",
+    "macros/gxi_parsers"
 ]
 
 [dependencies]
