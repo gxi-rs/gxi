@@ -1,10 +1,15 @@
 [package]
 name = "gxi_interface"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 description = "interface of the gxi-rs project"
 license = "MIT"
 edition = "2018"
+repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.github.io/"
+keywords = [
+    "gxi-rs"
+]
 
 [features]
 desktop = ["gtk", "gxi_update_macro/desktop", "gxi_macro/desktop", "gxi_parsers/desktop"]
