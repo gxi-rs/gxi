@@ -31,8 +31,8 @@ web = ["gxi_web_binds"]
 [workspace]
 members = [
     "gxi_interface",
+    "examples/desktop",
     "examples/web",
-    "examples/cat_fact",
     "macros/gxi_update_macro",
     "macros/gxi_macro",
     "macros/gxi_parsers"
