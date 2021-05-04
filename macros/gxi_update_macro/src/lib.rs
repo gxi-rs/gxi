@@ -37,15 +37,18 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
 
     let name = syn::parse_macro_input!(name as syn::Ident);
 
-    let update_inner =
-        if !is_async {
+    let update_inner = {
+        let state_cloner = quote! {
+            let state = {
+                let state_borrow = this.as_ref().borrow();
+                let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                state.state.clone()
+            };
+        };
+        let update_inner = if !is_async {
             quote! {
-                let state = {
-                    let state_borrow = this.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                    state.state.clone()
-                };
-                let render =  {
+                #state_cloner
+                let render = {
                     let this = Rc::clone(&this);
                     move || {
                         let this = Rc::clone(&this);
@@ -86,11 +89,7 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
             }
         } else {
             quote! {
-                let state = {
-                    let state_borrow = this.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                    state.state.clone()
-                };
+                #state_cloner
                 spawn_local(async move {
                     let render =  {
                         let this = Rc::clone(&this);
@@ -115,7 +114,8 @@ pub fn update(name: TokenStream, item: TokenStream) -> TokenStream {
                 });
             }
         };
-
+        update_inner
+    };
     (quote! {
         impl #name {
             fn update(this: NodeRc, msg: Msg) {
