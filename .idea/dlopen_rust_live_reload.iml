@@ -213,6 +213,7 @@
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/examples/desktop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
@@ -226,6 +227,8 @@
       <excludeFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/gxi_c_macro/target" />
       <excludeFolder url="file://$MODULE_DIR$/macros/gxi_macro/target" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/web/.vscode" />
+      <excludeFolder url="file://$MODULE_DIR$/examples/web/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

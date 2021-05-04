@@ -1,7 +1,7 @@
 use quote::*;
+use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
-use syn::*;
 
 use crate::TreeParser;
 
@@ -74,20 +74,27 @@ impl Parse for GxiParser {
                         );
                     }
                     "update" => {
+                        let async_ident =
+                            if let Ok(async_ident) = input.parse::<syn::Ident>() {
+                                if async_ident != "async" {
+                                    return Err(syn::Error::new(async_ident.span(), "expected async here"));
+                                }
+                                quote!(#async_ident)
+                            } else { TokenStream2::new() };
                         let content = input.parse::<syn::Block>()?;
                         update_func = quote!(
                             #[update(#name)]
-                            async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
+                            #async_ident fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
                                 #content
                         );
                     }
-                    _ => panic!("Didn't expect this attribute here"),
+                    _ => return Err(syn::Error::new(s.span(), "Didn't expect this attribute here"))
                 }
             }
         }
 
         #[cfg(feature = "desktop")]
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
             quote! { channel_sender, },
             quote! { pub channel_sender: glib::Sender<()>, },
@@ -107,7 +114,7 @@ impl Parse for GxiParser {
         );
 
         #[cfg(feature = "web")]
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
+            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
             TokenStream2::new(),
             TokenStream2::new(),
             TokenStream2::new(),

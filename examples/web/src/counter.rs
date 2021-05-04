@@ -16,7 +16,7 @@ gxi! {
         ],
         H2 ( inner_html = &state.count.to_string() , class = "text-info")
     }
-    update {
+    update async {
         match msg {
             Msg::INC => {
                 let mut state = state.lock().unwrap();

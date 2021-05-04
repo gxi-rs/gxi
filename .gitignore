@@ -1,3 +1,5 @@
+.idea
+.vscode
 /target
 Cargo.lock
 macros/*/target
