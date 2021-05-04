@@ -40,6 +40,104 @@ macro_rules! comp_state {
     };
 }
 
+impl GxiParser {
+    fn parse_update_fn(name: &Ident, update_block: Block, is_async: bool) -> TokenStream2 {
+        let async_ident = if is_async { quote!(async) } else { TokenStream2::new() };
+        let update_fn = quote! {
+            #async_ident
+            fn update<F: Fn() + 'static>(
+                state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
+                #update_block
+        };
+        let update_inner = {
+            let state_cloner = quote! {
+                let state = {
+                    let state_borrow = this.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                    state.state.clone()
+                };
+            };
+            let update_inner = if !is_async {
+                quote! {
+                #state_cloner
+                let render = {
+                    let this = Rc::clone(&this);
+                    move || {
+                        let this = Rc::clone(&this);
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
+                    }
+                };
+                #update_fn
+                if let ShouldRender::Yes = update(state,msg,render).unwrap() {
+                    {
+                        let mut node = this.as_ref().borrow_mut();
+                        node.mark_dirty();
+                    }
+                    Self::render(this);
+                }
+            }
+            } else if cfg!(feature = "desktop") {
+                quote! {
+                let (channel_sender, state) = {
+                    let state_borrow = this.as_ref().borrow();
+                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                    (state.channel_sender.clone(), state.state.clone())
+                };
+                tokio::task::spawn(async move {
+                    let render = {
+                        let channel_sender = channel_sender.clone();
+                        move || channel_sender.send(()).unwrap()
+                    };
+                    //gxi_update_macro logic. Made to return should render to force dev to decide render state
+                    #update_fn
+                    if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                        channel_sender.send(()).unwrap()
+                    }
+                });
+            }
+            } else {
+                quote! {
+                #state_cloner
+                spawn_local(async move {
+                    let render =  {
+                        let this = Rc::clone(&this);
+                        move || {
+                            let this = Rc::clone(&this);
+                            {
+                                let mut node = this.as_ref().borrow_mut();
+                                node.mark_dirty();
+                            }
+                            Self::render(this);
+                        }
+                    };
+                    //gxi_update_macro logic. Made to return should render to force dev to decide render state
+                    #update_fn
+                    if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
+                    }
+                });
+            }
+            };
+            update_inner
+        };
+        quote! {
+            impl #name {
+                fn update(this: NodeRc, msg: Msg) {
+                    #update_inner
+                }
+            }
+        }
+    }
+}
+
 impl Parse for GxiParser {
     /// parses the `input` parse_steam according to the syntax defined in the [gxi_macro macro](../../gxi_macro/macro.gxi_macro.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
@@ -48,7 +146,7 @@ impl Parse for GxiParser {
         let state_block = input.parse::<syn::Block>()?;
         let mut render_func = TokenStream2::new();
         let mut update_func = TokenStream2::new();
-
+        let mut is_update_async = false;
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
                 match &s.to_string()[..] {
@@ -74,53 +172,47 @@ impl Parse for GxiParser {
                         );
                     }
                     "update" => {
-                        let async_ident =
-                            if let Ok(async_ident) = input.parse::<syn::Ident>() {
-                                if async_ident != "async" {
-                                    return Err(syn::Error::new(async_ident.span(), "expected async here"));
-                                }
-                                quote!(#async_ident)
-                            } else { TokenStream2::new() };
-                        let content = input.parse::<syn::Block>()?;
-                        update_func = quote!(
-                            #[update(#name)]
-                            #async_ident fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
-                                #content
-                        );
+                        if let Ok(async_ident) = input.parse::<syn::Ident>() {
+                            if async_ident != "async" {
+                                return Err(syn::Error::new(async_ident.span(), "expected async here"));
+                            }
+                            is_update_async = true;
+                        }
+                        update_func = GxiParser::parse_update_fn(&name, input.parse::<syn::Block>()?, is_update_async);
                     }
                     _ => return Err(syn::Error::new(s.span(), "Didn't expect this attribute here"))
                 }
             }
         }
 
-        #[cfg(feature = "desktop")]
-            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
-            quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
-            quote! { channel_sender, },
-            quote! { pub channel_sender: glib::Sender<()>, },
-            quote! {{
-                let this = this.clone();
-                re.attach(None, move |_| {
-                    let this = Rc::clone(&this);
-                    //mark dirty
-                    {
-                        let mut node = this.as_ref().borrow_mut();
-                        node.mark_dirty();
-                    }
-                    Self::render(this);
-                    glib::Continue(true)
-                });
-            }},
-        );
-
-        #[cfg(feature = "web")]
-            let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = (
-            TokenStream2::new(),
-            TokenStream2::new(),
-            TokenStream2::new(),
-            TokenStream2::new(),
-        );
-
+        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) =
+            if cfg!(feature = "desktop") && is_update_async {
+                (
+                    quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
+                    quote! { channel_sender, },
+                    quote! { pub channel_sender: glib::Sender<()>, },
+                    quote! {{
+                        let this = this.clone();
+                        re.attach(None, move |_| {
+                            let this = Rc::clone(&this);
+                            //mark dirty
+                            {
+                                let mut node = this.as_ref().borrow_mut();
+                                node.mark_dirty();
+                            }
+                            Self::render(this);
+                            glib::Continue(true)
+                        });
+                    }}
+                )
+            } else {
+                (
+                    TokenStream2::new(),
+                    TokenStream2::new(),
+                    TokenStream2::new(),
+                    TokenStream2::new(),
+                )
+            };
         Ok(GxiParser {
             tree: quote! {
                 use std::any::Any;

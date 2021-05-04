@@ -22,27 +22,23 @@ gxi! {
             ]
         ]
     }
-}
-
-#[update(Counter)]
-async fn update<F: Fn() + 'static>(
-    state: AsyncState, msg: Msg, _render: F,
-) -> AsyncResult<ShouldRender> {
-    match msg {
-        Msg::INC => {
-            let mut state = state.lock().unwrap();
-            state.count += 1;
-        }
-        _ => {
-            let mut state = state.lock().unwrap();
-            if state.count > 0 {
-                state.count -= 1;
-            } else {
-                return Ok(ShouldRender::No);
+    update {
+        match msg {
+            Msg::INC => {
+                let mut state = state.lock().unwrap();
+                    state.count += 1;
+                }
+            _ => {
+                let mut state = state.lock().unwrap();
+                if state.count > 0 {
+                    state.count -= 1;
+                } else {
+                    return Ok(ShouldRender::No);
+                }
             }
         }
+        Ok(ShouldRender::Yes)
     }
-    Ok(ShouldRender::Yes)
 }
 
 impl Counter {

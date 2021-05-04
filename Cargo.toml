@@ -33,7 +33,6 @@ members = [
     "gxi_interface",
     "examples/desktop",
     "examples/web",
-    "macros/gxi_update_macro",
     "macros/gxi_macro",
     "macros/gxi_parsers"
 ]

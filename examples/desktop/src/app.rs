@@ -39,32 +39,28 @@ gxi! {
             ]
         ]
     }
-}
-
-#[update(App)]
-async fn update<F: Fn() + 'static>(
-    state: AsyncState, msg: Msg, render: F,
-) -> AsyncResult<ShouldRender> {
-    match msg {
-        Msg::Fetch(force) => {
-            if {
-                let mut state = state.lock().unwrap();
-                if state.cat_fact.is_some() {
-                    state.cat_fact = None;
-                    render();
-                    true
+    update async {
+        match msg {
+            Msg::Fetch(force) => {
+                if {
+                    let mut state = state.lock().unwrap();
+                    if state.cat_fact.is_some() {
+                        state.cat_fact = None;
+                        render();
+                        true
+                    } else {
+                        false
+                    }
+                } || force
+                {
+                    let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
+                    let cat_fact = resp.json::<CatFact>().await?;
+                    let mut state = state.lock().unwrap();
+                    state.cat_fact = Some(cat_fact);
+                    Ok(ShouldRender::Yes)
                 } else {
-                    false
+                    Ok(ShouldRender::No)
                 }
-            } || force
-            {
-                let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
-                let cat_fact = resp.json::<CatFact>().await?;
-                let mut state = state.lock().unwrap();
-                state.cat_fact = Some(cat_fact);
-                Ok(ShouldRender::Yes)
-            } else {
-                Ok(ShouldRender::No)
             }
         }
     }
