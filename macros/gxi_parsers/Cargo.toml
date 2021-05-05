@@ -1,6 +1,6 @@
 [package]
 name = "gxi_parsers"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 description = "parsers for gxi macros"
 license = "MIT"
