@@ -17,13 +17,12 @@ gxi! {
         H2 ( inner_html = &state.count.to_string() , class = "text-info")
     }
     update {
+        let mut state = get_state!(state);
         match msg {
             Msg::INC => {
-                let mut state = state.lock().unwrap();
                 state.count += 1;
             }
             _ => {
-                let mut state = state.lock().unwrap();
                 if state.count > 0 {
                     state.count -= 1;
                 } else {

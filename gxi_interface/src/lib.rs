@@ -20,7 +20,7 @@ transparent_block! {
     pub use web_sys;
 
     pub use gxi_macro::gxi;
-    pub use gxi_parsers::{comp_new, comp_state};
+    pub use gxi_parsers::*;
     pub use nodes::*;
     pub use should_render::*;
 

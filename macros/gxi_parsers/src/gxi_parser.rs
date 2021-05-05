@@ -40,11 +40,21 @@ macro_rules! comp_state {
     };
 }
 
+/// for Arc<Mutex<State>>>
 #[doc(hidden)]
 #[macro_export]
 macro_rules! arc_state_unwrap {
-    ($this:ident) => {
-        $this.state.unwrap();
+    ($state:ident) => {
+        $state.lock().unwrap();
+    };
+}
+
+/// for Arc<Mutex<State>>>
+#[doc(hidden)]
+#[macro_export]
+macro_rules! rc_state_unwrap {
+    ($state:ident) => {
+        $state.borrow_mut();
     };
 }
 
@@ -174,7 +184,7 @@ impl Parse for GxiParser {
                                     node.mark_clean();
                                     node.state.clone()
                                 };
-                                let state = state.lock().unwrap();
+                                let state = get_state!(state);
                                 #content
                             }
                         );
@@ -194,16 +204,18 @@ impl Parse for GxiParser {
         }
 
         // need not use Arc<Mutex<>> in web and when update is not async
-        let (state_cell, state_cell_inner) = {
+        let (state_cell, state_cell_inner, import_get_state_macro) = {
             if is_update_async && cfg!(feature = "desktop") {
                 (
                     quote!(Arc),
-                    quote!(Mutex)
+                    quote!(Mutex),
+                    quote!(gxi::arc_state_unwrap)
                 )
             } else {
                 (
                     quote!(Rc),
-                    quote!(RefCell)
+                    quote!(RefCell),
+                    quote!(gxi::rc_state_unwrap)
                 )
             }
         };
@@ -239,6 +251,7 @@ impl Parse for GxiParser {
 
         Ok(GxiParser {
             tree: quote! {
+                use #import_get_state_macro as get_state;
                 use std::any::Any;
                 use std::borrow::Borrow;
                 use std::cell::RefCell;
