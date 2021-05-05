@@ -17,12 +17,12 @@ gxi! {
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
-            Button ( on_click = || Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
+            Button ( class = "btn btn-dark" , on_click = || Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
             Div [
                 if state.cat_fact.is_none()
                     Div ( class = "spinner-border text-info" )
                 else
-                    H3 ( inner_html = &state.cat_fact.as_ref().unwrap().fact )
+                    H3 ( class = "text-light", inner_html = &state.cat_fact.as_ref().unwrap().fact )
             ]
         ]
     }
