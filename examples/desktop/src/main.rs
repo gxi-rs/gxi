@@ -1,5 +1,6 @@
-use app::App;
-use gxi::run;
+pub use app::App;
+pub use gxi::*;
+pub use counter::Counter;
 
 mod app;
 mod centre;

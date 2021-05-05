@@ -44,8 +44,8 @@ macro_rules! comp_state {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! arc_state_unwrap {
-    ($state:ident) => {
-        $state.lock().unwrap();
+    ($($state:tt)*) => {
+        $($state)*.lock().unwrap();
     };
 }
 
@@ -53,8 +53,8 @@ macro_rules! arc_state_unwrap {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! rc_state_unwrap {
-    ($state:ident) => {
-        $state.borrow_mut();
+    ($($state:tt)*) => {
+        $($state)*.borrow_mut();
     };
 }
 

@@ -43,7 +43,7 @@ gxi! {
         match msg {
             Msg::Fetch(force) => {
                 if {
-                    let mut state = state.lock().unwrap();
+                    let mut state = get_state!(state);
                     if state.cat_fact.is_some() {
                         state.cat_fact = None;
                         render();
@@ -55,7 +55,7 @@ gxi! {
                 {
                     let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
                     let cat_fact = resp.json::<CatFact>().await?;
-                    let mut state = state.lock().unwrap();
+                    let mut state = get_state!(state);
                     state.cat_fact = Some(cat_fact);
                     Ok(ShouldRender::Yes)
                 } else {

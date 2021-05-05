@@ -23,13 +23,10 @@ gxi! {
         ]
     }
     update {
+        let mut state = get_state!(state);
         match msg {
-            Msg::INC => {
-                let mut state = state.lock().unwrap();
-                    state.count += 1;
-                }
+            Msg::INC => state.count += 1,
             _ => {
-                let mut state = state.lock().unwrap();
                 if state.count > 0 {
                     state.count -= 1;
                 } else {
@@ -45,7 +42,7 @@ impl Counter {
     pub fn count(&mut self, count: Option<u32>) {
         if let Some(count) = count {
             {
-                let mut state = self.state.lock().unwrap();
+                let mut state = get_state!(self.state);
                 state.count = count;
             }
             self.mark_dirty();
