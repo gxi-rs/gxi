@@ -43,18 +43,26 @@ macro_rules! comp_state {
 /// for Arc<Mutex<State>>>
 #[doc(hidden)]
 #[macro_export]
-macro_rules! arc_state_unwrap {
+macro_rules! get_arc_state {
     ($($state:tt)*) => {
         $($state)*.lock().unwrap();
     };
 }
 
-/// for Arc<Mutex<State>>>
+/// for RC<RefCell<State>>>
 #[doc(hidden)]
 #[macro_export]
-macro_rules! rc_state_unwrap {
+macro_rules! get_rc_state {
     ($($state:tt)*) => {
-        $($state)*.borrow_mut();
+        $($state)*.as_ref().borrow();
+    };
+}
+/// mut for RC<RefCell<State>>>
+#[doc(hidden)]
+#[macro_export]
+macro_rules! get_mut_rc_state {
+    ($($state:tt)*) => {
+        $($state)*.as_ref().borrow_mut();
     };
 }
 
@@ -68,60 +76,38 @@ impl GxiParser {
                 #update_block
         };
         let update_inner = {
-            let state_cloner = quote! {
-                let state = {
-                    let state_borrow = this.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
-                    state.state.clone()
-                };
-            };
-            let update_inner = if !is_async {
+            let update_inner = if is_async && cfg!(feature = "desktop") {
                 quote! {
-                #state_cloner
-                let render = {
-                    let this = Rc::clone(&this);
-                    move || {
-                        let this = Rc::clone(&this);
-                        {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
-                        }
-                        Self::render(this);
-                    }
-                };
-                #update_fn
-                if let ShouldRender::Yes = update(state,msg,render).unwrap() {
-                    {
-                        let mut node = this.as_ref().borrow_mut();
-                        node.mark_dirty();
-                    }
-                    Self::render(this);
-                }
-            }
-            } else if cfg!(feature = "desktop") {
-                quote! {
-                let (channel_sender, state) = {
-                    let state_borrow = this.as_ref().borrow();
-                    let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
-                    (state.channel_sender.clone(), state.state.clone())
-                };
-                tokio::task::spawn(async move {
-                    let render = {
-                        let channel_sender = channel_sender.clone();
-                        move || channel_sender.send(()).unwrap()
+                    let (channel_sender, state) = {
+                        let state_borrow = this.as_ref().borrow();
+                        let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                        (state.channel_sender.clone(), state.state.clone())
                     };
-                    //gxi_update_macro logic. Made to return should render to force dev to decide render state
-                    #update_fn
-                    if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
-                        channel_sender.send(()).unwrap()
-                    }
-                });
-            }
+                    tokio::task::spawn(async move {
+                        let render = {
+                            let channel_sender = channel_sender.clone();
+                            move || channel_sender.send(()).unwrap()
+                        };
+                        //gxi_update_macro logic. Made to return should render to force dev to decide render state
+                        #update_fn
+                        if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                            channel_sender.send(()).unwrap()
+                        }
+                    });
+                }
             } else {
-                quote! {
-                #state_cloner
-                spawn_local(async move {
-                    let render =  {
+                let await_call = if is_async {
+                    quote!(.await)
+                } else {
+                    TokenStream2::new()
+                };
+                let mut update_inner = quote! {
+                    let state = {
+                        let state_borrow = this.as_ref().borrow();
+                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        state.state.clone()
+                    };
+                    let render = {
                         let this = Rc::clone(&this);
                         move || {
                             let this = Rc::clone(&this);
@@ -132,17 +118,23 @@ impl GxiParser {
                             Self::render(this);
                         }
                     };
-                    //gxi_update_macro logic. Made to return should render to force dev to decide render state
                     #update_fn
-                    if let ShouldRender::Yes = update(state,msg,render).await.unwrap() {
+                    if let ShouldRender::Yes = update(state,msg,render)#await_call.unwrap() {
                         {
                             let mut node = this.as_ref().borrow_mut();
                             node.mark_dirty();
                         }
                         Self::render(this);
                     }
-                });
-            }
+                };
+                if cfg!(feature = "web") {
+                    update_inner = quote! {
+                        spawn_local(async move {
+                            #update_inner
+                        });
+                    }
+                }
+                update_inner
             };
             update_inner
         };
@@ -204,18 +196,20 @@ impl Parse for GxiParser {
         }
 
         // need not use Arc<Mutex<>> in web and when update is not async
-        let (state_cell, state_cell_inner, import_get_state_macro) = {
+        let (state_cell, state_cell_inner, import_get_state_macro, import_get_state_macro_mut) = {
             if is_update_async && cfg!(feature = "desktop") {
                 (
                     quote!(Arc),
                     quote!(Mutex),
-                    quote!(gxi::arc_state_unwrap)
+                    quote!(gxi::get_arc_state),
+                    quote!(gxi::get_arc_state),
                 )
             } else {
                 (
                     quote!(Rc),
                     quote!(RefCell),
-                    quote!(gxi::rc_state_unwrap)
+                    quote!(gxi::get_rc_state),
+                    quote!(gxi::get_mut_rc_state),
                 )
             }
         };
@@ -252,6 +246,7 @@ impl Parse for GxiParser {
         Ok(GxiParser {
             tree: quote! {
                 use #import_get_state_macro as get_state;
+                use #import_get_state_macro_mut as get_mut_state;
                 use std::any::Any;
                 use std::borrow::Borrow;
                 use std::cell::RefCell;

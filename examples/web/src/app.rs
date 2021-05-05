@@ -14,7 +14,8 @@ gxi! {
             A ( href = "https://webbuddy360.com" ) [
                 H1 ( inner_html = "hello world" ),
             ],
-            Counter
+            Counter,
+            CatFact
         ]
     }
 }

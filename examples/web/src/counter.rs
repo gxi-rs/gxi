@@ -17,7 +17,7 @@ gxi! {
         H2 ( inner_html = &state.count.to_string() , class = "text-info")
     }
     update {
-        let mut state = get_state!(state);
+        let mut state = get_mut_state!(state);
         match msg {
             Msg::INC => {
                 state.count += 1;
