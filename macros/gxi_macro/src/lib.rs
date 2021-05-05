@@ -49,14 +49,14 @@ use gxi_parsers::GxiParser;
 ///
 /// ```rust
 /// #[update(NameOfComponent)]
-/// async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
+/// async fn update<F: Fn() + 'static>(state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender> {
 ///     // the content of the gxi_update_macro block is moved here
 /// }
 /// ```
 ///
-/// In this block values `state: AsyncState, msg: Msg, render: F` are present which can be used as follows ->
+/// In this block values `state: State, msg: Msg, render: F` are present which can be used as follows ->
 ///
-/// * `state` - is of `type AsyncState = Arc<Mutex<ComponentState>>;` where `ComponentState` has all the fields defined in the
+/// * `state` - is of `type State = Arc<Mutex<ComponentState>>;` where `ComponentState` has all the fields defined in the
 ///     constructor block. It must be used to manipulate the state of the component. For efficient renders, the dev should drop the lock
 ///     on the mutex before awaiting an async call.
 ///

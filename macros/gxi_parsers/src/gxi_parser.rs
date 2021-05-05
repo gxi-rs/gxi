@@ -14,9 +14,9 @@ pub struct GxiParser {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! comp_new {
-    ($state_name:ident $parent:ident { $($sender:tt)* } { $($p:ident : $t:ty = $v:expr)* }) => {
+    ($state_name:ident $state_cell:ident $state_cell_inner:ident $parent:ident { $($sender:tt)* } { $($p:ident : $t:ty = $v:expr)* }) => {
         Rc::new(RefCell::new(Box::new(Self {
-            state: Arc::new(Mutex::new($state_name {
+            state: $state_cell::new($state_cell_inner::new($state_name {
                 $($p:$v),*
             })),
             $($sender)*
@@ -40,13 +40,21 @@ macro_rules! comp_state {
     };
 }
 
+#[doc(hidden)]
+#[macro_export]
+macro_rules! arc_state_unwrap {
+    ($this:ident) => {
+        $this.state.unwrap();
+    };
+}
+
 impl GxiParser {
     fn parse_update_fn(name: &Ident, update_block: Block, is_async: bool) -> TokenStream2 {
         let async_ident = if is_async { quote!(async) } else { TokenStream2::new() };
         let update_fn = quote! {
             #async_ident
             fn update<F: Fn() + 'static>(
-                state: AsyncState, msg: Msg, render: F) -> AsyncResult<ShouldRender>
+                state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender>
                 #update_block
         };
         let update_inner = {
@@ -185,6 +193,21 @@ impl Parse for GxiParser {
             }
         }
 
+        // need not use Arc<Mutex<>> in web and when update is not async
+        let (state_cell, state_cell_inner) = {
+            if is_update_async && cfg!(feature = "desktop") {
+                (
+                    quote!(Arc),
+                    quote!(Mutex)
+                )
+            } else {
+                (
+                    quote!(Rc),
+                    quote!(RefCell)
+                )
+            }
+        };
+
         let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) =
             if cfg!(feature = "desktop") && is_update_async {
                 (
@@ -213,6 +236,7 @@ impl Parse for GxiParser {
                     TokenStream2::new(),
                 )
             };
+
         Ok(GxiParser {
             tree: quote! {
                 use std::any::Any;
@@ -221,12 +245,12 @@ impl Parse for GxiParser {
                 use std::rc::Rc;
                 use std::sync::{Mutex, Arc};
 
-                type AsyncState = Arc<Mutex<#state_name>>;
+                type State = #state_cell<#state_cell_inner<#state_name>>;
 
                 comp_state!(#state_name #state_block);
 
                 pub struct #name {
-                    pub state: AsyncState,
+                    pub state: State,
                     #sender_struct_field
                     pub parent: WeakNodeRc,
                     pub self_substitute : Option<WeakNodeRc>,
@@ -240,7 +264,7 @@ impl Parse for GxiParser {
 
                     fn new(parent: WeakNodeRc) -> NodeRc {
                         #desktop_channel_new
-                        let this:NodeRc = comp_new!(#state_name parent { #sender_field } #state_block );
+                        let this:NodeRc = comp_new!(#state_name #state_cell #state_cell_inner parent { #sender_field } #state_block );
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();

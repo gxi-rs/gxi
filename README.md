@@ -106,7 +106,7 @@ gxi! {
 }
 
 #[update(App)]
-async fn update<F: Fn() + 'static>(state: AsyncState, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
+async fn update<F: Fn() + 'static>(state: State, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
     match msg {
         Msg::INC => {
             let mut state = state.lock().unwrap();
