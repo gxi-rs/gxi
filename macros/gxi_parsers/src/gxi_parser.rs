@@ -166,7 +166,6 @@ impl Parse for GxiParser {
                         render_func = quote!(
                             fn render(this: NodeRc) {
                                 let cont = Rc::clone(&this);
-                                let node = cont.clone();
                                 let state = {
                                     let mut node_borrow = this.as_ref().borrow_mut();
                                     let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
