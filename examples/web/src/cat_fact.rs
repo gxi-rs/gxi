@@ -1,19 +1,13 @@
 use crate::*;
-use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 enum Msg {
     Fetch(bool),
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CatFactResp {
-    pub length: u32,
-    pub fact: String,
-}
-
 gxi! {
     CatFact {
-        cat_fact : Option<CatFactResp> = None
+        cat_fact : Option<String> = None
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
@@ -22,7 +16,7 @@ gxi! {
                 if state.cat_fact.is_none()
                     Div ( class = "spinner-border text-info" )
                 else
-                    H3 ( class = "text-light", inner_html = &state.cat_fact.as_ref().unwrap().fact )
+                    H3 ( class = "text-light", inner_html = &state.cat_fact.as_ref().unwrap() )
             ]
         ]
     }
@@ -42,9 +36,9 @@ gxi! {
                 } || force
                 {
                     let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
-                    let cat_fact = resp.json::<CatFactResp>().await?;
+                    let cat_fact:Value = serde_json::from_str(&resp.text().await?)?;
                     let mut state = get_mut_state!(state);
-                    state.cat_fact = Some(cat_fact);
+                    state.cat_fact = Some(cat_fact["fact"].to_string());
                     Ok(ShouldRender::Yes)
                 } else {
                     Ok(ShouldRender::No)
