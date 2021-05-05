@@ -24,7 +24,7 @@ gxi! {
         match msg {
             Msg::Fetch(force) => {
                 if {
-                    let mut state = get_mut_state!(state);
+                    let mut state = get_state_mut!(state);
                     if state.cat_fact.is_some() {
                         state.cat_fact = None;
                         drop(state);
@@ -37,7 +37,7 @@ gxi! {
                 {
                     let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
                     let cat_fact:Value = serde_json::from_str(&resp.text().await?)?;
-                    let mut state = get_mut_state!(state);
+                    let mut state = get_state_mut!(state);
                     state.cat_fact = Some(cat_fact["fact"].to_string());
                     Ok(ShouldRender::Yes)
                 } else {
