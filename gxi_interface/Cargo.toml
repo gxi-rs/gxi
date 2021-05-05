@@ -13,13 +13,17 @@ keywords = [
 
 [features]
 desktop = ["gtk", "gxi_macro/desktop", "gxi_parsers/desktop"]
-web = ["web-sys", "wasm-bindgen", "gxi_macro/web", "gxi_parsers/web"]
+web = ["web-sys", "gxi_macro/web", "gxi_parsers/web"]
 
 [dependencies]
-gxi_macro = { path = "../macros/gxi_macro", optional = true, version = "0" }
-gxi_parsers = { path = "../macros/gxi_parsers", optional = true, version = "0" }
+gxi_macro = { path = "../../gxi_macro", optional = true, version = "0" }
+gxi_parsers = { path = "../../gxi_macro/gxi_parsers", optional = true, version = "0" }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 #web
-web-sys = { version = "0.3.50", features = ['Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent'], optional = true }
-wasm-bindgen = { version = "0.2.73", optional = true }
+[dependencies.web-sys]
+version = "0"
+features = [
+    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent'
+]
+optional = true

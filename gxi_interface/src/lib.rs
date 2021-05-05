@@ -15,8 +15,6 @@ transparent_block! {
     #[cfg(feature = "desktop")]
     pub use gtk;
     #[cfg(feature = "web")]
-    pub use wasm_bindgen;
-    #[cfg(feature = "web")]
     pub use web_sys;
 
     pub use gxi_macro::gxi;
