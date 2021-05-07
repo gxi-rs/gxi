@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
@@ -36,7 +36,7 @@ members = [
 ]
 
 [dependencies]
-gxi_macro = { path = "gxi_macro", version = "0", optional = true }
+gxi_macro = { path = "gxi_macro", version = "0.1.4", optional = true }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 glib = { version = "0.10.3", optional = true }
