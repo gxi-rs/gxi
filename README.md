@@ -31,7 +31,7 @@ of the native system.
 *Example For Desktop GTK App*
 
 ```rust
-use gxi::*;
+use crate::*;
 
 enum Msg {
     INC,
@@ -44,21 +44,22 @@ gxi! {
     }
     render {
         View [
-            View [
+            View (orientation = Orientation::Vertical) [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            Text ( label = &state.count.to_string() )
+            Text ( label = &state.count.to_string() ),
+            View (orientation = Orientation::Vertical) [
+                for i in 0..2
+                    Text ( label = &i.to_string() )
+            ]
         ]
     }
     update {
+        let mut state = get_state_mut!(state);
         match msg {
-            Msg::INC => {
-                let mut state = state.lock().unwrap();
-                state.count += 1;
-            }
+            Msg::INC => state.count += 1,
             _ => {
-                let mut state = state.lock().unwrap();
                 if state.count > 0 {
                     state.count -= 1;
                 } else {
@@ -71,57 +72,57 @@ gxi! {
 }
 ```
 
-*Example For Web App*
+*`Async` Example For Web App*
 
 ```rust
-use gxi::*;
+use crate::*;
+use serde_json::Value;
 
 enum Msg {
-    INC,
-    DEC,
+    Fetch(bool),
 }
 
 gxi! {
-    App {
-        count: u32 = 0
+    CatFact {
+        cat_fact : Option<String> = None
     }
     render {
-        Div [
-            Body ( style = r#"background-color : #121212;"# ),
-            Head [
-                Title ( inner_html = "Hello World" ),
-                Link ( rel = "stylesheet", href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ),
-                Meta ( name = "viewport", content = "width=device-width, initial-scale=1" )
-            ],
-            A ( href = "https://webbuddy360.com" ) [
-                H1 ( label = "hello world" ),
-            ],
+        Init ( on_init = || Msg::Fetch(true) ) [
+            Button ( class = "btn btn-dark" , on_click = || Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
             Div [
-                Button ( label = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
-                Button ( label = "Dec", on_click = || Msg::DEC , class="btn btn-light")
-            ],
-            H2 ( label = &state.count.to_string() , class = "text-info")
+                if state.cat_fact.is_none()
+                    Div ( class = "spinner-border text-info" )
+                else
+                    H3 ( class = "text-light", inner_html = &state.cat_fact.as_ref().unwrap() )
+            ]
         ]
     }
-}
-
-#[update(App)]
-async fn update<F: Fn() + 'static>(state: State, msg: Msg, _render: F) -> AsyncResult<ShouldRender> {
-    match msg {
-        Msg::INC => {
-            let mut state = state.lock().unwrap();
-            state.count += 1;
-        }
-        _ => {
-            let mut state = state.lock().unwrap();
-            if state.count > 0 {
-                state.count -= 1;
-            } else {
-                return Ok(ShouldRender::No);
+    update async {
+        match msg {
+            Msg::Fetch(force) => {
+                if {
+                    let mut state = get_state_mut!(state);
+                    if state.cat_fact.is_some() {
+                        state.cat_fact = None;
+                        drop(state);
+                        render();
+                        true
+                    } else {
+                        false
+                    }
+                } || force
+                {
+                    let resp = reqwest::get("https://catfact.ninja/fact?max_length=140").await?;
+                    let cat_fact:Value = serde_json::from_str(&resp.text().await?)?;
+                    let mut state = get_state_mut!(state);
+                    state.cat_fact = Some(cat_fact["fact"].to_string());
+                    Ok(ShouldRender::Yes)
+                } else {
+                    Ok(ShouldRender::No)
+                }
             }
         }
     }
-    Ok(ShouldRender::Yes)
 }
 ```
 
