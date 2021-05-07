@@ -1,4 +1,4 @@
-use gxi::*;
+use crate::*;
 
 enum Msg {
     INC,

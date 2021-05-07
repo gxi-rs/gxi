@@ -1,4 +1,4 @@
-use gxi::*;
+use crate::*;
 
 gxi! {
     Centre {}

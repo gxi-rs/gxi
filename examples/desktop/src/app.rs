@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use gxi::*;
-
-use crate::centre::*;
-use crate::counter::*;
+use crate::*;
 
 enum Msg {
     Fetch(bool),
