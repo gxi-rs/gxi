@@ -44,7 +44,7 @@ tokio = { version = "1.5.0", features = ["sync", "rt", "rt-multi-thread"], optio
 #web
 wasm-bindgen = { version = "0.2.73", optional = true }
 wasm-bindgen-futures = { version = "0.4.23", optional = true }
-console_error_panic_hook = { version = "", optional = true }
+console_error_panic_hook = { version = "0.1.6", optional = true }
 [dependencies.web-sys]
 version = "0.3.50"
 features = [
