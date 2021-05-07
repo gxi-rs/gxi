@@ -4,7 +4,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/rust_lib/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/macros/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/iff/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/counter/src" isTestSource="false" />
@@ -214,6 +213,10 @@
       <sourceFolder url="file://$MODULE_DIR$/examples/desktop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../gxi_macros/gxi_parsers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gxi_macro/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/gxi_parsers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/target/debug/build/syn-14f861b5b3f9a983/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../gxi_macros/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/rust_lib/target" />
