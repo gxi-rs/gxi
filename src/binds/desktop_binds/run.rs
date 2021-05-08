@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+
 use crate::{*};
 
 pub fn run<App: Node + 'static>() {
@@ -9,9 +10,8 @@ pub fn run<App: Node + 'static>() {
         let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
         let window = Window::new(Rc::downgrade(&fake_parent));
         //render
-        {
-            App::render(App::new(Rc::downgrade(&window)));
-        }
+        let this = App::new(Rc::downgrade(&window));
+        App::render(this.clone());
         //show window
         {
             let mut window_borrow = window.as_ref().borrow_mut();
