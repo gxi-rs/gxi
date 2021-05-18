@@ -15,7 +15,9 @@ gxi! {
                 H1 ( inner_html = "hello world" ),
             ],
             Counter,
-            CatFact
+            CatFact,
+            H1 ( inner_html = "Hi i am refreshed" ),
+            H1 ( inner_html = "Hi i am refreshed" )
         ]
     }
 }
