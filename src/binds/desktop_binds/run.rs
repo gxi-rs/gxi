@@ -7,7 +7,7 @@ pub fn run<App: Node + 'static>() {
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();
-        let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
+        let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Tree)));
         let window = Window::new(Rc::downgrade(&fake_parent));
         //render
         let this = App::new(Rc::downgrade(&window));
