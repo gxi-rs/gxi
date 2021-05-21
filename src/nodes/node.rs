@@ -27,15 +27,15 @@ pub type NativeWidget = web_sys::Element;
 
 #[allow(drop_bounds)]
 pub trait Node: Drop {
-    fn get_child(&self) -> &Option<NodeRc> { unimplemented!() }
-    fn get_child_mut(&mut self) -> &mut Option<NodeRc> { unimplemented!() }
+    fn get_child(&self) -> &Option<NodeRc> { unreachable!() }
+    fn get_child_mut(&mut self) -> &mut Option<NodeRc> { unreachable!() }
     fn get_sibling(&self) -> &Option<NodeRc> {
-        unimplemented!()
+        unreachable!()
     }
     fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
-        unimplemented!()
+        unreachable!()
     }
-    fn get_parent(&self) -> NodeRc { unimplemented!() }
+    fn get_parent(&self) -> NodeRc { unreachable!() }
     fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         match self.get_child() {
             None => {
