@@ -4,7 +4,7 @@ gxi! {
     App {}
     render {
         Body ( style = r#"background-color : #121212;"# ) [
-            Div [,
+            Div [
                 Head [
                     Title ( inner_html = "Hello World" ),
                     Link ( rel = "stylesheet", href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" ),

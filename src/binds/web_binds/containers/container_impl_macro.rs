@@ -21,14 +21,13 @@ macro_rules! create_web_container {
 macro_rules! impl_web_container {
     ($name:ident $element_name:literal) => {
         impl Node for $name {
-            impl_node_as_any!();
-            impl_node_trait_init_sibling!();
-            impl_node_trait_init_child!();
+            impl_node_trait_as_any!();
             impl_node_trait_get_widget!();
             impl_node_trait_get_sibling!();
             impl_node_trait_get_child!();
             impl_node_trait_substitute!();
             impl_add_for_web_node!();
+            impl_node_trait_get_parent!();
 
             fn new(parent: WeakNodeRc) -> NodeRc {
                 let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {

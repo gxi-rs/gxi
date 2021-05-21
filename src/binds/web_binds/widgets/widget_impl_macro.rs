@@ -19,10 +19,10 @@ macro_rules! create_web_widget {
 macro_rules! impl_web_widget {
     ($name:ident $element_name:literal) => {
         impl Node for $name {
-            impl_node_as_any!();
-            impl_node_trait_init_sibling!();
+            impl_node_trait_as_any!();
             impl_node_trait_get_widget!();
             impl_node_trait_get_sibling!();
+            impl_node_trait_get_parent!();
 
             fn add(&mut self, _child: NodeRc) {
                 panic!(
