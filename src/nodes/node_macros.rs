@@ -10,6 +10,9 @@ macro_rules! impl_node_dirty {
         fn mark_clean(&mut self) {
             self.dirty = false;
         }
+        fn get_parent(&self) -> NodeRc {
+            self.parent.upgrade().unwrap().clone()
+        }
     };
 }
 
@@ -28,37 +31,12 @@ macro_rules! impl_node_as_any {
 #[macro_export]
 macro_rules! impl_node_trait_init_sibling {
     () => {
-        fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-            match self.sibling {
-                None => {
-                    let sibling = self.sibling.get_or_insert(f());
-                    if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
-                        let parent = self.parent.upgrade().unwrap();
-                        parent.as_ref().borrow_mut().add(sibling.clone());
-                    }
-                    (sibling.clone(), true)
-                }
-                _ => (self.sibling.as_ref().unwrap().clone(), false),
-            }
-        }
     };
 }
 
 #[macro_export]
 macro_rules! impl_node_trait_init_child {
     () => {
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-            match self.child {
-                None => {
-                    let child = self.child.get_or_insert(f()).clone();
-                    if let NodeType::Widget = child.as_ref().borrow().get_type() {
-                        self.add(child.clone());
-                    }
-                    (child, true)
-                }
-                _ => (self.child.as_ref().unwrap().clone(), false),
-            }
-        }
     };
 }
 
@@ -117,20 +95,6 @@ macro_rules! impl_node_for_component {
             let parent = self.parent.upgrade().unwrap();
             let parent = parent.as_ref().borrow();
             parent.get_widget()
-        }
-
-        fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-            match self.child {
-                None => {
-                    let child = self.child.get_or_insert(f());
-                    if let NodeType::Widget = child.as_ref().borrow().get_type() {
-                        let parent = self.parent.upgrade().unwrap();
-                        parent.as_ref().borrow_mut().add(child.clone());
-                    }
-                    (child.clone(), true)
-                }
-                _ => (self.child.as_ref().unwrap().clone(), false),
-            }
         }
 
         fn get_type(&self) -> NodeType {

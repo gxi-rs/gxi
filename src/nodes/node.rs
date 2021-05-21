@@ -27,20 +27,42 @@ pub type NativeWidget = web_sys::Element;
 
 #[allow(drop_bounds)]
 pub trait Node: Drop {
-    fn get_child(&self) -> &Option<NodeRc> {
-        unimplemented!()
-    }
-    fn get_child_mut(&mut self) -> &mut Option<NodeRc> {
-        unimplemented!()
-    }
+    fn get_child(&self) -> &Option<NodeRc> { unimplemented!() }
+    fn get_child_mut(&mut self) -> &mut Option<NodeRc> { unimplemented!() }
     fn get_sibling(&self) -> &Option<NodeRc> {
         unimplemented!()
     }
     fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
         unimplemented!()
     }
-    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool);
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool);
+    fn get_parent(&self) -> NodeRc { unimplemented!() }
+    fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
+        match self.get_child() {
+            None => {
+                let child = self.get_child_mut().get_or_insert(f()).clone();
+                if let NodeType::Widget = child.as_ref().borrow().get_type() {
+                    self.add(child.clone());
+                }
+                (child, true)
+            }
+            Some(child) => (child.clone(), false),
+        }
+    }
+    fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
+        match self.get_sibling() {
+            None => {
+                {
+                    self.get_sibling_mut().get_or_insert(f());
+                }
+                let sibling = self.get_sibling().as_ref().unwrap();
+                if let NodeType::Widget = sibling.as_ref().borrow().get_type() {
+                    self.get_parent().borrow_mut().add(sibling.clone());
+                }
+                (sibling.clone(), true)
+            }
+            Some(sibling) => (sibling.clone(), false),
+        }
+    }
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     fn get_widget(&self) -> NativeWidget;
@@ -48,13 +70,12 @@ pub trait Node: Drop {
         NodeType::Widget
     }
     fn new(parent: WeakNodeRc) -> NodeRc
-    where
-        Self: Sized;
+        where
+            Self: Sized;
     fn render(_this: NodeRc)
-    where
-        Self: Sized,
-    {
-    }
+        where
+            Self: Sized,
+    {}
     fn is_dirty(&self) -> bool {
         false
     }

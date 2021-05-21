@@ -18,6 +18,7 @@ impl Node for Window {
     impl_node_as_any!();
     impl_node_dirty!();
     impl_node_trait_get_widget!();
+    impl_node_trait_get_child!();
     impl_node_trait_init_child!();
     impl_add_for_desktop_node!();
     impl_node_trait_substitute!();
