@@ -1,15 +1,18 @@
 use std::any::Any;
 
-use crate::{NativeWidget, Node, NodeRc, WeakNodeRc};
+use crate::{*};
+use std::cell::RefCell;
+use std::rc::Rc;
 
-const PANIC_MSG: &str = "You can't call any function on Fake. Fake Widget can only be used as an empty Node without any child or sibling";
+const PANIC_MSG: &str = "You can't call any function on GxiTree. GxiTree can only used as root";
 
-pub struct Fake;
+pub struct Root {
+    pub child: Option<NodeRc>,
+}
 
-impl Node for Fake {
-    fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-        panic!("{}", PANIC_MSG);
-    }
+impl Node for Root {
+    impl_node_trait_init_child!();
+    impl_node_trait_get_child!();
 
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         panic!("{}", PANIC_MSG);
@@ -28,8 +31,8 @@ impl Node for Fake {
     }
 
     fn new(_parent: WeakNodeRc) -> NodeRc
-    where
-        Self: Sized,
+        where
+            Self: Sized,
     {
         panic!("{}", PANIC_MSG);
     }
@@ -59,7 +62,15 @@ impl Node for Fake {
     }
 }
 
-impl Drop for Fake {
+impl Root {
+    pub fn new_root() -> NodeRc {
+        Rc::new(RefCell::new(Box::new(Self {
+            child: None
+        })))
+    }
+}
+
+impl Drop for Root {
     fn drop(&mut self) {
         // Components need to not drop anything
     }

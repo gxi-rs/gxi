@@ -11,16 +11,17 @@ thread_local! {
 pub fn run<App: Node + 'static>() {
     panic::set_hook(Box::new(console_error_panic_hook::hook));
     TREE_ROOT.with(|root| {
-        let fake_parent: NodeRc = Rc::new(RefCell::new(Box::new(Fake)));
-        let body = Body::new(Rc::downgrade(&fake_parent));
+        let tree = Root::new_root();
         //render
-        let app = {
-            let body_clone = Rc::downgrade(&body);
-            body.borrow_mut()
-                .init_child(Box::new(|| App::new(body_clone)))
-                .0
-        };
-        App::render(app);
-        root.borrow_mut().replace(body);
+        {
+            let app = {
+                let tree_weak_clone = Rc::downgrade(&tree);
+                tree.borrow_mut()
+                    .init_child(Box::new(|| App::new(tree_weak_clone)))
+                    .0
+            };
+            App::render(app);
+        }
+        root.borrow_mut().replace(tree);
     });
 }

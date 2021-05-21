@@ -40,6 +40,19 @@ impl Node for Window {
         }
         this
     }
+
+    fn get_type(&self) -> NodeType {
+        NodeType::Component
+    }
+
+    fn render(state: NodeRc) {
+        let mut state = state.as_ref().borrow_mut();
+        let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
+        if state.dirty {
+            state.widget.show_all();
+        }
+        state.mark_clean();
+    }
 }
 
 impl_drop_for_node!(Window);
