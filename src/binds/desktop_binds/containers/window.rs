@@ -43,6 +43,7 @@ impl Node for Window {
         state.mark_clean();
     }
 
+    impl_node_trait_dirty!();
     impl_add_for_desktop_node!();
 }
 

@@ -4,7 +4,7 @@
 #[doc(hidden)]
 #[macro_export]
 macro_rules! comp_new {
-    ($state_name:ident $state_cell:ident $state_cell_inner:ident $parent:ident { $($sender:tt)* } { $($p:ident : $t:ty = $v:expr)* }) => {
+    ($state_name:ident $state_cell:ident $state_cell_inner:ident $parent:ident { $($sender:tt)* } { $($p:ident : $t:ty = $v:expr);* }) => {
         Rc::new(RefCell::new(Box::new(Self {
             state: $state_cell::new($state_cell_inner::new($state_name {
                 $($p:$v),*
@@ -23,7 +23,7 @@ macro_rules! comp_new {
 #[doc(hidden)]
 #[macro_export]
 macro_rules! comp_state {
-    ($state_name:ident { $($p:ident : $t:ty = $v:expr)* }) => {
+    ($state_name:ident { $($p:ident : $t:ty = $v:expr);* }) => {
         pub struct $state_name {
             $(pub $p:$t),*
         }

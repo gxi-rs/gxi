@@ -4,6 +4,7 @@ use crate::*;
 
 enum Msg {
     Fetch(bool),
+    ShowHelp
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,12 +15,21 @@ pub struct CatFact {
 
 gxi! {
     App {
-        cat_fact : Option<CatFact> = None
+        cat_fact : Option<CatFact> = None;
+        show_help : bool = false
     }
     render {
         Window [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
+                    if state.show_help
+                        View [
+                            Window [
+                                Text ( label = "Cat Meme Fetcher By Aniket Prajapati")
+                            ]
+                        ]
+                    else
+                        Button ( label = "Show help", on_click = || Msg::ShowHelp ),
                     Centre [
                         Image ( source = "cat.gif" )
                     ],
@@ -33,7 +43,7 @@ gxi! {
                         else
                         Text ( label = &state.cat_fact.as_ref().unwrap().fact )
                     ],
-                    Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } )
+                    Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } ),
                 ]
             ]
         ]
@@ -60,6 +70,10 @@ gxi! {
                 } else {
                     Ok(ShouldRender::No)
                 }
+            },
+            Msg::ShowHelp => {
+                get_state!(state).show_help = true;
+                Ok(ShouldRender::Yes)
             }
         }
     }
