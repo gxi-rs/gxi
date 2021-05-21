@@ -1,7 +1,7 @@
 use quote::*;
-use syn::*;
 use syn::__private::*;
 use syn::parse::{Parse, ParseStream};
+use syn::*;
 
 use crate::TreeParser;
 
@@ -12,7 +12,11 @@ pub struct GxiParser {
 
 impl GxiParser {
     fn parse_update_fn(name: &Ident, update_block: Block, is_async: bool) -> TokenStream2 {
-        let async_ident = if is_async { quote!(async) } else { TokenStream2::new() };
+        let async_ident = if is_async {
+            quote!(async)
+        } else {
+            TokenStream2::new()
+        };
         let update_fn = quote! {
             #async_ident
             fn update<F: Fn() + 'static>(
@@ -127,13 +131,25 @@ impl Parse for GxiParser {
                     "update" => {
                         if let Ok(async_ident) = input.parse::<syn::Ident>() {
                             if async_ident != "async" {
-                                return Err(syn::Error::new(async_ident.span(), "expected async here"));
+                                return Err(syn::Error::new(
+                                    async_ident.span(),
+                                    "expected async here",
+                                ));
                             }
                             is_update_async = true;
                         }
-                        update_func = GxiParser::parse_update_fn(&name, input.parse::<syn::Block>()?, is_update_async);
+                        update_func = GxiParser::parse_update_fn(
+                            &name,
+                            input.parse::<syn::Block>()?,
+                            is_update_async,
+                        );
                     }
-                    _ => return Err(syn::Error::new(s.span(), "Didn't expect this attribute here"))
+                    _ => {
+                        return Err(syn::Error::new(
+                            s.span(),
+                            "Didn't expect this attribute here",
+                        ))
+                    }
                 }
             }
         }
@@ -157,34 +173,37 @@ impl Parse for GxiParser {
             }
         };
 
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) =
-            if cfg!(feature = "desktop") && is_update_async {
-                (
-                    quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
-                    quote! { channel_sender, },
-                    quote! { pub channel_sender: glib::Sender<()>, },
-                    quote! {{
-                        let this = this.clone();
-                        re.attach(None, move |_| {
-                            let this = Rc::clone(&this);
-                            //mark dirty
-                            {
-                                let mut node = this.as_ref().borrow_mut();
-                                node.mark_dirty();
-                            }
-                            Self::render(this);
-                            glib::Continue(true)
-                        });
-                    }}
-                )
-            } else {
-                (
-                    TokenStream2::new(),
-                    TokenStream2::new(),
-                    TokenStream2::new(),
-                    TokenStream2::new(),
-                )
-            };
+        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = if cfg!(
+            feature = "desktop"
+        )
+            && is_update_async
+        {
+            (
+                quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
+                quote! { channel_sender, },
+                quote! { pub channel_sender: glib::Sender<()>, },
+                quote! {{
+                    let this = this.clone();
+                    re.attach(None, move |_| {
+                        let this = Rc::clone(&this);
+                        //mark dirty
+                        {
+                            let mut node = this.as_ref().borrow_mut();
+                            node.mark_dirty();
+                        }
+                        Self::render(this);
+                        glib::Continue(true)
+                    });
+                }},
+            )
+        } else {
+            (
+                TokenStream2::new(),
+                TokenStream2::new(),
+                TokenStream2::new(),
+                TokenStream2::new(),
+            )
+        };
 
         Ok(GxiParser {
             tree: quote! {

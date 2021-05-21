@@ -30,4 +30,3 @@ transparent_block! {
 
     pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;
 }
-

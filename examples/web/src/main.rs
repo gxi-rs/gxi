@@ -1,11 +1,11 @@
 use app::*;
+use cat_fact::*;
 use counter::*;
 use gxi::*;
-use cat_fact::*;
 
 mod app;
-mod counter;
 mod cat_fact;
+mod counter;
 
 fn main() {
     run::<App>();
