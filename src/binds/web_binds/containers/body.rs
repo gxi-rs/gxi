@@ -13,16 +13,7 @@ pub struct Body {
 }
 
 impl Node for Body {
-    impl_node_trait_as_any!();
-    impl_node_trait_get_child!();
-    impl_node_trait_get_sibling!();
-    impl_node_trait_substitute!();
-    impl_node_trait_get_widget!();
-    impl_node_trait_get_parent!();
-
-    fn get_type(&self) -> NodeType {
-        NodeType::Component
-    }
+    impl_node_for_widget_component!();
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
@@ -48,8 +39,4 @@ impl Node for Body {
 
 impl GlobalAttributes for Body {}
 
-impl Drop for Body {
-    fn drop(&mut self) {
-        //need not drop body tag
-    }
-}
+impl_drop_for_component!();

@@ -80,6 +80,43 @@ macro_rules! impl_node_trait_get_widget {
 }
 
 #[macro_export]
+macro_rules! impl_drop_for_node {
+    ($ident:ident) => {
+        impl Drop for $ident {
+            fn drop(&mut self) {
+                unsafe {
+                    self.widget.destroy();
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_drop_for_component {
+    ($ident:ident) => {
+        impl Drop for $ident {
+            fn drop(&mut self) {}
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_node_trait_substitute {
+    () => {
+        fn get_self_substitute(&self) -> NodeRc {
+            let prost = self.self_substitute.as_ref().unwrap();
+            prost.upgrade().unwrap()
+        }
+
+        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
+            self.self_substitute = Some(Rc::downgrade(&self_substitute));
+        }
+    };
+}
+
+
+#[macro_export]
 macro_rules! impl_node_for_component {
     () => {
         impl_node_trait_as_any!();
@@ -106,39 +143,25 @@ macro_rules! impl_node_for_component {
     };
 }
 
+/// Widget Component Node attaches itself to the
+/// tree while but prevents it's children to attach
+/// to the components parent.
+/// Eg. Head, Window, Body
 #[macro_export]
-macro_rules! impl_drop_for_node {
-    ($ident:ident) => {
-        impl Drop for $ident {
-            fn drop(&mut self) {
-                unsafe {
-                    self.widget.destroy();
-                }
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! impl_drop_for_component {
-    ($ident:ident) => {
-        impl Drop for $ident {
-            fn drop(&mut self) {
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! impl_node_trait_substitute {
+macro_rules! impl_node_for_widget_component {
     () => {
-        fn get_self_substitute(&self) -> NodeRc {
-            let prost = self.self_substitute.as_ref().unwrap();
-            prost.upgrade().unwrap()
+        impl_node_trait_as_any!();
+        impl_node_trait_get_child!();
+        impl_node_trait_get_sibling!();
+        impl_node_trait_substitute!();
+        impl_node_trait_get_widget!();
+        impl_node_trait_get_parent!();
+
+        // setting this as Component, prevents it from being added to
+        // it's parent widget
+        fn get_type(&self) -> NodeType {
+            NodeType::Component
         }
 
-        fn set_self_substitute(&mut self, self_substitute: NodeRc) {
-            self.self_substitute = Some(Rc::downgrade(&self_substitute));
-        }
     };
 }
