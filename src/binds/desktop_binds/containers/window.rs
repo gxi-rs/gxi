@@ -11,21 +11,12 @@ pub struct Window {
     pub dirty: bool,
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
-    pub widget: gtk::Window,
+    pub sibling: Option<NodeRc>,
+    pub widget: gtk::Window
 }
 
 impl Node for Window {
-    impl_node_trait_as_any!();
-    impl_node_trait_dirty!();
-    impl_node_trait_get_widget!();
-    impl_node_trait_get_child!();
-    impl_node_trait_get_parent!();
-    impl_add_for_desktop_node!();
-    impl_node_trait_substitute!();
-
-    fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-        panic!("Window can't have a sibling node");
-    }
+    impl_node_for_widget_component!();
 
     fn new(parent: WeakNodeRc) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
@@ -33,6 +24,7 @@ impl Node for Window {
             dirty: true,
             self_substitute: None,
             child: None,
+            sibling: None,
             widget: gtk::Window::new(WindowType::Toplevel),
         })));
         {
@@ -40,10 +32,6 @@ impl Node for Window {
             this_borrow.set_self_substitute(this.clone());
         }
         this
-    }
-
-    fn get_type(&self) -> NodeType {
-        NodeType::Component
     }
 
     fn render(state: NodeRc) {
@@ -54,6 +42,8 @@ impl Node for Window {
         }
         state.mark_clean();
     }
+
+    impl_add_for_desktop_node!();
 }
 
 impl_drop_for_node!(Window);
