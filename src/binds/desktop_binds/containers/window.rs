@@ -15,16 +15,16 @@ pub struct Window {
 }
 
 impl Node for Window {
-    impl_node_as_any!();
-    impl_node_dirty!();
+    impl_node_trait_as_any!();
+    impl_node_trait_dirty!();
     impl_node_trait_get_widget!();
     impl_node_trait_get_child!();
-    impl_node_trait_init_child!();
+    impl_node_trait_get_parent!();
     impl_add_for_desktop_node!();
     impl_node_trait_substitute!();
 
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-        panic!("Window can't have a.rs sibling node");
+        panic!("Window can't have a sibling node");
     }
 
     fn new(parent: WeakNodeRc) -> NodeRc {

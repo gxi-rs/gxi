@@ -1,27 +1,32 @@
 #[macro_export]
-macro_rules! impl_node_dirty {
+macro_rules! impl_node_trait_dirty {
     () => {
+        #[inline]
         fn is_dirty(&self) -> bool {
             self.dirty.clone()
         }
+
+        #[inline]
         fn mark_dirty(&mut self) {
             self.dirty = true;
         }
+
+        #[inline]
         fn mark_clean(&mut self) {
             self.dirty = false;
-        }
-        fn get_parent(&self) -> NodeRc {
-            self.parent.upgrade().unwrap().clone()
         }
     };
 }
 
 #[macro_export]
-macro_rules! impl_node_as_any {
+macro_rules! impl_node_trait_as_any {
     () => {
+        #[inline]
         fn as_any(&self) -> &dyn Any {
             self
         }
+
+        #[inline]
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
@@ -29,14 +34,12 @@ macro_rules! impl_node_as_any {
 }
 
 #[macro_export]
-macro_rules! impl_node_trait_init_sibling {
+macro_rules! impl_node_trait_get_parent {
     () => {
-    };
-}
-
-#[macro_export]
-macro_rules! impl_node_trait_init_child {
-    () => {
+        #[inline]
+        fn get_parent(&self) -> NodeRc {
+            self.parent.upgrade().unwrap().clone()
+        }
     };
 }
 
@@ -79,12 +82,12 @@ macro_rules! impl_node_trait_get_widget {
 #[macro_export]
 macro_rules! impl_node_for_component {
     () => {
-        impl_node_as_any!();
-        impl_node_dirty!();
+        impl_node_trait_as_any!();
+        impl_node_trait_dirty!();
         impl_node_trait_get_child!();
         impl_node_trait_get_sibling!();
-        impl_node_trait_init_sibling!();
         impl_node_trait_substitute!();
+        impl_node_trait_get_parent!();
 
         fn add(&mut self, child: NodeRc) {
             let parent = self.parent.upgrade().unwrap();
@@ -121,7 +124,6 @@ macro_rules! impl_drop_for_component {
     ($ident:ident) => {
         impl Drop for $ident {
             fn drop(&mut self) {
-                // Components need to not drop anything
             }
         }
     };

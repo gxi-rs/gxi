@@ -13,7 +13,7 @@ pub struct Body {
 }
 
 impl Node for Body {
-    impl_node_as_any!();
+    impl_node_trait_as_any!();
     impl_node_trait_get_child!();
     impl_node_trait_get_sibling!();
     impl_node_trait_init_sibling!();

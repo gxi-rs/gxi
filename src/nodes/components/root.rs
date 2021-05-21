@@ -11,7 +11,6 @@ pub struct Root {
 }
 
 impl Node for Root {
-    impl_node_trait_init_child!();
     impl_node_trait_get_child!();
 
     fn init_sibling(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
@@ -57,9 +56,7 @@ impl Node for Root {
         panic!("{}", PANIC_MSG);
     }
 
-    fn add(&mut self, _child: NodeRc) {
-        panic!("{}", PANIC_MSG);
-    }
+    fn add(&mut self, _child: NodeRc) { panic!("{}", PANIC_MSG); }
 }
 
 impl Root {
