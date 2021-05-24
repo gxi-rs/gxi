@@ -39,4 +39,4 @@ impl Node for Body {
 
 impl GlobalAttributes for Body {}
 
-impl_drop_for_component!();
+impl_drop_for_component!(Body);
