@@ -11,34 +11,18 @@ pub struct TreeParser {
 }
 
 impl Parse for TreeParser {
-    /// Parses the `input` parse-stream to the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
+    /// TODO: update doc
     fn parse(input: ParseStream) -> Result<Self> {
-        //check for pure_index
-        let pure_index: u32 = if let Ok(i) = input.parse::<syn::Lit>() {
-            if let syn::Lit::Int(i) = i {
-                i.base10_parse().unwrap()
+        Ok(
+            if input.is_empty() {
+                TreeParser { tree: TokenStream2::new() }
             } else {
-                panic!("Expected an u32")
-            }
-        } else {
-            0
-        };
-        // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
-        let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
-            match &input.parse::<syn::Ident>()?.to_string()[..] {
-                "init_child" => InitType::Child(pure_index),
-                "init_sibling" => InitType::Sibling(pure_index),
-                _ => {
-                    panic!("Expected init_type as init_child or init_sibling ");
+                TreeParser {
+                    // default init type is child
+                    tree: TreeParser::custom_parse(input, InitType::Child(0)),
                 }
             }
-        } else {
-            InitType::Child(pure_index)
-        };
-
-        Ok(TreeParser {
-            tree: TreeParser::custom_parse(input, init_type),
-        })
+        )
     }
 }
 
@@ -330,8 +314,8 @@ impl TreeParser {
         }
     }
 
-    /// Parses the `{ }` block which allows user to execute code on every render.
-    fn parse_block(input: ParseStream) -> TokenStream2 {
+    /// Parses the `{ }` block which executes on every render call.
+    fn parse_execution_block(input: ParseStream) -> TokenStream2 {
         if let Ok(b) = input.parse::<syn::Block>() {
             quote! {{ #b }}
         } else {
@@ -359,7 +343,7 @@ impl TreeParser {
             }
         }
         {
-            let block = TreeParser::parse_block(&input);
+            let block = TreeParser::parse_execution_block(&input);
             if !block.is_empty() {
                 return block;
             }

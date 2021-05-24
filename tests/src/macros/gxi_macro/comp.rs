@@ -2,8 +2,8 @@ use gxi::*;
 
 gxi! {
     Comp {
-        class : String = "" ;
-        id : String = String::new() ;
+        class : String = "".to_string();
+        id : String = String::new()
     }
     render {
     }
