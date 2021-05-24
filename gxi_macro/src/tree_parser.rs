@@ -19,7 +19,7 @@ impl Parse for TreeParser {
             } else {
                 TreeParser {
                     // default init type is child
-                    tree: TreeParser::custom_parse(input, InitType::Child(0)),
+                    tree: TreeParser::custom_parse(input, InitType::Child(0))?,
                 }
             }
         )
@@ -28,47 +28,48 @@ impl Parse for TreeParser {
 
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-            let variable = input.parse::<syn::Ident>().unwrap();
-            input.parse::<syn::token::In>().unwrap();
-            let for_expr = input.parse::<syn::Expr>().unwrap();
-            let content = TreeParser::custom_parse(input, InitType::Sibling(0));
+    fn parse_for_block(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+        fn for_recursive(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+            let variable = input.parse::<syn::Ident>()?;
+            input.parse::<syn::token::In>()?;
+            let for_expr = input.parse::<syn::Expr>()?;
+            let content = TreeParser::custom_parse(input, InitType::Sibling(0))?;
             let (pure_index, init_type) = init_type.get_init_type_tuple();
             let pure = {
                 let pure = quote!(#pure_index #init_type Pure);
-                let tree_parser: TreeParser = syn::parse2(pure).unwrap();
+                let tree_parser: TreeParser = syn::parse2(pure)?;
                 tree_parser.tree
             };
-            quote! {
-                let node = {
-                    #pure
-                    {
-                        let cont = node.clone();
-                        let node = {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
-                        };
-                        let cont = node.clone();
-                        let mut prev_node = node.clone();
-                        for #variable in #for_expr {
-                            let node = prev_node.clone();
-                            #content
-                            prev_node = node;
-                        }
+            Ok(
+                quote! {
+                    let node = {
+                        #pure
                         {
-                            prev_node.as_ref().borrow_mut().get_sibling_mut().take();
+                            let cont = node.clone();
+                            let node = {
+                                let mut node_borrow = node.as_ref().borrow_mut();
+                                let weak_cont = Rc::downgrade(&cont);
+                                node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
+                            };
+                            let cont = node.clone();
+                            let mut prev_node = node.clone();
+                            for #variable in #for_expr {
+                                let node = prev_node.clone();
+                                #content
+                                prev_node = node;
+                            }
+                            {
+                                prev_node.as_ref().borrow_mut().get_sibling_mut().take();
+                            }
                         }
-                    }
-                    node
-                };
-            }
+                        node
+                    };
+                })
         }
         if let Ok(_) = input.parse::<syn::token::For>() {
             for_recursive(input, init_type)
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
@@ -207,7 +208,7 @@ impl TreeParser {
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
-    fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+    fn parse_expression(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Ident>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
@@ -296,8 +297,7 @@ impl TreeParser {
                 //check for first block
                 let children = match syn::group::parse_brackets(&input) {
                     syn::__private::Ok(brackets) => {
-                        let content =
-                            TreeParser::custom_parse(&brackets.content, InitType::Child(0));
+                        let content = TreeParser::custom_parse(&brackets.content, InitType::Child(0))?;
                         if content.is_empty() {
                             TokenStream2::new()
                         } else {
@@ -320,26 +320,26 @@ impl TreeParser {
                 drop(render_call);
                 drop(children);
                 //parse ,
-                return match input.parse::<syn::Token![,]>() {
+                return Ok(match input.parse::<syn::Token![,]>() {
                     Ok(_) => {
-                        let content = TreeParser::custom_parse(&input, InitType::Sibling(0));
+                        let content = TreeParser::custom_parse(&input, InitType::Sibling(0))?;
                         quote! { #tree #content }
                     }
                     _ => tree,
-                };
+                });
             }
         }
-        TokenStream2::new()
+        Ok(TokenStream2::new())
     }
 
     /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
-            let ident = input.parse::<syn::Ident>().unwrap();
+            let ident = input.parse::<syn::Ident>()?;
             let (_, init_type) = init_type.get_init_type_tuple();
-            match &ident.to_string()[..] {
-                "children" => {
-                    quote! {
+            return match &ident.to_string()[..] {
+                "children" =>
+                    Ok(quote! {
                         let node = {
                             let node = {
                                 let mut node_borrow = node.as_ref().borrow_mut();
@@ -352,57 +352,56 @@ impl TreeParser {
                             }
                             node
                         };
-                    }
-                }
-                _ => {
-                    panic!("Expected an attribute here. Eg [children]")
-                }
-            }
+                    }),
+                _ => Err(syn::Error::new(ident.span().unwrap().into(), "Expected children here"))
+            };
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
     /// Parses the `{ }` block which executes on every render call.
-    fn parse_execution_block(input: ParseStream) -> TokenStream2 {
-        if let Ok(b) = input.parse::<syn::Block>() {
-            quote! {{ #b }}
-        } else {
-            TokenStream2::new()
-        }
+    fn parse_execution_block(input: ParseStream) -> Result<TokenStream2> {
+        Ok(
+            if let Ok(b) = input.parse::<syn::Block>() {
+                quote! {{ #b }}
+            } else {
+                TokenStream2::new()
+            }
+        )
     }
 
-    fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
+    fn custom_parse(input: ParseStream, init_type: InitType) -> Result<TokenStream2> {
         {
-            let condition_block = TreeParser::parse_condition_block(&input, &init_type).unwrap();
+            let condition_block = TreeParser::parse_condition_block(&input, &init_type)?;
             if !condition_block.is_empty() {
-                return condition_block;
+                return Ok(condition_block);
             }
         }
         {
-            let for_parse = TreeParser::parse_for_block(&input, &init_type);
+            let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
             if !for_parse.is_empty() {
-                return for_parse;
+                return Ok(for_parse);
             }
         }
         {
-            let child = TreeParser::parse_child_injection(&input, &init_type);
+            let child = TreeParser::parse_child_injection(&input, &init_type)?;
             if !child.is_empty() {
-                return child;
+                return Ok(child);
             }
         }
         {
-            let block = TreeParser::parse_execution_block(&input);
+            let block = TreeParser::parse_execution_block(&input)?;
             if !block.is_empty() {
-                return block;
+                return Ok(block);
             }
         }
         {
-            let expr = TreeParser::parse_expression(input, &init_type);
+            let expr = TreeParser::parse_expression(input, &init_type)?;
             if !expr.is_empty() {
-                return expr;
+                return Ok(expr);
             }
         }
-        return TokenStream2::new();
+        Ok(TokenStream2::new())
     }
 }
