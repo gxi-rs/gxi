@@ -7,27 +7,34 @@ gxi! {
     }
     render {
         Comp [
-            {
-                /*{ /* First comment */ }
-                if true {
-                    Comp ( id = "if1" , class = "if" ) [
+            if true {
+                Comp [
+                ],
+                Comp [
 
-                    ]
-                    { println!("true is true") }
-                }
-                {/* Comment after if block */}
-                for x in state.limit {
-                    Comp [
+                ]
+            } else if true {
+                Comp [
 
-                    ]
-                }
-                {/* Last Comment */}*/
+                ]
             }
         ],
         Comp
     }
 }
+/*
+            { /* First comment */ }
 
+                { println!("true is true") }
+
+            {/* Comment after if block */}
+            for x in state.limit {
+                Comp [
+
+                ]
+            }
+            {/* Last Comment */}
+*/
 #[test]
 fn traverse_conditional() {
     let root = Root::new_root();

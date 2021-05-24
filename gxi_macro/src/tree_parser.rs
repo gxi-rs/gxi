@@ -102,8 +102,57 @@ impl TreeParser {
     ///
     /// If an else branch is not provided then an else branch with a Pure node is appended.
     ///
-    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
-        fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
+    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+        // check for if
+        if input.parse::<syn::token::If>().is_ok() {
+            let (mut pure_index, init_type) = init_type.get_init_type_tuple();
+            let mut if_logic = input.parse::<syn::Expr>()?;
+            // chain starts with if block
+            let mut chain = quote! { if #if_logic };
+            loop {
+                pure_index += 1;
+                let parsed_block = {
+                    let block = syn::group::parse_braces(&input)?.content;
+                    TreeParser::parse(&block)?.tree
+                };
+                let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
+                chain = quote! { #chain {
+                    #pure_remove_block
+                    #parsed_block
+                }};
+                // check for else
+                if input.parse::<syn::token::Else>().is_ok() {
+                    chain = quote! { #chain else };
+                    // check for if, i.e else if block
+                    if input.parse::<syn::token::If>().is_ok() {
+                        if_logic = input.parse::<syn::Expr>()?;
+                        chain = quote! { if #if_logic };
+                    }
+                } else {
+                    // if no else block then add a custom one which when executes destroys any existing child
+                    let pure_remove_block = TreeParser::get_pure_remove_block(pure_index + 1);
+                    chain = quote! { #chain  else {
+                        #pure_remove_block
+                    }};
+                    break;
+                }
+            }
+
+            Ok(quote! {
+                let node = {
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let weak_cont = Rc::downgrade(&cont);
+                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
+                };
+                {
+                    let cont = node.clone();
+                    #chain
+                }
+            })
+        } else {
+            Ok(TokenStream2::new())
+        }
+        /*fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
             let comparison_expr = input.parse::<syn::Expr>().unwrap();
             let node = if let Ok(_) = input.parse::<syn::token::If>() {
                 if_recursive(input, pure_index)
@@ -154,7 +203,7 @@ impl TreeParser {
             )
         } else {
             TokenStream2::new()
-        }
+        }*/
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
@@ -325,7 +374,7 @@ impl TreeParser {
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
         {
-            let condition_block = TreeParser::parse_condition_block(&input, &init_type);
+            let condition_block = TreeParser::parse_condition_block(&input, &init_type).unwrap();
             if !condition_block.is_empty() {
                 return condition_block;
             }
