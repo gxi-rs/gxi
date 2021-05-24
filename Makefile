@@ -6,3 +6,6 @@ web:
 
 desktop:
 	gxib -d examples/desktop desktop
+
+test:
+	cd tests && cargo test
