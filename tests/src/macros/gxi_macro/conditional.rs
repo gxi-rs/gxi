@@ -3,7 +3,7 @@ use crate::macros::gxi_macro::comp::Comp;
 
 gxi! {
     App {
-        limit:u32 = 2
+        limit : u32 = 2
     }
     render {
         Comp [
