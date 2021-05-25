@@ -116,7 +116,7 @@ impl TreeParser {
                 };
                 // concatenate
                 {
-                    let pure_remove_block = TreeParser::get_pure_remove_block(pure_index + 1);
+                    let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
                     chain = quote! { #chain {
                         #pure_remove_block
                         #parsed_block
