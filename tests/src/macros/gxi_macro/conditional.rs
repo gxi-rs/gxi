@@ -6,27 +6,26 @@ gxi! {
         limit : u32 = 2
     }
     render {
+        {/* Top comment */},
         Comp [
+            { println!("render"); },
             if true {
                 Comp [
-                    { /*
-                        Hello
-                     */}
+                    Comp,
+                    Comp
                 ],
                 Comp [
-
                 ],
-                { /* Hello*/}
+                { println!("true") }
             } else if true {
                 Comp [
 
                 ]
-            },
-            Comp [
-
-            ]
+            }
         ],
-        Comp
+        Comp [
+
+        ]
     }
 }
 /*
