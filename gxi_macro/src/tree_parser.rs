@@ -155,58 +155,6 @@ impl TreeParser {
         } else {
             Ok(TokenStream2::new())
         }
-        /*fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
-            let comparison_expr = input.parse::<syn::Expr>().unwrap();
-            let node = if let Ok(_) = input.parse::<syn::token::If>() {
-                if_recursive(input, pure_index)
-            } else {
-                TreeParser::custom_parse(input, InitType::Child(*pure_index))
-            };
-            *pure_index += 1;
-            let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
-                if let Ok(_) = input.parse::<syn::token::If>() {
-                    let tree = if_recursive(input, pure_index);
-                    quote!(else #tree)
-                } else {
-                    let node = TreeParser::custom_parse(input, InitType::Child(*pure_index));
-                    quote!( else { #node } )
-                }
-            } else {
-                let pure_remove_block = TreeParser::get_pure_remove_block(*pure_index);
-                quote! { else {
-                    {
-                        #pure_remove_block
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let weak_cont = Rc::downgrade(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).1
-                    };
-                }}
-            };
-            return quote! {
-                if #comparison_expr {
-                    #node
-                } #chain
-            };
-        }
-
-        if let Ok(_) = input.parse::<syn::token::If>() {
-            let mut pure_index = 1;
-            let tree = if_recursive(input, &mut pure_index);
-            let init_type = init_type.get_init_type_tuple().1;
-            quote!(
-                let (node,is_new) = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)))
-                };
-                {
-                     let cont = node.clone();
-                     #tree
-                }
-            )
-        } else {
-            TokenStream2::new()
-        }*/
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
