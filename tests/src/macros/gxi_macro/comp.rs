@@ -2,7 +2,8 @@ use gxi::*;
 
 gxi! {
     pub Comp {
-        class : String = "".to_string()
+        pub class : String = "".to_string(),
+        pub id : String = "".to_string()
     }
     render {
     }

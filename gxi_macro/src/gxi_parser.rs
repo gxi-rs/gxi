@@ -12,42 +12,53 @@ pub struct GxiParser {
 
 impl GxiParser {
     // parse `{}` brackets where state is defined
-    fn parse_state_block(input: &ParseStream) -> Result<(TokenStream2, TokenStream2)> {
+    fn parse_state_block(input: &ParseStream) -> Result<(TokenStream2, TokenStream2, TokenStream2)> {
         let block = group::parse_braces(&input)?.content;
         // syntax -> field_name : type = value (optional) comma
         let mut state_struct_lines = vec![];
         let mut state_init_lines = vec![];
-        {
-            loop {
-                let field_name = block.parse::<syn::Ident>()?;
-                block.parse::<token::Colon>()?;
-                let field_type = block.parse::<syn::Type>()?;
-                // if equals-to is present, parse default value
-                let field_value: TokenStream2 = if block.parse::<syn::token::Eq>().is_ok() {
-                    let value = block.parse::<syn::Expr>()?;
-                    quote! { #value }
-                } else {
-                    quote! {
-                        Default::default()
-                    }
-                };
+        let mut state_setters = vec![];
 
-                state_struct_lines.push(
-                    quote! {
-                        #field_name : #field_type
-                    }
-                );
+        loop {
+            let viz = block.parse::<syn::Visibility>()?;
+            let field_name = block.parse::<syn::Ident>()?;
+            block.parse::<token::Colon>()?;
+            let field_type = block.parse::<syn::Type>()?;
+            // if equals-to is present, parse default value
+            let field_value: TokenStream2 = if block.parse::<syn::token::Eq>().is_ok() {
+                let value = block.parse::<syn::Expr>()?;
+                value.to_token_stream().into()
+            } else {
+                quote!( Default::default() )
+            };
 
-                state_init_lines.push(
-                    quote! {
-                        #field_name : #field_value
-                    }
-                );
+            state_struct_lines.push(quote!( #field_name : #field_type ));
+            state_init_lines.push(quote!( #field_name : #field_value ));
 
-                // break when , is not found
-                if input.parse::<token::Comma>().is_err() {
-                    break;
+            match viz {
+                Visibility::Public(_) | Visibility::Restricted(_) => {
+                    state_setters.push(quote! {
+                        #viz fn #field_name (&mut self,val:#field_type) {
+                            if {
+                                let mut state = get_state_mut!(self.state);
+                                if val != state.#field_name {
+                                    state.#field_name = val;
+                                    true
+                                } else {
+                                    false
+                                }
+                            } {
+                                self.mark_dirty();
+                            }
+                        }
+                    });
                 }
+                _ => {}
+            }
+
+            // break when , is not found
+            if input.parse::<token::Comma>().is_err() {
+                break;
             }
         }
 
@@ -57,6 +68,9 @@ impl GxiParser {
             },
             quote! {
                 #( #state_init_lines ),*
+            },
+            quote! {
+                #( #state_setters ),*
             }
         ))
     }
@@ -145,10 +159,8 @@ impl GxiParser {
         };
 
         Ok(quote! {
-            impl #name {
-                fn update(this: NodeRc, msg: Msg) {
-                    #update_inner
-                }
+            fn update(this: NodeRc, msg: Msg) {
+                #update_inner
             }
         })
     }
@@ -171,7 +183,7 @@ impl Parse for GxiParser {
         // name of the state made by concatenating name of the component to String `State`
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
         // parse `{}` brackets where state is defined
-        let (state_struct, state_new) = Self::parse_state_block(&input)?;
+        let (state_struct, state_new, state_setters) = Self::parse_state_block(&input)?;
         // update and render function
         let mut render_func = TokenStream2::new();
         let mut update_func = TokenStream2::new();
@@ -322,7 +334,10 @@ impl Parse for GxiParser {
                     #render_func
                 }
 
-                #update_func
+                impl #name {
+                    #update_func
+                    #state_setters
+                }
 
                 impl_drop_for_component!(#name);
             },

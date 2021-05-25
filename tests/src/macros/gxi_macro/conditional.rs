@@ -11,7 +11,7 @@ gxi! {
             { println!("render"); },
             if state.limit == 2 {
                 { println!("true"); },
-                Comp [
+                Comp ( class = "h1".to_string() ) [
                     Comp,
                     Comp
                 ],
