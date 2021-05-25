@@ -1,4 +1,4 @@
-use quote::{quote, ToTokens};
+use quote::{quote};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Result;
