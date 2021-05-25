@@ -72,7 +72,7 @@ impl GxiParser {
                 #( #state_init_lines ),*
             },
             quote! {
-                #( #state_setters ),*
+                #( #state_setters )*
             }
         ))
     }
