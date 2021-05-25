@@ -56,9 +56,11 @@ impl GxiParser {
                 _ => {}
             }
 
-            // break when , is not found
-            if input.parse::<token::Comma>().is_err() {
+            // parse , if block is not empty
+            if block.is_empty() {
                 break;
+            } else {
+                block.parse::<token::Comma>()?;
             }
         }
 
