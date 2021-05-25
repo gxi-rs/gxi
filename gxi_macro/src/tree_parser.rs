@@ -1,9 +1,10 @@
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::Result;
+use syn::{Result, Attribute, AttrStyle};
 
 use crate::InitType;
+use syn::spanned::Spanned;
 
 /// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
 pub struct TreeParser {
@@ -360,15 +361,13 @@ impl TreeParser {
         }
     }
 
-    /// Parses the `{ }` block which executes on every render call.
+    /// anything inside a {} is copied and executed on every render call
     fn parse_execution_block(input: ParseStream) -> Result<TokenStream2> {
-        Ok(
-            if let Ok(b) = input.parse::<syn::Block>() {
-                quote! {{ #b }}
-            } else {
-                TokenStream2::new()
-            }
-        )
+        if let Ok(b) = input.parse::<syn::Block>() {
+            Ok(b.to_token_stream().into())
+        } else {
+            Ok(TokenStream2::new())
+        }
     }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> Result<TokenStream2> {
