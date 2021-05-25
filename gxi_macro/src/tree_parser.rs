@@ -108,7 +108,6 @@ impl TreeParser {
                     let block = syn::group::parse_braces(&input)?.content;
                     TreeParser::parse(&block)?.0
                 };
-                println!("parsed {}", parsed_block.to_string());
                 // concatenate
                 {
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);

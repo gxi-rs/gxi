@@ -9,7 +9,7 @@ gxi! {
         /* Top comment */
         Comp [
             { println!("render"); },
-            if true {
+            if state.limit == 2 {
                 { println!("true"); },
                 Comp [
                     Comp,
