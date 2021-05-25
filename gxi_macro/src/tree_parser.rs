@@ -20,7 +20,7 @@ impl Parse for TreeParser {
         } else {
             TreeParser {
                 // default init type is child
-                tree: TreeParser::custom_parse(input, InitType::Child(0))?,
+                tree: TreeParser::custom_parse(input, InitType::Child)?,
             }
         })
     }
@@ -33,10 +33,9 @@ impl TreeParser {
             let variable = input.parse::<syn::Ident>()?;
             input.parse::<syn::token::In>()?;
             let for_expr = input.parse::<syn::Expr>()?;
-            let content = TreeParser::custom_parse(input, InitType::Sibling(0))?;
-            let (pure_index, init_type) = init_type.get_init_type_tuple();
+            let content = TreeParser::custom_parse(input, InitType::Sibling)?;
             let pure = {
-                let pure = quote!(#pure_index #init_type Pure);
+                let pure = quote!(#init_type Pure);
                 let tree_parser: TreeParser = syn::parse2(pure)?;
                 tree_parser.tree
             };
@@ -105,7 +104,7 @@ impl TreeParser {
     fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
-            let (mut pure_index, init_type) = init_type.get_init_type_tuple();
+            let mut pure_index = 0;
             let mut if_logic = input.parse::<syn::Expr>()?;
             // chain starts with if block
             let mut chain = quote! { if #if_logic };
@@ -227,13 +226,11 @@ impl TreeParser {
                     }
                 };
                 // if init_type is child then add to cont else add to node
-                let node_rename = if let InitType::Child(_) = init_type {
+                let node_rename = if let InitType::Child = init_type {
                     quote! { cont }
                 } else {
                     quote! { node }
                 };
-
-                let init_type = init_type.get_init_type_tuple().1;
 
                 quote! {
                     let node = {
@@ -289,7 +286,6 @@ impl TreeParser {
     fn parse_child_injection(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>()?;
-            let (_, init_type) = init_type.get_init_type_tuple();
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
@@ -338,7 +334,9 @@ impl TreeParser {
                         let execution_block = TreeParser::parse_execution_block(&input)?;
                         if execution_block.is_empty() {
                             let component = TreeParser::parse_component(&input, &init_type)?;
-                            init_type = InitType::Sibling(0);
+                            // there can only be one child, therefore after parsing a component
+                            // it is guaranteed that the next component will be sibling
+                            init_type = InitType::Sibling;
                             component
                         } else {
                             execution_block
