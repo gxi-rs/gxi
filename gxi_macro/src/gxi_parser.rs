@@ -181,7 +181,7 @@ impl Parse for GxiParser {
                 match &s.to_string()[..] {
                     "render" => {
                         let block_content = group::parse_braces(&input)?.content;
-                        let content = TreeParser::parse(&block_content)?.tree;
+                        let content = TreeParser::parse(&block_content)?.0;
                         render_func = quote! {
                             fn render(this: NodeRc) {
                                 let cont = Rc::clone(&this);

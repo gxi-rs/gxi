@@ -6,22 +6,16 @@ use syn::Result;
 use crate::InitType;
 
 /// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-pub struct TreeParser {
-    pub tree: TokenStream2,
-}
+pub struct TreeParser(pub TokenStream2);
 
 impl Parse for TreeParser {
     /// TODO: update doc
     fn parse(input: ParseStream) -> Result<Self> {
         Ok(if input.is_empty() {
-            TreeParser {
-                tree: TokenStream2::new(),
-            }
+            TreeParser(TokenStream2::new())
         } else {
-            TreeParser {
-                // default init type is child
-                tree: TreeParser::custom_parse(input, InitType::Child)?,
-            }
+            // default init type is child
+            TreeParser(TreeParser::custom_parse(input, InitType::Child)?)
         })
     }
 }
@@ -37,7 +31,7 @@ impl TreeParser {
             let pure = {
                 let pure = quote!(#init_type Pure);
                 let tree_parser: TreeParser = syn::parse2(pure)?;
-                tree_parser.tree
+                tree_parser.0
             };
             Ok(quote! {
                 let node = {
@@ -112,7 +106,7 @@ impl TreeParser {
                 pure_index += 1;
                 let parsed_block = {
                     let block = syn::group::parse_braces(&input)?.content;
-                    TreeParser::parse(&block)?.tree
+                    TreeParser::parse(&block)?.0
                 };
                 // concatenate
                 {
@@ -255,7 +249,7 @@ impl TreeParser {
                     TokenStream2::new()
                 } else {
                     // parse content with init_child and pure_index 0
-                    let content = TreeParser::parse(&content)?.tree;
+                    let content = TreeParser::parse(&content)?.0;
                     // set parent and concatenate the parsed content
                     quote! {
                         let cont = {
