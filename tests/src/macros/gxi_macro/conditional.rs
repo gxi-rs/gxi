@@ -9,15 +9,22 @@ gxi! {
         Comp [
             if true {
                 Comp [
+                    { /*
+                        Hello
+                     */}
                 ],
                 Comp [
 
-                ]
+                ],
+                { /* Hello*/}
             } else if true {
                 Comp [
 
                 ]
-            }
+            },
+            Comp [
+
+            ]
         ],
         Comp
     }

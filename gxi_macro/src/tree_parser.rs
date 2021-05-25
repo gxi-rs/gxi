@@ -1,10 +1,9 @@
 use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseBuffer, ParseStream};
-use syn::{Result, Attribute, AttrStyle};
+use syn::{Result};
 
 use crate::InitType;
-use syn::spanned::Spanned;
 
 /// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
 pub struct TreeParser {
@@ -209,7 +208,7 @@ impl TreeParser {
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
-    fn parse_expression(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_expression(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Ident>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
@@ -371,36 +370,38 @@ impl TreeParser {
     }
 
     fn custom_parse(input: ParseStream, init_type: InitType) -> Result<TokenStream2> {
-        {
-            let condition_block = TreeParser::parse_condition_block(&input, &init_type)?;
-            if !condition_block.is_empty() {
-                return Ok(condition_block);
+        let parsed = {
+            let execution_block = TreeParser::parse_expression(&input, &init_type)?;
+            if execution_block.is_empty() {
+                let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
+                if for_parse.is_empty() {
+                    let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
+                    if conditional_block.is_empty() {
+                        let execution_block = TreeParser::parse_execution_block(&input)?;
+                        if execution_block.is_empty() {
+                            TreeParser::parse_child_injection(&input, &init_type)?
+                        } else {
+                            execution_block
+                        }
+                    } else {
+                        conditional_block
+                    }
+                } else {
+                    for_parse
+                }
+            } else {
+                execution_block
             }
+        };
+
+        // if comma exists then parse
+        if input.parse::<syn::token::Comma>().is_ok() {
+            let new_parsed = Self::custom_parse(input, init_type)?;
+            Ok(quote! { #parsed #new_parsed })
+        } else if !input.is_empty() {
+            Err(syn::Error::new(input.span().unwrap().into(), ", expected here"))
+        } else {
+            Ok(parsed)
         }
-        {
-            let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
-            if !for_parse.is_empty() {
-                return Ok(for_parse);
-            }
-        }
-        {
-            let child = TreeParser::parse_child_injection(&input, &init_type)?;
-            if !child.is_empty() {
-                return Ok(child);
-            }
-        }
-        {
-            let block = TreeParser::parse_execution_block(&input)?;
-            if !block.is_empty() {
-                return Ok(block);
-            }
-        }
-        {
-            let expr = TreeParser::parse_expression(input, &init_type)?;
-            if !expr.is_empty() {
-                return Ok(expr);
-            }
-        }
-        Ok(TokenStream2::new())
     }
 }
