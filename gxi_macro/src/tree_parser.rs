@@ -1,4 +1,4 @@
-use quote::{quote};
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Result;
@@ -108,6 +108,7 @@ impl TreeParser {
                     let block = syn::group::parse_braces(&input)?.content;
                     TreeParser::parse(&block)?.0
                 };
+                println!("parsed {}", parsed_block.to_string());
                 // concatenate
                 {
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
@@ -122,12 +123,12 @@ impl TreeParser {
                     // check for if, i.e else if block
                     if input.parse::<syn::token::If>().is_ok() {
                         if_logic = input.parse::<syn::Expr>()?;
-                        chain = quote! { if #if_logic };
+                        chain = quote! { #chain if #if_logic };
                     }
                 } else {
                     // if no else block then add a custom one which when executes destroys any existing child
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index + 1);
-                    chain = quote! { #chain  else {
+                    chain = quote! { #chain else {
                         #pure_remove_block
                     }};
                     break;
