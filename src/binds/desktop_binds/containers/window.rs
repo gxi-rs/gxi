@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::WindowType;
+use gtk::{WindowType};
 
 use crate::*;
 
@@ -45,6 +45,12 @@ impl Node for Window {
 
     impl_node_trait_dirty!();
     impl_add_for_desktop_node!();
+}
+
+impl Window {
+    pub fn on_destroy<F: Fn() + 'static>(&self, f: F) {
+        self.widget.connect_destroy(move |_| f());
+    }
 }
 
 impl_drop_for_node!(Window);

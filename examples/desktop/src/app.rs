@@ -4,7 +4,7 @@ use crate::*;
 
 enum Msg {
     Fetch(bool),
-    ShowHelp,
+    ShowHelp(bool),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -23,13 +23,18 @@ gxi! {
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
                     Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
-                    if state.show_help {
-                        Window [
-                            Text ( label = "Cat Meme Fetcher By Aniket Prajapati")
-                        ],
-                    } else {
-                        Button ( label = "Show help", on_click = || Msg::ShowHelp ),
-                    },
+                    View [
+                        if state.show_help {
+                            Window ( on_destroy = || Msg::ShowHelp(false) ) [
+                                View [
+                                    Text ( label = "Cat Meme Fetcher By Aniket Prajapati made using gxi-rs."),
+                                    Button ( label = "Ok take me back now", on_click = || Msg::ShowHelp(false) )
+                                ]
+                            ],
+                        } else {
+                            Button ( label = "Show help", on_click = || Msg::ShowHelp(true) ),
+                        },
+                    ],
                     Centre [
                         Image ( source = "cat.gif" )
                     ],
@@ -72,8 +77,8 @@ gxi! {
                     Ok(ShouldRender::No)
                 }
             },
-            Msg::ShowHelp => {
-                get_state!(state).show_help = true;
+            Msg::ShowHelp(should_show) => {
+                get_state!(state).show_help = should_show;
                 Ok(ShouldRender::Yes)
             }
         }
