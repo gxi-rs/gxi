@@ -117,19 +117,20 @@ impl TreeParser {
                     }};
                 }
                 // check for else
-                if input.parse::<syn::token::Else>().is_ok() {
+                if input.is_empty() {
+                    break;
+                } else if input.parse::<syn::token::Else>().is_ok() {
                     chain = quote! { #chain else };
                     // check for if, i.e else if block
                     if input.parse::<syn::token::If>().is_ok() {
+                        println!("if");
                         if_logic = input.parse::<syn::Expr>()?;
                         chain = quote! { #chain if #if_logic };
                     }
                 } else {
                     // if no else block then add a custom one which when executes destroys any existing child
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index + 1);
-                    chain = quote! { #chain else {
-                        #pure_remove_block
-                    }};
+                    chain = quote! { #chain else #pure_remove_block };
                     break;
                 }
             }
