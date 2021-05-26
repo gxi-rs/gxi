@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
-
+use std::process::exit;
 use crate::*;
 
 enum Msg {
     Fetch(bool),
     ShowHelp(bool),
+    Quit
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,7 +20,7 @@ gxi! {
         show_help : bool = false
     }
     render {
-        Window [
+        Window ( on_destroy = || Msg::Quit ) [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
                     Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
@@ -80,6 +81,9 @@ gxi! {
             Msg::ShowHelp(should_show) => {
                 get_state!(state).show_help = should_show;
                 Ok(ShouldRender::Yes)
+            },
+            Msg::Quit => {
+                exit(0)
             }
         }
     }
