@@ -1,7 +1,7 @@
 use crate::*;
 
 gxi! {
-    Centre {}
+    pub Centre {}
     render {
         Pure [
             View ( v_expand = true ),

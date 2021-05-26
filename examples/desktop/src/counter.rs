@@ -6,8 +6,8 @@ enum Msg {
 }
 
 gxi! {
-    Counter {
-        count : u32 = 0
+    pub Counter {
+        pub count : u32 = 0
     }
     render {
         View [
@@ -15,11 +15,7 @@ gxi! {
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            Text ( label = &state.count.to_string() ),
-            View (orientation = Orientation::Vertical) [
-                for i in 0..2
-                    Text ( label = &i.to_string() )
-            ]
+            Text ( label = &state.count.to_string() )
         ]
     }
     update {
@@ -35,17 +31,5 @@ gxi! {
             }
         }
         Ok(ShouldRender::Yes)
-    }
-}
-
-impl Counter {
-    pub fn count(&mut self, count: Option<u32>) {
-        if let Some(count) = count {
-            {
-                let mut state = get_state_mut!(self.state);
-                state.count = count;
-            }
-            self.mark_dirty();
-        }
     }
 }

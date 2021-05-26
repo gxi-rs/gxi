@@ -11,10 +11,12 @@ gxi! {
     }
     render {
         Div [
-            Button ( inner_html = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
-            Button ( inner_html = "Dec", on_click = || Msg::DEC , class="btn btn-light")
-        ],
-        H2 ( inner_html = &state.count.to_string() , class = "text-info")
+            Div [
+                Button ( inner_html = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
+                Button ( inner_html = "Dec", on_click = || Msg::DEC , class="btn btn-light")
+            ],
+            H2 ( inner_html = &state.count.to_string() , class = "text-info")
+        ]
     }
     update {
         let mut state = get_state_mut!(state);
