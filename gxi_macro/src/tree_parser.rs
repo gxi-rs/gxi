@@ -1,62 +1,39 @@
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
-use syn::parse::{Parse, ParseBuffer, ParseStream};
+use syn::parse::{Parse, ParseStream};
 use syn::Result;
 
 use crate::InitType;
 
 /// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-pub struct TreeParser {
-    pub tree: TokenStream2,
-}
+pub struct TreeParser(pub TokenStream2);
 
 impl Parse for TreeParser {
-    /// Parses the `input` parse-stream to the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
+    /// TODO: update doc
     fn parse(input: ParseStream) -> Result<Self> {
-        //check for pure_index
-        let pure_index: u32 = if let Ok(i) = input.parse::<syn::Lit>() {
-            if let syn::Lit::Int(i) = i {
-                i.base10_parse().unwrap()
-            } else {
-                panic!("Expected an u32")
-            }
+        Ok(if input.is_empty() {
+            TreeParser(TokenStream2::new())
         } else {
-            0
-        };
-        // Both init_type and Node are of type Ident therefore peek and check if init_type is provided or not
-        let init_type = if input.peek(syn::Ident) && input.peek2(syn::Ident) {
-            match &input.parse::<syn::Ident>()?.to_string()[..] {
-                "init_child" => InitType::Child(pure_index),
-                "init_sibling" => InitType::Sibling(pure_index),
-                _ => {
-                    panic!("Expected init_type as init_child or init_sibling ");
-                }
-            }
-        } else {
-            InitType::Child(pure_index)
-        };
-
-        Ok(TreeParser {
-            tree: TreeParser::custom_parse(input, init_type),
+            // default init type is child
+            TreeParser(TreeParser::custom_parse(input, InitType::Child, false)?)
         })
     }
 }
 
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_for_block(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-        fn for_recursive(input: ParseStream, init_type: &InitType) -> TokenStream2 {
-            let variable = input.parse::<syn::Ident>().unwrap();
-            input.parse::<syn::token::In>().unwrap();
-            let for_expr = input.parse::<syn::Expr>().unwrap();
-            let content = TreeParser::custom_parse(input, InitType::Sibling(0));
-            let (pure_index, init_type) = init_type.get_init_type_tuple();
+    fn parse_for_block(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+        fn for_recursive(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+            let variable = input.parse::<syn::Ident>()?;
+            input.parse::<syn::token::In>()?;
+            let for_expr = input.parse::<syn::Expr>()?;
+            let content = TreeParser::custom_parse(input, InitType::Sibling, false)?;
             let pure = {
-                let pure = quote!(#pure_index #init_type Pure);
-                let tree_parser: TreeParser = syn::parse2(pure).unwrap();
-                tree_parser.tree
+                let pure = quote!(#init_type Pure);
+                let tree_parser: TreeParser = syn::parse2(pure)?;
+                tree_parser.0
             };
-            quote! {
+            Ok(quote! {
                 let node = {
                     #pure
                     {
@@ -79,12 +56,12 @@ impl TreeParser {
                     }
                     node
                 };
-            }
+            })
         }
         if let Ok(_) = input.parse::<syn::token::For>() {
             for_recursive(input, init_type)
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
@@ -118,258 +95,288 @@ impl TreeParser {
     ///
     /// If an else branch is not provided then an else branch with a Pure node is appended.
     ///
-    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> TokenStream2 {
-        fn if_recursive(input: ParseStream, pure_index: &mut u32) -> TokenStream2 {
-            let comparison_expr = input.parse::<syn::Expr>().unwrap();
-            let node = if let Ok(_) = input.parse::<syn::token::If>() {
-                if_recursive(input, pure_index)
-            } else {
-                TreeParser::custom_parse(input, InitType::Child(*pure_index))
-            };
-            *pure_index += 1;
-            let chain = if let Ok(_) = input.parse::<syn::token::Else>() {
-                if let Ok(_) = input.parse::<syn::token::If>() {
-                    let tree = if_recursive(input, pure_index);
-                    quote!(else #tree)
-                } else {
-                    let node = TreeParser::custom_parse(input, InitType::Child(*pure_index));
-                    quote!( else { #node } )
-                }
-            } else {
-                let pure_remove_block = TreeParser::get_pure_remove_block(*pure_index);
-                quote! { else {
-                    {
-                        #pure_remove_block
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let weak_cont = Rc::downgrade(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).1
+    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+        // check for if
+        if input.parse::<syn::token::If>().is_ok() {
+            let mut pure_index = 0;
+            let mut if_logic: TokenStream2 = input.parse::<syn::Expr>()?.to_token_stream().into();
+            // chain starts with if block
+            let mut chain = quote! { if #if_logic };
+            loop {
+                pure_index += 1;
+                // concatenate
+                {
+                    let parsed_block = {
+                        let block = syn::group::parse_braces(&input)?.content;
+                        TreeParser::parse(&block)?.0
                     };
-                }}
-            };
-            return quote! {
-                if #comparison_expr {
-                    #node
-                } #chain
-            };
-        }
+                    let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
+                    chain = quote! { #chain {
+                        #pure_remove_block
+                        #parsed_block
+                    }};
+                }
+                // if there is no if_logic then if expression has ended
+                if if_logic.is_empty() {
+                    break;
+                } else if input.parse::<syn::token::Else>().is_ok() {
+                    chain = quote! { #chain else };
+                    // reset if logic
+                    if_logic = TokenStream2::new();
+                    // check for nested if
+                    if input.parse::<syn::token::If>().is_ok() {
+                        // parse if_logic of nested if
+                        if_logic = input.parse::<syn::Expr>()?.to_token_stream().into();
+                        chain = quote! { #chain if #if_logic };
+                    }
+                } else {
+                    // if no else block then add a custom one which when executes destroys any existing child
+                    let pure_remove_block = TreeParser::get_pure_remove_block(pure_index + 1);
+                    chain = quote! { #chain else #pure_remove_block };
+                    break;
+                }
+            }
 
-        if let Ok(_) = input.parse::<syn::token::If>() {
-            let mut pure_index = 1;
-            let tree = if_recursive(input, &mut pure_index);
-            let init_type = init_type.get_init_type_tuple().1;
-            quote!(
-                let (node,is_new) = {
+            Ok(quote! {
+                let node = {
                     let mut node_borrow = node.as_ref().borrow_mut();
                     let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont)))
+                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
                 };
                 {
-                     let cont = node.clone();
-                     #tree
+                    let cont = node.clone();
+                    #chain
                 }
-            )
+            })
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
-    fn parse_expression(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+    fn parse_component(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Ident>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
-            //parse properties
-            match syn::group::parse_parens(&input) {
-                Ok(parens) => {
-                    let props_buffer = parens.content;
-                    fn parse_props(
-                        props_buffer: ParseBuffer, static_exprs: &mut Vec<TokenStream2>,
-                        dynamic_exprs: &mut Vec<TokenStream2>,
-                    ) {
-                        if let Ok(e) = props_buffer.parse::<syn::ExprAssign>() {
-                            let left = e.left;
-                            let right = e.right;
-                            match *right {
-                                syn::Expr::Closure(closure) => {
-                                    let closure_body = closure.body;
-                                    static_exprs.push(quote! {{
+            //parse properties enclosed in parenthesis
+            if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
+                // loop till every thing inside parenthesis is parsed
+                loop {
+                    if let Ok(syn::ExprAssign { left, right, .. }) =
+                    content.parse::<syn::ExprAssign>()
+                    {
+                        // push closure and literals to static_props and others to dynamic_props
+                        match *right {
+                            syn::Expr::Closure(closure) => {
+                                let closure_body = closure.body;
+                                static_props.push(quote! {{
                                         let state_clone = Rc::clone(&this);
                                         node.#left(move | | Self::update(state_clone.clone(),#closure_body) );
                                     }});
-                                }
-                                syn::Expr::Lit(literal) => {
-                                    static_exprs.push(quote! { node.#left(#literal); })
-                                }
-                                _ => dynamic_exprs.push(quote! { node.#left(#right); }),
                             }
-                            //parse ,
-                            if let Ok(_) = props_buffer.parse::<syn::token::Comma>() {
-                                parse_props(props_buffer, static_exprs, dynamic_exprs);
+                            syn::Expr::Lit(literal) => {
+                                static_props.push(quote! { node.#left(#literal); })
                             }
+                            _ => dynamic_props.push(quote! { node.#left(#right); }),
                         }
+                        // if stream is empty then break
+                        if content.is_empty() {
+                            break;
+                        } else {
+                            // else expect a comma
+                            content.parse::<syn::token::Comma>()?;
+                        }
+                    } else {
+                        break;
                     }
-                    parse_props(props_buffer, &mut static_props, &mut dynamic_props);
                 }
-                _ => (),
-            };
-            let (tree, render_call) = {
-                let pre_init = match init_type {
-                    InitType::Child(_) => {
-                        quote! {
-                            let node = cont.clone();
-                        }
-                    }
-                    InitType::Sibling(_) => TokenStream2::new(),
-                };
-                let (pure_index, init_type) = init_type.get_init_type_tuple();
-                //if pure_index > 0 then the component is pure
-                let (pure_remove_block, render_call) = if pure_index > 0 {
-                    (
-                        TreeParser::get_pure_remove_block(pure_index),
-                        //need not call render on pure function
-                        TokenStream2::new(),
-                    )
-                } else {
-                    (TokenStream2::new(), quote!( #name::render(node.clone()); ))
-                };
-
-                (
-                    quote! {
-                        let node = {
-                            let (node, is_new) = {
-                                #pure_remove_block
-                                #pre_init
-                                let mut node_borrow = node.as_ref().borrow_mut();
-                                let weak_cont = Rc::downgrade(&cont);
-                                node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
-                            };
-                            {
-                                let mut node_borrow = node.as_ref().borrow_mut();
-                                let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
+            }
+            // create node initializer methods
+            let component = {
+                // block which calls prop setter functions of the node
+                let prop_setter_block = {
+                    // if there are no props then return an empty TokenStream
+                    if dynamic_props.is_empty() && static_props.is_empty() {
+                        TokenStream2::new()
+                    } else {
+                        let mut block = quote! {
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
+                        };
+                        if !static_props.is_empty() {
+                            block = quote! {
+                                #block
                                 if is_new {
                                     #(#static_props)*
                                 }
-                                #(#dynamic_props)*
-                            }
-                            #render_call
-                            node
-                        };
-                    },
-                    render_call,
-                )
-            };
-            //parse children
-            {
-                //check for first block
-                let children = match syn::group::parse_brackets(&input) {
-                    syn::__private::Ok(brackets) => {
-                        let content =
-                            TreeParser::custom_parse(&brackets.content, InitType::Child(0));
-                        if content.is_empty() {
-                            TokenStream2::new()
-                        } else {
-                            quote! {
-                                {
-                                    let cont = {
-                                        let node_borrow = node.as_ref().borrow();
-                                        node_borrow.get_self_substitute()
-                                    };
-                                    #content
-                                }
-                                #render_call
-                            }
+                            };
                         }
+                        if !dynamic_props.is_empty() {
+                            block = quote! {
+                                #block
+                                #(#dynamic_props)*
+                            };
+                        }
+                        quote! {{
+                            #block
+                        }}
                     }
-                    _ => TokenStream2::new(),
                 };
-                let tree = quote! { #tree #children };
-                //recursive function therefore drop whatever memory possible
-                drop(render_call);
-                drop(children);
-                //parse ,
-                return match input.parse::<syn::Token![,]>() {
-                    Ok(_) => {
-                        let content = TreeParser::custom_parse(&input, InitType::Sibling(0));
-                        quote! { #tree #content }
+                // if init_type is child then add to cont else add to node
+                let node_rename = if let InitType::Child = init_type {
+                    quote! { cont }
+                } else {
+                    quote! { node }
+                };
+
+                quote! {
+                    let node = {
+                        let (node, is_new) = {
+                            let mut node_borrow = #node_rename.as_ref().borrow_mut();
+                            let weak_cont = Rc::downgrade(&cont);
+                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
+                        };
+                        #prop_setter_block
+                        #name::render(node.clone());
+                        node
+                    };
+                }
+            };
+
+            // parse children
+            let children = if let syn::__private::Ok(syn::group::Brackets { content, .. }) =
+            syn::group::parse_brackets(&input)
+            {
+                // if content is empty don't parse it
+                if content.is_empty() {
+                    TokenStream2::new()
+                } else {
+                    // parse content with init_child and pure_index 0
+                    let content = TreeParser::custom_parse(&content, InitType::Child, true)?;
+                    // set parent and concatenate the parsed content
+                    quote! {
+                        let cont = {
+                            let node_borrow = node.as_ref().borrow();
+                            node_borrow.get_self_substitute()
+                        };
+                        #content
                     }
-                    _ => tree,
-                };
-            }
+                }
+            } else {
+                TokenStream2::new()
+            };
+
+            // concatenate every thing
+            Ok(quote! {
+                #component
+                {
+                    #children
+                }
+                #name::render(node.clone());
+            })
+        } else {
+            Ok(TokenStream2::new())
         }
-        TokenStream2::new()
     }
 
     /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> TokenStream2 {
+    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
-            let ident = input.parse::<syn::Ident>().unwrap();
-            let (_, init_type) = init_type.get_init_type_tuple();
-            match &ident.to_string()[..] {
-                "children" => {
-                    quote! {
+            let ident = input.parse::<syn::Ident>()?;
+            return match &ident.to_string()[..] {
+                "children" => Ok(quote! {
+                    let node = {
                         let node = {
-                            let node = {
-                                let mut node_borrow = node.as_ref().borrow_mut();
-                                let weak_cont = Rc::downgrade(&cont);
-                                node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                            };
-                            {
-                                let mut this_borrow = this.as_ref().borrow_mut();
-                                this_borrow.set_self_substitute(node.clone());
-                            }
-                            node
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let weak_cont = Rc::downgrade(&cont);
+                            node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
                         };
-                    }
-                }
-                _ => {
-                    panic!("Expected an attribute here. Eg [children]")
-                }
-            }
+                        {
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            this_borrow.set_self_substitute(node.clone());
+                        }
+                        node
+                    };
+                }),
+                _ => Err(syn::Error::new(
+                    ident.span().unwrap().into(),
+                    "Expected children here",
+                )),
+            };
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
-    /// Parses the `{ }` block which allows user to execute code on every render.
-    fn parse_block(input: ParseStream) -> TokenStream2 {
+    /// anything inside a {} is copied and executed on every render call
+    fn parse_execution_block(input: ParseStream) -> Result<TokenStream2> {
         if let Ok(b) = input.parse::<syn::Block>() {
-            quote! {{ #b }}
+            Ok(quote! {{ #b }})
         } else {
-            TokenStream2::new()
+            Ok(TokenStream2::new())
         }
     }
 
-    fn custom_parse(input: ParseStream, init_type: InitType) -> TokenStream2 {
-        {
-            let condition_block = TreeParser::parse_condition_block(&input, &init_type);
-            if !condition_block.is_empty() {
-                return condition_block;
+    fn custom_parse(input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool) -> Result<TokenStream2> {
+        let mut tree = TokenStream2::new();
+        let mut has_one_root_component = false;
+        loop {
+            // check if input is empty
+            if input.is_empty() {
+                return Ok(tree);
+            }
+            // match and parse
+            let parsed = {
+                let execution_block = TreeParser::parse_execution_block(&input)?;
+                if execution_block.is_empty() {
+                    // for, conditional and execution_block functions produce a component
+                    // if the tree already has a root component and it can't have more than one then throw error
+                    if !can_have_more_than_one_root_node && has_one_root_component {
+                        return Err(syn::Error::new(
+                            input.span().unwrap().into(),
+                            "didn't expect this here. Help: You can't have more than one node here.",
+                        ));
+                    }
+                    let component_block = TreeParser::parse_component(&input, &init_type)?;
+                    let parsed = if component_block.is_empty() {
+                        let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
+                        if conditional_block.is_empty() {
+                            let child_injection = TreeParser::parse_child_injection(&input, &init_type)?;
+                            if child_injection.is_empty() {
+                                let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
+                                if for_parse.is_empty() {
+                                    return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
+                                }
+                                for_parse
+                            } else {
+                                child_injection
+                            }
+                        } else {
+                            conditional_block
+                        }
+                    } else {
+                        component_block
+                    };
+                    // there can only be one root component
+                    has_one_root_component = true;
+                    // there can only be one child, therefore after parsing a component
+                    // it is guaranteed that the next component will be sibling
+                    init_type = InitType::Sibling;
+                    parsed
+                } else {
+                    execution_block
+                }
+            };
+
+
+            tree = quote! { #tree #parsed };
+            // there has to be a comma if input is not empty and the previous parse was successful
+            if !input.is_empty() && input.parse::<syn::token::Comma>().is_err() {
+                return Err(syn::Error::new(
+                    input.span().unwrap().into(),
+                    ", expected here",
+                ));
             }
         }
-        {
-            let for_parse = TreeParser::parse_for_block(&input, &init_type);
-            if !for_parse.is_empty() {
-                return for_parse;
-            }
-        }
-        {
-            let child = TreeParser::parse_child_injection(&input, &init_type);
-            if !child.is_empty() {
-                return child;
-            }
-        }
-        {
-            let block = TreeParser::parse_block(&input);
-            if !block.is_empty() {
-                return block;
-            }
-        }
-        {
-            let expr = TreeParser::parse_expression(input, &init_type);
-            if !expr.is_empty() {
-                return expr;
-            }
-        }
-        return TokenStream2::new();
     }
 }

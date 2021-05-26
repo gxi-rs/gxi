@@ -1,7 +1,7 @@
-use app::*;
-use centre::*;
-use counter::*;
-use gxi::*;
+pub use app::*;
+pub use centre::*;
+pub use counter::*;
+pub use gxi::*;
 
 mod app;
 mod centre;

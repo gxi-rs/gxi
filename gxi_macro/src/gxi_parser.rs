@@ -11,18 +11,94 @@ pub struct GxiParser {
 }
 
 impl GxiParser {
-    fn parse_update_fn(name: &Ident, update_block: Block, is_async: bool) -> TokenStream2 {
+    // parse `{}` brackets where state is defined
+    fn parse_state_block(input: &ParseStream) -> Result<(TokenStream2, TokenStream2, TokenStream2)> {
+        let block = group::parse_braces(&input)?.content;
+        if block.is_empty() {
+            return Ok((TokenStream2::new(), TokenStream2::new(), TokenStream2::new()));
+        }
+        // syntax -> field_name : type = value (optional) comma
+        let mut state_struct_lines = vec![];
+        let mut state_init_lines = vec![];
+        let mut state_setters = vec![];
+
+        loop {
+            let viz = block.parse::<syn::Visibility>()?;
+            let field_name = block.parse::<syn::Ident>()?;
+            block.parse::<token::Colon>()?;
+            let field_type = block.parse::<syn::Type>()?;
+            // if equals-to is present, parse default value
+            let field_value: TokenStream2 = if block.parse::<syn::token::Eq>().is_ok() {
+                let value = block.parse::<syn::Expr>()?;
+                value.to_token_stream().into()
+            } else {
+                quote!( Default::default() )
+            };
+
+            state_struct_lines.push(quote!( #field_name : #field_type ));
+            state_init_lines.push(quote!( #field_name : #field_value ));
+
+            match viz {
+                Visibility::Public(_) | Visibility::Restricted(_) => {
+                    state_setters.push(quote! {
+                        #viz fn #field_name (&mut self,val:#field_type) {
+                            if {
+                                let mut state = get_state_mut!(self.state);
+                                if val != state.#field_name {
+                                    state.#field_name = val;
+                                    true
+                                } else {
+                                    false
+                                }
+                            } {
+                                self.mark_dirty();
+                            }
+                        }
+                    });
+                }
+                _ => {}
+            }
+
+            // parse , if block is not empty
+            if block.is_empty() {
+                break;
+            } else {
+                block.parse::<token::Comma>()?;
+            }
+        }
+
+        Ok((
+            quote! {
+                #( #state_struct_lines ),*
+            },
+            quote! {
+                #( #state_init_lines ),*
+            },
+            quote! {
+                #( #state_setters )*
+            }
+        ))
+    }
+
+    /// parse update block
+    fn parse_update_fn(name: &Ident, input: &ParseStream, is_async: bool) -> Result<TokenStream2> {
+        // create `async` ident if component is async
         let async_ident = if is_async {
             quote!(async)
         } else {
             TokenStream2::new()
         };
-        let update_fn = quote! {
-            #async_ident
-            fn update<F: Fn() + 'static>(
-                state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender>
-                #update_block
+        // generate the update function
+        let update_fn = {
+            let update_block = input.parse::<syn::Block>()?;
+            quote! {
+                #async_ident
+                fn update<F: Fn() + 'static>(
+                    state: State, msg: Msg, render: F) -> AsyncResult<ShouldRender>
+                    #update_block
+            }
         };
+        // inner logic for executing the update function
         let update_inner = {
             let update_inner = if is_async && cfg!(feature = "desktop") {
                 quote! {
@@ -86,32 +162,44 @@ impl GxiParser {
             };
             update_inner
         };
-        quote! {
-            impl #name {
-                fn update(this: NodeRc, msg: Msg) {
-                    #update_inner
-                }
+
+        Ok(quote! {
+            fn update(this: NodeRc, msg: Msg) {
+                #update_inner
             }
-        }
+        })
     }
 }
 
 impl Parse for GxiParser {
     /// parses the `input` parse_steam according to the syntax defined in the [macros macro](../../macros/macro.macros.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
-        let name = input.parse::<syn::Ident>()?;
+        let viz = input.parse::<syn::Visibility>().unwrap_or(Visibility::Inherited);
+        // check if component is async
+        let (name, is_async) = {
+            // this ident can either be `async` or it could be the name of the component
+            let ident = input.parse::<syn::Ident>()?;
+            if ident == "async" {
+                (input.parse::<syn::Ident>()?, true)
+            } else {
+                (ident, false)
+            }
+        };
+        // name of the state made by concatenating name of the component to String `State`
         let state_name = syn::Ident::new(&format!("{}State", quote! {#name}), Span::call_site());
-        let state_block = input.parse::<syn::Block>()?;
+        // parse `{}` brackets where state is defined
+        let (state_struct, state_new, state_setters) = Self::parse_state_block(&input)?;
+        // update and render function
         let mut render_func = TokenStream2::new();
         let mut update_func = TokenStream2::new();
-        let mut is_update_async = false;
+        // parse blocks
         for _ in 0..2 {
             if let Ok(s) = input.parse::<syn::Ident>() {
                 match &s.to_string()[..] {
                     "render" => {
                         let block_content = group::parse_braces(&input)?.content;
-                        let content = TreeParser::parse(&block_content)?.tree;
-                        render_func = quote!(
+                        let content = TreeParser::parse(&block_content)?.0;
+                        render_func = quote! {
                             fn render(this: NodeRc) {
                                 let cont = Rc::clone(&this);
                                 let state = {
@@ -126,29 +214,20 @@ impl Parse for GxiParser {
                                 let state = get_state!(state);
                                 #content
                             }
-                        );
+                        };
                     }
                     "update" => {
-                        if let Ok(async_ident) = input.parse::<syn::Ident>() {
-                            if async_ident != "async" {
-                                return Err(syn::Error::new(
-                                    async_ident.span(),
-                                    "expected async here",
-                                ));
-                            }
-                            is_update_async = true;
-                        }
                         update_func = GxiParser::parse_update_fn(
                             &name,
-                            input.parse::<syn::Block>()?,
-                            is_update_async,
-                        );
+                            &input,
+                            is_async,
+                        )?;
                     }
                     _ => {
                         return Err(syn::Error::new(
                             s.span(),
                             "Didn't expect this attribute here",
-                        ))
+                        ));
                     }
                 }
             }
@@ -156,7 +235,7 @@ impl Parse for GxiParser {
 
         // need not use Arc<Mutex<>> in web and when update is not async
         let (state_cell, state_cell_inner, import_get_state_macro, import_get_state_macro_mut) = {
-            if is_update_async && cfg!(feature = "desktop") {
+            if is_async && cfg!(feature = "desktop") {
                 (
                     quote!(Arc),
                     quote!(Mutex),
@@ -173,10 +252,10 @@ impl Parse for GxiParser {
             }
         };
 
-        let (desktop_channel_new, sender_field, sender_struct_field, channel_attach) = if cfg!(
+        let (desktop_channel_new, channel_sender_field, channel_sender_struct_field, desktop_channel_attach) = if cfg!(
             feature = "desktop"
         )
-            && is_update_async
+            && is_async
         {
             (
                 quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
@@ -217,11 +296,13 @@ impl Parse for GxiParser {
 
                 type State = #state_cell<#state_cell_inner<#state_name>>;
 
-                comp_state!(#state_name #state_block);
+                #viz struct #state_name {
+                    #state_struct
+                }
 
-                pub struct #name {
-                    pub state: State,
-                    #sender_struct_field
+                #viz struct #name {
+                    state: State,
+                    #channel_sender_struct_field
                     pub parent: WeakNodeRc,
                     pub self_substitute : Option<WeakNodeRc>,
                     pub dirty: bool,
@@ -234,20 +315,34 @@ impl Parse for GxiParser {
 
                     fn new(parent: WeakNodeRc) -> NodeRc {
                         #desktop_channel_new
-                        let this:NodeRc = comp_new!(#state_name #state_cell #state_cell_inner parent { #sender_field } #state_block );
+                        // init
+                        let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
+                            state: #state_cell::new(#state_cell_inner::new(#state_name {
+                                #state_new
+                            })),
+                            #channel_sender_field
+                            self_substitute : None,
+                            parent,
+                            dirty: true,
+                            child: None,
+                            sibling: None,
+                        })));
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
                             this_borrow.self_substitute = Some(Rc::downgrade(&this));
                         }
-                        #channel_attach
+                        #desktop_channel_attach
                         this
                     }
 
                     #render_func
                 }
 
-                #update_func
+                impl #name {
+                    #update_func
+                    #state_setters
+                }
 
                 impl_drop_for_component!(#name);
             },

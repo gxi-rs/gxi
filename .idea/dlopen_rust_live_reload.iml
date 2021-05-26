@@ -203,6 +203,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/debug/build/wasm-bindgen-shared-fd15c6e6bf58ad66/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/binds/gxi_desktop_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/binds/gxi_web_binds/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_interface/src" isTestSource="false" />
@@ -211,6 +212,7 @@
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_update_macro/target/debug/build/syn-9a6a9c8c233d5eb1/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/examples/desktop/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../gxi_macros/gxi_parsers/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_macro/src" isTestSource="false" />

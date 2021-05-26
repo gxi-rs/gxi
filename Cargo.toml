@@ -33,6 +33,7 @@ members = [
     "gxi_macro",
     "examples/desktop",
     "examples/web",
+    "tests"
 ]
 
 [dependencies]

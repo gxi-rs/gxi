@@ -1,17 +1,17 @@
 use quote::*;
-use syn::__private::TokenStream2;
+use syn::__private::{Span};
+use quote::__private::TokenStream;
 
 pub enum InitType {
-    Child(u32),
-    Sibling(u32),
+    Child,
+    Sibling,
 }
 
-impl InitType {
-    /// Return: [PureIndex](PureIndex) and [InitType](InitType)
-    pub fn get_init_type_tuple(&self) -> (u32, TokenStream2) {
+impl ToTokens for InitType {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            InitType::Child(i) => (*i, quote! {init_child}),
-            InitType::Sibling(i) => (*i, quote! {init_sibling}),
+            InitType::Child => tokens.append(syn::Ident::new("init_child", Span::call_site())),
+            InitType::Sibling => tokens.append(syn::Ident::new("init_sibling", Span::call_site())),
         }
     }
 }
