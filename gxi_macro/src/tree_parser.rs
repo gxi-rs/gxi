@@ -123,7 +123,6 @@ impl TreeParser {
                     chain = quote! { #chain else };
                     // check for if, i.e else if block
                     if input.parse::<syn::token::If>().is_ok() {
-                        println!("if");
                         if_logic = input.parse::<syn::Expr>()?;
                         chain = quote! { #chain if #if_logic };
                     }
