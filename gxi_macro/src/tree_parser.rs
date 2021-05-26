@@ -15,7 +15,7 @@ impl Parse for TreeParser {
             TreeParser(TokenStream2::new())
         } else {
             // default init type is child
-            TreeParser(TreeParser::custom_parse(input, InitType::Child)?)
+            TreeParser(TreeParser::custom_parse(input, InitType::Child, false)?)
         })
     }
 }
@@ -27,7 +27,7 @@ impl TreeParser {
             let variable = input.parse::<syn::Ident>()?;
             input.parse::<syn::token::In>()?;
             let for_expr = input.parse::<syn::Expr>()?;
-            let content = TreeParser::custom_parse(input, InitType::Sibling)?;
+            let content = TreeParser::custom_parse(input, InitType::Sibling, false)?;
             let pure = {
                 let pure = quote!(#init_type Pure);
                 let tree_parser: TreeParser = syn::parse2(pure)?;
@@ -249,7 +249,7 @@ impl TreeParser {
                     TokenStream2::new()
                 } else {
                     // parse content with init_child and pure_index 0
-                    let content = TreeParser::parse(&content)?.0;
+                    let content = TreeParser::custom_parse(&content, InitType::Child, true)?;
                     // set parent and concatenate the parsed content
                     quote! {
                         let cont = {
@@ -314,53 +314,66 @@ impl TreeParser {
         }
     }
 
-    fn custom_parse(input: ParseStream, mut init_type: InitType) -> Result<TokenStream2> {
-        if input.is_empty() {
-            return Ok(TokenStream2::new());
-        }
-        let parsed = {
-            let component_block = TreeParser::parse_child_injection(&input, &init_type)?;
-            if component_block.is_empty() {
-                let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
-                if for_parse.is_empty() {
-                    let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
-                    if conditional_block.is_empty() {
-                        let execution_block = TreeParser::parse_execution_block(&input)?;
-                        if execution_block.is_empty() {
-                            let component = TreeParser::parse_component(&input, &init_type)?;
-                            // there can only be one child, therefore after parsing a component
-                            // it is guaranteed that the next component will be sibling
-                            init_type = InitType::Sibling;
-                            component
+    fn custom_parse(input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool) -> Result<TokenStream2> {
+        let mut tree = TokenStream2::new();
+        let mut has_one_root_component = false;
+        loop {
+            // check if input is empty
+            if input.is_empty() {
+                return Ok(tree);
+            }
+            // match and parse
+            let parsed = {
+                let component_block = TreeParser::parse_child_injection(&input, &init_type)?;
+                if component_block.is_empty() {
+                    let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
+                    if for_parse.is_empty() {
+                        let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
+                        if conditional_block.is_empty() {
+                            let execution_block = TreeParser::parse_execution_block(&input)?;
+                            if execution_block.is_empty() {
+                                // if the tree already has a root component and it can't have more than one then throw error
+                                if !can_have_more_than_one_root_node && has_one_root_component {
+                                    return Err(syn::Error::new(
+                                        input.span().unwrap().into(),
+                                        "didn't expect this here. Help: You can't have more than one node here.",
+                                    ));
+                                }
+                                let component = TreeParser::parse_component(&input, &init_type)?;
+                                // there can only be one root component
+                                has_one_root_component = true;
+                                // there can only be one child, therefore after parsing a component
+                                // it is guaranteed that the next component will be sibling
+                                init_type = InitType::Sibling;
+                                component
+                            } else {
+                                execution_block
+                            }
                         } else {
-                            execution_block
+                            conditional_block
                         }
                     } else {
-                        conditional_block
+                        for_parse
                     }
                 } else {
-                    for_parse
+                    component_block
                 }
-            } else {
-                component_block
-            }
-        };
+            };
 
-        if parsed.is_empty() {
-            return Err(syn::Error::new(
-                input.span().unwrap().into(),
-                "didn't expect this here",
-            ));
-        } else if input.parse::<syn::token::Comma>().is_ok() {
-            let new_parsed = Self::custom_parse(input, init_type)?;
-            Ok(quote! { #parsed #new_parsed })
-        } else if !input.is_empty() {
-            Err(syn::Error::new(
-                input.span().unwrap().into(),
-                ", expected here",
-            ))
-        } else {
-            Ok(parsed)
+            if parsed.is_empty() {
+                return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
+            } else if input.parse::<syn::token::Comma>().is_ok() {
+                // concatenate newly parsed to tree
+                tree = quote! { #tree #parsed };
+            } else if !input.is_empty() {
+                // there has to be a comma if input is not empty and the previous parse was successful
+                return Err(syn::Error::new(
+                    input.span().unwrap().into(),
+                    ", expected here",
+                ));
+            } else {
+                return Ok(tree);
+            }
         }
     }
 }

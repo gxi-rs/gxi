@@ -15,17 +15,14 @@ gxi! {
                     Comp,
                     Comp
                 ],
-                Comp [
-                ],
+                { println!("true"); },
             } else if true {
                 Comp [
 
                 ]
             }
         ],
-        Comp [
-
-        ]
+        { println!("render complete"); },
     }
 }
 
