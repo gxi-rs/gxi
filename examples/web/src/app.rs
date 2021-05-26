@@ -2,7 +2,6 @@ use crate::*;
 
 gxi! {
     pub App {
-        foo : u32 = 0
     }
     render {
         Body ( style = r#"background-color : #121212;"# ) [
