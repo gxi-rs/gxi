@@ -6,7 +6,7 @@ enum Msg {
 }
 
 gxi! {
-    Counter {
+    pub Counter {
         count: u32 = 0
     }
     render {
