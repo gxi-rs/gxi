@@ -22,6 +22,7 @@ gxi! {
         Window [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
+                    Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                     if state.show_help {
                         Window [
                             Text ( label = "Cat Meme Fetcher By Aniket Prajapati")

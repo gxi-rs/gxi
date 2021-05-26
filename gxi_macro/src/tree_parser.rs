@@ -324,8 +324,8 @@ impl TreeParser {
             }
             // match and parse
             let parsed = {
-                let child_injection = TreeParser::parse_child_injection(&input, &init_type)?;
-                if child_injection.is_empty() {
+                let execution_block = TreeParser::parse_execution_block(&input)?;
+                if execution_block.is_empty() {
                     // for, conditional and execution_block functions produce a component
                     // if the tree already has a root component and it can't have more than one then throw error
                     if !can_have_more_than_one_root_node && has_one_root_component {
@@ -334,25 +334,25 @@ impl TreeParser {
                             "didn't expect this here. Help: You can't have more than one node here.",
                         ));
                     }
-                    let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
-                    let parsed = if for_parse.is_empty() {
+                    let component_block = TreeParser::parse_component(&input, &init_type)?;
+                    let parsed = if component_block.is_empty() {
                         let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
                         if conditional_block.is_empty() {
-                            let execution_block = TreeParser::parse_execution_block(&input)?;
-                            if execution_block.is_empty() {
-                                let component_block = TreeParser::parse_component(&input, &init_type)?;
-                                if component_block.is_empty() {
+                            let child_injection = TreeParser::parse_child_injection(&input, &init_type)?;
+                            if child_injection.is_empty() {
+                                let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
+                                if for_parse.is_empty() {
                                     return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
                                 }
-                                component_block
+                                for_parse
                             } else {
-                                execution_block
+                                child_injection
                             }
                         } else {
                             conditional_block
                         }
                     } else {
-                        for_parse
+                        component_block
                     };
                     // there can only be one root component
                     has_one_root_component = true;
@@ -361,7 +361,7 @@ impl TreeParser {
                     init_type = InitType::Sibling;
                     parsed
                 } else {
-                    child_injection
+                    execution_block
                 }
             };
 
