@@ -25,7 +25,7 @@ gxi! {
                     if state.show_help {
                         Window [
                             Text ( label = "Cat Meme Fetcher By Aniket Prajapati")
-                        ]
+                        ],
                     } else {
                         Button ( label = "Show help", on_click = || Msg::ShowHelp ),
                     },

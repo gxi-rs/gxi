@@ -15,8 +15,8 @@ gxi! {
                     Comp,
                     Comp
                 ],
-                { println!("true"); },
-            } else if true {
+                { println!("true"); }
+            } else {
                 Comp [
 
                 ]

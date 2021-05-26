@@ -123,7 +123,7 @@ impl TreeParser {
                     chain = quote! { #chain else };
                     // check for if, i.e else if block
                     if input.parse::<syn::token::If>().is_ok() {
-                        if_logic = input.parse::<syn::Expr>()?;
+                        if_logic = input.parse::<syn::Expr>().unwrap();
                         chain = quote! { #chain if #if_logic };
                     }
                 } else {
@@ -324,28 +324,27 @@ impl TreeParser {
             }
             // match and parse
             let parsed = {
-                let component_block = TreeParser::parse_child_injection(&input, &init_type)?;
-                if component_block.is_empty() {
+                let child_injection = TreeParser::parse_child_injection(&input, &init_type)?;
+                if child_injection.is_empty() {
+                    // for, conditional and execution_block functions produce a component
+                    // if the tree already has a root component and it can't have more than one then throw error
+                    if !can_have_more_than_one_root_node && has_one_root_component {
+                        return Err(syn::Error::new(
+                            input.span().unwrap().into(),
+                            "didn't expect this here. Help: You can't have more than one node here.",
+                        ));
+                    }
                     let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
-                    if for_parse.is_empty() {
+                    let parsed = if for_parse.is_empty() {
                         let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
                         if conditional_block.is_empty() {
                             let execution_block = TreeParser::parse_execution_block(&input)?;
                             if execution_block.is_empty() {
-                                // if the tree already has a root component and it can't have more than one then throw error
-                                if !can_have_more_than_one_root_node && has_one_root_component {
-                                    return Err(syn::Error::new(
-                                        input.span().unwrap().into(),
-                                        "didn't expect this here. Help: You can't have more than one node here.",
-                                    ));
+                                let component_block = TreeParser::parse_component(&input, &init_type)?;
+                                if component_block.is_empty() {
+                                    return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
                                 }
-                                let component = TreeParser::parse_component(&input, &init_type)?;
-                                // there can only be one root component
-                                has_one_root_component = true;
-                                // there can only be one child, therefore after parsing a component
-                                // it is guaranteed that the next component will be sibling
-                                init_type = InitType::Sibling;
-                                component
+                                component_block
                             } else {
                                 execution_block
                             }
@@ -354,23 +353,26 @@ impl TreeParser {
                         }
                     } else {
                         for_parse
-                    }
+                    };
+                    // there can only be one root component
+                    has_one_root_component = true;
+                    // there can only be one child, therefore after parsing a component
+                    // it is guaranteed that the next component will be sibling
+                    init_type = InitType::Sibling;
+                    parsed
                 } else {
-                    component_block
+                    child_injection
                 }
             };
 
-            if parsed.is_empty() {
-                return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
-            } else {
-                tree = quote! { #tree #parsed };
-                // there has to be a comma if input is not empty and the previous parse was successful
-                if !input.is_empty() && input.parse::<syn::token::Comma>().is_err() {
-                    return Err(syn::Error::new(
-                        input.span().unwrap().into(),
-                        ", expected here",
-                    ));
-                }
+
+            tree = quote! { #tree #parsed };
+            // there has to be a comma if input is not empty and the previous parse was successful
+            if !input.is_empty() && input.parse::<syn::token::Comma>().is_err() {
+                return Err(syn::Error::new(
+                    input.span().unwrap().into(),
+                    ", expected here",
+                ));
             }
         }
     }
