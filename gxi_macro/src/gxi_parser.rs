@@ -14,6 +14,9 @@ impl GxiParser {
     // parse `{}` brackets where state is defined
     fn parse_state_block(input: &ParseStream) -> Result<(TokenStream2, TokenStream2, TokenStream2)> {
         let block = group::parse_braces(&input)?.content;
+        if block.is_empty() {
+            return Ok((TokenStream2::new(), TokenStream2::new(), TokenStream2::new()));
+        }
         // syntax -> field_name : type = value (optional) comma
         let mut state_struct_lines = vec![];
         let mut state_init_lines = vec![];
