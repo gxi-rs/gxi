@@ -7,7 +7,7 @@ enum Msg {
 
 gxi! {
     pub Counter {
-        pub count : u32 = 0
+        count : u32 = 0
     }
     render {
         View [
@@ -31,5 +31,17 @@ gxi! {
             }
         }
         Ok(ShouldRender::Yes)
+    }
+}
+
+impl Counter {
+    pub fn count(&mut self, count: Option<u32>) {
+        if let Some(count) = count {
+            {
+                let mut state = get_state_mut!(self.state);
+                state.count = count;
+            }
+            self.mark_dirty();
+        }
     }
 }

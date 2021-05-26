@@ -362,17 +362,15 @@ impl TreeParser {
 
             if parsed.is_empty() {
                 return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
-            } else if input.parse::<syn::token::Comma>().is_ok() {
-                // concatenate newly parsed to tree
-                tree = quote! { #tree #parsed };
-            } else if !input.is_empty() {
-                // there has to be a comma if input is not empty and the previous parse was successful
-                return Err(syn::Error::new(
-                    input.span().unwrap().into(),
-                    ", expected here",
-                ));
             } else {
-                return Ok(tree);
+                tree = quote! { #tree #parsed };
+                // there has to be a comma if input is not empty and the previous parse was successful
+                if !input.is_empty() && input.parse::<syn::token::Comma>().is_err() {
+                    return Err(syn::Error::new(
+                        input.span().unwrap().into(),
+                        ", expected here",
+                    ));
+                }
             }
         }
     }

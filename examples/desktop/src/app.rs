@@ -19,15 +19,12 @@ gxi! {
         show_help : bool = false
     }
     render {
-        {/*asd*/},
         Window [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
                     if state.show_help {
-                        View [
-                            Window [
-                                Text ( label = "Cat Meme Fetcher By Aniket Prajapati")
-                            ]
+                        Window [
+                            Text ( label = "Cat Meme Fetcher By Aniket Prajapati")
                         ]
                     } else {
                         Button ( label = "Show help", on_click = || Msg::ShowHelp ),
@@ -42,8 +39,7 @@ gxi! {
                                 Text ( label = "loading" ),
                                 Spinner ( spin = true )
                             ]
-                        }
-                        else {
+                        } else {
                             Text ( label = &state.cat_fact.as_ref().unwrap().fact )
                         }
                     ],
