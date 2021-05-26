@@ -20,7 +20,10 @@ gxi! {
                 Comp [
 
                 ]
-            }
+            },
+            Comp [
+
+            ]
         ],
         { println!("render complete"); },
     }

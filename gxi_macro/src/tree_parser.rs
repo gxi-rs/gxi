@@ -1,4 +1,4 @@
-use quote::{quote};
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Result;
@@ -99,31 +99,34 @@ impl TreeParser {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
             let mut pure_index = 0;
-            let mut if_logic = input.parse::<syn::Expr>()?;
+            let mut if_logic: TokenStream2 = input.parse::<syn::Expr>()?.to_token_stream().into();
             // chain starts with if block
             let mut chain = quote! { if #if_logic };
             loop {
                 pure_index += 1;
-                let parsed_block = {
-                    let block = syn::group::parse_braces(&input)?.content;
-                    TreeParser::parse(&block)?.0
-                };
                 // concatenate
                 {
+                    let parsed_block = {
+                        let block = syn::group::parse_braces(&input)?.content;
+                        TreeParser::parse(&block)?.0
+                    };
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
                     chain = quote! { #chain {
                         #pure_remove_block
                         #parsed_block
                     }};
                 }
-                // check for else
-                if input.is_empty() {
+                // if there is no if_logic then if expression has ended
+                if if_logic.is_empty() {
                     break;
                 } else if input.parse::<syn::token::Else>().is_ok() {
                     chain = quote! { #chain else };
-                    // check for if, i.e else if block
+                    // reset if logic
+                    if_logic = TokenStream2::new();
+                    // check for nested if
                     if input.parse::<syn::token::If>().is_ok() {
-                        if_logic = input.parse::<syn::Expr>().unwrap();
+                        // parse if_logic of nested if
+                        if_logic = input.parse::<syn::Expr>()?.to_token_stream().into();
                         chain = quote! { #chain if #if_logic };
                     }
                 } else {
