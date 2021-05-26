@@ -23,11 +23,10 @@ gxi! {
         Window ( on_destroy = || Msg::Quit ) [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
-                    Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                     View [
                         if state.show_help {
                             Window ( on_destroy = || Msg::ShowHelp(false) ) [
-                                View [
+                                View ( orientation = Orientation::Vertical ) [
                                     Text ( label = "Cat Meme Fetcher By Aniket Prajapati made using gxi-rs."),
                                     Button ( label = "Ok take me back now", on_click = || Msg::ShowHelp(false) )
                                 ]
