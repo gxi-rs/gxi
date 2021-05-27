@@ -5,6 +5,4 @@ gxi! {
         pub class : String = "".to_string(),
         pub id : String = "".to_string()
     }
-    render {
-    }
 }

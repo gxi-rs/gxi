@@ -1,30 +1,37 @@
 use crate::macros::gxi_macro::comp::Comp;
+use crate::macros::gxi_macro::foo::Foo;
 use gxi::*;
+
+enum Msg {
+    Foo
+}
 
 gxi! {
     App {
-        limit : u32 = 2
+        limit : u32 = 0
     }
     render {
         /* Top comment */
         crate::macros::gxi_macro::comp::Comp [
             { println!("render"); },
-            if state.limit == 2 {
+            if state.limit == 0 {
                 { println!("true"); },
                 Comp ( class = "h1".to_string(), id = "asd".to_string() ) [
                     Comp,
                     Comp,
-                    for x in 0..10 {
+                    for x in 0..2 {
                         { println!("{}",x); },
                         Comp [
                             { println!("{}", x); }
                         ]
-                    }
+                    },
+                    Init ( on_init = || Msg::Foo ) [
+
+                    ]
                 ],
                 { println!("true"); }
             } else {
-                Comp [
-
+                Foo [
                 ]
             },
             Comp [
@@ -32,6 +39,11 @@ gxi! {
             ]
         ],
         { println!("render complete"); },
+    }
+    update {
+        let mut state = get_state_mut!(state);
+        state.limit = 2;
+        Ok(ShouldRender::Yes)
     }
 }
 
