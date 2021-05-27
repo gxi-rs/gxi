@@ -15,14 +15,14 @@ futures.
 
 Since the framework is a compiler, therefore, it allows mixing of platform dependent and independent components, i.e the
 framework provides components like `div`, `h1` (platform dependent) and [React Native](https://reactnative.dev/) like
-platform-independent components like `Text` and `View`. Therefore making the code portable without losing deep control
+platform-independent components like `Text` and `View`. Therefore, making the code portable without losing deep control
 of the native system.
 
 ## Platforms
 
 + [X] Desktop (GTK) Windows, Mac and Linux
 + [X] Web `wasm32-unknown-unknown`
-+ [X] Platform Independent (Web and GTK)
++ [ ] Platform Independent (Web and GTK)
 + [ ] Android
 + [ ] Ios
 
@@ -39,7 +39,7 @@ enum Msg {
 }
 
 gxi! {
-    Counter {
+    pub Counter {
         count : u32 = 0
     }
     render {
@@ -48,11 +48,7 @@ gxi! {
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            Text ( label = &state.count.to_string() ),
-            View (orientation = Orientation::Vertical) [
-                for i in 0..2
-                    Text ( label = &i.to_string() )
-            ]
+            Text ( label = &state.count.to_string() )
         ]
     }
     update {
@@ -70,9 +66,22 @@ gxi! {
         Ok(ShouldRender::Yes)
     }
 }
+
+//extend the abilities
+impl Counter {
+    pub fn count(&mut self, count: Option<u32>) {
+        if let Some(count) = count {
+            {
+                let mut state = get_state_mut!(self.state);
+                state.count = count;
+            }
+            self.mark_dirty();
+        }
+    }
+}
 ```
 
-*`Async` Example For Web App*
+*`Async` Example Using Web App*
 
 ```rust
 use crate::*;
@@ -83,21 +92,22 @@ enum Msg {
 }
 
 gxi! {
-    CatFact {
+    pub async CatFact {
         cat_fact : Option<String> = None
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
             Button ( class = "btn btn-dark" , on_click = || Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
             Div [
-                if state.cat_fact.is_none()
+                if state.cat_fact.is_none() {
                     Div ( class = "spinner-border text-info" )
-                else
+                } else {
                     H3 ( class = "text-light", inner_html = &state.cat_fact.as_ref().unwrap() )
+                }
             ]
         ]
     }
-    update async {
+    update {
         match msg {
             Msg::Fetch(force) => {
                 if {
