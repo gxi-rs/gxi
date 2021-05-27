@@ -13,7 +13,13 @@ gxi! {
                 { println!("true"); },
                 Comp ( class = "h1".to_string(), id = "asd".to_string() ) [
                     Comp,
-                    Comp
+                    Comp,
+                    for x in 0..10 {
+                        { println!("{}",x); },
+                        Comp [
+                            { println!("{}", x); }
+                        ]
+                    }
                 ],
                 { println!("true"); }
             } else {

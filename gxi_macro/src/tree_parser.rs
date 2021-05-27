@@ -23,43 +23,47 @@ impl Parse for TreeParser {
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_for_block(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
-        fn for_recursive(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
-            let variable = input.parse::<syn::Ident>()?;
+        if input.parse::<syn::token::For>().is_ok() {
+            // parse : for loop_variable in loop_data_source { }
+            let loop_variable = input.parse::<syn::Expr>()?;
             input.parse::<syn::token::In>()?;
-            let for_expr = input.parse::<syn::Expr>()?;
-            let content = TreeParser::custom_parse(input, InitType::Sibling, false)?;
-            let pure = {
-                let pure = quote!(#init_type Pure);
-                let tree_parser: TreeParser = syn::parse2(pure)?;
-                tree_parser.0
+            let loop_data_source = input.parse::<syn::Expr>()?;
+            // parse the block with InitType::Sibling
+            let parsed_loop_block = {
+                let block_content = syn::group::parse_braces(&input)?.content;
+                Self::custom_parse(&block_content, InitType::Sibling, false)?
             };
+            // concatenate
             Ok(quote! {
+                // parent node which will hold all the nodes from the for loop
                 let node = {
-                    #pure
-                    {
-                        let cont = node.clone();
-                        let node = {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
-                        };
-                        let cont = node.clone();
-                        let mut prev_node = node.clone();
-                        for #variable in #for_expr {
-                            let node = prev_node.clone();
-                            #content
-                            prev_node = node;
-                        }
-                        {
-                            prev_node.as_ref().borrow_mut().get_sibling_mut().take();
-                        }
-                    }
-                    node
+                    let mut node_borrow = node.as_ref().borrow_mut();
+                    let weak_cont = Rc::downgrade(&cont);
+                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
                 };
+                {
+                    // this node will act as the child of pure block
+                    // because there can be only one child but many siblings
+                    // component inside the loop will be the sibling of this pure node
+                    let node = {
+                        let mut node_borrow = node.as_ref().borrow_mut();
+                        let weak_cont = Rc::downgrade(&cont);
+                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
+                    };
+                    // prev_sibling
+                    let mut prev_sibling = node.clone();
+                    for #loop_variable in #loop_data_source {
+                        let node = prev_sibling.clone();
+                        #parsed_loop_block
+                        prev_sibling = node;
+                    }
+                    // drop any left in the tree
+                    // because the for loop may run a little less than the previous run
+                    {
+                        prev_sibling.as_ref().borrow_mut().get_sibling_mut().take();
+                    }
+                }
             })
-        }
-        if let Ok(_) = input.parse::<syn::token::For>() {
-            for_recursive(input, init_type)
         } else {
             Ok(TokenStream2::new())
         }
