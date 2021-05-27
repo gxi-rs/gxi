@@ -155,7 +155,7 @@ impl TreeParser {
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
     fn parse_component(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
-        if let Ok(name) = input.parse::<syn::Ident>() {
+        if let Ok(name) = input.parse::<syn::Path>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
             //parse properties enclosed in parenthesis
