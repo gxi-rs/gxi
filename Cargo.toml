@@ -37,7 +37,7 @@ members = [
 ]
 
 [dependencies]
-gxi_macro = { path = "gxi_macro", version = "0.1.4", optional = true }
+gxi_macro = { path = "gxi_macro", version = "^0.2.0", optional = true }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 glib = { version = "0.10.3", optional = true }
