@@ -163,7 +163,7 @@ impl TreeParser {
                 // loop till every thing inside parenthesis is parsed
                 loop {
                     if let Ok(syn::ExprAssign { left, right, .. }) =
-                    content.parse::<syn::ExprAssign>()
+                        content.parse::<syn::ExprAssign>()
                     {
                         // push closure and literals to static_props and others to dynamic_props
                         match *right {
@@ -245,7 +245,7 @@ impl TreeParser {
 
             // parse children
             let children = if let syn::__private::Ok(syn::group::Brackets { content, .. }) =
-            syn::group::parse_brackets(&input)
+                syn::group::parse_brackets(&input)
             {
                 // if content is empty don't parse it
                 if content.is_empty() {
@@ -317,7 +317,9 @@ impl TreeParser {
         }
     }
 
-    fn custom_parse(input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool) -> Result<TokenStream2> {
+    fn custom_parse(
+        input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool,
+    ) -> Result<TokenStream2> {
         let mut tree = TokenStream2::new();
         let mut has_one_root_component = false;
         loop {
@@ -339,13 +341,18 @@ impl TreeParser {
                     }
                     let component_block = TreeParser::parse_component(&input, &init_type)?;
                     let parsed = if component_block.is_empty() {
-                        let conditional_block = TreeParser::parse_condition_block(&input, &init_type)?;
+                        let conditional_block =
+                            TreeParser::parse_condition_block(&input, &init_type)?;
                         if conditional_block.is_empty() {
-                            let child_injection = TreeParser::parse_child_injection(&input, &init_type)?;
+                            let child_injection =
+                                TreeParser::parse_child_injection(&input, &init_type)?;
                             if child_injection.is_empty() {
                                 let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
                                 if for_parse.is_empty() {
-                                    return Err(syn::Error::new(input.span().unwrap().into(), "didn't expect this here"));
+                                    return Err(syn::Error::new(
+                                        input.span().unwrap().into(),
+                                        "didn't expect this here",
+                                    ));
                                 }
                                 for_parse
                             } else {
@@ -367,7 +374,6 @@ impl TreeParser {
                     execution_block
                 }
             };
-
 
             tree = quote! { #tree #parsed };
             // there has to be a comma if input is not empty and the previous parse was successful

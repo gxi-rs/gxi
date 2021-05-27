@@ -12,10 +12,16 @@ pub struct GxiParser {
 
 impl GxiParser {
     // parse `{}` brackets where state is defined
-    fn parse_state_block(input: &ParseStream) -> Result<(TokenStream2, TokenStream2, TokenStream2)> {
+    fn parse_state_block(
+        input: &ParseStream,
+    ) -> Result<(TokenStream2, TokenStream2, TokenStream2)> {
         let block = group::parse_braces(&input)?.content;
         if block.is_empty() {
-            return Ok((TokenStream2::new(), TokenStream2::new(), TokenStream2::new()));
+            return Ok((
+                TokenStream2::new(),
+                TokenStream2::new(),
+                TokenStream2::new(),
+            ));
         }
         // syntax -> field_name : type = value (optional) comma
         let mut state_struct_lines = vec![];
@@ -32,7 +38,7 @@ impl GxiParser {
                 let value = block.parse::<syn::Expr>()?;
                 value.to_token_stream().into()
             } else {
-                quote!( Default::default() )
+                quote!(Default::default())
             };
 
             state_struct_lines.push(quote!( #field_name : #field_type ));
@@ -76,7 +82,7 @@ impl GxiParser {
             },
             quote! {
                 #( #state_setters )*
-            }
+            },
         ))
     }
 
@@ -174,7 +180,9 @@ impl GxiParser {
 impl Parse for GxiParser {
     /// parses the `input` parse_steam according to the syntax defined in the [macros macro](../../macros/macro.macros.html#syntax)
     fn parse(input: ParseStream) -> Result<Self> {
-        let viz = input.parse::<syn::Visibility>().unwrap_or(Visibility::Inherited);
+        let viz = input
+            .parse::<syn::Visibility>()
+            .unwrap_or(Visibility::Inherited);
         // check if component is async
         let (name, is_async) = {
             // this ident can either be `async` or it could be the name of the component
@@ -217,11 +225,7 @@ impl Parse for GxiParser {
                         };
                     }
                     "update" => {
-                        update_func = GxiParser::parse_update_fn(
-                            &name,
-                            &input,
-                            is_async,
-                        )?;
+                        update_func = GxiParser::parse_update_fn(&name, &input, is_async)?;
                     }
                     _ => {
                         return Err(syn::Error::new(
@@ -252,11 +256,12 @@ impl Parse for GxiParser {
             }
         };
 
-        let (desktop_channel_new, channel_sender_field, channel_sender_struct_field, desktop_channel_attach) = if cfg!(
-            feature = "desktop"
-        )
-            && is_async
-        {
+        let (
+            desktop_channel_new,
+            channel_sender_field,
+            channel_sender_struct_field,
+            desktop_channel_attach,
+        ) = if cfg!(feature = "desktop") && is_async {
             (
                 quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
                 quote! { channel_sender, },

@@ -1,5 +1,5 @@
-use gxi::*;
 use crate::macros::gxi_macro::comp::Comp;
+use gxi::*;
 
 gxi! {
     App {
@@ -7,7 +7,7 @@ gxi! {
     }
     render {
         /* Top comment */
-        Comp [
+        crate::macros::gxi_macro::comp::Comp [
             { println!("render"); },
             if state.limit == 2 {
                 { println!("true"); },
@@ -34,7 +34,9 @@ fn traverse_conditional() {
     let root = Root::new_root();
     let app = {
         let root_weak = Rc::downgrade(&root);
-        root.borrow_mut().init_child(Box::new(|| App::new(root_weak))).0
+        root.borrow_mut()
+            .init_child(Box::new(|| App::new(root_weak)))
+            .0
     };
     //render
     App::render(app.clone());
@@ -48,13 +50,23 @@ fn traverse_conditional() {
 fn check_child_type<T: 'static + Node>(node: NodeRc, name: &str) -> NodeRc {
     let node_borrow = node.as_ref().borrow();
     let child = node_borrow.get_child().as_ref().unwrap();
-    child.as_ref().borrow().as_any().downcast_ref::<T>().expect(&format!("expected '{}' here", name));
+    child
+        .as_ref()
+        .borrow()
+        .as_any()
+        .downcast_ref::<T>()
+        .expect(&format!("expected '{}' here", name));
     child.clone()
 }
 
 fn check_sibling_type<T: 'static + Node>(node: NodeRc, name: &str) -> NodeRc {
     let node_borrow = node.as_ref().borrow();
     let child = node_borrow.get_sibling().as_ref().unwrap();
-    child.as_ref().borrow().as_any().downcast_ref::<T>().expect(&format!("expected '{}' here", name));
+    child
+        .as_ref()
+        .borrow()
+        .as_any()
+        .downcast_ref::<T>()
+        .expect(&format!("expected '{}' here", name));
     child.clone()
 }

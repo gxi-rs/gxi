@@ -1,6 +1,6 @@
-use quote::*;
-use syn::__private::{Span};
 use quote::__private::TokenStream;
+use quote::*;
+use syn::__private::Span;
 
 pub enum InitType {
     Child,
