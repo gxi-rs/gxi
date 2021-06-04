@@ -167,7 +167,7 @@ impl TreeParser {
                 // loop till every thing inside parenthesis is parsed
                 loop {
                     if let Ok(syn::ExprAssign { left, right, .. }) =
-                    content.parse::<syn::ExprAssign>()
+                        content.parse::<syn::ExprAssign>()
                     {
                         // push closure and literals to static_props and others to dynamic_props
                         match *right {
@@ -249,7 +249,7 @@ impl TreeParser {
 
             // parse children
             let children = if let syn::__private::Ok(syn::group::Brackets { content, .. }) =
-            syn::group::parse_brackets(&input)
+                syn::group::parse_brackets(&input)
             {
                 // if content is empty don't parse it
                 if content.is_empty() {

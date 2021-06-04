@@ -3,7 +3,7 @@ use crate::macros::gxi_macro::foo::Foo;
 use gxi::*;
 
 enum Msg {
-    Foo
+    Foo,
 }
 
 gxi! {
