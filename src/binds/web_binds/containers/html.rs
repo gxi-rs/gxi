@@ -9,7 +9,7 @@ pub struct Html {
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
-    pub widget: web_sys::HtmlElement,
+    pub widget: web_sys::Element,
 }
 
 impl Node for Html {
@@ -24,7 +24,7 @@ impl Node for Html {
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.getElementsByTagName("html")[0]
+                document.get_elements_by_tag_name("html").item(0).unwrap()
             },
         })));
         {
@@ -40,3 +40,8 @@ impl Node for Html {
 impl GlobalAttributes for Html {}
 
 impl_drop_for_component!(Html);
+
+impl Html {
+    generate_pub_attr!(lang);
+    generate_pub_attr!(xmlns);
+}
