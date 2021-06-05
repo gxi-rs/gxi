@@ -35,7 +35,10 @@ pub trait Node: Drop {
     fn get_sibling_mut(&mut self) -> &mut Option<NodeRc> {
         unreachable!()
     }
+    /// get parent of node. used by init sibling
     fn get_parent(&self) -> NodeRc { unreachable!() }
+    /// set child if it doesn't already exist
+    /// if child is a widget add it to parent
     fn init_child(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         match self.get_child() {
             None => {
@@ -48,6 +51,7 @@ pub trait Node: Drop {
             Some(child) => (child.clone(), false),
         }
     }
+    /// same as init_child but for parent
     fn init_sibling(&mut self, f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
         match self.get_sibling() {
             None => {
@@ -63,29 +67,34 @@ pub trait Node: Drop {
             Some(sibling) => (sibling.clone(), false),
         }
     }
+    /// to convert types
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
+    /// get native widget of the node
+    /// should not be called if node is a widget
     fn get_widget(&self) -> NativeWidget;
+    /// type of node
     fn get_type(&self) -> NodeType {
         NodeType::Widget
     }
+    /// initialise the widget, usually called inside init_child callback
     fn new(parent: WeakNodeRc) -> NodeRc
         where
             Self: Sized;
+    /// render
     fn render(_this: NodeRc)
         where
             Self: Sized,
     {}
+
     fn is_dirty(&self) -> bool {
         false
     }
     fn mark_dirty(&mut self) {}
     fn mark_clean(&mut self) {}
-    // parent substitute is the the parent in which outer children are added
+    /// self substitute is the the node in which outer children are added
     fn get_self_substitute(&self) -> NodeRc;
     fn set_self_substitute(&mut self, self_substitute: NodeRc);
-    //adds the widget of child to self widget
-    //this method allow to draw clear lines between
-    //OS specific and component system specific code
+    // add child to node, if child is a widget then add it to self.widget
     fn add(&mut self, child: NodeRc);
 }
