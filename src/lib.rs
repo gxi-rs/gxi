@@ -7,26 +7,27 @@
 //!
 //! Read more [here](https://github.com/aniketfuryrocks/gxi)
 
-#[cfg(all(feature = "web", feature = "desktop"))]
-compile_error!("Cannot enable both `web` and `desktop` features.");
+mod interface;
+mod components;
+mod parser_macros;
+mod should_render;
 
-#[cfg(not(any(feature = "web", feature = "desktop")))]
-compile_error!("Either `web` or `desktop` feature must be enabled.");
+pub use should_render::*;
+pub use parser_macros::*;
+pub use components::*;
+pub use interface::*;
 
-macro_rules! transparent_block {( $($tt:tt)* ) => ( $($tt)* )}
+mod test {
+    use crate::{init_member, InitType, Root};
+    use crate::foo::Foo;
 
-#[cfg(any(feature = "web", feature = "desktop"))]
-#[cfg(not(all(feature = "web", feature = "desktop")))]
-transparent_block! {
-    mod parser_macros;
-    mod binds;
-    mod should_render;
-    mod nodes;
-    pub use binds::*;
-    pub use parser_macros::*;
-    pub use gxi_macro::gxi;
-    pub use nodes::*;
-    pub use should_render::*;
+    #[test]
+    fn main() {
+        let root = Root::new_root();
+        {
+            let (_node, _new) =
+                { init_member(root.clone(), InitType::Child, |this| Foo::new(this, ())) };
+        }
+    }
 
-    pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;
 }
