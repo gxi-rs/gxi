@@ -45,7 +45,7 @@ pub fn init_member<F: FnOnce(WeakGxiNodeType) -> NodeType>(
             }
 
             let mut this_node_borrow = this_node.as_ref().borrow_mut();
-            let child = this_node_borrow.get_child_mut().replace(child).unwrap();
+            *this_node_borrow.get_child_mut() = Some(child.clone());
             return (child, true);
         }
         _ => {

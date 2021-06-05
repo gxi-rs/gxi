@@ -42,6 +42,7 @@ macro_rules! impl_widget {
                 stringify!($name)
             );
         }
+
         fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
             panic!(
                 "Attempt to add node into {}. {} can't have a child.",
@@ -60,12 +61,12 @@ macro_rules! impl_widget {
             })))
         }
 
-        fn get_self_substitute(&self) -> NodeRc {
+        /*fn get_self_substitute(&self) -> NodeRc {
             panic!("{} can't have a child", stringify!($name));
         }
 
         fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
             panic!("{} can't have a child", stringify!($name));
-        }
+        }*/
     };
 }

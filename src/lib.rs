@@ -20,14 +20,22 @@ pub use interface::*;
 mod test {
     use crate::{init_member, InitType, Root};
     use crate::foo::Foo;
+    use std::rc::Rc;
+    use std::cell::{RefCell, RefMut};
+    use std::borrow::BorrowMut;
 
     #[test]
     fn main() {
         let root = Root::new_root();
         {
-            let (_node, _new) =
-                { init_member(root.clone(), InitType::Child, |this| Foo::new(this, ())) };
+            let _node = {
+                let (node, new) = init_member(root.clone(), InitType::Child, |this| Foo::new(this, ()));
+                let _node_cast =  node.clone().into_gxi_node_rc().as_ref().borrow_mut().as_any_mut().downcast_mut::<Foo>().unwrap();
+                // set values here
+                if new {
+                }
+                node
+            };
         }
     }
-
 }
