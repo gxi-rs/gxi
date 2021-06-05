@@ -1,4 +1,4 @@
-use crate::{NodeType, WeakGxiNodeType, GxiNodeRc, Node};
+use crate::{GxiNodeRc, Node, NodeType, WeakGxiNodeType};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;

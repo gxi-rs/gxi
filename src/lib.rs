@@ -7,33 +7,40 @@
 //!
 //! Read more [here](https://github.com/aniketfuryrocks/gxi)
 
-mod interface;
 mod components;
+mod interface;
 mod parser_macros;
 mod should_render;
 
-pub use should_render::*;
-pub use parser_macros::*;
 pub use components::*;
 pub use interface::*;
+pub use parser_macros::*;
+pub use should_render::*;
 
 mod test {
-    use crate::{init_member, InitType, Root};
     use crate::foo::Foo;
-    use std::rc::Rc;
-    use std::cell::{RefCell, RefMut};
+    use crate::{init_member, InitType, Root};
     use std::borrow::BorrowMut;
+    use std::cell::{RefCell, RefMut};
+    use std::rc::Rc;
 
     #[test]
     fn main() {
         let root = Root::new_root();
         {
             let _node = {
-                let (node, new) = init_member(root.clone(), InitType::Child, |this| Foo::new(this, ()));
-                let _node_cast =  node.clone().into_gxi_node_rc().as_ref().borrow_mut().as_any_mut().downcast_mut::<Foo>().unwrap();
+                let (node, new) =
+                    init_member(root.clone(), InitType::Child, |this| Foo::new(this, ()));
+                let _node_cast = node
+                    .clone()
+                    .into_gxi_node_rc()
+                    .as_ref()
+                    .borrow_mut()
+                    .as_any_mut()
+                    .downcast_mut::<Foo>()
+                    .unwrap();
                 // set values here
-                if new {
-                }
+                if new {}
                 node
             };
         }

@@ -1,4 +1,4 @@
-use crate::{*};
+use crate::*;
 
 pub trait GlobalAttributes: Node {
     #[inline]

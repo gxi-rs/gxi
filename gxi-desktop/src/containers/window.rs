@@ -2,7 +2,7 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{WindowType};
+use gtk::WindowType;
 
 use crate::*;
 
@@ -12,7 +12,7 @@ pub struct Window {
     pub self_substitute: Option<WeakNodeRc>,
     pub child: Option<NodeRc>,
     pub sibling: Option<NodeRc>,
-    pub widget: gtk::Window
+    pub widget: gtk::Window,
 }
 
 impl Node for Window {

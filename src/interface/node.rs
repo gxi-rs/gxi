@@ -22,7 +22,9 @@ pub trait Node {
     /// this: can't move &self to update closure therefore take a GxiNodeRc of Self
     fn render(_this: GxiNodeRc)
     where
-        Self: Sized {}
+        Self: Sized,
+    {
+    }
     /// getters
     fn get_child(&self) -> &Option<NodeType>;
     fn get_child_mut(&mut self) -> &mut Option<NodeType>;

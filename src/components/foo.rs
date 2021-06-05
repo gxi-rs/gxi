@@ -1,7 +1,7 @@
+use crate::interface::{GxiNodeRc, Node, NodeType, WeakGxiNodeType};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::interface::{NodeType, WeakGxiNodeType, GxiNodeRc, Node};
 
 pub(crate) struct Foo {
     child: Option<NodeType>,

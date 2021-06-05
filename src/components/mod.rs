@@ -1,9 +1,8 @@
-pub use root::*;
-pub use pure::*;
 pub use init::*;
+pub use pure::*;
+pub use root::*;
 
-mod root;
 pub mod foo;
-mod pure;
 mod init;
-
+mod pure;
+mod root;

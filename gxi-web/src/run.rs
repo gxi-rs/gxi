@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::panic;
 use std::rc::Rc;
 
-use crate::{*};
+use crate::*;
 
 thread_local! {
     static TREE_ROOT: RefCell<Option<NodeRc>> = RefCell::new(None);

@@ -1,4 +1,4 @@
-use crate::{GxiNodeRc, GxiWidgetRc, WeakGxiWidgetRc, WeakGxiNodeRc};
+use crate::{GxiNodeRc, GxiWidgetRc, WeakGxiNodeRc, WeakGxiWidgetRc};
 use std::rc::Rc;
 
 #[derive(Clone)]
