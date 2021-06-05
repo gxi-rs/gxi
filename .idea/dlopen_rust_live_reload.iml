@@ -217,6 +217,8 @@
       <sourceFolder url="file://$MODULE_DIR$/../gxi_macros/gxi_parsers/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/gxi_macro/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/gxi_parsers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gxi-desktop/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gxi-web/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/target/debug/build/proc-macro2-1a1bf67d4f25d8d3/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/macros/target/debug/build/syn-14f861b5b3f9a983/out" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../gxi_macros/src" isTestSource="false" />

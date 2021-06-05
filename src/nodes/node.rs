@@ -19,10 +19,10 @@ impl NodeType {
 pub type NodeRc = Rc<RefCell<Box<dyn Node>>>;
 pub type WeakNodeRc = Weak<RefCell<Box<dyn Node>>>;
 
-#[cfg(feature = "desktop")]
+#[cfg(feature = "gxi-desktop")]
 pub type NativeWidget = gtk::Widget;
 
-#[cfg(feature = "web")]
+#[cfg(feature = "gxi-web")]
 pub type NativeWidget = web_sys::Element;
 
 #[allow(drop_bounds)]
