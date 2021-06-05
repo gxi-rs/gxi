@@ -18,10 +18,6 @@ impl Node for Foo {
         self
     }
 
-    fn render(_this: GxiNodeRc) {
-        todo!()
-    }
-
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
     }

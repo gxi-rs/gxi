@@ -16,10 +16,6 @@ impl Node for Root {
         self
     }
 
-    fn render(_this: GxiNodeRc) {
-        unreachable!()
-    }
-
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
     }

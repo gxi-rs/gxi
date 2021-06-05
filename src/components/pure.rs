@@ -21,8 +21,6 @@ impl Node for Pure {
         self
     }
 
-    fn render(_this: GxiNodeRc) {}
-
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
     }
