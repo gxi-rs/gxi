@@ -1,4 +1,4 @@
-use crate::interface::{GxiNodeRc, Node, NodeType, WeakGxiNodeType};
+use crate::interface::{Node, NodeType, WeakNodeType};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -6,10 +6,18 @@ use std::rc::Rc;
 pub(crate) struct Foo {
     child: Option<NodeType>,
     sibling: Option<NodeType>,
-    parent: WeakGxiNodeType,
+    parent: WeakNodeType,
 }
 
 impl Node for Foo {
+    fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
+        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+            child: None,
+            sibling: None,
+            parent,
+        }))))
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -26,18 +34,8 @@ impl Node for Foo {
         &mut self.child
     }
 
-    fn get_parent(&self) -> WeakGxiNodeType {
+    fn get_parent(&self) -> WeakNodeType {
         self.parent.clone()
-    }
-}
-
-impl Foo {
-    pub(crate) fn new(parent: WeakGxiNodeType, _construct_values: ()) -> NodeType {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
-            child: None,
-            sibling: None,
-            parent,
-        }))))
     }
 }
 

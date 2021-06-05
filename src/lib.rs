@@ -19,10 +19,7 @@ pub use should_render::*;
 
 mod test {
     use crate::foo::Foo;
-    use crate::{init_member, InitType, Root};
-    use std::borrow::BorrowMut;
-    use std::cell::{RefCell, RefMut};
-    use std::rc::Rc;
+    use crate::{init_member, InitType, Root, Node};
 
     #[test]
     fn main() {
@@ -30,7 +27,7 @@ mod test {
         {
             let _node = {
                 let (node, new) =
-                    init_member(root.clone(), InitType::Child, |this| Foo::new(this, ()));
+                    init_member(root.clone(), InitType::Child, |this| Foo::new(this));
                 let _node_cast = node
                     .clone()
                     .into_gxi_node_rc()

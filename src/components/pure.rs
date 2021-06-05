@@ -1,4 +1,4 @@
-use crate::{GxiNodeRc, Node, NodeType, WeakGxiNodeType};
+use crate::{Node, NodeType, WeakNodeType};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -9,10 +9,20 @@ struct Pure {
     // others
     child: Option<NodeType>,
     sibling: Option<NodeType>,
-    parent: WeakGxiNodeType,
+    parent: WeakNodeType,
 }
 
 impl Node for Pure {
+
+    fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
+        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+            pure_index: 0,
+            child: None,
+            sibling: None,
+            parent,
+        }))))
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -29,13 +39,13 @@ impl Node for Pure {
         &mut self.child
     }
 
-    fn get_parent(&self) -> WeakGxiNodeType {
+    fn get_parent(&self) -> WeakNodeType {
         self.parent.clone()
     }
 }
 
 impl Pure {
-    fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> NodeType {
+    fn new(parent: WeakNodeType, _constructor_params: ()) -> NodeType {
         NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             pure_index: 0,
             child: None,

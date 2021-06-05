@@ -14,25 +14,25 @@ impl NodeType {
             NodeType::Widget(widget) => Rc::downcast(widget).unwrap(),
         }
     }
-    pub fn downgrade(&self) -> WeakGxiNodeType {
+    pub fn downgrade(&self) -> WeakNodeType {
         match self {
-            NodeType::Component(this) => WeakGxiNodeType::Component(Rc::downgrade(this)),
-            NodeType::Widget(this) => WeakGxiNodeType::Widget(Rc::downgrade(this)),
+            NodeType::Component(this) => WeakNodeType::Component(Rc::downgrade(this)),
+            NodeType::Widget(this) => WeakNodeType::Widget(Rc::downgrade(this)),
         }
     }
 }
 
 #[derive(Clone)]
-pub enum WeakGxiNodeType {
+pub enum WeakNodeType {
     Widget(WeakGxiWidgetRc),
     Component(WeakGxiNodeRc),
 }
 
-impl WeakGxiNodeType {
+impl WeakNodeType {
     pub fn upgrade(self) -> NodeType {
         match self {
-            WeakGxiNodeType::Widget(this) => NodeType::Widget(this.upgrade().unwrap()),
-            WeakGxiNodeType::Component(this) => NodeType::Component(this.upgrade().unwrap()),
+            WeakNodeType::Widget(this) => NodeType::Widget(this.upgrade().unwrap()),
+            WeakNodeType::Component(this) => NodeType::Component(this.upgrade().unwrap()),
         }
     }
 }

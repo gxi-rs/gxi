@@ -1,4 +1,4 @@
-use crate::interface::{GxiNodeRc, Node, NodeType, WeakGxiNodeType};
+use crate::interface::{Node, NodeType, WeakNodeType};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -8,6 +8,10 @@ pub struct Root {
 }
 
 impl Node for Root {
+    fn new(_parent: WeakNodeType) -> NodeType where Self: Sized {
+        NodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
+    }
+
     fn as_any(&self) -> &dyn Any {
         self
     }
@@ -24,7 +28,7 @@ impl Node for Root {
         &mut self.child
     }
 
-    fn get_parent(&self) -> WeakGxiNodeType {
+    fn get_parent(&self) -> WeakNodeType {
         unreachable!()
     }
 }

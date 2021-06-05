@@ -1,11 +1,11 @@
-use crate::{GxiNodeRc, InitType, NodeType, WeakGxiNodeType};
+use crate::{GxiNodeRc, InitType, NodeType, WeakNodeType};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
 ///
 /// @return
 /// + bool: false if child already exists
-pub fn init_member<F: FnOnce(WeakGxiNodeType) -> NodeType>(
+pub fn init_member<F: FnOnce(WeakNodeType) -> NodeType>(
     this: NodeType, init_type: InitType, init: F,
 ) -> (NodeType, bool) {
     match init_type {
