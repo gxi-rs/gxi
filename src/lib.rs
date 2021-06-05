@@ -18,8 +18,8 @@ pub use parser_macros::*;
 pub use should_render::*;
 
 mod test {
-    use crate::foo::Foo;
     use crate::{init_member, InitType, Root, Node};
+    use crate::components::foo::Foo;
 
     #[test]
     fn main() {
