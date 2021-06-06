@@ -16,7 +16,7 @@ pub struct Window {
 
 impl GxiNode for Window {
     fn new(parent: WeakGxiNodeType) -> GxiNodeType {
-        GxiNodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+        GxiNodeType::Container(Rc::new(RefCell::new(Box::new(Self {
             parent,
             child: None,
             sibling: None,
@@ -25,9 +25,11 @@ impl GxiNode for Window {
     }
 
     impl_node_trait_as_any!();
-    impl_node_member_getters!();
+    impl_node_getters!();
 }
 
+impl ContainerNode for Window {}
+impl_container!(Window);
 impl_widget_node!(Window);
 
 impl Window {

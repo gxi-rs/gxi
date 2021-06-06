@@ -15,10 +15,10 @@ macro_rules! impl_drop {
 macro_rules! impl_widget_node {
     ($name:ident) => {
         impl WidgetNode for $name {
-            fn get_widget(&self) -> &dyn NativeWidget {
+            fn get_widget(&self) -> &dyn Widget {
                 &self.widget
             }
-            fn get_widget_mut(&mut self) -> &mut dyn NativeWidget {
+            fn get_widget_mut(&mut self) -> &mut dyn Widget {
                 &mut self.widget
             }
         }

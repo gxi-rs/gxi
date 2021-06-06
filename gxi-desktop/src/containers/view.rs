@@ -22,10 +22,10 @@ pub struct View {
 
 impl GxiNode for View {
     impl_node_trait_as_any!();
-    impl_node_member_getters!();
+    impl_node_getters!();
 
     fn new(parent: WeakGxiNodeType) -> GxiNodeType {
-        GxiNodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+        GxiNodeType::Container(Rc::new(RefCell::new(Box::new(Self {
             parent,
             child: None,
             sibling: None,
@@ -34,6 +34,8 @@ impl GxiNode for View {
     }
 }
 
+impl ContainerNode for View {}
+impl_container!(View);
 impl_widget_node!(View);
 
 impl View {

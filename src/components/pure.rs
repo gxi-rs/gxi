@@ -14,10 +14,7 @@ struct Pure {
 }
 
 impl GxiNode for Pure {
-    fn new(parent: WeakGxiNodeType) -> GxiNodeType
-    where
-        Self: Sized,
-    {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
         GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             pure_index: 0,
             child: None,

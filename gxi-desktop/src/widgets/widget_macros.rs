@@ -9,8 +9,8 @@ macro_rules! create_widget {
         use std::rc::Rc;
 
         pub struct $name {
-            parent: WeakNodeType,
-            sibling: Option<NodeType>,
+            parent: WeakGxiNodeType,
+            sibling: Option<GxiNodeType>,
             widget: GtkWidget<gtk::$widget_name>,
         }
 
@@ -27,15 +27,12 @@ macro_rules! impl_widget {
         impl_widget!($name, $name, $($args:tt)*);
     };
     ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
-        impl Node for $name {
+        impl GxiNode for $name {
             impl_node_trait_as_any!();
+            impl_node_getters!();
 
-            fn get_parent(&self) -> &WeakNodeType {
-                &self.parent
-            }
-
-            fn new(parent: WeakNodeType) -> NodeType {
-                NodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+            fn new(parent: WeakGxiNodeType) -> GxiNodeType {
+                GxiNodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
                     parent,
                     widget: GtkWidget(gtk::$widget_name::new($($args)*)),
                     sibling: None,
