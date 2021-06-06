@@ -26,7 +26,7 @@ impl GxiNode for Foo {
 }
 
 impl_container!(Foo);
-impl_component!(Foo);
+impl_component_node!(Foo);
 
 impl Drop for Foo {
     fn drop(&mut self) {}

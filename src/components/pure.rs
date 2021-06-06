@@ -30,7 +30,7 @@ impl GxiNode for Pure {
 }
 
 impl_container!(Pure);
-impl_component!(Pure);
+impl_component_node!(Pure);
 
 impl Pure {
     fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {

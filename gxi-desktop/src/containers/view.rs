@@ -39,7 +39,7 @@ impl GxiNode for View {
 impl ContainerNode for View {}
 impl_container!(View);
 impl_widget_node!(View);
-impl_component!(View);
+impl_component_node!(View);
 
 impl View {
     pub fn orientation(&mut self, orientation: Orientation) {

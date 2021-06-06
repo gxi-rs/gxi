@@ -59,7 +59,7 @@ macro_rules! impl_container {
 
 /// impl container trait, should have child field
 #[macro_export]
-macro_rules! impl_component {
+macro_rules! impl_component_node {
     ($name:ident) => {
         impl ComponentNode for $name {
             fn get_self_substitute(&self) -> &Option<WeakGxiNodeType> {

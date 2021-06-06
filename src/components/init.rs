@@ -26,7 +26,7 @@ impl GxiNode for Init {
 }
 
 impl_container!(Init);
-impl_component!(Init);
+impl_component_node!(Init);
 
 impl Init {
     fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {

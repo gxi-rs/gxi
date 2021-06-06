@@ -31,7 +31,7 @@ impl GxiNode for Window {
 }
 
 impl ContainerNode for Window {}
-impl_component!(Window);
+impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
 
