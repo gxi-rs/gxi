@@ -1,17 +1,16 @@
+use gxi::*;
 use crate::*;
 
 create_widget!(Spinner);
 
-impl Node for Spinner {
-    impl_widget!(Spinner);
-}
+impl_widget!(Spinner);
 
 impl Spinner {
     pub fn spin(&self, should_spin: bool) {
         if should_spin {
-            self.widget.start()
+            self.widget.0.start()
         } else {
-            self.widget.stop()
+            self.widget.0.stop()
         }
     }
 }

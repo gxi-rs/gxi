@@ -5,14 +5,13 @@ use std::rc::Rc;
 use gtk::{WidgetExt, WindowType};
 
 use gxi::*;
-
 use crate::*;
 
 pub struct Window {
-    pub parent: WeakNodeType,
-    pub child: Option<NodeType>,
-    pub sibling: Option<NodeType>,
-    pub widget: GtkElement<gtk::Window>,
+    parent: WeakNodeType,
+    child: Option<NodeType>,
+    sibling: Option<NodeType>,
+    widget: GtkContainer<gtk::Window>,
 }
 
 impl Node for Window {
@@ -21,7 +20,7 @@ impl Node for Window {
             parent,
             child: None,
             sibling: None,
-            widget: GtkElement(gtk::Window::new(WindowType::Toplevel)),
+            widget: GtkContainer(gtk::Window::new(WindowType::Toplevel)),
         }))))
     }
 

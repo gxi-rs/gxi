@@ -9,14 +9,12 @@ macro_rules! create_widget {
         use std::rc::Rc;
 
         pub struct $name {
-            pub parent: WeakNodeRc,
-            pub dirty: bool,
-            pub self_substitute: Option<WeakNodeRc>,
-            pub widget: gtk::$widget_name,
-            pub sibling: Option<NodeRc>,
+            parent: WeakNodeType,
+            sibling: Option<NodeType>,
+            widget: GtkWidget<gtk::$widget_name>
         }
 
-        impl_drop_for_node!($name);
+        impl_drop!($name);
     };
 }
 
@@ -29,44 +27,21 @@ macro_rules! impl_widget {
         impl_widget!($name, $name, $($args:tt)*);
     };
     ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
-        impl_node_trait_as_any!();
-        impl_node_trait_dirty!();
-        impl_node_trait_get_widget!();
-        impl_node_trait_get_sibling!();
-        impl_node_trait_get_parent!();
+        impl Node for $name {
+            impl_node_trait_as_any!();
 
-        fn add(&mut self, _child:NodeRc) {
-            panic!(
-                "Attempt to add node into {}. {} can't have a child.",
-                stringify!($name),
-                stringify!($name)
-            );
+            fn get_parent(&self) -> &WeakNodeType {
+                &self.parent
+            }
+
+            fn new(parent: WeakNodeType) -> NodeType {
+                NodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+                    parent,
+                    widget: GtkWidget(gtk::$widget_name::new($($args)*)),
+                    sibling: None,
+                }))))
+            }
         }
-
-        fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-            panic!(
-                "Attempt to add node into {}. {} can't have a child.",
-                stringify!($name),
-                stringify!($name)
-            );
-        }
-
-        fn new(parent: WeakNodeRc) -> NodeRc {
-            Rc::new(RefCell::new(Box::new(Self {
-                parent,
-                self_substitute: None,
-                dirty: true,
-                widget: gtk::$widget_name::new($($args)*),
-                sibling: None,
-            })))
-        }
-
-        /*fn get_self_substitute(&self) -> NodeRc {
-            panic!("{} can't have a child", stringify!($name));
-        }
-
-        fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
-            panic!("{} can't have a child", stringify!($name));
-        }*/
+        impl_widget_node!($name);
     };
 }
