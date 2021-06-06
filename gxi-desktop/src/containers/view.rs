@@ -41,14 +41,7 @@ impl Node for View {
     impl_node_member_getters!();
 }
 
-impl WidgetNode for View {
-    fn get_widget(&self) -> &dyn NativeWidget {
-        &self.widget
-    }
-    fn get_widget_mut(&mut self) -> &mut dyn NativeWidget {
-        &mut self.widget
-    }
-}
+impl_widget_node!(View);
 
 impl View {
     pub fn orientation(&mut self, orientation: Orientation) {

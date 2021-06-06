@@ -1,18 +1,7 @@
 #[macro_export]
-macro_rules! impl_add_for_desktop_node {
-    () => {
-        fn add(&mut self, child: NodeRc) {
-            self.widget.add(&child.as_ref().borrow().get_widget());
-            self.mark_dirty();
-        }
-    };
-}
-
-
-#[macro_export]
 macro_rules! impl_drop {
-    ($ident:ident) => {
-        impl Drop for $ident {
+    ($name:ident) => {
+        impl Drop for $name {
             fn drop(&mut self) {
                 unsafe {
                     self.widget.0.destroy();
@@ -21,3 +10,18 @@ macro_rules! impl_drop {
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_widget_node {
+    ($name:ident) => {
+        impl WidgetNode for $name {
+            fn get_widget(&self) -> &dyn NativeWidget {
+                &self.widget
+            }
+            fn get_widget_mut(&mut self) -> &mut dyn NativeWidget {
+                &mut self.widget
+            }
+        }
+    };
+}
+

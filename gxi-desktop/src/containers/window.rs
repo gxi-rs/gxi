@@ -16,7 +16,6 @@ pub struct Window {
 }
 
 impl Node for Window {
-
     fn new(parent: WeakNodeType) -> NodeType {
         NodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
             parent,
@@ -30,15 +29,7 @@ impl Node for Window {
     impl_node_member_getters!();
 }
 
-impl WidgetNode for Window {
-    fn get_widget(&self) -> &dyn NativeWidget {
-        &self.widget
-    }
-
-    fn get_widget_mut(&mut self) -> &mut dyn NativeWidget {
-        &mut self.widget
-    }
-}
+impl_widget_node!(Window);
 
 impl Window {
     pub fn on_destroy<F: Fn() + 'static>(&self, f: F) {
