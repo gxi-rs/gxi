@@ -12,6 +12,7 @@ pub struct Window {
     child: Option<GxiNodeType>,
     sibling: Option<GxiNodeType>,
     widget: GtkContainer<gtk::Window>,
+    self_substitute: Option<WeakGxiNodeType>,
 }
 
 impl GxiNode for Window {
@@ -21,6 +22,7 @@ impl GxiNode for Window {
             child: None,
             sibling: None,
             widget: GtkContainer(gtk::Window::new(WindowType::Toplevel)),
+            self_substitute: None
         }))))
     }
 
@@ -29,6 +31,7 @@ impl GxiNode for Window {
 }
 
 impl ContainerNode for Window {}
+impl_component!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
 
