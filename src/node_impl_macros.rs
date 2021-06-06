@@ -57,6 +57,22 @@ macro_rules! impl_container {
     };
 }
 
+/// impl container trait, should have child field
+#[macro_export]
+macro_rules! impl_component {
+    ($name:ident) => {
+        impl ComponentNode for $name {
+            fn get_self_substitute(&self) -> &Option<WeakGxiNodeType> {
+                &self.self_substitute
+            }
+
+            fn get_self_substitute_mut(&mut self) -> &mut Option<WeakGxiNodeType> {
+                &mut self.self_substitute
+            }
+        }
+    };
+}
+
 /// impl get_child, get_child_mut, get_parent
 #[macro_export]
 macro_rules! impl_node_getters {

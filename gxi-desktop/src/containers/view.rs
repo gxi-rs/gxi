@@ -15,6 +15,7 @@ pub enum Orientation {
 
 pub struct View {
     parent: WeakGxiNodeType,
+    self_substitute: Option<GxiNodeType>,
     child: Option<GxiNodeType>,
     sibling: Option<GxiNodeType>,
     widget: GtkContainer<gtk::Box>,
@@ -27,6 +28,7 @@ impl GxiNode for View {
     fn new(parent: WeakGxiNodeType) -> GxiNodeType {
         GxiNodeType::Container(Rc::new(RefCell::new(Box::new(Self {
             parent,
+            self_substitute: None,
             child: None,
             sibling: None,
             widget: GtkContainer(gtk::Box::new(gtk::Orientation::Horizontal, 0)),
@@ -34,7 +36,15 @@ impl GxiNode for View {
     }
 }
 
-impl ContainerNode for View {}
+impl ContainerNode for View {
+    fn get_self_substitute(&self) -> GxiNodeType {
+        self.self_substitute
+    }
+
+    fn set_self_substitute(&mut self, self_substitute: GxiNodeType) {
+        todo!()
+    }
+}
 impl_container!(View);
 impl_widget_node!(View);
 

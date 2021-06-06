@@ -11,6 +11,7 @@ struct Pure {
     child: Option<GxiNodeType>,
     sibling: Option<GxiNodeType>,
     parent: WeakGxiNodeType,
+    self_substitute: Option<WeakGxiNodeType>,
 }
 
 impl GxiNode for Pure {
@@ -20,6 +21,7 @@ impl GxiNode for Pure {
             child: None,
             sibling: None,
             parent,
+            self_substitute: None
         }))))
     }
 
@@ -28,8 +30,7 @@ impl GxiNode for Pure {
 }
 
 impl_container!(Pure);
-
-impl ComponentNode for Pure {}
+impl_component!(Pure);
 
 impl Pure {
     fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {
@@ -38,6 +39,7 @@ impl Pure {
             child: None,
             sibling: None,
             parent,
+            self_substitute: None
         }))))
     }
 }

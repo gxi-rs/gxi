@@ -8,6 +8,7 @@ pub(crate) struct Foo {
     child: Option<GxiNodeType>,
     sibling: Option<GxiNodeType>,
     parent: WeakGxiNodeType,
+    self_substitute: Option<WeakGxiNodeType>,
 }
 
 impl GxiNode for Foo {
@@ -16,6 +17,7 @@ impl GxiNode for Foo {
             child: None,
             sibling: None,
             parent,
+            self_substitute: None,
         }))))
     }
 
@@ -24,7 +26,7 @@ impl GxiNode for Foo {
 }
 
 impl_container!(Foo);
-impl ComponentNode for Foo {}
+impl_component!(Foo);
 
 impl Drop for Foo {
     fn drop(&mut self) {}

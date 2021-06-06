@@ -28,7 +28,11 @@ impl GxiNode for Root {
 
 impl_container!(Root);
 
-impl ComponentNode for Root {}
+impl ComponentNode for Root {
+    fn get_self_substitute(&self) -> &Option<WeakGxiNodeType> { unreachable!() }
+
+    fn get_self_substitute_mut(&mut self) -> &mut Option<WeakGxiNodeType> { unreachable!() }
+}
 
 impl Root {
     pub fn new_root() -> GxiNodeType {

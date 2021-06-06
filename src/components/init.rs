@@ -8,6 +8,7 @@ struct Init {
     child: Option<GxiNodeType>,
     sibling: Option<GxiNodeType>,
     parent: WeakGxiNodeType,
+    self_substitute: Option<WeakGxiNodeType>,
 }
 
 impl GxiNode for Init {
@@ -16,6 +17,7 @@ impl GxiNode for Init {
             child: None,
             sibling: None,
             parent,
+            self_substitute: None,
         }))))
     }
 
@@ -24,11 +26,12 @@ impl GxiNode for Init {
 }
 
 impl_container!(Init);
-impl ComponentNode for Init {}
+impl_component!(Init);
 
 impl Init {
     fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {
         GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+            self_substitute: None,
             child: None,
             sibling: None,
             parent,

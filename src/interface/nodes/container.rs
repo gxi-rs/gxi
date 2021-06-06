@@ -7,7 +7,8 @@ pub type WeakGxiContainerRc = Weak<RefCell<Box<dyn ContainerNode>>>;
 
 /// Node which has a native widget
 /// and can hold children
-pub trait ContainerNode: GxiNode + WidgetNode + Container {}
+pub trait ContainerNode: GxiNode + WidgetNode + Container {
+}
 
 /// a node which can hold children
 pub trait Container {
