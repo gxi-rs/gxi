@@ -1,4 +1,5 @@
 use crate::Node;
+use std::any::Any;
 
 /// Node which has a native widget
 pub trait WidgetNode: Node {
@@ -10,4 +11,6 @@ pub trait WidgetNode: Node {
 /// Implemented on to native widgets like H1, Body
 pub trait NativeWidget {
     fn append(&mut self, widget: &dyn NativeWidget);
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
 }

@@ -1,7 +1,8 @@
-use crate::{Node, NodeType, WeakNodeType};
+use crate::{*};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::path::Component;
 
 struct Init {
     child: Option<NodeType>,
@@ -10,7 +11,6 @@ struct Init {
 }
 
 impl Node for Init {
-
     fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
         NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             child: None,
@@ -19,13 +19,7 @@ impl Node for Init {
         }))))
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
+    impl_node_trait_as_any!();
 
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
@@ -39,6 +33,8 @@ impl Node for Init {
         self.parent.clone()
     }
 }
+
+impl ComponentNode for Init {}
 
 impl Init {
     fn new(parent: WeakNodeType, _constructor_params: ()) -> NodeType {

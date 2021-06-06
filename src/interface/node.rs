@@ -1,10 +1,12 @@
-use crate::{NodeType, WeakNodeType, WidgetNode};
+use crate::{NodeType, WeakNodeType, WidgetNode, ComponentNode};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
 pub type GxiNodeRc = Rc<RefCell<Box<dyn Node>>>;
 pub type WeakGxiNodeRc = Weak<RefCell<Box<dyn Node>>>;
+pub type GxiComponentRc = Rc<RefCell<Box<dyn ComponentNode>>>;
+pub type WeakGxiComponentRc = Weak<RefCell<Box<dyn ComponentNode>>>;
 pub type GxiWidgetRc = Rc<RefCell<Box<dyn WidgetNode>>>;
 pub type WeakGxiWidgetRc = Weak<RefCell<Box<dyn WidgetNode>>>;
 
@@ -18,10 +20,9 @@ pub trait Node {
     fn as_any_mut(&mut self) -> &mut dyn Any;
     /// this: can't move &self to update closure therefore take a GxiNodeRc of Self
     fn render(_this: GxiNodeRc)
-    where
-        Self: Sized,
-    {
-    }
+        where
+            Self: Sized,
+    {}
     /// getters
     fn get_child(&self) -> &Option<NodeType>;
     fn get_child_mut(&mut self) -> &mut Option<NodeType>;

@@ -1,4 +1,4 @@
-use crate::interface::{Node, NodeType, WeakNodeType};
+use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -18,13 +18,7 @@ impl Node for Foo {
         }))))
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
+    impl_node_trait_as_any!();
 
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
@@ -38,6 +32,8 @@ impl Node for Foo {
         self.parent.clone()
     }
 }
+
+impl ComponentNode for Foo {}
 
 impl Drop for Foo {
     fn drop(&mut self) {}

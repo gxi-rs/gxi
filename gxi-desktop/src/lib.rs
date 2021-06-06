@@ -6,13 +6,16 @@
 
 pub use containers::*;
 pub use glib;
-pub use gtk::prelude::*;
 pub use run::*;
 pub use tokio;
 pub use widgets::*;
+pub use gtk::prelude::*;
+pub use gxi;
+pub use impl_widget::*;
 
 mod containers;
 mod run;
 mod widgets;
 #[macro_use]
 mod desktop_impl_macros;
+mod impl_widget;

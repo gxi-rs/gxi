@@ -1,4 +1,4 @@
-use crate::{Node, NodeType, WeakNodeType};
+use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -13,7 +13,6 @@ struct Pure {
 }
 
 impl Node for Pure {
-
     fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
         NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             pure_index: 0,
@@ -23,13 +22,7 @@ impl Node for Pure {
         }))))
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
+    impl_node_trait_as_any!();
 
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
@@ -43,6 +36,8 @@ impl Node for Pure {
         self.parent.clone()
     }
 }
+
+impl ComponentNode for Pure {}
 
 impl Pure {
     fn new(parent: WeakNodeType, _constructor_params: ()) -> NodeType {

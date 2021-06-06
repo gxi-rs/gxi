@@ -1,8 +1,11 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use gxi::{GxiNodeRc, WeakNodeType, NodeType, Node, impl_node_trait_as_any, impl_node_trait_dirty, WidgetNode};
+use gtk::{WidgetExt, OrientableExt};
+use crate::impl_widget::GtkContainer;
+use crate::gxi::NativeWidget;
 
-use crate::*;
 
 pub enum Orientation {
     Horizontal,
@@ -10,47 +13,69 @@ pub enum Orientation {
 }
 
 pub struct View {
-    pub parent: WeakNodeRc,
-    pub dirty: bool,
-    pub self_substitute: Option<WeakNodeRc>,
-    pub child: Option<NodeRc>,
-    pub sibling: Option<NodeRc>,
-    pub widget: gtk::Box,
+    pub parent: WeakNodeType,
+    pub is_dirty: bool,
+    pub self_substitute: Option<WeakNodeType>,
+    pub child: Option<NodeType>,
+    pub sibling: Option<NodeType>,
+    pub widget: GtkContainer<gtk::Box>,
 }
 
 impl Node for View {
     impl_node_trait_as_any!();
     impl_node_trait_dirty!();
-    impl_node_trait_get_widget!();
-    impl_node_trait_get_sibling!();
-    impl_node_trait_get_child!();
-    impl_node_trait_get_parent!();
-    impl_add_for_desktop_node!();
-    impl_node_trait_substitute!();
+    //impl_node_trait_get_widget!();
+    //impl_node_trait_get_sibling!();
+    //impl_node_trait_get_child!();
+    //impl_node_trait_get_parent!();
+    //impl_add_for_desktop_node!();
+    //impl_node_trait_substitute!();
 
-    fn new(parent: WeakNodeRc) -> NodeRc {
+    fn new(parent: WeakNodeType) -> NodeRc {
         let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
             parent,
-            dirty: true,
+            is_dirty: true,
             self_substitute: None,
             child: None,
             sibling: None,
-            widget: gtk::Box::new(gtk::Orientation::Horizontal, 0),
+            widget: GtkContainer(gtk::Box::new(gtk::Orientation::Horizontal, 0)),
         })));
-        {
+        /*{
             let mut this_borrow = this.as_ref().borrow_mut();
             this_borrow.set_self_substitute(this.clone());
-        }
+        }*/
         this
     }
 
-    fn render(state: NodeRc) {
+    fn render(state: GxiNodeRc) {
         let mut state = state.as_ref().borrow_mut();
         let state = state.as_any_mut().downcast_mut::<Self>().unwrap();
         if state.dirty {
             state.widget.show_all();
         }
         state.mark_clean();
+    }
+
+    fn get_child(&self) -> &Option<NodeType> {
+        todo!()
+    }
+
+    fn get_child_mut(&mut self) -> &mut Option<NodeType> {
+        todo!()
+    }
+
+    fn get_parent(&self) -> WeakNodeType {
+        todo!()
+    }
+}
+
+impl WidgetNode for View {
+    fn get_widget(&self) -> &dyn NativeWidget {
+        &self.widget
+    }
+
+    fn get_widget_mut(&mut self) -> &mut dyn NativeWidget {
+        &mut self.widget
     }
 }
 

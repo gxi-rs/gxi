@@ -11,6 +11,8 @@ mod components;
 mod interface;
 mod parser_macros;
 mod should_render;
+#[macro_use]
+mod node_impl_macros;
 
 pub use components::*;
 pub use interface::*;
