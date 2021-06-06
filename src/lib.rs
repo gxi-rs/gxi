@@ -19,7 +19,8 @@ mod should_render;
 #[macro_use]
 mod node_impl_macros;
 
-mod test {
+#[cfg(test)]
+mod tests {
     use crate::foo::Foo;
     use crate::*;
 
