@@ -1,7 +1,8 @@
-use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+use crate::*;
 
 pub struct Root {
     child: Option<NodeType>,
@@ -13,7 +14,6 @@ impl Node for Root {
     }
 
     impl_node_trait_as_any!();
-
     fn get_child(&self) -> &Option<NodeType> {
         &self.child
     }
@@ -22,7 +22,7 @@ impl Node for Root {
         &mut self.child
     }
 
-    fn get_parent(&self) -> WeakNodeType { unreachable!() }
+    fn get_parent(&self) -> &WeakNodeType { unreachable!() }
 }
 
 impl ComponentNode for Root {}

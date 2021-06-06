@@ -7,6 +7,11 @@
 //!
 //! Read more [here](https://github.com/aniketfuryrocks/gxi)
 
+pub use components::*;
+pub use interface::*;
+pub use parser_macros::*;
+pub use should_render::*;
+
 mod components;
 mod interface;
 mod parser_macros;
@@ -14,14 +19,7 @@ mod should_render;
 #[macro_use]
 mod node_impl_macros;
 
-pub use components::*;
-pub use interface::*;
-pub use parser_macros::*;
-pub use should_render::*;
-
 mod test {
-    use crate::{init_member, InitType, Root, Node};
-    use crate::components::foo::Foo;
 
     #[test]
     fn main() {

@@ -40,3 +40,21 @@ macro_rules! impl_node_component {
         }
     };
 }
+
+/// impl get_child, get_child_mut, get_parent
+#[macro_export]
+macro_rules! impl_node_member_getters {
+    () => {
+        fn get_child(&self) -> &Option<NodeType> {
+            &self.child
+        }
+
+        fn get_child_mut(&mut self) -> &mut Option<NodeType> {
+            &mut self.child
+        }
+
+        fn get_parent(&self) -> &WeakNodeType {
+            &self.parent
+        }
+    };
+}

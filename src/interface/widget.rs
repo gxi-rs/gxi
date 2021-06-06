@@ -1,5 +1,6 @@
-use crate::Node;
 use std::any::Any;
+
+use crate::Node;
 
 /// Node which has a native widget
 pub trait WidgetNode: Node {

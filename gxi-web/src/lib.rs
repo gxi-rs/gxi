@@ -5,12 +5,13 @@
 //! [MDN docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element)
 //! with all the standard attributes.
 
+pub use wasm_bindgen::*;
+pub use wasm_bindgen::prelude::*;
+pub use wasm_bindgen_futures::*;
+
 pub use containers::*;
 pub use global_attributes::*;
 pub use run::*;
-pub use wasm_bindgen::prelude::*;
-pub use wasm_bindgen::*;
-pub use wasm_bindgen_futures::*;
 pub use widgets::*;
 
 mod containers;

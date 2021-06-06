@@ -1,8 +1,8 @@
-use crate::{*};
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::path::Component;
+
+use crate::{*};
 
 struct Init {
     child: Option<NodeType>,
@@ -20,18 +20,7 @@ impl Node for Init {
     }
 
     impl_node_trait_as_any!();
-
-    fn get_child(&self) -> &Option<NodeType> {
-        &self.child
-    }
-
-    fn get_child_mut(&mut self) -> &mut Option<NodeType> {
-        &mut self.child
-    }
-
-    fn get_parent(&self) -> WeakNodeType {
-        self.parent.clone()
-    }
+    impl_node_member_getters!();
 }
 
 impl ComponentNode for Init {}

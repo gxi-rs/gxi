@@ -1,5 +1,5 @@
-use quote::__private::TokenStream;
 use quote::*;
+use quote::__private::TokenStream;
 use syn::__private::Span;
 
 pub enum InitType {

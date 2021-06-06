@@ -1,5 +1,6 @@
-use crate::{GxiNodeRc, GxiWidgetRc, WeakGxiNodeRc, WeakGxiWidgetRc};
 use std::rc::Rc;
+
+use crate::{GxiNodeRc, GxiWidgetRc, WeakGxiNodeRc, WeakGxiWidgetRc};
 
 #[derive(Clone)]
 pub enum NodeType {

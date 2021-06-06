@@ -1,6 +1,7 @@
+use gxi::*;
+
 use crate::macros::gxi_macro::comp::Comp;
 use crate::macros::gxi_macro::foo::Foo;
-use gxi::*;
 
 enum Msg {
     Foo,

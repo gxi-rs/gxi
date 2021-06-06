@@ -1,6 +1,4 @@
-use std::rc::Rc;
-use gxi::{Node, Root, init_member, InitType};
-use std::borrow::BorrowMut;
+use gxi::{init_member, InitType, Node, Root};
 
 pub fn run<App: Node + 'static>() {
     let rt = tokio::runtime::Runtime::new().unwrap();
