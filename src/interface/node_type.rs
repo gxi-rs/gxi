@@ -1,39 +1,44 @@
 use std::rc::Rc;
 
-use crate::{GxiNodeRc, GxiWidgetRc, WeakGxiNodeRc, WeakGxiWidgetRc};
+use crate::{GxiComponentRc, GxiContainerRc, GxiNodeRc, GxiWidgetRc, WeakGxiWidgetRc, WeakGxiContainerRc, WeakGxiComponentRc};
 
 #[derive(Clone)]
-pub enum NodeType {
+pub enum GxiNodeType {
     Widget(GxiWidgetRc),
-    Component(GxiNodeRc),
+    Component(GxiComponentRc),
+    Container(GxiContainerRc),
 }
 
-impl NodeType {
+impl GxiNodeType {
     pub fn into_gxi_node_rc(self) -> GxiNodeRc {
         match self {
-            NodeType::Component(comp) => comp,
-            NodeType::Widget(widget) => Rc::downcast(widget).unwrap(),
+            GxiNodeType::Widget(this) => Rc::downcast(this).unwrap(),
+            GxiNodeType::Component(this) => Rc::downcast(this).unwrap(),
+            GxiNodeType::Container(this) => Rc::downcast(this).unwrap(),
         }
     }
-    pub fn downgrade(&self) -> WeakNodeType {
-        match self {
-            NodeType::Component(this) => WeakNodeType::Component(Rc::downgrade(this)),
-            NodeType::Widget(this) => WeakNodeType::Widget(Rc::downgrade(this)),
+    pub fn downgrade(&self) -> WeakGxiNodeType {
+        match &self {
+            GxiNodeType::Widget(this) => WeakGxiNodeType::Widget(Rc::downgrade(this)),
+            GxiNodeType::Component(this) => WeakGxiNodeType::Component(Rc::downgrade(this)),
+            GxiNodeType::Container(this) => WeakGxiNodeType::Container(Rc::downgrade(this))
         }
     }
 }
 
 #[derive(Clone)]
-pub enum WeakNodeType {
+pub enum WeakGxiNodeType {
     Widget(WeakGxiWidgetRc),
-    Component(WeakGxiNodeRc),
+    Component(WeakGxiComponentRc),
+    Container(WeakGxiContainerRc),
 }
 
-impl WeakNodeType {
-    pub fn upgrade(self) -> NodeType {
+impl WeakGxiNodeType {
+    pub fn upgrade(self) -> GxiNodeType {
         match self {
-            WeakNodeType::Widget(this) => NodeType::Widget(this.upgrade().unwrap()),
-            WeakNodeType::Component(this) => NodeType::Component(this.upgrade().unwrap()),
+            WeakGxiNodeType::Widget(this) => GxiNodeType::Widget(this.upgrade().unwrap()),
+            WeakGxiNodeType::Container(this) => GxiNodeType::Container(this.upgrade().unwrap()),
+            WeakGxiNodeType::Component(this) => GxiNodeType::Component(this.upgrade().unwrap()),
         }
     }
 }

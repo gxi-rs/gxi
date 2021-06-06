@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use gxi::*;
 use crate::*;
+use gxi::*;
 
 create_widget!(Image);
 

@@ -7,13 +7,13 @@
 // re-exports
 pub use glib;
 pub use gtk::prelude::*;
-pub use tokio;
 pub use gxi;
+pub use tokio;
 //
-pub use widgets::*;
 pub use containers::*;
 pub use impl_widget::*;
 pub use run::*;
+pub use widgets::*;
 
 mod containers;
 mod run;

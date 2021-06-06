@@ -1,15 +1,18 @@
-use gtk::{Container, WidgetExt};
 use gtk::prelude::*;
+use gtk::{Container, WidgetExt};
 
-use gxi::NativeWidget;
+use gxi::Widget;
 
 use crate::glib::bitflags::_core::any::Any;
 
 pub struct GtkContainer<T: ContainerExt + IsA<gtk::Container> + IsA<gtk::Widget>>(pub T);
 
-impl<T: glib::IsA<gtk::Container> + IsA<gtk::Widget>> NativeWidget for GtkContainer<T> {
-    fn append(&mut self, widget: &dyn NativeWidget) {
-        let widget = widget.as_any().downcast_ref::<GtkContainer<Container>>().unwrap();
+impl<T: glib::IsA<gtk::Container> + IsA<gtk::Widget>> Widget for GtkContainer<T> {
+    fn append(&mut self, widget: &dyn Widget) {
+        let widget = widget
+            .as_any()
+            .downcast_ref::<GtkContainer<Container>>()
+            .unwrap();
         self.0.add(&widget.0);
     }
 
@@ -24,8 +27,8 @@ impl<T: glib::IsA<gtk::Container> + IsA<gtk::Widget>> NativeWidget for GtkContai
 
 pub struct GtkWidget<T: WidgetExt + IsA<gtk::Widget>>(pub T);
 
-impl<T: WidgetExt + IsA<gtk::Widget>> NativeWidget for GtkWidget<T> {
-    fn append(&mut self, _widget: &dyn NativeWidget) {
+impl<T: WidgetExt + IsA<gtk::Widget>> Widget for GtkWidget<T> {
+    fn append(&mut self, _widget: &dyn Widget) {
         panic!("can't add a child to this widget")
     }
 

@@ -24,4 +24,3 @@ macro_rules! impl_widget_node {
         }
     };
 }
-

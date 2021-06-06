@@ -4,9 +4,9 @@ use std::rc::Rc;
 
 use gxi::*;
 
-use crate::*;
 use crate::impl_drop;
 use crate::impl_widget::GtkContainer;
+use crate::*;
 
 pub enum Orientation {
     Horizontal,
@@ -14,18 +14,18 @@ pub enum Orientation {
 }
 
 pub struct View {
-    parent: WeakNodeType,
-    child: Option<NodeType>,
-    sibling: Option<NodeType>,
+    parent: WeakGxiNodeType,
+    child: Option<GxiNodeType>,
+    sibling: Option<GxiNodeType>,
     widget: GtkContainer<gtk::Box>,
 }
 
-impl Node for View {
+impl GxiNode for View {
     impl_node_trait_as_any!();
     impl_node_member_getters!();
 
-    fn new(parent: WeakNodeType) -> NodeType {
-        NodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
+        GxiNodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
             parent,
             child: None,
             sibling: None,

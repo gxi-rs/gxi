@@ -2,17 +2,20 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::{*};
+use crate::*;
 
 struct Init {
-    child: Option<NodeType>,
-    sibling: Option<NodeType>,
-    parent: WeakNodeType,
+    child: Option<GxiNodeType>,
+    sibling: Option<GxiNodeType>,
+    parent: WeakGxiNodeType,
 }
 
-impl Node for Init {
-    fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+impl GxiNode for Init {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType
+        where
+            Self: Sized,
+    {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             child: None,
             sibling: None,
             parent,
@@ -20,14 +23,15 @@ impl Node for Init {
     }
 
     impl_node_trait_as_any!();
-    impl_node_member_getters!();
+    impl_node_getters!();
 }
 
+impl_container!(Init);
 impl ComponentNode for Init {}
 
 impl Init {
-    fn new(parent: WeakNodeType, _constructor_params: ()) -> NodeType {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             child: None,
             sibling: None,
             parent,

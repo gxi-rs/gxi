@@ -20,16 +20,15 @@ mod should_render;
 mod node_impl_macros;
 
 mod test {
-    use crate::*;
     use crate::foo::Foo;
+    use crate::*;
 
     #[test]
     fn main() {
         let root = Root::new_root();
         {
             let _node = {
-                let (node, new) =
-                    init_member(root.clone(), InitType::Child, |this| Foo::new(this));
+                let (node, new) = init_member(root.clone(), InitType::Child, |this| Foo::new(this));
                 let _node_cast = node
                     .clone()
                     .into_gxi_node_rc()

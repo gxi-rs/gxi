@@ -5,31 +5,31 @@ use std::rc::Rc;
 use crate::*;
 
 pub struct Root {
-    child: Option<NodeType>,
+    child: Option<GxiNodeType>,
 }
 
-impl Node for Root {
-    fn new(_parent: WeakNodeType) -> NodeType where Self: Sized {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
+impl GxiNode for Root {
+    fn new(_parent: WeakGxiNodeType) -> GxiNodeType
+        where
+            Self: Sized,
+    {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
     }
 
     impl_node_trait_as_any!();
-    fn get_child(&self) -> &Option<NodeType> {
-        &self.child
-    }
 
-    fn get_child_mut(&mut self) -> &mut Option<NodeType> {
-        &mut self.child
+    fn get_parent(&self) -> &WeakGxiNodeType {
+        unreachable!()
     }
-
-    fn get_parent(&self) -> &WeakNodeType { unreachable!() }
 }
+
+impl_container!(Root);
 
 impl ComponentNode for Root {}
 
 impl Root {
-    pub fn new_root() -> NodeType {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
+    pub fn new_root() -> GxiNodeType {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
     }
 }
 

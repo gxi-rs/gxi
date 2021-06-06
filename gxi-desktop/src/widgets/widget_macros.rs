@@ -11,7 +11,7 @@ macro_rules! create_widget {
         pub struct $name {
             parent: WeakNodeType,
             sibling: Option<NodeType>,
-            widget: GtkWidget<gtk::$widget_name>
+            widget: GtkWidget<gtk::$widget_name>,
         }
 
         impl_drop!($name);

@@ -41,19 +41,27 @@ macro_rules! impl_node_component {
     };
 }
 
+/// impl container trait, should have child field
+#[macro_export]
+macro_rules! impl_container {
+    ($name:ident) => {
+        impl Container for $name {
+            fn get_child(&self) -> &Option<GxiNodeType> {
+                &self.child
+            }
+
+            fn get_child_mut(&mut self) -> &mut Option<GxiNodeType> {
+                &mut self.child
+            }
+        }
+    };
+}
+
 /// impl get_child, get_child_mut, get_parent
 #[macro_export]
-macro_rules! impl_node_member_getters {
+macro_rules! impl_node_getters {
     () => {
-        fn get_child(&self) -> &Option<NodeType> {
-            &self.child
-        }
-
-        fn get_child_mut(&mut self) -> &mut Option<NodeType> {
-            &mut self.child
-        }
-
-        fn get_parent(&self) -> &WeakNodeType {
+        fn get_parent(&self) -> &WeakGxiNodeType {
             &self.parent
         }
     };

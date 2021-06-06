@@ -5,14 +5,17 @@ use std::rc::Rc;
 use crate::*;
 
 pub(crate) struct Foo {
-    child: Option<NodeType>,
-    sibling: Option<NodeType>,
-    parent: WeakNodeType,
+    child: Option<GxiNodeType>,
+    sibling: Option<GxiNodeType>,
+    parent: WeakGxiNodeType,
 }
 
-impl Node for Foo {
-    fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+impl GxiNode for Foo {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType
+        where
+            Self: Sized,
+    {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             child: None,
             sibling: None,
             parent,
@@ -20,9 +23,10 @@ impl Node for Foo {
     }
 
     impl_node_trait_as_any!();
-    impl_node_member_getters!();
+    impl_node_getters!();
 }
 
+impl_container!(Foo);
 impl ComponentNode for Foo {}
 
 impl Drop for Foo {

@@ -8,14 +8,17 @@ struct Pure {
     /// index of current if block where 0 is default i.e no if block has been executed yet
     pub pure_index: u32,
     // others
-    child: Option<NodeType>,
-    sibling: Option<NodeType>,
-    parent: WeakNodeType,
+    child: Option<GxiNodeType>,
+    sibling: Option<GxiNodeType>,
+    parent: WeakGxiNodeType,
 }
 
-impl Node for Pure {
-    fn new(parent: WeakNodeType) -> NodeType where Self: Sized {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+impl GxiNode for Pure {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType
+    where
+        Self: Sized,
+    {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             pure_index: 0,
             child: None,
             sibling: None,
@@ -24,14 +27,16 @@ impl Node for Pure {
     }
 
     impl_node_trait_as_any!();
-    impl_node_member_getters!();
+    impl_node_getters!();
 }
+
+impl_container!(Pure);
 
 impl ComponentNode for Pure {}
 
 impl Pure {
-    fn new(parent: WeakNodeType, _constructor_params: ()) -> NodeType {
-        NodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakGxiNodeType, _constructor_params: ()) -> GxiNodeType {
+        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             pure_index: 0,
             child: None,
             sibling: None,

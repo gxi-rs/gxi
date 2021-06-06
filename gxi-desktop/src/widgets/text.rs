@@ -1,5 +1,5 @@
-use gxi::*;
 use crate::*;
+use gxi::*;
 
 create_widget!(Text, Label);
 

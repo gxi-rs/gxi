@@ -1,16 +1,20 @@
-use crate::{GxiNodeRc, InitType, NodeType, WeakNodeType};
+use crate::{GxiNodeRc, InitType, GxiNodeType, WeakGxiNodeType};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
 ///
 /// @return
 /// + bool: false if child already exists
-pub fn init_member<F: FnOnce(WeakNodeType) -> NodeType>(
-    this: NodeType, init_type: InitType, init: F,
-) -> (NodeType, bool) {
-    match init_type {
+pub fn init_member<F: FnOnce(WeakGxiNodeType) -> GxiNodeType>(
+    this: GxiNodeType, init_type: InitType, init: F,
+) -> (GxiNodeType, bool) {
+    if let GxiNodeType::Widget(_) = this {
+        panic!("Can't add a node into a widget");
+    }
+    todo!()
+    /*match init_type {
         InitType::Child => {
-            let this_node: GxiNodeRc = this.clone().into_gxi_node_rc();
+            let this_node = this.clone().into_gxi_node_rc();
             {
                 // scope to drop widget_node to prevent ownership errors
                 let this_node = this_node.as_ref().borrow_mut();
@@ -21,16 +25,16 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> NodeType>(
             // if child does not exist initialize it
             let child = init(this.clone().downgrade());
             // if child is a widget add it's widget to this if this is also a widget
-            if let NodeType::Widget(child) = &child {
+            if let GxiNodeType::Widget(child) = &child {
                 let child_borrow = child.borrow();
                 match &this {
-                    NodeType::Widget(this) => {
+                    GxiNodeType::Widget(this) => {
                         let mut this_borrow = this.borrow_mut();
                         this_borrow
                             .get_widget_mut()
                             .append(child_borrow.get_widget());
                     }
-                    NodeType::Component(_this) => {
+                    GxiNodeType::Component(_this) => {
                         // while parent isn't widget
                         // TODO: implement this
                         /*loop {
@@ -39,6 +43,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> NodeType>(
                             let parent = parent.into_gxi_node_rc();
                         }*/
                     }
+                    _ => {}
                 }
             }
 
@@ -49,5 +54,5 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> NodeType>(
         _ => {
             todo!()
         }
-    }
+    }*/
 }

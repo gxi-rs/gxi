@@ -4,19 +4,19 @@ use std::rc::Rc;
 
 use gtk::{WidgetExt, WindowType};
 
-use gxi::*;
 use crate::*;
+use gxi::*;
 
 pub struct Window {
-    parent: WeakNodeType,
-    child: Option<NodeType>,
-    sibling: Option<NodeType>,
+    parent: WeakGxiNodeType,
+    child: Option<GxiNodeType>,
+    sibling: Option<GxiNodeType>,
     widget: GtkContainer<gtk::Window>,
 }
 
-impl Node for Window {
-    fn new(parent: WeakNodeType) -> NodeType {
-        NodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
+impl GxiNode for Window {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
+        GxiNodeType::Widget(Rc::new(RefCell::new(Box::new(Self {
             parent,
             child: None,
             sibling: None,
