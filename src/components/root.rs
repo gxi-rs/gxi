@@ -21,6 +21,10 @@ impl GxiNode for Root {
     fn get_parent(&self) -> &WeakGxiNodeType {
         unreachable!()
     }
+
+    fn get_sibling(&self) -> &Option<GxiNodeType> { unreachable!() }
+
+    fn get_sibling_mut(&mut self) -> &mut Option<GxiNodeType> { unreachable!() }
 }
 
 impl_container!(Root);

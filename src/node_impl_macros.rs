@@ -64,5 +64,12 @@ macro_rules! impl_node_getters {
         fn get_parent(&self) -> &WeakGxiNodeType {
             &self.parent
         }
+        fn get_sibling(&self) -> &Option<GxiNodeType> {
+            &self.sibling
+        }
+
+        fn get_sibling_mut(&mut self) -> &mut Option<GxiNodeType> {
+            &mut self.sibling
+        }
     };
 }

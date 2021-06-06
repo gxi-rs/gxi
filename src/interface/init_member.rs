@@ -1,4 +1,4 @@
-use crate::{GxiNodeRc, InitType, GxiNodeType, WeakGxiNodeType};
+use crate::{InitType, GxiNodeType, WeakGxiNodeType};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
@@ -6,7 +6,7 @@ use crate::{GxiNodeRc, InitType, GxiNodeType, WeakGxiNodeType};
 /// @return
 /// + bool: false if child already exists
 pub fn init_member<F: FnOnce(WeakGxiNodeType) -> GxiNodeType>(
-    this: GxiNodeType, init_type: InitType, init: F,
+    this: GxiNodeType, _init_type: InitType, _init: F,
 ) -> (GxiNodeType, bool) {
     if let GxiNodeType::Widget(_) = this {
         panic!("Can't add a node into a widget");

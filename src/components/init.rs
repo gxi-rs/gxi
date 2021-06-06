@@ -11,10 +11,7 @@ struct Init {
 }
 
 impl GxiNode for Init {
-    fn new(parent: WeakGxiNodeType) -> GxiNodeType
-        where
-            Self: Sized,
-    {
+    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
         GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
             child: None,
             sibling: None,
