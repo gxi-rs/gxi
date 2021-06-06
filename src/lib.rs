@@ -20,6 +20,8 @@ mod should_render;
 mod node_impl_macros;
 
 mod test {
+    use crate::*;
+    use crate::foo::Foo;
 
     #[test]
     fn main() {
