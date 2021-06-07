@@ -1,6 +1,6 @@
-use gxi::{init_member, InitType, GxiNode, Root};
+use gxi::{init_member, InitType, Node, Root};
 
-pub fn run<App: GxiNode + 'static>() {
+pub fn run<App: Node + 'static>() {
     let rt = tokio::runtime::Runtime::new().unwrap();
     rt.block_on(async {
         gtk::init().unwrap();

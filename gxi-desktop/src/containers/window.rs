@@ -15,7 +15,7 @@ pub struct Window {
     self_substitute: Option<WeakGxiNodeType>,
 }
 
-impl GxiNode for Window {
+impl Node for Window {
     fn new(parent: WeakGxiNodeType) -> GxiNodeType {
         GxiNodeType::Container(Rc::new(RefCell::new(Box::new(Self {
             parent,

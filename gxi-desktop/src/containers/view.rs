@@ -21,7 +21,7 @@ pub struct View {
     widget: GtkContainer<gtk::Box>,
 }
 
-impl GxiNode for View {
+impl Node for View {
     impl_node_trait_as_any!();
     impl_node_getters!();
 

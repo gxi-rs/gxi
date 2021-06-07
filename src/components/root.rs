@@ -5,38 +5,38 @@ use std::rc::Rc;
 use crate::*;
 
 pub struct Root {
-    child: Option<GxiNodeType>,
+    child: Option<StrongNodeType>,
 }
 
-impl GxiNode for Root {
-    fn new(_parent: WeakGxiNodeType) -> GxiNodeType {
-        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
-            child: None
-        }))))
+impl Node for Root {
+    fn new(_parent: WeakNodeType) -> StrongNodeType {
+        Self::new_root()
     }
 
     impl_node_trait_as_any!();
 
-    fn get_parent(&self) -> &WeakGxiNodeType {
+    fn get_parent(&self) -> &WeakNodeType {
         unreachable!()
     }
 
-    fn get_sibling(&self) -> &Option<GxiNodeType> { unreachable!() }
+    fn get_sibling(&self) -> &Option<StrongNodeType> { unreachable!() }
 
-    fn get_sibling_mut(&mut self) -> &mut Option<GxiNodeType> { unreachable!() }
+    fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType> { unreachable!() }
 }
 
 impl_container!(Root);
 
 impl ComponentNode for Root {
-    fn get_self_substitute(&self) -> &Option<WeakGxiNodeType> { unreachable!() }
+    fn get_self_substitute(&self) -> &Option<WeakNodeType> { unreachable!() }
 
-    fn get_self_substitute_mut(&mut self) -> &mut Option<WeakGxiNodeType> { unreachable!() }
+    fn get_self_substitute_mut(&mut self) -> &mut Option<WeakNodeType> { unreachable!() }
 }
 
 impl Root {
-    pub fn new_root() -> GxiNodeType {
-        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self { child: None }))))
+    pub fn new_root() -> StrongNodeType {
+        Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
+            child: None
+        }))))
     }
 }
 

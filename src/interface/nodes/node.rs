@@ -2,16 +2,16 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
-use crate::{GxiNodeType, WeakGxiNodeType};
+use crate::{StrongNodeType, WeakNodeType};
 
-pub type GxiNodeRc = Rc<RefCell<Box<dyn GxiNode>>>;
-pub type WeakGxiNodeRc = Weak<RefCell<Box<dyn GxiNode>>>;
+pub type GxiNodeRc = Rc<RefCell<Box<dyn Node>>>;
+pub type WeakGxiNodeRc = Weak<RefCell<Box<dyn Node>>>;
 
 /// Struct should also implement Drop to remove node widget from the tree
-pub trait GxiNode {
+pub trait Node {
     /// @parent: Weak reference to parent, which allows GxiNode to add widget to parent further down the tree
     /// nodes can also have a new associated function with multiple params
-    fn new(parent: WeakGxiNodeType) -> GxiNodeType
+    fn new(parent: WeakNodeType) -> StrongNodeType
         where
             Self: Sized;
     /// type conversion
@@ -23,7 +23,7 @@ pub trait GxiNode {
             Self: Sized,
     {}
     // getters
-    fn get_parent(&self) -> &WeakGxiNodeType;
-    fn get_sibling(&self) -> &Option<GxiNodeType>;
-    fn get_sibling_mut(&mut self) -> &mut Option<GxiNodeType>;
+    fn get_parent(&self) -> &WeakNodeType;
+    fn get_sibling(&self) -> &Option<StrongNodeType>;
+    fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType>;
 }

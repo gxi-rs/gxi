@@ -5,15 +5,15 @@ use std::rc::Rc;
 use crate::*;
 
 pub(crate) struct Foo {
-    child: Option<GxiNodeType>,
-    sibling: Option<GxiNodeType>,
-    parent: WeakGxiNodeType,
-    self_substitute: Option<WeakGxiNodeType>,
+    child: Option<StrongNodeType>,
+    sibling: Option<StrongNodeType>,
+    parent: WeakNodeType,
+    self_substitute: Option<WeakNodeType>,
 }
 
-impl GxiNode for Foo {
-    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
-        GxiNodeType::Component(Rc::new(RefCell::new(Box::new(Self {
+impl Node for Foo {
+    fn new(parent: WeakNodeType) -> StrongNodeType {
+        Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
             child: None,
             sibling: None,
             parent,
@@ -27,7 +27,3 @@ impl GxiNode for Foo {
 
 impl_container!(Foo);
 impl_component_node!(Foo);
-
-impl Drop for Foo {
-    fn drop(&mut self) {}
-}

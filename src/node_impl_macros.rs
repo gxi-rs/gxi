@@ -46,11 +46,11 @@ macro_rules! impl_node_component {
 macro_rules! impl_container {
     ($name:ident) => {
         impl Container for $name {
-            fn get_child(&self) -> &Option<GxiNodeType> {
+            fn get_child(&self) -> &Option<StrongNodeType> {
                 &self.child
             }
 
-            fn get_child_mut(&mut self) -> &mut Option<GxiNodeType> {
+            fn get_child_mut(&mut self) -> &mut Option<StrongNodeType> {
                 &mut self.child
             }
         }
@@ -62,11 +62,11 @@ macro_rules! impl_container {
 macro_rules! impl_component_node {
     ($name:ident) => {
         impl ComponentNode for $name {
-            fn get_self_substitute(&self) -> &Option<WeakGxiNodeType> {
+            fn get_self_substitute(&self) -> &Option<WeakNodeType> {
                 &self.self_substitute
             }
 
-            fn get_self_substitute_mut(&mut self) -> &mut Option<WeakGxiNodeType> {
+            fn get_self_substitute_mut(&mut self) -> &mut Option<WeakNodeType> {
                 &mut self.self_substitute
             }
         }
@@ -77,14 +77,14 @@ macro_rules! impl_component_node {
 #[macro_export]
 macro_rules! impl_node_getters {
     () => {
-        fn get_parent(&self) -> &WeakGxiNodeType {
+        fn get_parent(&self) -> &WeakNodeType {
             &self.parent
         }
-        fn get_sibling(&self) -> &Option<GxiNodeType> {
+        fn get_sibling(&self) -> &Option<StrongNodeType> {
             &self.sibling
         }
 
-        fn get_sibling_mut(&mut self) -> &mut Option<GxiNodeType> {
+        fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType> {
             &mut self.sibling
         }
     };
