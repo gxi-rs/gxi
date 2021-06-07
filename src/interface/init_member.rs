@@ -1,4 +1,6 @@
-use crate::{InitType, WeakNodeType, StrongNodeType};
+use crate::{InitType, WeakNodeType, StrongNodeType, GxiNodeType};
+use std::ops::Deref;
+use std::rc::Rc;
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
@@ -6,25 +8,25 @@ use crate::{InitType, WeakNodeType, StrongNodeType};
 /// @return
 /// + bool: false if child already exists
 pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
-    _this: StrongNodeType, _init_type: InitType, _init: F,
+    this: StrongNodeType, init_type: InitType, init: F,
 ) -> (StrongNodeType, bool) {
-    /*if let GxiNodeType::Widget(_) = &this {
+    let this_borrow = this.as_ref().borrow();
+    // proceed only if this is not a widget
+    if let GxiNodeType::Widget(_) = *this_borrow {
         panic!("Can't add a node into a widget");
-    }*/
+    }
     todo!()
     /*match init_type {
         InitType::Child => {
-            let this_node = this.clone().into_gxi_container_rc().unwrap();
             // check if child already exists
             {
                 // scope to drop widget_node to prevent ownership errors
-                let this_node = this_node.as_ref().borrow_mut();
-                if let Some(child) = this_node.get_child() {
+                if let Some(child) = this_borrow.deref() {
                     return (child.clone(), false);
                 }
             }
             // if child does not exist initialize it
-            let child = init(this.downgrade());
+            let child = init(Rc::downgrade(&this));
             // if child is a widget or a container add it's widget to this if this is also a widget
             if let Ok(child) = child.clone().into_gxi_widget_rc() {
                 let child_borrow = child.borrow();
