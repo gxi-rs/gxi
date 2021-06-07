@@ -6,7 +6,7 @@ use crate::{InitType, WeakNodeType, StrongNodeType};
 /// @return
 /// + bool: false if child already exists
 pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
-    mut this: StrongNodeType, init_type: InitType, init: F,
+    _this: StrongNodeType, _init_type: InitType, _init: F,
 ) -> (StrongNodeType, bool) {
     /*if let GxiNodeType::Widget(_) = &this {
         panic!("Can't add a node into a widget");

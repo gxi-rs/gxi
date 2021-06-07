@@ -1,4 +1,4 @@
-use crate::{GxiNodeType, WidgetNode, Node, StrongNodeType};
+use crate::{WidgetNode, Node, StrongNodeType};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
