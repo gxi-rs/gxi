@@ -37,12 +37,23 @@ impl Deref for GxiNodeType {
     }
 }
 */
+
+impl GxiNodeType {
+    pub fn into_node(self) -> Box<dyn Node> {
+        match self {
+            GxiNodeType::Widget(this) => this.into(),
+            GxiNodeType::Component(this) => this.into(),
+            GxiNodeType::Container(this) => this.into()
+        }
+    }
+}
+
 /*impl GxiNodeType {
-    pub fn into_container(&self) -> &dyn Container {
+    pub fn into_node(&self) -> &Box<dyn Node> {
         match self {
             GxiNodeType::Widget(this) => panic!("Can't deref GxiNodeType into Container"),
-            GxiNodeType::Component(this) => this.as_any(),
-            GxiNodeType::Container(this) => this.as_any()
+            GxiNodeType::Component(this) => this,
+            GxiNodeType::Container(this) => this.to_node()
         }
     }
 }*/

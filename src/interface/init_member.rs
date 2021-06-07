@@ -1,6 +1,7 @@
 use crate::{InitType, WeakNodeType, StrongNodeType, GxiNodeType};
 use std::ops::Deref;
 use std::rc::Rc;
+use std::borrow::{BorrowMut, Borrow};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
@@ -11,23 +12,27 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
     this: StrongNodeType, init_type: InitType, init: F,
 ) -> (StrongNodeType, bool) {
     let this_borrow = this.as_ref().borrow();
-    // proceed only if this is not a widget
-    if let GxiNodeType::Widget(_) = *this_borrow {
-        panic!("Can't add a node into a widget");
-    }
-    todo!()
-    /*match init_type {
+    match init_type {
         InitType::Child => {
             // check if child already exists
-            {
-                // scope to drop widget_node to prevent ownership errors
-                if let Some(child) = this_borrow.deref() {
+            match this_borrow.deref() {
+                GxiNodeType::Component(this) => if let Some(child) = this.get_child().deref() {
                     return (child.clone(), false);
                 }
+                GxiNodeType::Container(this) => if let Some(child) = this.get_child().deref() {
+                    return (child.clone(), false);
+                }
+                _ => panic!("Can't add a node into a widget")
             }
             // if child does not exist initialize it
             let child = init(Rc::downgrade(&this));
             // if child is a widget or a container add it's widget to this if this is also a widget
+            match child.as_ref().borrow().deref() {
+                GxiNodeType::Widget(child) | GxiNodeType::Container(child) => {
+
+                }
+                _ => ()
+            }
             if let Ok(child) = child.clone().into_gxi_widget_rc() {
                 let child_borrow = child.borrow();
                 match &mut this {
@@ -55,5 +60,5 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
         _ => {
             todo!()
         }
-    }*/
+    }
 }
