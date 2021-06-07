@@ -6,15 +6,16 @@ use crate::{InitType, GxiNodeType, WeakGxiNodeType};
 /// @return
 /// + bool: false if child already exists
 pub fn init_member<F: FnOnce(WeakGxiNodeType) -> GxiNodeType>(
-    this: GxiNodeType, _init_type: InitType, _init: F,
+    mut this: GxiNodeType, init_type: InitType, init: F,
 ) -> (GxiNodeType, bool) {
-    if let GxiNodeType::Widget(_) = this {
+    if let GxiNodeType::Widget(_) = &this {
         panic!("Can't add a node into a widget");
     }
     todo!()
     /*match init_type {
         InitType::Child => {
-            let this_node = this.clone().into_gxi_node_rc();
+            let this_node = this.clone().into_gxi_container_rc().unwrap();
+            // check if child already exists
             {
                 // scope to drop widget_node to prevent ownership errors
                 let this_node = this_node.as_ref().borrow_mut();
@@ -23,16 +24,14 @@ pub fn init_member<F: FnOnce(WeakGxiNodeType) -> GxiNodeType>(
                 }
             }
             // if child does not exist initialize it
-            let child = init(this.clone().downgrade());
-            // if child is a widget add it's widget to this if this is also a widget
-            if let GxiNodeType::Widget(child) = &child {
+            let child = init(this.downgrade());
+            // if child is a widget or a container add it's widget to this if this is also a widget
+            if let Ok(child) = child.clone().into_gxi_widget_rc() {
                 let child_borrow = child.borrow();
-                match &this {
+                match &mut this {
                     GxiNodeType::Widget(this) => {
-                        let mut this_borrow = this.borrow_mut();
-                        this_borrow
-                            .get_widget_mut()
-                            .append(child_borrow.get_widget());
+                        let mut this_borrow = this.as_ref().borrow_mut();
+                        this_borrow.get_widget_mut().append(child_borrow.get_widget());
                     }
                     GxiNodeType::Component(_this) => {
                         // while parent isn't widget
@@ -43,7 +42,7 @@ pub fn init_member<F: FnOnce(WeakGxiNodeType) -> GxiNodeType>(
                             let parent = parent.into_gxi_node_rc();
                         }*/
                     }
-                    _ => {}
+                    _ => unreachable!()
                 }
             }
 
