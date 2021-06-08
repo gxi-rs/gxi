@@ -204,8 +204,7 @@ impl TreeParser {
                         TokenStream2::new()
                     } else {
                         let mut block = quote! {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
+                            let node = node.as_ref().borrow_mut().as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
                         };
                         if !static_props.is_empty() {
                             block = quote! {
@@ -235,11 +234,7 @@ impl TreeParser {
 
                 quote! {
                     let node = {
-                        let (node, is_new) = {
-                            let mut node_borrow = #node_rename.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
-                        };
+                        let (node, is_new) = init_member(#node_rename.clone(), #init_type, |this| #name::new(this));
                         #prop_setter_block
                         #name::render(node.clone());
                         node

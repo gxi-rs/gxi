@@ -208,11 +208,11 @@ impl Parse for GxiParser {
                         let block_content = group::parse_braces(&input)?.content;
                         let content = TreeParser::parse(&block_content)?.0;
                         render_func = quote! {
-                            fn render(this: NodeRc) {
+                            fn render(this: StrongNodeType) {
                                 let cont = Rc::clone(&this);
                                 let state = {
-                                    let mut node_borrow = this.as_ref().borrow_mut();
-                                    let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                    let mut node = this.as_ref().borrow_mut();
+                                    let node = node.as_node_mut().as_any_mut().downcast_mut::<Self>().unwrap();
                                     if !node.is_dirty() {
                                         return;
                                     }
@@ -270,13 +270,9 @@ impl Parse for GxiParser {
                     let this = this.clone();
                     re.attach(None, move |_| {
                         let this = Rc::clone(&this);
-                        //mark dirty
-                        {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
-                        }
-                        Self::render(this);
-                        glib::Continue(true)
+                        this.as_ref().borrow_mut().as_component_mut().mark_dirty(); // mark dirty
+                        Self::render(this); // render this
+                        glib::Continue(true) 
                     });
                 }},
             )
@@ -308,35 +304,32 @@ impl Parse for GxiParser {
                 #viz struct #name {
                     state: State,
                     #channel_sender_struct_field
-                    pub parent: WeakNodeRc,
-                    pub self_substitute : Option<WeakNodeRc>,
-                    pub dirty: bool,
-                    pub child: Option<NodeRc>,
-                    pub sibling: Option<NodeRc>
+                    pub parent: WeakNodeType,
+                    pub self_substitute : Option<WeakNodeType>,
+                    pub is_dirty: bool,
+                    pub child: Option<StrongNodeType>,
+                    pub sibling: Option<StrongNodeType>
                 }
 
                 impl Node for #name {
-                    impl_node_for_component!();
+                    impl_node_trait_as_node!();
+                    impl_node_trait_as_any!();
+                    impl_node_getters!();
 
-                    fn new(parent: WeakNodeRc) -> NodeRc {
+                    fn new(parent: WeakNodeType) -> StrongNodeType {
                         #desktop_channel_new
                         // init
-                        let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
+                        let this = Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
                             state: #state_cell::new(#state_cell_inner::new(#state_name {
                                 #state_new
                             })),
                             #channel_sender_field
                             self_substitute : None,
                             parent,
-                            dirty: true,
+                            is_dirty: true,
                             child: None,
                             sibling: None,
-                        })));
-                        {
-                            let mut this_borrow = this.as_ref().borrow_mut();
-                            let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-                            this_borrow.self_substitute = Some(Rc::downgrade(&this));
-                        }
+                        }))));
                         #desktop_channel_attach
                         this
                     }
@@ -344,12 +337,13 @@ impl Parse for GxiParser {
                     #render_func
                 }
 
+                impl_container!(#name);
+                impl_component_node!(#name);
+
                 impl #name {
                     #update_func
                     #state_setters
                 }
-
-                impl_drop_for_component!(#name);
             },
         })
     }

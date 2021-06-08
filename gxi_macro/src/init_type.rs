@@ -1,6 +1,5 @@
 use quote::__private::TokenStream;
 use quote::*;
-use syn::__private::Span;
 
 pub enum InitType {
     Child,
@@ -10,8 +9,8 @@ pub enum InitType {
 impl ToTokens for InitType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            InitType::Child => tokens.append(syn::Ident::new("init_child", Span::call_site())),
-            InitType::Sibling => tokens.append(syn::Ident::new("init_sibling", Span::call_site())),
+            InitType::Child => tokens.append_all(quote! { InitType::Child }),
+            InitType::Sibling => tokens.append_all(quote! { InitType::Sibling }),
         }
     }
 }
