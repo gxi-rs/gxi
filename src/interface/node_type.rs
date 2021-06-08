@@ -33,7 +33,7 @@ impl GxiNodeType {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_widget_node()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node()),
-            GxiNodeType::Component(this) => Err("can't convert ComponentNode to WidgetNode"),
+            GxiNodeType::Component(_) => Err("can't convert ComponentNode to WidgetNode"),
         }
     }
 
@@ -41,14 +41,14 @@ impl GxiNodeType {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_widget_node_mut()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node_mut()),
-            GxiNodeType::Component(this) => Err("can't convert ComponentNode to WidgetNode"),
+            GxiNodeType::Component(_) => Err("can't convert ComponentNode to WidgetNode"),
         }
     }
     
     pub fn as_container(&self) -> Result<&dyn Container, &'static str> {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_container()),
-            GxiNodeType::Widget(this) => Err("can't convert WidgetNode Container"),
+            GxiNodeType::Widget(_) => Err("can't convert WidgetNode Container"),
             GxiNodeType::Component(this) => Ok(this.as_container()),
         }
     }
@@ -56,7 +56,7 @@ impl GxiNodeType {
     pub fn as_container_mut(&mut self) -> Result<&mut dyn Container, &'static str> {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_container_mut()),
-            GxiNodeType::Widget(this) => Err("can't convert WidgetNode Container"),
+            GxiNodeType::Widget(_) => Err("can't convert WidgetNode Container"),
             GxiNodeType::Component(this) => Ok(this.as_container_mut()),
         }                                                               
     }
