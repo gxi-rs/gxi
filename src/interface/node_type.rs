@@ -29,7 +29,7 @@ impl GxiNodeType {
         }
     }
 
-    pub fn as_widget(&self) -> Result<&dyn WidgetNode, &'static str> {
+    pub fn as_widget_node(&self) -> Result<&dyn WidgetNode, &'static str> {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_widget_node()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node()),
@@ -37,7 +37,7 @@ impl GxiNodeType {
         }
     }
 
-    pub fn as_widget_mut(&mut self) -> Result<&mut dyn WidgetNode, &'static str> {
+    pub fn as_widget_node_mut(&mut self) -> Result<&mut dyn WidgetNode, &'static str> {
         match self {
             GxiNodeType::Container(this) => Ok(this.as_widget_node_mut()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node_mut()),
