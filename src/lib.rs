@@ -30,14 +30,13 @@ mod tests {
         {
             let _node = {
                 let (node, new) = init_member(root.clone(), InitType::Child, |this| Foo::new(this));
-                /*let _node_cast = node
-                    .clone()
-                    .into_gxi_node_rc()
+                let _node_cast = node
                     .as_ref()
                     .borrow_mut()
+                    .as_node_mut()
                     .as_any_mut()
                     .downcast_mut::<Foo>()
-                    .unwrap();*/
+                    .unwrap();
                 // set values here
                 if new {}
                 node
