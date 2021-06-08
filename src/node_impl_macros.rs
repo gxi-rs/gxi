@@ -7,10 +7,16 @@ macro_rules! impl_node_trait_as_any {
         fn as_any(&self) -> &dyn Any {
             self
         }
-
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
+        fn to_node(&self) -> &dyn Node {
+            self
+        }
+        fn to_node_mut(&mut self) -> &mut dyn Node {
+            self
+        }
+
     };
 }
 

@@ -11,7 +11,7 @@ pub trait ContainerNode: Node + WidgetNode + Container {
 }
 
 /// a node which can hold children
-pub trait Container {
+pub trait Container: Node {
     fn get_child(&self) -> &Option<StrongNodeType>;
     fn get_child_mut(&mut self) -> &mut Option<StrongNodeType>;
 }

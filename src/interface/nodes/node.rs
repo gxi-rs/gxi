@@ -26,4 +26,7 @@ pub trait Node {
     fn get_parent(&self) -> &WeakNodeType;
     fn get_sibling(&self) -> &Option<StrongNodeType>;
     fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType>;
+    // cast
+    fn to_node(&self) -> &dyn Node;
+    fn to_node_mut(&mut self) -> &mut dyn Node;
 }
