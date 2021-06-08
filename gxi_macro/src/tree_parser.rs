@@ -256,7 +256,12 @@ impl TreeParser {
                     quote! {
                         let cont = {
                             let node_borrow = node.as_ref().borrow();
-                            node_borrow.get_self_substitute()
+                            let node_borrow = node_borrow.as_node().as_any().downcast_ref::<#name>().unwrap();
+                            if let Some(subst) = node_borrow.get_self_substitute() {
+                                subst.upgrade().unwrap()
+                            } else {
+                                node.clone()
+                            }
                         };
                         #content
                     }

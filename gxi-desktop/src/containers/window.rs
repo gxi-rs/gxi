@@ -21,7 +21,11 @@ impl Node for Window {
             parent,
             child: None,
             sibling: None,
-            widget: GtkContainer(gtk::Window::new(WindowType::Toplevel)),
+            widget: GtkContainer({
+                let window = gtk::Window::new(WindowType::Toplevel);
+                window.show_all();
+                window
+            }),
             self_substitute: None
         }))))
     }

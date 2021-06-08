@@ -22,7 +22,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
         InitType::Child => {
             // check if child already exists
             if let Some(child) = this_borrow_mut.as_container().unwrap().get_child() {
-                return (child.clone(), true);
+                return (child.clone(), false);
             }
             // if child does not exist initialize it
             let child = init(Rc::downgrade(&this));
@@ -45,7 +45,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                     _ => unreachable!(),
                 }
             }
-
+            println!("adding to container");
             *this_borrow_mut.as_container_mut().unwrap().get_child_mut() = Some(child.clone());
             return (child, true);
         }

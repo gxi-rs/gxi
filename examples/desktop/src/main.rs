@@ -12,7 +12,9 @@ pub use gxi::*;
 gxi! {
     App {}
     render {
-       View [
+        Window [
+            View [
+            ]
        ]
     }
 }
