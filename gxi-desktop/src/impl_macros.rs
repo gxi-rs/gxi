@@ -21,6 +21,12 @@ macro_rules! impl_widget_node {
             fn get_widget_mut(&mut self) -> &mut dyn Widget {
                 &mut self.widget
             }
+            fn as_widget_node(&self) -> &dyn WidgetNode {
+                self
+            }
+            fn as_widget_node_mut(&mut self) -> &mut dyn WidgetNode {
+                self
+            }
         }
     };
 }

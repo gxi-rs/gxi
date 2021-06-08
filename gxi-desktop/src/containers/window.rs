@@ -8,16 +8,16 @@ use crate::*;
 use gxi::*;
 
 pub struct Window {
-    parent: WeakGxiNodeType,
-    child: Option<GxiNodeType>,
-    sibling: Option<GxiNodeType>,
+    parent: WeakNodeType,
+    child: Option<StrongNodeType>,
+    sibling: Option<StrongNodeType>,
     widget: GtkContainer<gtk::Window>,
-    self_substitute: Option<WeakGxiNodeType>,
+    self_substitute: Option<WeakNodeType>,
 }
 
 impl Node for Window {
-    fn new(parent: WeakGxiNodeType) -> GxiNodeType {
-        GxiNodeType::Container(Rc::new(RefCell::new(Box::new(Self {
+    fn new(parent: WeakNodeType) -> StrongNodeType {
+        Rc::new(RefCell::new(GxiNodeType::Container(Box::new(Self {
             parent,
             child: None,
             sibling: None,
