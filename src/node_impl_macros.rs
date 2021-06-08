@@ -10,13 +10,12 @@ macro_rules! impl_node_trait_as_any {
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
-        fn to_node(&self) -> &dyn Node {
+        fn as_node(&self) -> &dyn Node {
             self
         }
-        fn to_node_mut(&mut self) -> &mut dyn Node {
+        fn as_node_mut(&mut self) -> &mut dyn Node {
             self
         }
-
     };
 }
 
@@ -58,6 +57,14 @@ macro_rules! impl_container {
 
             fn get_child_mut(&mut self) -> &mut Option<StrongNodeType> {
                 &mut self.child
+            }
+
+            fn as_container(&self) -> &dyn Container {
+                self
+            }
+
+            fn as_container_mut(&mut self) -> &mut dyn Container {
+                self
             }
         }
     };

@@ -27,6 +27,6 @@ pub trait Node {
     fn get_sibling(&self) -> &Option<StrongNodeType>;
     fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType>;
     // cast
-    fn to_node(&self) -> &dyn Node;
-    fn to_node_mut(&mut self) -> &mut dyn Node;
+    fn as_node(&self) -> &dyn Node;
+    fn as_node_mut(&mut self) -> &mut dyn Node;
 }

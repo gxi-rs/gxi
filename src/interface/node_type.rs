@@ -1,8 +1,7 @@
 use std::rc::{Rc, Weak};
 
+use crate::*;
 use std::cell::RefCell;
-use crate::{*};
-use std::ops::Deref;
 
 pub type StrongNodeType = Rc<RefCell<GxiNodeType>>;
 pub type WeakNodeType = Weak<RefCell<GxiNodeType>>;
@@ -14,11 +13,36 @@ pub enum GxiNodeType {
 }
 
 impl GxiNodeType {
-    pub fn to_node(&self) -> &dyn Node {
+    pub fn as_node(&self) -> &dyn Node {
         match self {
-            GxiNodeType::Container(this) => this.to_node(),
-            GxiNodeType::Widget(this) => this.to_node(),
-            GxiNodeType::Component(this) => this.to_node(),
+            GxiNodeType::Container(this) => this.as_node(),
+            GxiNodeType::Widget(this) => this.as_node(),
+            GxiNodeType::Component(this) => this.as_node(),
         }
     }
+
+    pub fn as_node_mut(&mut self) -> &mut dyn Node {
+        match self {
+            GxiNodeType::Container(this) => this.as_node_mut(),
+            GxiNodeType::Widget(this) => this.as_node_mut(),
+            GxiNodeType::Component(this) => this.as_node_mut(),
+        }
+    }
+
+    pub fn as_widget(&self) -> Result<&dyn WidgetNode, &'static str> {
+        match self {
+            GxiNodeType::Container(this) => Ok(this.as_widget_node()),
+            GxiNodeType::Widget(this) => Ok(this.as_widget_node()),
+            GxiNodeType::Component(this) => Err("can't convert ComponentNode to WidgetNode"),
+        }
+    }
+
+    pub fn as_widget_mut(&mut self) -> Result<&mut dyn WidgetNode, &'static str> {
+        match self {
+            GxiNodeType::Container(this) => Ok(this.as_widget_node_mut()),
+            GxiNodeType::Widget(this) => Ok(this.as_widget_node_mut()),
+            GxiNodeType::Component(this) => Err("can't convert ComponentNode to WidgetNode"),
+        }
+    }
+    
 }
