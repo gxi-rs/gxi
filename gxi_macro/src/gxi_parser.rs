@@ -213,14 +213,16 @@ impl Parse for GxiParser {
                                 let state = {
                                     let mut node = this.as_ref().borrow_mut();
                                     let node = node.as_node_mut().as_any_mut().downcast_mut::<Self>().unwrap();
-                                    if !node.is_dirty() {
-                                        return;
-                                    }
+                                    println!("is_dirty {}",node.is_dirty());
+                                    //if !node.is_dirty() {
+                                      //  return;
+                                   // }
                                     node.mark_clean();
                                     node.state.clone()
                                 };
                                 let state = get_state!(state);
                                 #content
+                                println!("rendered");
                             }
                         };
                     }

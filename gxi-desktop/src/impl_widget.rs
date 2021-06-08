@@ -7,9 +7,10 @@ pub struct GtkContainer<T: ContainerExt + IsA<gtk::Container> + IsA<gtk::Widget>
 
 impl<T: glib::IsA<gtk::Container> + IsA<gtk::Widget>> Widget for GtkContainer<T> {
     fn append(&mut self, widget: &dyn Widget) {
+     //   return;
         let widget = widget
             .as_any()
-            .downcast_ref::<GtkContainer<Container>>()
+            .downcast_ref::<GtkWidget<gtk::Widget>>()
             .unwrap();
         self.0.add(&widget.0);
     }
