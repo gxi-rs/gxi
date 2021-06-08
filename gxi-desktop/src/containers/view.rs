@@ -23,6 +23,7 @@ pub struct View {
 
 impl Node for View {
     impl_node_trait_as_any!();
+    impl_node_trait_as_node!();
     impl_node_getters!();
 
     fn new(parent: WeakNodeType) -> StrongNodeType {

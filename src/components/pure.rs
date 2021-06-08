@@ -26,6 +26,7 @@ impl Node for Pure {
     }
 
     impl_node_trait_as_any!();
+    impl_node_trait_as_node!();
     impl_node_getters!();
 }
 

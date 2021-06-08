@@ -1,8 +1,7 @@
-
-
 use crate::Node;
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
+use std::any::Any;
 
 pub type GxiWidgetRc = Rc<RefCell<Box<dyn WidgetNode>>>;
 pub type WeakGxiWidgetRc = Weak<RefCell<Box<dyn WidgetNode>>>;
@@ -19,4 +18,7 @@ pub trait WidgetNode: Node {
 /// Implemented on to native widgets like H1, Body
 pub trait Widget {
     fn append(&mut self, widget: &dyn Widget);
+    // type cast to native widget type
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
 }

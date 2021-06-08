@@ -14,6 +14,7 @@ impl Node for Root {
     }
 
     impl_node_trait_as_any!();
+    impl_node_trait_as_node!();
 
     fn get_parent(&self) -> &WeakNodeType {
         unreachable!()
@@ -22,6 +23,7 @@ impl Node for Root {
     fn get_sibling(&self) -> &Option<StrongNodeType> { unreachable!() }
 
     fn get_sibling_mut(&mut self) -> &mut Option<StrongNodeType> { unreachable!() }
+    
 }
 
 impl_container!(Root);

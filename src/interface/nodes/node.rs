@@ -18,7 +18,7 @@ pub trait Node {
     fn as_any(&self) -> &dyn Any;
     fn as_any_mut(&mut self) -> &mut dyn Any;
     /// this: can't move &self to update closure therefore take a GxiNodeRc of Self
-    fn render(_this: GxiNodeRc)
+    fn render(_this: StrongNodeType)
         where
             Self: Sized,
     {}

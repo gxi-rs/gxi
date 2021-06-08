@@ -29,6 +29,7 @@ macro_rules! impl_widget {
     ($name:ident,$widget_name:ident,( $($args:tt)* )) => {
         impl Node for $name {
             impl_node_trait_as_any!();
+            impl_node_trait_as_node!();
             impl_node_getters!();
 
             fn new(parent: WeakNodeType) -> StrongNodeType {

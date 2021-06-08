@@ -10,6 +10,13 @@ macro_rules! impl_node_trait_as_any {
         fn as_any_mut(&mut self) -> &mut dyn Any {
             self
         }
+    };
+}
+
+/// impl as_any and as_any_mut for node
+#[macro_export]
+macro_rules! impl_node_trait_as_node {
+    () => {
         fn as_node(&self) -> &dyn Node {
             self
         }
