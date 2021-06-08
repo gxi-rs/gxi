@@ -45,4 +45,19 @@ impl GxiNodeType {
         }
     }
     
+    pub fn as_container(&self) -> Result<&dyn Container, &'static str> {
+        match self {
+            GxiNodeType::Container(this) => Ok(this.as_container()),
+            GxiNodeType::Widget(this) => Err("can't convert WidgetNode Container"),
+            GxiNodeType::Component(this) => Ok(this.as_container()),
+        }
+    }
+
+    pub fn as_container_mut(&mut self) -> Result<&mut dyn Container, &'static str> {
+        match self {
+            GxiNodeType::Container(this) => Ok(this.as_container_mut()),
+            GxiNodeType::Widget(this) => Err("can't convert WidgetNode Container"),
+            GxiNodeType::Component(this) => Ok(this.as_container_mut()),
+        }                                                               
+    }
 }
