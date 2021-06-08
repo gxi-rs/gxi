@@ -1,6 +1,8 @@
-use crate::*;
-use serde::{Deserialize, Serialize};
 use std::process::exit;
+
+use serde::{Deserialize, Serialize};
+
+use crate::*;
 
 enum Msg {
     Fetch(bool),

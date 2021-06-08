@@ -1,5 +1,6 @@
-use crate::*;
 use serde_json::Value;
+
+use crate::*;
 
 enum Msg {
     Fetch(bool),

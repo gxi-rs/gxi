@@ -106,7 +106,7 @@ impl GxiParser {
         };
         // inner logic for executing the update function
         let update_inner = {
-            let update_inner = if is_async && cfg!(feature = "desktop") {
+            let update_inner = if is_async && cfg!(feature = "gxi-desktop") {
                 quote! {
                     let (channel_sender, state) = {
                         let state_borrow = this.as_ref().borrow();
@@ -157,7 +157,7 @@ impl GxiParser {
                         Self::render(this);
                     }
                 };
-                if cfg!(feature = "web") {
+                if cfg!(feature = "gxi-web") {
                     update_inner = quote! {
                         spawn_local(async move {
                             #update_inner
@@ -237,9 +237,9 @@ impl Parse for GxiParser {
             }
         }
 
-        // need not use Arc<Mutex<>> in web and when update is not async
+        // need not use Arc<Mutex<>> in gxi-web and when update is not async
         let (state_cell, state_cell_inner, import_get_state_macro, import_get_state_macro_mut) = {
-            if is_async && cfg!(feature = "desktop") {
+            if is_async && cfg!(feature = "gxi-desktop") {
                 (
                     quote!(Arc),
                     quote!(Mutex),
@@ -261,7 +261,7 @@ impl Parse for GxiParser {
             channel_sender_field,
             channel_sender_struct_field,
             desktop_channel_attach,
-        ) = if cfg!(feature = "desktop") && is_async {
+        ) = if cfg!(feature = "gxi-desktop") && is_async {
             (
                 quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
                 quote! { channel_sender, },
