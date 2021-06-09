@@ -21,3 +21,5 @@ mod should_render;
 #[macro_use]
 mod node_impl_macros;
 mod binds;
+
+pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;

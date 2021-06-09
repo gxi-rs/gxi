@@ -106,11 +106,11 @@ impl GxiParser {
         };
         // inner logic for executing the update function
         let update_inner = {
-            let update_inner = if is_async && cfg!(feature = "gxi-desktop") {
+            let update_inner = if is_async && cfg!(feature = "desktop") {
                 quote! {
                     let (channel_sender, state) = {
                         let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                        let state = state_borrow.as_node().as_any().downcast_ref::<#name>().unwrap();
                         (state.channel_sender.clone(), state.state.clone())
                     };
                     tokio::task::spawn(async move {
@@ -134,7 +134,7 @@ impl GxiParser {
                 let mut update_inner = quote! {
                     let state = {
                         let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        let state = state_borrow.as_node().as_any().downcast_ref::<Self>().unwrap();
                         state.state.clone()
                     };
                     let render = {
@@ -142,8 +142,10 @@ impl GxiParser {
                         move || {
                             let this = Rc::clone(&this);
                             {
-                                let mut node = this.as_ref().borrow_mut();
-                                node.mark_dirty();
+                                let mut this_borrow = this.as_ref().borrow_mut();
+                                if let GxiNodeType::Component(this) = this_borrow.deref_mut() {
+                                    this.mark_dirty();
+                                }
                             }
                             Self::render(this);
                         }
@@ -151,13 +153,15 @@ impl GxiParser {
                     #update_fn
                     if let ShouldRender::Yes = update(state,msg,render)#await_call.unwrap() {
                         {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            if let GxiNodeType::Component(this) = this_borrow.deref_mut() {
+                                this.mark_dirty();
+                            }
                         }
                         Self::render(this);
                     }
                 };
-                if cfg!(feature = "gxi-web") {
+                if cfg!(feature = "web") {
                     update_inner = quote! {
                         spawn_local(async move {
                             #update_inner
@@ -170,7 +174,7 @@ impl GxiParser {
         };
 
         Ok(quote! {
-            fn update(this: NodeRc, msg: Msg) {
+            fn update(this: StrongNodeType, msg: Msg) {
                 #update_inner
             }
         })
@@ -213,16 +217,14 @@ impl Parse for GxiParser {
                                 let state = {
                                     let mut node = this.as_ref().borrow_mut();
                                     let node = node.as_node_mut().as_any_mut().downcast_mut::<Self>().unwrap();
-                                    println!("is_dirty {}",node.is_dirty());
-                                    //if !node.is_dirty() {
-                                      //  return;
-                                   // }
+                                    if !node.is_dirty() {
+                                        return;
+                                    }
                                     node.mark_clean();
                                     node.state.clone()
                                 };
                                 let state = get_state!(state);
                                 #content
-                                println!("rendered");
                             }
                         };
                     }
@@ -239,9 +241,9 @@ impl Parse for GxiParser {
             }
         }
 
-        // need not use Arc<Mutex<>> in gxi-web and when update is not async
+        // need not use Arc<Mutex<>> in web and when update is not async
         let (state_cell, state_cell_inner, import_get_state_macro, import_get_state_macro_mut) = {
-            if is_async && cfg!(feature = "gxi-desktop") {
+            if is_async && cfg!(feature = "desktop") {
                 (
                     quote!(Arc),
                     quote!(Mutex),
@@ -263,7 +265,7 @@ impl Parse for GxiParser {
             channel_sender_field,
             channel_sender_struct_field,
             desktop_channel_attach,
-        ) = if cfg!(feature = "gxi-desktop") && is_async {
+        ) = if cfg!(feature = "desktop") && is_async {
             (
                 quote! { let (channel_sender, re) = glib::MainContext::channel(glib::PRIORITY_DEFAULT); },
                 quote! { channel_sender, },
@@ -296,6 +298,7 @@ impl Parse for GxiParser {
                 use std::cell::RefCell;
                 use std::rc::Rc;
                 use std::sync::{Mutex, Arc};
+                use std::ops::DerefMut;
 
                 type State = #state_cell<#state_cell_inner<#state_name>>;
 

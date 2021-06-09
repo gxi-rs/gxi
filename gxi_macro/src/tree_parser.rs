@@ -72,17 +72,11 @@ impl TreeParser {
     /// generates the block to correctly drop `Pure` component without violating mutable rules.
     fn get_pure_remove_block(pure_index: u32) -> TokenStream2 {
         quote! {{
-            let pure_index = {
-                let mut node_borrow = node.as_ref().borrow_mut();
-                let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                let index = pure.pure_index.clone();
+            let mut node_borrow = node.as_ref().borrow_mut();
+            let pure = node_borrow.as_node_mut().as_any_mut().downcast_mut::<Pure>().unwrap();
+            if pure.pure_index != #pure_index {
                 pure.pure_index = #pure_index;
-                index
-            };
-            if pure_index != #pure_index {
-                let node = {
-                    node.as_ref().borrow_mut().get_child_mut().take()
-                };
+                pure.child = None;
             }
         }}
     }
@@ -142,11 +136,7 @@ impl TreeParser {
             }
 
             Ok(quote! {
-                let node = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                };
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
                 {
                     let cont = node.clone();
                     #chain
@@ -204,7 +194,8 @@ impl TreeParser {
                         TokenStream2::new()
                     } else {
                         let mut block = quote! {
-                            let node = node.as_ref().borrow_mut().as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
+                            let mut node = node.as_ref().borrow_mut();
+                            let node = node.as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
                         };
                         if !static_props.is_empty() {
                             block = quote! {
@@ -290,11 +281,7 @@ impl TreeParser {
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
-                        let node = {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                        };
+                        let (node, ..) = init_member(tree.clone(), #init_type, |this| Pure::new(this));
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             this_borrow.set_self_substitute(node.clone());

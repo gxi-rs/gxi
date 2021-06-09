@@ -11,7 +11,7 @@ pub struct Window {
     child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
     widget: gtk::Window,
-    self_substitute: Option<StrongNodeType>,
+    self_substitute: Option<WeakNodeType>,
 }
 
 impl Node for Window {

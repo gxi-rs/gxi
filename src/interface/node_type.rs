@@ -2,6 +2,7 @@ use std::rc::{Rc, Weak};
 
 use crate::*;
 use std::cell::RefCell;
+use std::ops::DerefMut;
 
 pub type StrongNodeType = Rc<RefCell<GxiNodeType>>;
 pub type WeakNodeType = Weak<RefCell<GxiNodeType>>;

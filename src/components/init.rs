@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use crate::*;
 
-struct Init {
+pub struct Init {
     child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
     parent: WeakNodeType,
@@ -24,6 +24,12 @@ impl Node for Init {
     impl_node_trait_as_any!();
     impl_node_trait_as_node!();
     impl_node_getters!();
+}
+
+impl Init {
+    pub fn on_init<F: FnOnce() + 'static>(&self, f: F) {
+        f();
+    }
 }
 
 impl_container!(Init);

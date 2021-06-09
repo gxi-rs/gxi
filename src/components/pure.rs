@@ -4,11 +4,11 @@ use std::rc::Rc;
 
 use crate::*;
 
-struct Pure {
+pub struct Pure {
     /// index of current if block where 0 is default i.e no if block has been executed yet
     pub pure_index: u32,
-    // others
-    child: Option<StrongNodeType>,
+    // pub , accessed by get_pure_remove_block
+    pub child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
     parent: WeakNodeType,
     self_substitute: Option<WeakNodeType>,
