@@ -15,11 +15,8 @@ macro_rules! impl_drop {
 macro_rules! impl_widget_node {
     ($name:ident) => {
         impl WidgetNode for $name {
-            fn get_widget(&self) -> &dyn Widget {
-                &self.widget
-            }
-            fn get_widget_mut(&mut self) -> &mut dyn Widget {
-                &mut self.widget
+            fn get_native_widget(&self) -> Box<dyn NativeWidget> {
+                Box::from(self.widget.clone())
             }
             fn as_widget_node(&self) -> &dyn WidgetNode {
                 self

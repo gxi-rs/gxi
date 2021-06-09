@@ -5,4 +5,4 @@ authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
 [dependencies.gxi-desktop]
-path = "../gxi-desktop"
+path = "binds/gxi-desktop"

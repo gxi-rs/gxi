@@ -5,7 +5,6 @@ use std::rc::Rc;
 use gxi::*;
 
 use crate::impl_drop;
-use crate::impl_widget::GtkElement;
 use crate::*;
 
 pub enum Orientation {
@@ -37,7 +36,12 @@ impl Node for View {
     }
 }
 
-impl ContainerNode for View {}
+impl ContainerNode for View {
+    fn get_native_container(&self) -> Box<dyn NativeContainer> {
+        Box::new(GtkContainer(Box::new(self.widget.clone())))
+    }
+}
+
 impl_container!(View);
 impl_widget_node!(View);
 impl_component_node!(View);
@@ -46,27 +50,27 @@ impl View {
     pub fn orientation(&mut self, orientation: Orientation) {
         match orientation {
             Orientation::Horizontal => {
-                if let gtk::Orientation::Vertical = self.widget.0.get_orientation() {
-                    self.widget.0.set_orientation(gtk::Orientation::Horizontal);
+                if let gtk::Orientation::Vertical = self.widget.get_orientation() {
+                    self.widget.set_orientation(gtk::Orientation::Horizontal);
                 }
             }
             Orientation::Vertical => {
-                if let gtk::Orientation::Horizontal = self.widget.0.get_orientation() {
-                    self.widget.0.set_orientation(gtk::Orientation::Vertical);
+                if let gtk::Orientation::Horizontal = self.widget.get_orientation() {
+                    self.widget.set_orientation(gtk::Orientation::Vertical);
                 }
             }
         }
     }
 
     pub fn h_expand(&mut self, h_expand: bool) {
-        if h_expand != self.widget.0.get_hexpand() {
-            self.widget.0.set_hexpand(true);
+        if h_expand != self.widget.get_hexpand() {
+            self.widget.set_hexpand(true);
         }
     }
 
     pub fn v_expand(&mut self, v_expand: bool) {
-        if v_expand != self.widget.0.get_vexpand() {
-            self.widget.0.set_vexpand(true);
+        if v_expand != self.widget.get_vexpand() {
+            self.widget.set_vexpand(true);
         }
     }
 }

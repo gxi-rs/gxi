@@ -12,6 +12,7 @@ pub use interface::*;
 pub use parser_macros::*;
 pub use should_render::*;
 pub use gxi_macro::*;
+pub use binds::*;
 
 mod components;
 mod interface;
@@ -19,6 +20,8 @@ mod parser_macros;
 mod should_render;
 #[macro_use]
 mod node_impl_macros;
+
+mod binds;
 
 #[cfg(test)]
 mod tests {
