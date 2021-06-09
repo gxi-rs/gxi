@@ -31,7 +31,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
 
                 match this_borrow_mut.deref_mut() {
                     GxiNodeType::Container(this) => {
-                        this.get_native_container().append(child_borrow.get_native_widget().deref());
+                        this.append(child_borrow.get_native_widget());
                     }
                     GxiNodeType::Component(_this) => {
                         // while parent isn't widget

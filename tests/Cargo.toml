@@ -4,5 +4,6 @@ version = "0.2.0"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 
-[dependencies.gxi-desktop]
-path = "binds/gxi-desktop"
+[dependencies.gxi]
+path = "../"
+version = "*"

@@ -1,7 +1,6 @@
-use crate::Node;
+use crate::{Node, NativeWidget};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
-use std::any::Any;
 
 pub type GxiWidgetRc = Rc<RefCell<Box<dyn WidgetNode>>>;
 pub type WeakGxiWidgetRc = Weak<RefCell<Box<dyn WidgetNode>>>;

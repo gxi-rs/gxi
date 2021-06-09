@@ -22,3 +22,6 @@ pub mod util_macros;
 mod web_impl_macros;
 mod global_attributes;
 mod widgets;
+
+pub type NativeWidget = web_sys::Node;
+pub type NativeContainer = web_sys::Element;

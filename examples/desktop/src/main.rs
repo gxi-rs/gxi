@@ -1,8 +1,6 @@
 //pub use app::*;
 //pub use centre::*;
 //pub use counter::*;
-pub use gxi_desktop::*;
-pub use gxi_desktop::gxi::*;
 pub use gxi::*;
 
 //mod app;

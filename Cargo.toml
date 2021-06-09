@@ -23,6 +23,7 @@ keywords = [
 [features]
 desktop = ["gtk", "gxi_macro/desktop", "glib", "tokio"]
 web = ["web-sys", "gxi_macro/web", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
+default = ["gxi_macro"]
 
 [workspace]
 members = [

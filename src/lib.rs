@@ -11,8 +11,8 @@ pub use components::*;
 pub use interface::*;
 pub use parser_macros::*;
 pub use should_render::*;
-pub use gxi_macro::*;
 pub use binds::*;
+pub use gxi_macro::gxi;
 
 mod components;
 mod interface;

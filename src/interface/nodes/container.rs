@@ -1,4 +1,4 @@
-use crate::{WidgetNode, Node, StrongNodeType, NativeWidget};
+use crate::{WidgetNode, Node, StrongNodeType, binds::NativeContainer, NativeWidget};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
@@ -10,6 +10,7 @@ pub type WeakGxiContainerRc = Weak<RefCell<Box<dyn ContainerNode>>>;
 pub trait ContainerNode: Node + WidgetNode + Container {
     fn get_native_container(&self) -> &NativeContainer;
     fn get_native_container_mut(&self) -> &mut NativeContainer;
+    fn append(&mut self, widget: &NativeWidget);
 }
 
 /// a node which can hold children

@@ -9,7 +9,7 @@ pub use glib;
 pub use gtk::prelude::*;
 pub use gxi;
 pub use tokio;
-//
+// exports
 pub use containers::*;
 pub use native_elements::*;
 pub use run::*;
@@ -21,3 +21,6 @@ mod widgets;
 #[macro_use]
 mod impl_macros;
 mod native_elements;
+
+pub type NativeWidget = gtk::Widget;
+pub type NativeContainer = gtk::Container;
