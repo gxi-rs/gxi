@@ -1,21 +1,11 @@
-//pub use app::*;
-//pub use centre::*;
-//pub use counter::*;
+pub use app::*;
+pub use centre::*;
+pub use counter::*;
 pub use gxi::*;
 
-//mod app;
-//mod centre;
-//mod counter;
-
-gxi! {
-    App {}
-    render {
-        Window [
-            View [
-            ]
-       ]
-    }
-}
+mod app;
+mod centre;
+mod counter;
 
 fn main() {
     run::<App>();

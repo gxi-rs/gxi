@@ -281,10 +281,13 @@ impl TreeParser {
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
-                        let (node, ..) = init_member(tree.clone(), #init_type, |this| Pure::new(this));
+                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
-                            this_borrow.set_self_substitute(node.clone());
+                            match this_borrow.deref_mut() {
+                                GxiNodeType::Component(t) => *t.get_self_substitute_mut() = Some(Rc::downgrade(&this)),
+                                _ => unreachable!(),
+                            }
                         }
                         node
                     };

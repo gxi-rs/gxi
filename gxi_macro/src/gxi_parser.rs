@@ -274,7 +274,13 @@ impl Parse for GxiParser {
                     let this = this.clone();
                     re.attach(None, move |_| {
                         let this = Rc::clone(&this);
-                        this.as_ref().borrow_mut().as_component_mut().mark_dirty(); // mark dirty
+                        {
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            match this_borrow.deref_mut() {
+                                GxiNodeType::Component(t) => t.mark_dirty(),
+                                _ => unreachable!(),
+                            }
+                        }
                         Self::render(this); // render this
                         glib::Continue(true) 
                     });
