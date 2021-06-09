@@ -1,6 +1,6 @@
 use crate::{GxiNodeType, InitType, StrongNodeType, WeakNodeType};
 use std::borrow::{Borrow};
-use std::ops::{Deref,DerefMut};
+use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 
 // TODO: replace init_type with f32 index
@@ -11,7 +11,6 @@ use std::rc::Rc;
 pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
     this: StrongNodeType, init_type: InitType, init: F,
 ) -> (StrongNodeType, bool) {
-
     let mut this_borrow_mut = this.as_ref().borrow_mut();
     // check if this is a widget
     if let GxiNodeType::Widget(_) = this_borrow_mut.deref() {
@@ -29,9 +28,10 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             // if child is a widget or a container add it's widget to this if this is also a widget
             if let Ok(child) = child.as_ref().borrow().as_widget_node() {
                 let child_borrow = child.borrow();
+
                 match this_borrow_mut.deref_mut() {
                     GxiNodeType::Container(this) => {
-                        this.get_widget_mut().append(child_borrow.get_widget());
+                        this.get_native_container_mut().append(child_borrow.get_native_widget());
                     }
                     GxiNodeType::Component(_this) => {
                         // while parent isn't widget

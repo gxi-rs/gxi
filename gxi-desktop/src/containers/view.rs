@@ -5,7 +5,7 @@ use std::rc::Rc;
 use gxi::*;
 
 use crate::impl_drop;
-use crate::impl_widget::GtkContainer;
+use crate::impl_widget::GtkElement;
 use crate::*;
 
 pub enum Orientation {
@@ -18,7 +18,7 @@ pub struct View {
     self_substitute: Option<WeakNodeType>,
     child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
-    widget: GtkContainer<gtk::Box>,
+    widget: gtk::Box,
 }
 
 impl Node for View {
@@ -32,7 +32,7 @@ impl Node for View {
             self_substitute: None,
             child: None,
             sibling: None,
-            widget: GtkContainer(gtk::Box::new(gtk::Orientation::Horizontal, 0)),
+            widget: gtk::Box::new(gtk::Orientation::Horizontal, 0),
         }))))
     }
 }

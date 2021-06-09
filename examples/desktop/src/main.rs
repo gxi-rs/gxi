@@ -13,8 +13,8 @@ gxi! {
     App {}
     render {
         Window [
-       //     View [
-         //   ]
+            View [
+            ]
        ]
     }
 }

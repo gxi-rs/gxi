@@ -1,29 +1,23 @@
 use gtk::prelude::*;
-use gtk::{Container, WidgetExt};
-use gxi::*;
 use std::any::Any;
 
-pub struct GtkContainer<T: ContainerExt + IsA<gtk::Container> + IsA<gtk::Widget>>(pub T);
-
-impl<T: glib::IsA<gtk::Container> + IsA<gtk::Widget>> Widget for GtkContainer<T> {
-    fn append(&mut self, widget: &dyn Widget) {
-     //   return;
-        let widget = widget
-            .as_any()
-            .downcast_ref::<GtkWidget<gtk::Widget>>()
-            .unwrap();
-        self.0.add(&widget.0);
-    }
-
-    impl_node_trait_as_any!();
+pub enum GtkElement {
+    Widget(gtk::Widget),
+    Container(gtk::Container)
 }
 
-pub struct GtkWidget<T: WidgetExt + IsA<gtk::Widget>>(pub T);
-
-impl<T: WidgetExt + IsA<gtk::Widget>> Widget for GtkWidget<T> {
-    fn append(&mut self, _widget: &dyn Widget) {
-        panic!("can't add a child to this widget")
+impl gxi::Widget for GtkElement {
+    fn append(&mut self, widget:&dyn gxi::Widget) {
+        let widget = widget.as_any().downcast_ref::<GtkElement>().unwrap();
+        
+        match self {
+            GtkElement::Container(this) => match widget {
+                GtkElement::Container(widget) => this.add(widget),
+                GtkElement::Widget(widget) => this.add(widget)
+            },
+            _ => panic!(""),
+        }
     }
-    
-    impl_node_trait_as_any!();
+    gxi::impl_node_trait_as_any!();
 }
+
