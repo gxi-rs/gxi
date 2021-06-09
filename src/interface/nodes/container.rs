@@ -9,7 +9,6 @@ pub type WeakGxiContainerRc = Weak<RefCell<Box<dyn ContainerNode>>>;
 /// and can hold children
 pub trait ContainerNode: Node + WidgetNode + Container {
     fn get_native_container(&self) -> &NativeContainer;
-    fn get_native_container_mut(&self) -> &mut NativeContainer;
     fn append(&mut self, widget: &NativeWidget);
 }
 

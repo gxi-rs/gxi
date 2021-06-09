@@ -35,7 +35,7 @@ macro_rules! impl_widget {
             fn new(parent: WeakNodeType) -> StrongNodeType {
                 Rc::new(RefCell::new(GxiNodeType::Widget(Box::new(Self {
                     parent,
-                    widget: GtkWidget(gtk::$widget_name::new($($args)*)),
+                    widget: gtk::$widget_name::new($($args)*),
                     sibling: None,
                 }))))
             }

@@ -4,7 +4,7 @@ macro_rules! impl_drop {
         impl Drop for $name {
             fn drop(&mut self) {
                 unsafe {
-                     self.widget.0.destroy();
+                     self.widget.destroy();
                 }
             }
         }
@@ -15,8 +15,8 @@ macro_rules! impl_drop {
 macro_rules! impl_widget_node {
     ($name:ident) => {
         impl WidgetNode for $name {
-            fn get_native_widget(&self) -> Box<dyn NativeWidget> {
-                Box::from(self.widget.clone())
+            fn get_native_widget(&self) -> &NativeWidget {
+                self.widget.as_ref()
             }
             fn as_widget_node(&self) -> &dyn WidgetNode {
                 self

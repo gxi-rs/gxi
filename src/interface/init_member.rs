@@ -1,7 +1,7 @@
-use crate::{GxiNodeType, InitType, StrongNodeType, WeakNodeType};
 use std::borrow::{Borrow};
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
+use crate::{GxiNodeType, StrongNodeType, WeakNodeType, InitType};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member

@@ -1,5 +1,5 @@
 use crate::*;
-use gxi::*;
+use gtk::SpinnerExt;
 
 create_widget!(Spinner);
 
@@ -8,9 +8,9 @@ impl_widget!(Spinner);
 impl Spinner {
     pub fn spin(&self, should_spin: bool) {
         if should_spin {
-            self.widget.0.start()
+            self.widget.start()
         } else {
-            self.widget.0.stop()
+            self.widget.stop()
         }
     }
 }

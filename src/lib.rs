@@ -20,31 +20,4 @@ mod parser_macros;
 mod should_render;
 #[macro_use]
 mod node_impl_macros;
-
 mod binds;
-
-#[cfg(test)]
-mod tests {
-    use crate::foo::Foo;
-    use crate::*;
-
-    #[test]
-    fn main() {
-        let root = Root::new_root();
-        {
-            let _node = {
-                let (node, new) = init_member(root.clone(), InitType::Child, |this| Foo::new(this));
-                let _node_cast = node
-                    .as_ref()
-                    .borrow_mut()
-                    .as_node_mut()
-                    .as_any_mut()
-                    .downcast_mut::<Foo>()
-                    .unwrap();
-                // set values here
-                if new {}
-                node
-            };
-        }
-    }
-}

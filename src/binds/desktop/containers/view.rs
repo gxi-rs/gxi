@@ -2,10 +2,9 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gxi::*;
-
 use crate::impl_drop;
 use crate::*;
+use gtk::{ContainerExt, OrientableExt, WidgetExt};
 
 pub enum Orientation {
     Horizontal,
@@ -37,8 +36,12 @@ impl Node for View {
 }
 
 impl ContainerNode for View {
-    fn get_native_container(&self) -> Box<dyn NativeContainer> {
-        Box::new(GtkContainer(Box::new(self.widget.clone())))
+    fn get_native_container(&self) -> &NativeContainer {
+        self.widget.as_ref()
+    }
+
+    fn append(&mut self, widget: &NativeWidget) {
+        self.widget.add(widget);
     }
 }
 

@@ -2,16 +2,15 @@ use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use gtk::{WindowType};
+use gtk::{WindowType, ContainerExt, WidgetExt};
 
 use crate::*;
-use gxi::*;
 
 pub struct Window {
     parent: WeakNodeType,
     child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
-    widget: gtk::Window,
+    pub(crate) widget: gtk::Window,
     self_substitute: Option<WeakNodeType>,
 }
 
@@ -21,7 +20,11 @@ impl Node for Window {
             parent,
             child: None,
             sibling: None,
-            widget: gtk::Window::new(WindowType::Toplevel),
+            widget:  {
+                let window = gtk::Window::new(WindowType::Toplevel);
+                window.show_all();
+                window
+            },
             self_substitute: None,
         }))))
     }
@@ -32,18 +35,22 @@ impl Node for Window {
 }
 
 impl ContainerNode for Window {
-    fn get_native_container(&self) -> Box<dyn NativeContainer> {
-        &self.widget
+    fn get_native_container(&self) -> &NativeContainer {
+        self.widget.as_ref()
     }
 
+    fn append(&mut self, widget: &NativeWidget) {
+        self.widget.add(widget);
+    }
 }
+
 impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
 
 impl Window {
     pub fn on_destroy<F: Fn() + 'static>(&self, f: F) {
-        self.widget.0.as_ref().connect_destroy(f);
+        self.widget.connect_destroy(move |_| f());
     }
 }
 

@@ -9,7 +9,6 @@ pub type WeakGxiWidgetRc = Weak<RefCell<Box<dyn WidgetNode>>>;
 pub trait WidgetNode: Node {
     /// returns self or parents widget
     fn get_native_widget(&self) -> &NativeWidget;
-    fn get_native_widget_mut(&self) -> &mut NativeWidget;
     fn as_widget_node(&self) -> &dyn WidgetNode;
     fn as_widget_node_mut(&mut self) -> &mut dyn WidgetNode;
 }

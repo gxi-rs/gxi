@@ -1,4 +1,4 @@
-use gxi::{init_member, InitType, Node, Root};
+use crate::{init_member, InitType, Node, Root};
 
 pub fn run<App: Node + 'static>() {
     let rt = tokio::runtime::Runtime::new().unwrap();
