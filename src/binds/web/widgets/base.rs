@@ -1,8 +1,8 @@
 use crate::*;
 
-create_web_container!(Base);
+create_web_widget!(Base);
 
-impl_web_container!(Base "base");
+impl_web_widget!(Base "base");
 
 impl Base {
     generate_pub_attr!(href);

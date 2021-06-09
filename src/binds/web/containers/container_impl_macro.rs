@@ -6,14 +6,13 @@ macro_rules! create_web_container {
         use std::rc::Rc;
 
         pub struct $name {
-            pub parent: WeakNodeRc,
-            pub self_substitute: Option<WeakNodeRc>,
-            pub child: Option<NodeRc>,
-            pub sibling: Option<NodeRc>,
+            pub parent: WeakNodeType,
+            pub self_substitute: Option<WeakNodeType>,
+            pub child: Option<StrongNodeType>,
+            pub sibling: Option<StrongNodeType>,
             pub widget: web_sys::Element,
         }
 
-        impl_drop_for_web_node!($name);
     };
 }
 
@@ -22,15 +21,11 @@ macro_rules! impl_web_container {
     ($name:ident $element_name:literal) => {
         impl Node for $name {
             impl_node_trait_as_any!();
-            impl_node_trait_get_widget!();
-            impl_node_trait_get_sibling!();
-            impl_node_trait_get_child!();
-            impl_node_trait_substitute!();
-            impl_add_for_web_node!();
-            impl_node_trait_get_parent!();
+            impl_node_trait_as_node!();
+            impl_node_getters!();
 
-            fn new(parent: WeakNodeRc) -> NodeRc {
-                let this: NodeRc = Rc::new(RefCell::new(Box::new(Self {
+            fn new(parent: WeakNodeType) -> StrongNodeType {
+                Rc::new(RefCell::new(GxiNodeType::Container(Box::new(Self {
                     parent,
                     self_substitute: None,
                     child: None,
@@ -40,14 +35,34 @@ macro_rules! impl_web_container {
                         let document = window.document().unwrap();
                         document.create_element($element_name).unwrap()
                     },
-                })));
-                {
-                    let mut this_borrow = this.as_ref().borrow_mut();
-                    this_borrow.set_self_substitute(this.clone());
-                }
-                this
+                }))))
             }
         }
-        impl GlobalAttributes for $name {}
+
+        impl_container_node!($name);
+        impl_component_node!($name);
+        impl_container!($name);
+        impl_widget_node!($name);
+
+        impl GlobalAttributes for $name {
+            fn get_widget_as_element(&self) -> &web_sys::Element {
+                &self.widget
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_container_node {
+    ($name:ident) => {
+        impl ContainerNode for $name {
+            fn get_native_container(&self) -> &NativeContainer {
+                self.widget.as_ref()
+            }
+
+            fn append(&mut self, widget: &NativeWidget) {
+                self.widget.append_child(widget).unwrap();
+            }
+        }
     };
 }

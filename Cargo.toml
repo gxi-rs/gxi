@@ -47,6 +47,6 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 [dependencies.web-sys]
 version = "0.3.50"
 features = [
-    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent'
+    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent', 'HtmlCollection'
 ]
 optional = true

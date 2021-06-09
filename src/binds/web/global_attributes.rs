@@ -1,9 +1,11 @@
 use crate::*;
 
-pub trait GlobalAttributes: Node {
+pub trait GlobalAttributes: WidgetNode {
+    fn get_widget_as_element(&self) -> &web_sys::Element;
+
     #[inline]
     fn inner_html(&self, str: &str) {
-        self.get_widget().set_inner_html(str)
+        self.get_widget_as_element().set_inner_html(str)
     }
 
     //Global attributes according to https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes
@@ -38,7 +40,7 @@ pub trait GlobalAttributes: Node {
         let closure = Closure::wrap(Box::new(move |_: web_sys::MouseEvent| {
             f();
         }) as Box<dyn Fn(_)>);
-        self.get_widget()
+        self.get_widget_as_element()
             .add_event_listener_with_callback(event, closure.as_ref().unchecked_ref())
             .unwrap();
         closure.forget();

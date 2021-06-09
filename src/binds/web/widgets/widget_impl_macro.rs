@@ -6,8 +6,8 @@ macro_rules! create_web_widget {
         use std::rc::Rc;
 
         pub struct $name {
-            pub parent: WeakNodeRc,
-            pub sibling: Option<NodeRc>,
+            pub parent: WeakNodeType,
+            pub sibling: Option<StrongNodeType>,
             pub widget: web_sys::Element,
         }
 
@@ -20,34 +20,11 @@ macro_rules! impl_web_widget {
     ($name:ident $element_name:literal) => {
         impl Node for $name {
             impl_node_trait_as_any!();
-            impl_node_trait_get_widget!();
-            impl_node_trait_get_sibling!();
-            impl_node_trait_get_parent!();
+            impl_node_trait_as_node!();
+            impl_node_getters!();
 
-            fn add(&mut self, _child: NodeRc) {
-                panic!(
-                    "Attempt to a.rs add node into {name}. {name} can't have a.rs child.",
-                    name = stringify!($name)
-                );
-            }
-
-            fn init_child(&mut self, _f: Box<dyn FnOnce() -> NodeRc>) -> (NodeRc, bool) {
-                panic!(
-                    "Attempt to a.rs add node into {name}. {name} can't have a.rs child.",
-                    name = stringify!($name)
-                );
-            }
-
-            fn get_self_substitute(&self) -> NodeRc {
-                panic!("{} can't have a.rs child", stringify!($name));
-            }
-
-            fn set_self_substitute(&mut self, _self_substitute: NodeRc) {
-                panic!("{} can't have a.rs child", stringify!($name));
-            }
-
-            fn new(parent: WeakNodeRc) -> NodeRc {
-                Rc::new(RefCell::new(Box::new(Self {
+            fn new(parent: WeakNodeType) -> StrongNodeType {
+                Rc::new(RefCell::new(GxiNodeType::Widget(Box::new(Self {
                     parent,
                     sibling: None,
                     widget: {
@@ -55,10 +32,16 @@ macro_rules! impl_web_widget {
                         let document = window.document().unwrap();
                         document.create_element($element_name).unwrap()
                     },
-                })))
+                }))))
             }
         }
 
-        impl GlobalAttributes for $name {}
+        impl_widget_node!($name);
+
+        impl GlobalAttributes for $name {
+            fn get_widget_as_element(&self) -> &web_sys::Element {
+                &self.widget
+            }
+        }
     };
 }

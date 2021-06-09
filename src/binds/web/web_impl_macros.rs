@@ -32,7 +32,7 @@ macro_rules! generate_attr {
         #[allow(dead_code)]
         #[inline]
         fn $name(&self, value: &str) {
-            self.get_widget()
+            self.get_widget_as_element()
                 .set_attribute(stringify!($name), value)
                 .unwrap();
         }
@@ -52,7 +52,7 @@ macro_rules! generate_pub_attr {
         #[allow(dead_code)]
         #[inline]
         pub fn $name(&self, value: $typ) {
-            self.get_widget()
+            self.widget
                 .set_attribute($key, &format!("{}",value)[..])
                 .unwrap();
         }
@@ -70,22 +70,40 @@ macro_rules! generate_pub_bool_attr {
         #[inline]
         pub fn $name(&self, value: bool) {
             if value {
-                self.get_widget().set_attribute($key, "").unwrap();
+                self.widget.set_attribute($key, "").unwrap();
             } else {
-                self.get_widget().remove_attribute($key).unwrap();
+                self.widget.remove_attribute($key).unwrap();
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! impl_add_for_web_node {
-    () => {
-        #[inline]
-        fn add(&mut self, child: NodeRc) {
-            self.widget
-                .append_child(&child.as_ref().borrow().get_widget())
-                .unwrap();
+macro_rules! impl_drop {
+    ($name:ident) => {
+        impl Drop for $name {
+            fn drop(&mut self) {
+                unsafe {
+                     self.widget.destroy();
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! impl_widget_node {
+    ($name:ident) => {
+        impl WidgetNode for $name {
+            fn get_native_widget(&self) -> &NativeWidget {
+                self.widget.as_ref()
+            }
+            fn as_widget_node(&self) -> &dyn WidgetNode {
+                self
+            }
+            fn as_widget_node_mut(&mut self) -> &mut dyn WidgetNode {
+                self
+            }
         }
     };
 }
