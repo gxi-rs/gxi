@@ -10,7 +10,7 @@ pub struct Window {
     parent: WeakNodeType,
     child: Option<StrongNodeType>,
     sibling: Option<StrongNodeType>,
-    pub(crate) widget: gtk::Window,
+    widget: gtk::Window,
     self_substitute: Option<WeakNodeType>,
 }
 
