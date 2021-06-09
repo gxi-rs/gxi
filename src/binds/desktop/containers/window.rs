@@ -34,16 +34,7 @@ impl Node for Window {
     impl_node_getters!();
 }
 
-impl ContainerNode for Window {
-    fn get_native_container(&self) -> &NativeContainer {
-        self.widget.as_ref()
-    }
-
-    fn append(&mut self, widget: &NativeWidget) {
-        self.widget.add(widget);
-    }
-}
-
+impl_container_node!(Window);
 impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);

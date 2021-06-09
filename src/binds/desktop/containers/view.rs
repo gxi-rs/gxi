@@ -35,16 +35,7 @@ impl Node for View {
     }
 }
 
-impl ContainerNode for View {
-    fn get_native_container(&self) -> &NativeContainer {
-        self.widget.as_ref()
-    }
-
-    fn append(&mut self, widget: &NativeWidget) {
-        self.widget.add(widget);
-    }
-}
-
+impl_container_node!(View);
 impl_container!(View);
 impl_widget_node!(View);
 impl_component_node!(View);
