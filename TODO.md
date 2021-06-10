@@ -4,8 +4,24 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### TO DO
 
+## For release 0.3.0
+
 - [ ] Complete unit tests for the compiler
 - [ ] Complete the docs
+- [ ] Fix #children call
+- [ ] Finish init_member()
+- [ ] Deref nodes
+- [ ] Change height and width from u32 to string in web binds
+- [ ] Generate Bindings for Desktop
+- [ ] Organise imports
+- [ ] Remove use statements from macro expansions
+- [ ] Explicit Drop trait for Containers and Widgets
+
+## Others
+
+- [ ] gtk 4 support
+- [ ] SSR support for all platforms
+- [ ] Debug trait for nodes
 
 ### Completed ✓
 
