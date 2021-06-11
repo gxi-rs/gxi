@@ -90,4 +90,22 @@ impl GxiNodeType {
             GxiNodeType::TopLevelWidget(_) => Err("can't convert TopLevelWidgetNode to ComponentNode"),
         }
     }
+
+    pub fn as_container_widget_node(&self) -> Result<&dyn ContainerWidgetNode, &'static str> {
+        match self {
+            GxiNodeType::ContainerWidget(this) => Ok(this.as_ref()),
+            GxiNodeType::Widget(_) => Err("can't convert WidgetNode to ContainerWidgetNode"),
+            GxiNodeType::Component(_) => Err("can't convert ComponentNode to ContainerWidgetNode"),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_ref()),
+        }
+    }
+
+    pub fn as_container_widget_node_mut(&mut self) -> Result<&mut dyn ContainerWidgetNode, &'static str> {
+        match self {
+            GxiNodeType::ContainerWidget(this) => Ok(this.as_mut()),
+            GxiNodeType::Widget(_) => Err("can't convert WidgetNode to ContainerWidgetNode"),
+            GxiNodeType::Component(_) => Err("can't convert ComponentNode to ContainerWidgetNode"),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_mut()),
+        }
+    }
 }

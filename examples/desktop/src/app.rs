@@ -22,7 +22,8 @@ gxi! {
         show_help : bool = false
     }
     render {
-            Init ( on_init = || Msg::Fetch(true) ) [
+        Window [
+            Init (  ) [
                 View ( orientation = Orientation::Vertical ) [
                     View [
                         if state.show_help {
@@ -52,7 +53,7 @@ gxi! {
                     ],
                     Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } ),
                 ]
-
+            ]
         ]
     }
     update {
