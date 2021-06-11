@@ -17,7 +17,7 @@ impl Node for Root {
     impl_node_trait_as_node!();
 
     fn get_parent(&self) -> &WeakNodeType {
-        unreachable!()
+        panic!("can't get parent of tree root. You have likely forgotten to add a widget container in your tree. Eg. Window, Body")
     }
 
     fn get_sibling(&self) -> &Option<StrongNodeType> { unreachable!() }

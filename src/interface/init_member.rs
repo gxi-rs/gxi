@@ -34,13 +34,11 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                         this.append(child_borrow.get_native_widget());
                         drop(this_borrow_mut);
                     }
-                    GxiNodeType::Component(this_deref) => {
-                        drop(this_deref);
+                    GxiNodeType::Component(_) => {
                         drop(this_borrow_mut);
                         let mut this = this.clone();
                         // get parent and init_member on it
                         loop {
-                            println!("component");
                             let mut this_borrow_mut = this.as_ref().borrow_mut();
                             let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
                             let mut parent_borrow = parent.as_ref().borrow_mut();
@@ -59,7 +57,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             } else {
                 drop(this_borrow_mut);
             }
-            println!("adding to container");
+
             let mut this_borrow_mut = this.as_ref().borrow_mut();
             *this_borrow_mut.as_container_mut().unwrap().get_child_mut() = Some(child.clone());
             return (child, true);
