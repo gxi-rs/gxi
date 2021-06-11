@@ -25,7 +25,7 @@ macro_rules! impl_web_container {
             impl_node_getters!();
 
             fn new(parent: WeakNodeType) -> StrongNodeType {
-                Rc::new(RefCell::new(GxiNodeType::Container(Box::new(Self {
+                Rc::new(RefCell::new(GxiNodeType::ContainerWidget(Box::new(Self {
                     parent,
                     self_substitute: None,
                     child: None,
@@ -55,7 +55,7 @@ macro_rules! impl_web_container {
 #[macro_export]
 macro_rules! impl_container_node {
     ($name:ident) => {
-        impl ContainerNode for $name {
+        impl ContainerWidgetNode for $name {
             fn get_native_container(&self) -> &NativeContainer {
                 self.widget.as_ref()
             }
