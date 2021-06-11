@@ -38,11 +38,11 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             if let Some(sibling) = this_borrow_mut.as_node().get_sibling() {
                 return (sibling.clone(), false);
             }
+            let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
             // create new sibling because it doesn't already exist
-            let sibling = init(Rc::downgrade(&this));
+            let sibling = init(Rc::downgrade(&parent));
             // add sibling
             *this_borrow_mut.as_node_mut().get_sibling_mut() = Some(sibling.clone());
-            let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
             drop(this_borrow_mut);
             // append native widget
             append_native_widget(parent, sibling.as_ref().borrow());
