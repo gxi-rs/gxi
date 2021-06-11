@@ -14,7 +14,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
     let mut this_borrow_mut = this.as_ref().borrow_mut();
     // check if this is a widget
     if let GxiNodeType::Widget(_) = this_borrow_mut.deref() {
-        panic!("can't add node to widget");
+        panic!("can't add node to a widget");
     }
     // add accordingly
     match init_type {
@@ -32,20 +32,35 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                 match this_borrow_mut.deref_mut() {
                     GxiNodeType::Container(this) => {
                         this.append(child_borrow.get_native_widget());
+                        drop(this_borrow_mut);
                     }
-                    GxiNodeType::Component(_this) => {
-                        // while parent isn't widget
-                        // TODO: implement this
-                        /*loop {
-                            let mut this_borrow = this.borrow_mut();
-                            let parent = this_borrow.get_parent().clone().upgrade();
-                            let parent = ent.into_gxi_node_rc();
-                        }*/
+                    GxiNodeType::Component(this_deref) => {
+                        drop(this_deref);
+                        drop(this_borrow_mut);
+                        let mut this = this.clone();
+                        // get parent and init_member on it
+                        loop {
+                            println!("component");
+                            let mut this_borrow_mut = this.as_ref().borrow_mut();
+                            let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
+                            let mut parent_borrow = parent.as_ref().borrow_mut();
+                            if let GxiNodeType::Container(parent) = parent_borrow.deref_mut() {
+                                parent.append(child_borrow.get_native_widget());
+                                break;
+                            }
+                            drop(parent_borrow);
+                            drop(this_borrow_mut);
+                            this = parent;
+                        }
                     }
+                    // this has already been checked
                     _ => unreachable!(),
                 }
+            } else {
+                drop(this_borrow_mut);
             }
             println!("adding to container");
+            let mut this_borrow_mut = this.as_ref().borrow_mut();
             *this_borrow_mut.as_container_mut().unwrap().get_child_mut() = Some(child.clone());
             return (child, true);
         }

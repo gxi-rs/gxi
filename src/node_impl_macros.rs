@@ -91,6 +91,19 @@ macro_rules! impl_component_node {
             }
         }
     };
+    ($name:ident impl_dirty) => {
+        impl ComponentNode for $name {
+            fn get_self_substitute(&self) -> &Option<WeakNodeType> {
+                &self.self_substitute
+            }
+
+            fn get_self_substitute_mut(&mut self) -> &mut Option<WeakNodeType> {
+                &mut self.self_substitute
+            }
+
+            impl_node_trait_dirty!();
+        }
+    };
 }
 
 /// impl get_child, get_child_mut, get_parent

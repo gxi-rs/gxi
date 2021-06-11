@@ -349,7 +349,7 @@ impl Parse for GxiParser {
                 }
 
                 impl_container!(#name);
-                impl_component_node!(#name);
+                impl_component_node!(#name impl_dirty);
 
                 impl #name {
                     #update_func
