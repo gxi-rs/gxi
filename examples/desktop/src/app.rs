@@ -7,7 +7,7 @@ use crate::*;
 enum Msg {
     Fetch(bool),
     ShowHelp(bool),
-    Quit,
+   // Quit,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
