@@ -30,7 +30,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                 let child_borrow = child.borrow();
 
                 match this_borrow_mut.deref_mut() {
-                    GxiNodeType::Container(this) => {
+                    GxiNodeType::ContainerWidget(this) => {
                         this.append(child_borrow.get_native_widget());
                         drop(this_borrow_mut);
                     }
@@ -42,7 +42,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                             let mut this_borrow_mut = this.as_ref().borrow_mut();
                             let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
                             let mut parent_borrow = parent.as_ref().borrow_mut();
-                            if let GxiNodeType::Container(parent) = parent_borrow.deref_mut() {
+                            if let GxiNodeType::ContainerWidget(parent) = parent_borrow.deref_mut() {
                                 parent.append(child_borrow.get_native_widget());
                                 break;
                             }
@@ -75,7 +75,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                 let this_parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
                 let mut this_parent = this_parent.as_ref().borrow_mut();
                 match this_parent.deref_mut() {
-                    GxiNodeType::Container(this) => {
+                    GxiNodeType::ContainerWidget(this) => {
                         this.append(sibling_borrow.get_native_widget());
                         drop(this_borrow_mut);
                     }
@@ -88,7 +88,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                             let mut this_borrow_mut = this.as_ref().borrow_mut();
                             let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
                             let mut parent_borrow = parent.as_ref().borrow_mut();
-                            if let GxiNodeType::Container(parent) = parent_borrow.deref_mut() {
+                            if let GxiNodeType::ContainerWidget(parent) = parent_borrow.deref_mut() {
                                 parent.append(sibling_borrow.get_native_widget());
                                 break;
                             }

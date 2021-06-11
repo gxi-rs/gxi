@@ -15,7 +15,7 @@ pub struct Html {
 impl Node for Html {
 
     fn new(parent: WeakNodeType) -> StrongNodeType {
-        Rc::new(RefCell::new(GxiNodeType::Container(Box::new(Self {
+        Rc::new(RefCell::new(GxiNodeType::ContainerWidget(Box::new(Self {
             parent,
             self_substitute: None,
             child: None,
