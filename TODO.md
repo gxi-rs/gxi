@@ -9,7 +9,7 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Complete unit tests for the compiler
 - [ ] Complete the docs
 - [ ] Fix #children call
-- [ ] Finish init_member()
+- [X] Finish init_member()
 - [ ] Deref nodes
 - [ ] Change height and width from u32 to string in web binds
 - [ ] Generate Bindings for Desktop
