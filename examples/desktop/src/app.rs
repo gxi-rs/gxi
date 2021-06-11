@@ -22,7 +22,6 @@ gxi! {
         show_help : bool = false
     }
     render {
-        Window ( on_destroy = || Msg::Quit ) [
             Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
                     View [
@@ -37,9 +36,9 @@ gxi! {
                             Button ( label = "Show help", on_click = || Msg::ShowHelp(true) ),
                         },
                     ],
-                    Centre [
+                    /*Centre [
                         Image ( source = "cat.gif" )
-                    ],
+                    ],*/
                     Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                     View [
                         if state.cat_fact.is_none() {
@@ -53,7 +52,7 @@ gxi! {
                     ],
                     Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } ),
                 ]
-            ]
+
         ]
     }
     update {
