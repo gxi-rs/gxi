@@ -13,7 +13,7 @@ pub enum GxiNodeType {
     ContainerWidget(Box<dyn ContainerWidgetNode>),
     /// node which itself is a widget and can hold other widgets but can't be added to other widgets
     /// eg. Window. Window is a top level widget which can't be added to any other widgets like button
-    TopLevelWidget(Box<dyn TopLevelWidgetNode>),
+    TopLevelWidget(Box<dyn ContainerWidgetNode>),
     /// container without any native widget
     Component(Box<dyn ComponentNode>),
 }
@@ -42,34 +42,34 @@ impl GxiNodeType {
             GxiNodeType::ContainerWidget(this) => Ok(this.as_widget_node()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node()),
             GxiNodeType::Component(_) => Err("can't convert ComponentNode to WidgetNode"),
-            GxiNodeType::TopLevelWidget(_) => Err("can't convert TopLevelWidgetNode to WidgetNode"),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_widget_node()),
         }
     }
 
     pub fn as_widget_node_mut(&mut self) -> Result<&mut dyn WidgetNode, &'static str> {
         match self {
             GxiNodeType::ContainerWidget(this) => Ok(this.as_widget_node_mut()),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_widget_node_mut()),
             GxiNodeType::Widget(this) => Ok(this.as_widget_node_mut()),
             GxiNodeType::Component(_) => Err("can't convert ComponentNode to WidgetNode"),
-            GxiNodeType::TopLevelWidget(_) => Err("can't convert TopLevelWidgetNode to WidgetNode"),
         }
     }
 
     pub fn as_container(&self) -> Result<&dyn Container, &'static str> {
         match self {
             GxiNodeType::ContainerWidget(this) => Ok(this.as_container()),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_container()),
             GxiNodeType::Widget(_) => Err("can't convert WidgetNode to Container"),
             GxiNodeType::Component(this) => Ok(this.as_container()),
-            GxiNodeType::TopLevelWidget(this) => Ok(this.as_container()),
         }
     }
 
     pub fn as_container_mut(&mut self) -> Result<&mut dyn Container, &'static str> {
         match self {
             GxiNodeType::ContainerWidget(this) => Ok(this.as_container_mut()),
+            GxiNodeType::TopLevelWidget(this) => Ok(this.as_container_mut()),
             GxiNodeType::Widget(_) => Err("can't convert WidgetNode to Container"),
             GxiNodeType::Component(this) => Ok(this.as_container_mut()),
-            GxiNodeType::TopLevelWidget(this) => Ok(this.as_container_mut()),
         }
     }
 
