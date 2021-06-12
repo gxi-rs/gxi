@@ -11,7 +11,7 @@ Cross-Platform Native Widget based Component System in Rust
 - [X] Fix #children call
 - [X] Finish init_member()
 - [X] Deref nodes
-- [ ] Change height and width from u32 to string in web binds
+- [X] Change height and width from u32 to string in web binds
 - [ ] Generate Bindings for Desktop
 - [ ] Organise imports
 - [ ] Remove use statements from macro expansions
