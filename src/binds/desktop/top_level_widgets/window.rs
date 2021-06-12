@@ -20,13 +20,19 @@ impl Node for Window {
             parent,
             child: None,
             sibling: None,
-            widget:  {
+            widget: {
                 let window = gtk::Window::new(WindowType::Toplevel);
                 window.show_all();
                 window
             },
             self_substitute: None,
         }))))
+    }
+
+    fn render(this: StrongNodeType) {
+        let this = this.as_ref().borrow();
+        let this = this.as_container_widget_node().unwrap();
+        this.get_native_container().show_all();
     }
 
     impl_node_trait_as_any!();
@@ -38,15 +44,10 @@ impl_container_node!(Window);
 impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
+impl_drop!(Window);
 
 impl Window {
     pub fn on_destroy<F: Fn() + 'static>(&self, f: F) {
         self.widget.connect_destroy(move |_| f());
-    }
-}
-
-impl Drop for Window {
-    fn drop(&mut self) {
-
     }
 }

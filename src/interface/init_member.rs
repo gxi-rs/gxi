@@ -55,7 +55,6 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
 fn append_native_widget(mut this: StrongNodeType, member_borrow: Ref<GxiNodeType>) {
     let mut this_borrow_mut = this.as_ref().borrow_mut();
     if let GxiNodeType::TopLevelWidget(_) = member_borrow.deref() {
-        println!("top level");
         // no need to add top level widget's native widget
     } else {
         // if child is a widget or a container add it's widget to this if this is also a widget
