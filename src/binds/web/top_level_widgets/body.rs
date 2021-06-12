@@ -1,19 +1,17 @@
+use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use crate::*;
-
-pub struct Html {
+pub struct Body {
     pub parent: WeakNodeType,
     pub self_substitute: Option<WeakNodeType>,
     pub child: Option<StrongNodeType>,
     pub sibling: Option<StrongNodeType>,
-    pub widget: web_sys::Element,
+    pub widget: web_sys::HtmlElement,
 }
 
-impl Node for Html {
-
+impl Node for Body {
     fn new(parent: WeakNodeType) -> StrongNodeType {
         Rc::new(RefCell::new(GxiNodeType::TopLevelWidget(Box::new(Self {
             parent,
@@ -23,28 +21,29 @@ impl Node for Html {
             widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.get_elements_by_tag_name("html").item(0).unwrap()
+                document.body().unwrap()
             },
         }))))
-
     }
 
     impl_node_trait_as_any!();
     impl_node_trait_as_node!();
     impl_node_getters!();
 }
-impl_container_node!(Html);
-impl_component_node!(Html);
-impl_container!(Html);
-impl_widget_node!(Html);
 
-impl GlobalAttributes for Html {
-    fn get_widget_as_element(&self) -> &web_sys::Element {
-        &self.widget
+impl_container_node!(Body);
+impl_component_node!(Body);
+impl_container!(Body);
+impl_widget_node!(Body);
+
+impl Drop for Body {
+    fn drop(&mut self) {
+        //need not drop head tag
     }
 }
 
-impl Html {
-    generate_pub_attr!(lang);
-    generate_pub_attr!(xmlns);
+impl GlobalAttributes for Body {
+    fn get_widget_as_element(&self) -> &web_sys::Element {
+        &self.widget
+    }
 }

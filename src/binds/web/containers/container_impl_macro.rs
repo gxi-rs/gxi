@@ -49,6 +49,8 @@ macro_rules! impl_web_container {
                 &self.widget
             }
         }
+
+        impl_drop_for_web_node!($name);
     };
 }
 

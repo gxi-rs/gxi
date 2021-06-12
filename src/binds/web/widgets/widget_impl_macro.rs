@@ -10,8 +10,6 @@ macro_rules! create_web_widget {
             pub sibling: Option<StrongNodeType>,
             pub widget: web_sys::Element,
         }
-
-        impl_drop_for_web_node!($name);
     };
 }
 
@@ -43,5 +41,7 @@ macro_rules! impl_web_widget {
                 &self.widget
             }
         }
+
+        impl_drop_for_web_node!($name);
     };
 }
