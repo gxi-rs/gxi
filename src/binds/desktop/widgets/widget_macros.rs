@@ -13,8 +13,6 @@ macro_rules! create_widget {
             sibling: Option<StrongNodeType>,
             widget: gtk::$widget_name,
         }
-
-        impl_drop!($name);
     };
 }
 
@@ -40,6 +38,8 @@ macro_rules! impl_widget {
                 }))))
             }
         }
+
         impl_widget_node!($name);
+        impl_drop!($name);
     };
 }

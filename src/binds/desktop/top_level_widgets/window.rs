@@ -45,4 +45,8 @@ impl Window {
     }
 }
 
-impl_drop!(Window);
+impl Drop for Window {
+    fn drop(&mut self) {
+
+    }
+}

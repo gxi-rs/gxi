@@ -13,12 +13,14 @@ pub use tokio;
 pub use containers::*;
 pub use run::*;
 pub use widgets::*;
+pub use top_level_widgets::*;
 
 mod containers;
 mod run;
 mod widgets;
 #[macro_use]
 mod impl_macros;
+mod top_level_widgets;
 
 pub type NativeWidget = gtk::Widget;
 pub type NativeContainer = gtk::Container;

@@ -39,6 +39,7 @@ impl_container_node!(View);
 impl_container!(View);
 impl_widget_node!(View);
 impl_component_node!(View);
+impl_drop!(View);
 
 impl View {
     pub fn orientation(&mut self, orientation: Orientation) {
@@ -68,5 +69,3 @@ impl View {
         }
     }
 }
-
-impl_drop!(View);
