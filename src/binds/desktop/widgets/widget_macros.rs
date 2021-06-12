@@ -40,7 +40,7 @@ macro_rules! impl_widget {
             }
         }
 
-        impl_widget_node_deref!($name $widget_name);
+        impl_widget_node_deref!($name gtk::$widget_name);
         impl_widget_node!($name);
         impl_drop!($name);
     };

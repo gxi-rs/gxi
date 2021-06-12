@@ -2,6 +2,7 @@ use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::ops::Deref;
 
 pub struct Html {
     pub parent: WeakNodeType,
@@ -32,10 +33,12 @@ impl Node for Html {
     impl_node_trait_as_node!();
     impl_node_getters!();
 }
+
 impl_container_node!(Html);
 impl_component_node!(Html);
 impl_container!(Html);
 impl_widget_node!(Html);
+impl_widget_node_deref!(Html web_sys::Element);
 
 impl Drop for Html {
     fn drop(&mut self) {

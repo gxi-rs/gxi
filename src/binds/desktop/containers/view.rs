@@ -34,5 +34,5 @@ impl_container!(View);
 impl_widget_node!(View);
 impl_component_node!(View);
 impl_drop!(View);
-impl_widget_node_deref!(View Box);
+impl_widget_node_deref!(View gtk::Box);
 

@@ -126,9 +126,9 @@ macro_rules! impl_node_getters {
 
 #[macro_export]
 macro_rules! impl_widget_node_deref {
-    ($name:ident $widget_name:ident) => {
+    ($name:ident $target:path) => {
         impl Deref for $name {
-            type Target = gtk::$widget_name;
+            type Target = $target;
 
             fn deref(&self) -> &Self::Target {
                 &self.widget

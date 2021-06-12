@@ -2,6 +2,7 @@ use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::ops::Deref;
 
 pub struct Body {
     pub parent: WeakNodeType,
@@ -35,6 +36,7 @@ impl_container_node!(Body);
 impl_component_node!(Body);
 impl_container!(Body);
 impl_widget_node!(Body);
+impl_widget_node_deref!(Body web_sys::HtmlElement);
 
 impl Drop for Body {
     fn drop(&mut self) {

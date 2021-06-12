@@ -46,5 +46,5 @@ impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
 impl_drop!(Window);
-impl_widget_node_deref!(Window Window);
+impl_widget_node_deref!(Window gtk::Window);
 

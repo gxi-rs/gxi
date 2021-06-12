@@ -4,6 +4,7 @@ macro_rules! create_web_widget {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
+        use std::ops::Deref;
 
         pub struct $name {
             pub parent: WeakNodeType,
@@ -35,6 +36,7 @@ macro_rules! impl_web_widget {
         }
 
         impl_widget_node!($name);
+        impl_widget_node_deref!($name web_sys::Element);
 
         impl GlobalAttributes for $name {
             fn get_widget_as_element(&self) -> &web_sys::Element {

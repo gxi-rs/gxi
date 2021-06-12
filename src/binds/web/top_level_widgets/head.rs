@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::ops::Deref;
 
 use crate::*;
 
@@ -37,6 +38,7 @@ impl_container_node!(Head);
 impl_component_node!(Head);
 impl_container!(Head);
 impl_widget_node!(Head);
+impl_widget_node_deref!(Head web_sys::HtmlHeadElement);
 
 impl GlobalAttributes for Head {
     fn get_widget_as_element(&self) -> &web_sys::Element {
