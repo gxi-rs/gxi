@@ -219,20 +219,7 @@ impl TreeParser {
 
                 // if init_type is child then get self_substitute
                 let substitute_block = if let InitType::Child = init_type {
-                    quote! {
-                        let node = {
-                            let subst_borrow = node.as_ref().borrow();
-                            if let Ok(node_comp) = subst_borrow.as_component_node() {
-                                if let Some(subst) = node_comp.get_self_substitute() {
-                                    subst.upgrade().expect(&format!("can't inject #children into {} because the target parent no longer exists", stringify!(#name)))
-                                } else {
-                                    node.clone()
-                                }
-                            } else {
-                                node.clone()
-                            }
-                        };
-                    }
+                    quote! { let node = get_substitute(node.clone()); }
                 } else {
                     TokenStream2::new()
                 };
