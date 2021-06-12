@@ -17,6 +17,7 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Remove use statements from macro expansions
 - [ ] Explicit Drop trait for Containers and Widgets
 - [X] render function for widgets
+- [ ] Pass closure args
 
 ## Others
 
