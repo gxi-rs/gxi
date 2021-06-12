@@ -22,8 +22,8 @@ gxi! {
         show_help : bool = false
     }
     render {
-        Window [
-            Init (  ) [
+        Window ( on_destroy = || Msg::Quit ) [
+            Init ( on_init = || Msg::Fetch(true) ) [
                 View ( orientation = Orientation::Vertical ) [
                     View [
                         if state.show_help {
