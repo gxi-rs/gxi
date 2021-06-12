@@ -163,9 +163,10 @@ impl TreeParser {
                         match *right {
                             syn::Expr::Closure(closure) => {
                                 let closure_body = closure.body;
+                                let closure_args = closure.inputs;
                                 static_props.push(quote! {{
                                         let state_clone = Rc::clone(&this);
-                                        node.#left(move | | Self::update(state_clone.clone(),#closure_body) );
+                                        node.#left(move |#closure_args| Self::update(state_clone.clone(),#closure_body) );
                                     }});
                             }
                             syn::Expr::Lit(literal) => {

@@ -12,8 +12,8 @@ gxi! {
     render {
         View [
             View ( set_orientation = gtk::Orientation::Vertical) [
-                Button ( label = "Inc", on_click = || Msg::INC ),
-                Button ( label = "Dec", on_click = || Msg::DEC )
+                Button ( set_label = "Inc", connect_clicked = |_| Msg::INC ),
+                Button ( set_label = "Dec", connect_clicked = |_| Msg::DEC )
             ],
             Text ( set_label = &state.count.to_string() )
         ]
