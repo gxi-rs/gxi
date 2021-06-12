@@ -284,7 +284,7 @@ impl TreeParser {
     /// anything inside a {} is copied and executed on every render call
     fn parse_execution_block(input: ParseStream) -> Result<TokenStream2> {
         if let Ok(b) = input.parse::<syn::Block>() {
-            Ok(quote! {{ #b }})
+            Ok(quote! {{ #b };})
         } else {
             Ok(TokenStream2::new())
         }
