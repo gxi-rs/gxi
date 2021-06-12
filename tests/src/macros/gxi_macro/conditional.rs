@@ -1,14 +1,8 @@
 use gxi::*;
-
-use crate::macros::gxi_macro::comp::Comp;
-use crate::macros::gxi_macro::foo::Foo;
-
-enum Msg {
-    Foo,
-}
+use crate::macros::gxi_macro::{Comp, Foo};
 
 gxi! {
-    App {
+    pub App {
         limit : u32 = 0
     }
     render {
@@ -20,15 +14,12 @@ gxi! {
                 Comp ( class = "h1".to_string(), id = "asd".to_string() ) [
                     Comp,
                     Comp,
-                    for x in 0..2 {
+                  /*  for x in 0..2 {
                         { println!("{}",x); },
                         Comp [
                             { println!("{}", x); }
                         ]
-                    },
-                    Init ( on_init = || Msg::Foo ) [
-
-                    ]
+                    }, */
                 ],
                 { println!("true"); }
             } else {
@@ -41,51 +32,69 @@ gxi! {
         ],
         { println!("render complete"); },
     }
-    update {
-        let mut state = get_state_mut!(state);
-        state.limit = 2;
-        Ok(ShouldRender::Yes)
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::macros::gxi_macro::{App,Comp};
+    use gxi::*;
+
+    #[test]
+    fn traverse_conditional() {
+        let root = Root::new_root();
+        let (app, ..) = init_member(root.clone(), InitType::Child, |this| App::new(this));
+        App::render(app.clone());
+        //start traversing app
+        {
+            let node = check_child_type::<Comp>(app, "Comp");
+            {
+                let node = check_child_type::<Pure>(node, "Pure");
+                {
+                    let node = check_child_type::<Comp>(node.clone(), "Comp");
+                    {
+                        let node = check_child_type::<Comp>(node, "Comp");
+                        let _node = check_sibling_type::<Comp>(node, "Comp");
+                    }
+                }
+                let _node = check_sibling_type::<Comp>(node, "Comp");
+            }
+        }
     }
-}
 
-#[test]
-fn traverse_conditional() {
-    let root = Root::new_root();
-    let app = {
-        let root_weak = Rc::downgrade(&root);
-        root.borrow_mut()
-            .init_child(Box::new(|| App::new(root_weak)))
-            .0
-    };
-    //render
-    App::render(app.clone());
-    //start traversing app
-    {
-        let node = check_child_type::<Comp>(app, "Comp");
-        check_sibling_type::<Comp>(node, "Comp");
+    fn check_child_type<T: 'static + Node>(node: StrongNodeType, name: &str) -> StrongNodeType {
+        let node_borrow = node.as_ref().borrow();
+        let child = node_borrow
+            .as_container()
+            .unwrap()
+            .get_child()
+            .as_ref()
+            .unwrap()
+            .clone();
+        let child_borrow = child.as_ref().borrow();
+        child_borrow
+            .as_node()
+            .as_any()
+            .downcast_ref::<T>()
+            .expect(&format!("expected '{}' here", name));
+        drop(child_borrow);
+        child
     }
-}
 
-fn check_child_type<T: 'static + Node>(node: NodeRc, name: &str) -> NodeRc {
-    let node_borrow = node.as_ref().borrow();
-    let child = node_borrow.get_child().as_ref().unwrap();
-    child
-        .as_ref()
-        .borrow()
-        .as_any()
-        .downcast_ref::<T>()
-        .expect(&format!("expected '{}' here", name));
-    child.clone()
-}
-
-fn check_sibling_type<T: 'static + Node>(node: NodeRc, name: &str) -> NodeRc {
-    let node_borrow = node.as_ref().borrow();
-    let child = node_borrow.get_sibling().as_ref().unwrap();
-    child
-        .as_ref()
-        .borrow()
-        .as_any()
-        .downcast_ref::<T>()
-        .expect(&format!("expected '{}' here", name));
-    child.clone()
+    fn check_sibling_type<T: 'static + Node>(node: StrongNodeType, name: &str) -> StrongNodeType {
+        let node_borrow = node.as_ref().borrow();
+        let sibling = node_borrow
+            .as_node()
+            .get_sibling()
+            .as_ref()
+            .unwrap()
+            .clone();
+        let sibling_borrow = sibling.as_ref().borrow();
+        sibling_borrow
+            .as_node()
+            .as_any()
+            .downcast_ref::<T>()
+            .expect(&format!("expected '{}' here", name));
+        drop(sibling_borrow);
+        sibling
+    }
 }
