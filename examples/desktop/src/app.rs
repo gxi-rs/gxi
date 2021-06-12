@@ -37,9 +37,9 @@ gxi! {
                             Button ( label = "Show help", on_click = || Msg::ShowHelp(true) ),
                         },
                     ],
-                    /*Centre [
+                    Centre [
                         Image ( source = "cat.gif" )
-                    ],*/
+                    ],
                     Button ( on_click = || Msg::Fetch(false), label = "Fetch Cat Memes" ),
                     View [
                         if state.cat_fact.is_none() {

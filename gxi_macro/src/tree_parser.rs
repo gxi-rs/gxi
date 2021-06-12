@@ -217,8 +217,29 @@ impl TreeParser {
                     }
                 };
 
+                // if init_type is child then get self_substitute
+                let substitute_block = if let InitType::Child = init_type {
+                    quote! {
+                        let node = {
+                            let subst_borrow = node.as_ref().borrow();
+                            if let Ok(node_comp) = subst_borrow.as_component_node() {
+                                if let Some(subst) = node_comp.get_self_substitute() {
+                                    subst.upgrade().expect(&format!("can't inject #children into {} because the target parent no longer exists", stringify!(#name)))
+                                } else {
+                                    node.clone()
+                                }
+                            } else {
+                                node.clone()
+                            }
+                        };
+                    }
+                } else {
+                    TokenStream2::new()
+                };
+
                 quote! {
                     let node = {
+                        #substitute_block
                         let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this));
                         #prop_setter_block
                         #name::render(node.clone());
@@ -265,7 +286,7 @@ impl TreeParser {
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             match this_borrow.deref_mut() {
-                                GxiNodeType::Component(t) => *t.get_self_substitute_mut() = Some(Rc::downgrade(&this)),
+                                GxiNodeType::Component(t) => *t.get_self_substitute_mut() = Some(Rc::downgrade(&node)),
                                 _ => unreachable!(),
                             }
                         }
