@@ -18,7 +18,7 @@ impl Input {
     generate_pub_attr!(formenctype);
     generate_pub_attr!(formmethod);
     generate_pub_attr!(formnovalidate);
-    generate_pub_attr!(height u32);
+    generate_pub_attr!(height);
     generate_pub_attr!(inputmode);
     generate_pub_attr!(list);
     generate_pub_attr!(max);
@@ -36,5 +36,5 @@ impl Input {
     generate_pub_attr!(step f32);
     generate_pub_attr!(r#type);
     generate_pub_attr!(value);
-    generate_pub_attr!(width u32);
+    generate_pub_attr!(width);
 }
