@@ -2,9 +2,9 @@
 
 Cross-Platform Native Widget based Component System in Rust
 
-### TO DO
+## TO DO
 
-## For release 0.3.0
+### For release 0.3.0
 
 - [ ] Complete unit tests for the compiler
 - [ ] Complete the docs
@@ -19,20 +19,20 @@ Cross-Platform Native Widget based Component System in Rust
 - [X] render function for widgets
 - [X] Pass closure args
 
-## Others
-
-- [ ] gtk 4 support
-- [ ] SSR support for all platforms
-- [ ] Debug trait for nodes
-
 ### Completed ✓
 
 - [x] Async Rendering
 - [x] Comp Macro
 - [x] `render!()` macro in update function
 - [x] `Once` Component which executes update function on initialization
-- [x] Render call only when custom components are flagged dirty
+- [x] Call Render only when components are dirty
 - [x] Derive macro for `update` function
 - [x] Render child of a component from withing the component
 - [X] Web Basic Support
 - [X] mpsc channels for web
+
+#### Planned
+
+- [ ] gtk 4 support
+- [ ] SSR support for all platforms
+- [ ] Debug trait for nodes
