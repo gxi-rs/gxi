@@ -36,20 +36,12 @@ impl TreeParser {
             // concatenate
             Ok(quote! {
                 // parent node which will hold all the nodes from the for loop
-                let node = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                };
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
                 {
                     // this node will act as the child of pure block
                     // because there can be only one child but many siblings
                     // component inside the loop will be the sibling of this pure node
-                    let node = {
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let weak_cont = Rc::downgrade(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
-                    };
+                    let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this));
                     // prev_sibling
                     let mut prev_sibling = node.clone();
                     for #loop_variable in #loop_data_source {
@@ -59,9 +51,7 @@ impl TreeParser {
                     }
                     // drop any left in the tree
                     // because the for loop may run a little less than the previous run
-                    {
-                        prev_sibling.as_ref().borrow_mut().get_sibling_mut().take();
-                    }
+                    *prev_sibling.as_ref().borrow_mut().as_node_mut().get_sibling_mut() = None;
                 }
             })
         } else {
