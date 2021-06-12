@@ -213,7 +213,7 @@ impl Parse for GxiParser {
                         let content = TreeParser::parse(&block_content)?.0;
                         render_func = quote! {
                             fn render(this: StrongNodeType) {
-                                let cont = Rc::clone(&this);
+                                let node = Rc::clone(&this);
                                 let state = {
                                     let mut node = this.as_ref().borrow_mut();
                                     let node = node.as_node_mut().as_any_mut().downcast_mut::<Self>().unwrap();

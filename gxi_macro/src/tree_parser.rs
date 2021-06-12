@@ -157,7 +157,7 @@ impl TreeParser {
                 // loop till every thing inside parenthesis is parsed
                 loop {
                     if let Ok(syn::ExprAssign { left, right, .. }) =
-                        content.parse::<syn::ExprAssign>()
+                    content.parse::<syn::ExprAssign>()
                     {
                         // push closure and literals to static_props and others to dynamic_props
                         match *right {
@@ -216,16 +216,10 @@ impl TreeParser {
                         }}
                     }
                 };
-                // if init_type is child then add to cont else add to node
-                let node_rename = if let InitType::Child = init_type {
-                    quote! { cont }
-                } else {
-                    quote! { node }
-                };
 
                 quote! {
                     let node = {
-                        let (node, is_new) = init_member(#node_rename.clone(), #init_type, |this| #name::new(this));
+                        let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this));
                         #prop_setter_block
                         #name::render(node.clone());
                         node
@@ -235,27 +229,13 @@ impl TreeParser {
 
             // parse children
             let children = if let syn::__private::Ok(syn::group::Brackets { content, .. }) =
-                syn::group::parse_brackets(&input)
+            syn::group::parse_brackets(&input)
             {
                 // if content is empty don't parse it
                 if content.is_empty() {
                     TokenStream2::new()
                 } else {
-                    // parse content with init_child and pure_index 0
-                    let content = TreeParser::custom_parse(&content, InitType::Child, true)?;
-                    // set parent and concatenate the parsed content
-                    quote! {
-                        let cont = {
-                            let node_borrow = node.as_ref().borrow();
-                            let node_borrow = node_borrow.as_node().as_any().downcast_ref::<#name>().unwrap();
-                            if let Some(subst) = node_borrow.get_self_substitute() {
-                                subst.upgrade().unwrap()
-                            } else {
-                                node.clone()
-                            }
-                        };
-                        #content
-                    }
+                    TreeParser::custom_parse(&content, InitType::Child, true)?
                 }
             } else {
                 TokenStream2::new()
