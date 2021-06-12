@@ -10,14 +10,14 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Complete the docs
 - [X] Fix #children call
 - [X] Finish init_member()
-- [ ] Deref nodes
+- [X] Deref nodes
 - [ ] Change height and width from u32 to string in web binds
 - [ ] Generate Bindings for Desktop
 - [ ] Organise imports
 - [ ] Remove use statements from macro expansions
-- [ ] Explicit Drop trait for Containers and Widgets
+- [X] Explicit Drop trait for Containers and Widgets
 - [X] render function for widgets
-- [ ] Pass closure args
+- [X] Pass closure args
 
 ## Others
 
