@@ -4,15 +4,15 @@ gxi! {
     pub Centre {}
     render {
         Pure [
-            View ( v_expand = true ),
+            View ( set_vexpand = true ),
             View [
-                View ( h_expand = true ),
+                View ( set_hexpand = true ),
                 View [
                     #children
                 ],
-                View ( h_expand = true )
+                View ( set_hexpand = true )
             ],
-            View ( v_expand = true )
+            View ( set_vexpand = true )
         ]
     }
 }

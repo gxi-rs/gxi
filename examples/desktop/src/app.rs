@@ -22,14 +22,14 @@ gxi! {
         show_help : bool = false
     }
     render {
-        Window ( on_destroy = || Msg::Quit ) [
+        Window (/* on_destroy = || Msg::Quit*/ ) [
             Init ( on_init = || Msg::Fetch(true) ) [
-                View ( orientation = Orientation::Vertical ) [
+                View ( set_orientation = gtk::Orientation::Vertical ) [
                     View [
                         if state.show_help {
-                            Window ( on_destroy = || Msg::ShowHelp(false) ) [
-                                View ( orientation = Orientation::Vertical ) [
-                                    Text ( label = "Cat Meme Fetcher By Aniket Prajapati made using gxi-rs."),
+                            Window ( /*connect_destroy = |_| Msg::ShowHelp(false) */) [
+                                View ( set_orientation = gtk::Orientation::Vertical ) [
+                                    Text ( set_label = "Cat Meme Fetcher By Aniket Prajapati made using gxi-rs."),
                                     Button ( label = "Ok take me back now", on_click = || Msg::ShowHelp(false) )
                                 ]
                             ],
@@ -44,11 +44,11 @@ gxi! {
                     View [
                         if state.cat_fact.is_none() {
                             Pure [
-                                Text ( label = "loading" ),
+                                Text ( set_label = "loading" ),
                                 Spinner ( spin = true )
                             ]
                         } else {
-                            Text ( label = &state.cat_fact.as_ref().unwrap().fact )
+                            Text ( set_label = &state.cat_fact.as_ref().unwrap().fact )
                         }
                     ],
                     Counter ( count = if let Some(cat_fact) = &state.cat_fact { Some(cat_fact.length) } else { None } ),

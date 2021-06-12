@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::ops::Deref;
 
 use gtk::{WindowType, ContainerExt, WidgetExt};
 
@@ -45,9 +46,5 @@ impl_component_node!(Window);
 impl_container!(Window);
 impl_widget_node!(Window);
 impl_drop!(Window);
+impl_widget_node_deref!(Window Window);
 
-impl Window {
-    pub fn on_destroy<F: Fn() + 'static>(&self, f: F) {
-        self.widget.connect_destroy(move |_| f());
-    }
-}

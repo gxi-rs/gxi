@@ -7,6 +7,7 @@ macro_rules! create_widget {
         use std::any::Any;
         use std::cell::RefCell;
         use std::rc::Rc;
+        use std::ops::Deref;
 
         pub struct $name {
             parent: WeakNodeType,
@@ -39,6 +40,7 @@ macro_rules! impl_widget {
             }
         }
 
+        impl_widget_node_deref!($name $widget_name);
         impl_widget_node!($name);
         impl_drop!($name);
     };

@@ -1,15 +1,9 @@
 use std::any::Any;
 use std::cell::RefCell;
 use std::rc::Rc;
-
-use crate::impl_drop;
+use std::ops::Deref;
 use crate::*;
-use gtk::{ContainerExt, OrientableExt, WidgetExt};
-
-pub enum Orientation {
-    Horizontal,
-    Vertical,
-}
+use gtk::{ContainerExt};
 
 pub struct View {
     parent: WeakNodeType,
@@ -40,32 +34,5 @@ impl_container!(View);
 impl_widget_node!(View);
 impl_component_node!(View);
 impl_drop!(View);
+impl_widget_node_deref!(View Box);
 
-impl View {
-    pub fn orientation(&mut self, orientation: Orientation) {
-        match orientation {
-            Orientation::Horizontal => {
-                if let gtk::Orientation::Vertical = self.widget.get_orientation() {
-                    self.widget.set_orientation(gtk::Orientation::Horizontal);
-                }
-            }
-            Orientation::Vertical => {
-                if let gtk::Orientation::Horizontal = self.widget.get_orientation() {
-                    self.widget.set_orientation(gtk::Orientation::Vertical);
-                }
-            }
-        }
-    }
-
-    pub fn h_expand(&mut self, h_expand: bool) {
-        if h_expand != self.widget.get_hexpand() {
-            self.widget.set_hexpand(true);
-        }
-    }
-
-    pub fn v_expand(&mut self, v_expand: bool) {
-        if v_expand != self.widget.get_vexpand() {
-            self.widget.set_vexpand(true);
-        }
-    }
-}

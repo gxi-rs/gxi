@@ -11,11 +11,11 @@ gxi! {
     }
     render {
         View [
-            View (orientation = Orientation::Vertical) [
+            View ( set_orientation = gtk::Orientation::Vertical) [
                 Button ( label = "Inc", on_click = || Msg::INC ),
                 Button ( label = "Dec", on_click = || Msg::DEC )
             ],
-            Text ( label = &state.count.to_string() )
+            Text ( set_label = &state.count.to_string() )
         ]
     }
     update {

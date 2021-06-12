@@ -27,3 +27,17 @@ macro_rules! impl_widget_node {
         }
     };
 }
+
+#[macro_export]
+macro_rules! impl_widget_node_deref {
+    ($name:ident $widget_name:ident) => {
+        impl Deref for $name {
+            type Target = gtk::$widget_name;
+
+            fn deref(&self) -> &Self::Target {
+                &self.widget
+            }
+        }
+    };
+}
+
