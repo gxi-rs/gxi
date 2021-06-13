@@ -19,7 +19,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             if let GxiNodeType::Widget(_) = this_borrow_mut.deref() {
                 panic!("can't add node to a widget");
             }
-            // if child already exists return it
+            
             if let Some(child) = this_borrow_mut.as_container().unwrap().get_child() {
                 return (child.clone(), false);
             }

@@ -1,5 +1,6 @@
-/// init_member.rs init_type
+/// used with init_member
 pub enum InitType {
     Child,
     Sibling,
+    Substitute,
 }
