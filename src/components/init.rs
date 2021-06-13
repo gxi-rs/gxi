@@ -13,12 +13,20 @@ pub struct Init {
 
 impl Node for Init {
     fn new(parent: WeakNodeType) -> StrongNodeType {
-        Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
+        let this = Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
             child: None,
             sibling: None,
             parent,
             self_substitute: None,
-        }))))
+        }))));
+        {
+            let mut this_borrow = this.as_ref().borrow_mut();
+            *this_borrow
+                .as_component_node_mut()
+                .unwrap()
+                .get_self_substitute_mut() = Some(Rc::downgrade(&this));
+        }
+        this
     }
 
     impl_node_trait_as_any!();

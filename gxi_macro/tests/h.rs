@@ -84,7 +84,7 @@ mod comps {
                                 *t.get_self_substitute_mut() = Some(Rc::downgrade(&node))
                             }
                             _ => {
-                                panic!("internal error: entered unreachable code")
+                                ::core::panicking::panic("internal error: entered unreachable code")
                             }
                         }
                     }
@@ -520,41 +520,3 @@ impl ComponentNode for App {
     }
 }
 impl App {}
-
-
-#[test]
-fn traverse() {
-    let root = Root::new_root();
-    let (app, ..) = init_member(root.clone(), InitType::Child, |this| App::new(this));
-    App::render(app.clone());
-    //start traversing app
-    {
-        let node = check_child_type::<Comp>(app, "Comp");
-        {
-            let node = check_child_type::<Pure>(node.clone(), "Pure");
-            {
-                let node = check_child_type::<Comp>(node.clone(), "Comp");
-                {
-                    let node = check_child_type::<Comp>(node.clone(), "Comp");
-                    let node = check_sibling_type::<Comp>(node, "Comp");
-                    // for loop
-                    let node = check_sibling_type::<Pure>(node, "Pure");
-                    {
-                        let node = check_child_type::<Pure>(node.clone(), "Pure");
-                        // for loop runs twice
-                        let node = check_sibling_type::<Comp>(node, "Comp");
-                        let node = check_sibling_type::<Comp>(node, "Comp");
-
-                        no_siblibng(node);
-                    }
-                    no_siblibng(node);
-                }
-                no_siblibng(node);
-            }
-            let node = check_sibling_type::<Comp>(node, "Comp");
-            no_siblibng(node);
-        }
-        no_siblibng(node);
-    }
-}
-

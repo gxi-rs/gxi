@@ -210,18 +210,17 @@ impl TreeParser {
 
                 // if init_type is child then get self_substitute
                 let substitute_block = if let InitType::Child = init_type {
-                    quote! { let node = get_substitute(node.clone()); }
+                    quote! { get_substitute(node) }
                 } else {
-                    TokenStream2::new()
+                    quote! { node }
                 };
 
                 quote! {
                     let node = {
-                        #substitute_block
                         let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this));
                         #prop_setter_block
                         #name::render(node.clone());
-                        node
+                        #substitute_block
                     };
                 }
             };
@@ -246,7 +245,7 @@ impl TreeParser {
                 {
                     #children
                 }
-                #name::render(node.clone());
+                //#name::render(node.clone());
             })
         } else {
             Ok(TokenStream2::new())
