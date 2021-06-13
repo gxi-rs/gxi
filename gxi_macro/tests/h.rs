@@ -1,3 +1,8 @@
+#![feature(prelude_import)]
+#[prelude_import]
+use std::prelude::rust_2018::*;
+#[macro_use]
+extern crate std;
 mod comps {
     mod comp {
         use crate::*;
@@ -76,7 +81,7 @@ mod comps {
                 let state = state.as_ref().borrow();
                 let node = {
                     let (node, ..) =
-                        init_member(node.clone(), InitType::Child, |this| Pure::new(this));
+                        init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
                     {
                         let mut this_borrow = this.as_ref().borrow_mut();
                         match this_borrow.deref_mut() {
@@ -248,7 +253,7 @@ mod helpers {
         let node_borrow = node.as_ref().borrow();
         if node_borrow.as_node().get_sibling().is_some() {
             {
-                panic!("no sibling was expected")
+                ::std::rt::begin_panic("no sibling was expected")
             };
         }
     }
@@ -266,7 +271,18 @@ mod helpers {
             .as_node()
             .as_any()
             .downcast_ref::<T>()
-            .expect("");
+            .expect(&{
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["expected \'", "\' here"],
+                    &match (&name,) {
+                        (arg0,) => [::core::fmt::ArgumentV1::new(
+                            arg0,
+                            ::core::fmt::Display::fmt,
+                        )],
+                    },
+                ));
+                res
+            });
         drop(child_borrow);
         child
     }
@@ -286,7 +302,18 @@ mod helpers {
             .as_node()
             .as_any()
             .downcast_ref::<T>()
-            .expect("");
+            .expect(&{
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["expected \'", "\' here"],
+                    &match (&name,) {
+                        (arg0,) => [::core::fmt::ArgumentV1::new(
+                            arg0,
+                            ::core::fmt::Display::fmt,
+                        )],
+                    },
+                ));
+                res
+            });
         drop(sibling_borrow);
         sibling
     }
@@ -303,10 +330,10 @@ use std::rc::Rc;
 use std::sync::{Mutex, Arc};
 use std::ops::DerefMut;
 type State = Rc<RefCell<AppState>>;
-struct AppState {
+pub struct AppState {
     limit: u32,
 }
-struct App {
+pub struct App {
     state: State,
     pub parent: WeakNodeType,
     pub self_substitute: Option<WeakNodeType>,
@@ -364,14 +391,29 @@ impl Node for App {
         };
         let state = state.as_ref().borrow();
         let node = {
-            let (node, is_new) = init_member(node.clone(), InitType::Child, |this| {
-                crate::comps::Comp::new(this)
-            });
+            let (node, is_new) = init_member(
+                node.clone(),
+                InitType::Child,
+                |this| crate::comps::Comp::new(this),
+                true,
+            );
             crate::comps::Comp::render(node.clone());
-            get_substitute(node)
         };
         {
-            let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this));
+            {
+                {
+                    {
+                        ::std::io::_print(::core::fmt::Arguments::new_v1(
+                            &["render\n"],
+                            &match () {
+                                () => [],
+                            },
+                        ));
+                    };
+                }
+            };
+            let (node, ..) =
+                init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
             {
                 let cont = node.clone();
                 if state.limit == 0 {
@@ -387,9 +429,25 @@ impl Node for App {
                             pure.child = None;
                         }
                     }
+                    {
+                        {
+                            {
+                                ::std::io::_print(::core::fmt::Arguments::new_v1(
+                                    &["true\n"],
+                                    &match () {
+                                        () => [],
+                                    },
+                                ));
+                            };
+                        }
+                    };
                     let node = {
-                        let (node, is_new) =
-                            init_member(node.clone(), InitType::Child, |this| Comp::new(this));
+                        let (node, is_new) = init_member(
+                            node.clone(),
+                            InitType::Child,
+                            |this| Comp::new(this),
+                            true,
+                        );
                         {
                             let mut node = node.as_ref().borrow_mut();
                             let node = node
@@ -401,51 +459,84 @@ impl Node for App {
                             node.id("asd".to_string());
                         }
                         Comp::render(node.clone());
-                        get_substitute(node)
                     };
                     {
                         let node = {
-                            let (node, is_new) =
-                                init_member(node.clone(), InitType::Child, |this| Comp::new(this));
+                            let (node, is_new) = init_member(
+                                node.clone(),
+                                InitType::Child,
+                                |this| Comp::new(this),
+                                false,
+                            );
                             Comp::render(node.clone());
-                            get_substitute(node)
                         };
                         {}
                         let node = {
-                            let (node, is_new) =
-                                init_member(node.clone(), InitType::Sibling, |this| {
-                                    Comp::new(this)
-                                });
+                            let (node, is_new) = init_member(
+                                node.clone(),
+                                InitType::Sibling,
+                                |this| Comp::new(this),
+                                false,
+                            );
                             Comp::render(node.clone());
-                            node
                         };
                         {}
-                        let (node, ..) =
-                            init_member(node.clone(), InitType::Sibling, |this| Pure::new(this));
+                        let (node, ..) = init_member(
+                            node.clone(),
+                            InitType::Sibling,
+                            |this| Pure::new(this),
+                            false,
+                        );
                         {
-                            let (node, ..) =
-                                init_member(node.clone(), InitType::Child, |this| Pure::new(this));
+                            let (node, ..) = init_member(
+                                node.clone(),
+                                InitType::Child,
+                                |this| Pure::new(this),
+                                false,
+                            );
                             let mut prev_sibling = node.clone();
                             for x in 0..2 {
                                 let node = prev_sibling.clone();
+                                {
+                                    {
+                                        {
+                                            ::std::io::_print(::core::fmt::Arguments::new_v1(
+                                                &["", "\n"],
+                                                &match (&x,) {
+                                                    (arg0,) => [::core::fmt::ArgumentV1::new(
+                                                        arg0,
+                                                        ::core::fmt::Display::fmt,
+                                                    )],
+                                                },
+                                            ));
+                                        };
+                                    }
+                                };
                                 let node = {
-                                    let (node, is_new) =
-                                        init_member(node.clone(), InitType::Sibling, |this| {
-                                            Comp::new(this)
-                                        });
+                                    let (node, is_new) = init_member(
+                                        node.clone(),
+                                        InitType::Sibling,
+                                        |this| Comp::new(this),
+                                        false,
+                                    );
                                     Comp::render(node.clone());
-                                    node
                                 };
                                 {
-                                    let node = {
-                                        let (node, is_new) =
-                                            init_member(node.clone(), InitType::Child, |this| {
-                                                Comp::new(this)
-                                            });
-                                        Comp::render(node.clone());
-                                        get_substitute(node)
+                                    {
+                                        {
+                                            {
+                                                ::std::io::_print(::core::fmt::Arguments::new_v1(
+                                                    &["", "\n"],
+                                                    &match (&x,) {
+                                                        (arg0,) => [::core::fmt::ArgumentV1::new(
+                                                            arg0,
+                                                            ::core::fmt::Display::fmt,
+                                                        )],
+                                                    },
+                                                ));
+                                            };
+                                        }
                                     };
-                                    {}
                                 }
                                 prev_sibling = node;
                             }
@@ -456,6 +547,18 @@ impl Node for App {
                                 .get_sibling_mut() = None;
                         }
                     }
+                    {
+                        {
+                            {
+                                ::std::io::_print(::core::fmt::Arguments::new_v1(
+                                    &["true\n"],
+                                    &match () {
+                                        () => [],
+                                    },
+                                ));
+                            };
+                        }
+                    };
                 } else {
                     {
                         let mut node_borrow = node.as_ref().borrow_mut();
@@ -471,21 +574,35 @@ impl Node for App {
                     }
                     let node = {
                         let (node, is_new) =
-                            init_member(node.clone(), InitType::Child, |this| Foo::new(this));
+                            init_member(node.clone(), InitType::Child, |this| Foo::new(this), true);
                         Foo::render(node.clone());
-                        get_substitute(node)
                     };
                     {}
                 }
             }
             let node = {
-                let (node, is_new) =
-                    init_member(node.clone(), InitType::Sibling, |this| Comp::new(this));
+                let (node, is_new) = init_member(
+                    node.clone(),
+                    InitType::Sibling,
+                    |this| Comp::new(this),
+                    false,
+                );
                 Comp::render(node.clone());
-                node
             };
             {}
         }
+        {
+            {
+                {
+                    ::std::io::_print(::core::fmt::Arguments::new_v1(
+                        &["render complete\n"],
+                        &match () {
+                            () => [],
+                        },
+                    ));
+                };
+            }
+        };
     }
 }
 impl Container for App {

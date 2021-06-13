@@ -9,42 +9,32 @@ use std::cell::{Ref};
 /// @return
 /// + bool: false if member already exists
 pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
-   mut this: StrongNodeType, init_type: InitType, init: F, is_this_root: bool
+    this: StrongNodeType, init_type: InitType, init: F, is_this_root: bool
 ) -> (StrongNodeType, bool) {
+    let mut this_borrow_mut = this.as_ref().borrow_mut();
     // add accordingly
     return match init_type {
         InitType::Child => {
             // check if this is a widget
-            {
-                let this_borrow = this.clone();
-                let this_borrow = this_borrow.as_ref().borrow();
-                match this_borrow.deref() {
-                    GxiNodeType::Widget(_) =>  panic!("can't add node to a widget"),
-                    // if this is a component and isn't root then get self_substitute
-                    GxiNodeType::Component(comp) => {
-                        if !is_this_root {
-                            let subst = comp
-                                .get_self_substitute()
-                                .as_ref()
-                                .expect("You are trying to add a child into component which doen't support #children");
-                            this = subst
-                                .upgrade()
-                                .expect("#children no longer exists. Make sure it lives long enough");
-                        }
+            match this_borrow_mut.deref_mut() {
+                GxiNodeType::Widget(_) =>  panic!("can't add node to a widget"),
+                GxiNodeType::Component(comp) => {
+                    if !is_this_root { 
+                    if let Some(subst) = comp.get_self_substitute() {
+                       return (subst.upgrade().unwrap(), false);
+                   }
                     }
-                    _ => ()
-                }
+                }     
             }
 
-            let mut this_borrow_mut = this.as_ref().borrow_mut();
-            // self_substitute already checked, so return child 
-            if let Some(child) = this_borrow_mut.as_container().unwrap().get_child() {
+
+            if let Some(child) = this_borrow_mut.as_component_node().unwrap().get_child() {
                 return (child.clone(), false);
             }
 
             // create new child because it doesn't already exist
             let child = init(Rc::downgrade(&this));
-            // if 
+            // add child
             *this_borrow_mut.as_container_mut().unwrap().get_child_mut() = Some(child.clone());
             drop(this_borrow_mut);
             // append native widget
@@ -53,7 +43,6 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             (child, true)
         }
         InitType::Sibling => {
-            let mut this_borrow_mut = this.as_ref().borrow_mut();
             // check if sibling already exists
             if let Some(sibling) = this_borrow_mut.as_node().get_sibling() {
                 return (sibling.clone(), false);

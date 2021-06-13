@@ -5,7 +5,7 @@ pub fn run<App: Node + 'static>() {
     rt.block_on(async {
         gtk::init().unwrap();
         let root = Root::new_root();
-        let app = init_member(root.clone(), InitType::Child, |this| App::new(this)).0;
+        let (app, ..) = init_member(root.clone(), InitType::Child, |this| App::new(this), true);
         App::render(app);
         gtk::main();
     });

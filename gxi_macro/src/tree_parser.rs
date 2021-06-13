@@ -15,7 +15,7 @@ impl Parse for TreeParser {
             TreeParser(TokenStream2::new())
         } else {
             // default init type is child
-            TreeParser(TreeParser::custom_parse(input, InitType::Child, false)?)
+            TreeParser(TreeParser::custom_parse(input, InitType::Child, false, true)?)
         })
     }
 }
@@ -31,17 +31,17 @@ impl TreeParser {
             // parse the block with InitType::Sibling
             let parsed_loop_block = {
                 let block_content = syn::group::parse_braces(&input)?.content;
-                Self::custom_parse(&block_content, InitType::Sibling, false)?
+                Self::custom_parse(&block_content, InitType::Sibling, false, false)?
             };
             // concatenate
             Ok(quote! {
                 // parent node which will hold all the nodes from the for loop
-                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), false);
                 {
                     // this node will act as the child of pure block
                     // because there can be only one child but many siblings
                     // component inside the loop will be the sibling of this pure node
-                    let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this));
+                    let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
                     // prev_sibling
                     let mut prev_sibling = node.clone();
                     for #loop_variable in #loop_data_source {
@@ -126,7 +126,7 @@ impl TreeParser {
             }
 
             Ok(quote! {
-                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), false);
                 {
                     let cont = node.clone();
                     #chain
@@ -138,7 +138,10 @@ impl TreeParser {
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
-    fn parse_component(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_component(input: &ParseStream,
+                       init_type: &InitType,
+                       is_first_component: bool
+                       ) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Path>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
@@ -209,18 +212,12 @@ impl TreeParser {
                 };
 
                 // if init_type is child then get self_substitute
-                let substitute_block = if let InitType::Child = init_type {
-                    quote! { get_substitute(node) }
-                } else {
-                    quote! { node }
-                };
-
                 quote! {
                     let node = {
-                        let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this));
+                        let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this), #is_first_component);
                         #prop_setter_block
                         #name::render(node.clone());
-                        #substitute_block
+                        node
                     };
                 }
             };
@@ -233,7 +230,7 @@ impl TreeParser {
                 if content.is_empty() {
                     TokenStream2::new()
                 } else {
-                    TreeParser::custom_parse(&content, InitType::Child, true)?
+                    TreeParser::custom_parse(&content, InitType::Child, true, false)?
                 }
             } else {
                 TokenStream2::new()
@@ -259,7 +256,7 @@ impl TreeParser {
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
-                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this));
+                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), false);
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             match this_borrow.deref_mut() {
@@ -290,7 +287,10 @@ impl TreeParser {
     }
 
     fn custom_parse(
-        input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool,
+        input: ParseStream,
+        mut init_type: InitType,
+        can_have_more_than_one_root_node: bool,
+        is_first_component: bool
     ) -> Result<TokenStream2> {
         let mut tree = TokenStream2::new();
         let mut has_one_root_component = false;
@@ -311,7 +311,7 @@ impl TreeParser {
                             "didn't expect this here. Help: You can't have more than one node here.",
                         ));
                     }
-                    let component_block = TreeParser::parse_component(&input, &init_type)?;
+                    let component_block = TreeParser::parse_component(&input, &init_type,is_first_component)?;
                     let parsed = if component_block.is_empty() {
                         let conditional_block =
                             TreeParser::parse_condition_block(&input, &init_type)?;

@@ -2,5 +2,4 @@
 pub enum InitType {
     Child,
     Sibling,
-    Substitute,
 }
