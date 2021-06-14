@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ main, ci-test ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -14,9 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Run Macro tests
-        run: |
-          cargo test
 
       - name: Run gtk-3 deps install
         run: |
