@@ -43,16 +43,8 @@ jobs:
             base-devel
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-gtk3
+            mingw-w64-x86_64-rust
       - name: cd
-        run: cd examples/desktop
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: table-x86_64-pc-windows-gnu
-          override: true
-
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --target stable-x86_64-pc-windows-gnu
+        run: |
+          cd examples/desktop
+          cargo build
