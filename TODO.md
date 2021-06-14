@@ -17,5 +17,7 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Generate Bindings for Desktop
 - [ ] Organise imports
 - [ ] Remove use statements from macro expansions
+- [ ] required `new` args using `| |` 
+- [ ] use docker
 
 #### Completed ✓
