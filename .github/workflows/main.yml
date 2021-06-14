@@ -20,7 +20,7 @@ jobs:
 
       - name: Run gtk-3 deps install
         run: |
-            sudo apt-get install libgtk-3-dev gcc
+            sudo apt-get install libgtk-3-dev
 
       - name: Run build
         run: |
