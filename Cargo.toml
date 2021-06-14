@@ -3,10 +3,10 @@ name = "gxi"
 version = "0.3.0-alpha.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
-description = "CrossPlatform Native Widget based Component System in rust"
+description = "Zero-Cost Cross-Platform Native Widget based Component System in Rust"
 license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
-homepage = "https://gxi-rs.github.io/"
+homepage = "https://gxi-rs.com/"
 categories = [
     "gui",
     "wasm",

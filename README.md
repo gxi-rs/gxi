@@ -2,20 +2,15 @@
 
 ![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
 
-*Cross-Platform Native Widget based Component System in Rust*
+*Zero-Cost Cross-Platform Native Widget based Component System in Rust*
 
-🎉🥂🥳 `Async` Support is here
+Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html), gxi compiles the component tree to optimized
+n-binary tree without any [virtual dom](https://reactjs.org/docs/faq-internals.html)
+or [diffing algorithm](https://reactjs.org/docs/reconciliation.html). Making the component system `zero-cost`. Therefore,
+the components are `highly optimized`, ready to meet the needs of every project while maintaining the standard
+features of frameworks like `React`. Built-in `async support` provides `zero-cost` abstractions to rust futures.
 
-This project implements a component system of GUI widgets and nodes. Using
-rust [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html) compiles the component tree to optimized
-logical n-binary tree flow which `prevents` the use of any [virtual dom](https://reactjs.org/docs/faq-internals.html)
-or [diffing algorithms](https://reactjs.org/docs/reconciliation.html). Making the component system `zero cost`. Hence
-the components are
-`highly optimized`, `performant`, and `customized` to meet the needs of each project while maintaining the standard
-features of frameworks like `React`. Built-in `async support` allows for quick and performant abstractions to rust
-futures.
-
-Since the framework is a compiler, therefore, it allows mixing of platform dependent and independent components, i.e the
+Since the framework is a compiler, therefore, it allows mixing of platform-dependent and independent components, i.e the
 framework provides components like `div`, `h1` (platform dependent) and [React Native](https://reactnative.dev/) like
 platform-independent components like `Text` and `View`. Therefore, making the code portable without losing deep control
 of the native system.
@@ -138,8 +133,23 @@ gxi! {
 }
 ```
 
-More examples [here](examples)
+Full src [here](examples)
 
-## Contribution
+## Code of conduct
 
-Contributors can help by writing bindings.
+Code of conduct can be found at **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)**
+
+## Contributing
+
+Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before contributing.
+
+## License & Copyright
+
+Copyright (C) 2020 Aniket Prajapati
+
+Licensed under the **[MIT LICENSE](LICENSE)**
+
+## Contributors
+
++ [Aniket Prajapati](https://aniketprajapati.me)
+  @[prajapati.ani306@gmail.com](mailto:prajapati.ani306@gmail.com)
