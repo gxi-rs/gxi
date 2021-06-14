@@ -6,8 +6,11 @@ doc:
 web:
 	gxib -d examples/web web $(args)
 
+serve:
+	make web args="-wrs localhost:8080"
+
 desktop:
 	gxib -d examples/desktop desktop $(args)
 
 test:
-	cd tests && cargo test $(args)
+	cd gxi_macro/tests && cargo test $(args)
