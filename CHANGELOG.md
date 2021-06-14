@@ -1,5 +1,19 @@
 # Changelog
 
+## [v0.3.0-alpha.1] 14 Jun 2021
+
+> Warn: Breaking changes
+
+### Changes
+- [X] Complete unit tests for the compiler
+- [X] Explicit Drop trait for Containers and Widgets
+- [X] render function for widgets
+- [X] Pass closure args
+- [X] Fix #children call
+- [X] Finish init_member()
+- [X] Deref nodes
+- [X] Change height and width from u32 to string in web binds
+
 ## [v0.2.0] 27 May 2021
 
 > Warn: Breaking changes
