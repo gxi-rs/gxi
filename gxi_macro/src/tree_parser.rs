@@ -83,7 +83,10 @@ impl TreeParser {
     ///
     /// If an else branch is not provided then an else branch with a Pure node is appended.
     ///
-    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_condition_block(input: &ParseStream,
+                            init_type: &InitType,
+                            is_first_component: bool,
+                             ) -> Result<TokenStream2> {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
             let mut pure_index = 0;
@@ -126,7 +129,7 @@ impl TreeParser {
             }
 
             Ok(quote! {
-                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), false);
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
                 {
                     let cont = node.clone();
                     #chain
@@ -250,13 +253,16 @@ impl TreeParser {
     }
 
     /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_child_injection(input: ParseStream,
+                            init_type: &InitType,
+                            is_first_component: bool
+                             ) -> Result<TokenStream2> {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>()?;
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
-                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), false);
+                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
                             match this_borrow.deref_mut() {
@@ -280,7 +286,7 @@ impl TreeParser {
     /// anything inside a {} is copied and executed on every render call
     fn parse_execution_block(input: ParseStream) -> Result<TokenStream2> {
         if let Ok(b) = input.parse::<syn::Block>() {
-            Ok(quote! {{ #b };})
+            Ok(quote! {{ #b }})
         } else {
             Ok(TokenStream2::new())
         }
@@ -314,10 +320,10 @@ impl TreeParser {
                     let component_block = TreeParser::parse_component(&input, &init_type,is_first_component)?;
                     let parsed = if component_block.is_empty() {
                         let conditional_block =
-                            TreeParser::parse_condition_block(&input, &init_type)?;
+                            TreeParser::parse_condition_block(&input, &init_type, is_first_component)?;
                         if conditional_block.is_empty() {
                             let child_injection =
-                                TreeParser::parse_child_injection(&input, &init_type)?;
+                                TreeParser::parse_child_injection(&input, &init_type, is_first_component)?;
                             if child_injection.is_empty() {
                                 let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
                                 if for_parse.is_empty() {
