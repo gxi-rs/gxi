@@ -19,5 +19,6 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Remove use statements from macro expansions
 - [ ] required `new` args using `| |` 
 - [ ] use docker
+- [ ] github `CI`
 
 #### Completed ✓
