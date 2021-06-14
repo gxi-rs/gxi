@@ -1,7 +1,5 @@
 args:=
 
-all: clean
-
 doc:
 	cargo watch -- cargo doc --features web $(args)
 
