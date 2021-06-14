@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache cargo target
-      - uses: actions/cache@v2
+        uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           path: |
@@ -52,7 +52,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache cargo target
-      - uses: actions/cache@v2
+        uses: actions/cache@v2
         with:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           path: |
@@ -63,7 +63,7 @@ jobs:
             target/
 
       - name: Install Msys2 and deps
-      - uses: msys2/setup-msys2@v2
+        uses: msys2/setup-msys2@v2
         with:
           release: false  # no cache
           msystem: MINGW64
