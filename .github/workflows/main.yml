@@ -15,8 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Macro tests
-        run: |
-        cargo test
+        run: cargo test
 
   desktop-ubuntu-example-build:
     runs-on: ubuntu-latest
