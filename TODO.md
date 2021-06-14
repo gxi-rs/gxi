@@ -13,7 +13,6 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### Release 0.3.0
 
-- [ ] Complete unit tests for the compiler
 - [ ] Complete the docs
 - [ ] Generate Bindings for Desktop
 - [ ] Organise imports
@@ -21,6 +20,7 @@ Cross-Platform Native Widget based Component System in Rust
 
 #### Completed ✓
 
+- [X] Complete unit tests for the compiler
 - [X] Explicit Drop trait for Containers and Widgets
 - [X] render function for widgets
 - [X] Pass closure args
