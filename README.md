@@ -1,7 +1,6 @@
 # GXI
 
 ![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
-![Cross Platform Tests](https://github.com/gxi-rs/gxi/actions/workflows/cross-platform-tests.yml/badge.svg)
 
 *Cross-Platform Native Widget based Component System in Rust*
 
