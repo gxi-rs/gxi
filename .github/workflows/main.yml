@@ -15,16 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Macro tests
-        run: cargo test
+        run: |
+        cargo test
 
   desktop-ubuntu-example-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Run Ubuntu Desktop Build
-      - run: apt-get install libgtk2.0-dev
-      - run: cd examples/desktop
-      - run: cargo build
+        run: |
+        apt-get install libgtk2.0-dev
+        cd examples/desktop
+        cargo build
 
   desktop-windows-example-build:
     runs-on: ubuntu-latest
@@ -41,5 +43,6 @@ jobs:
             mingw-w64-x86_64-gtk3
       - uses: actions/checkout@v2
       - name: Windows Desktop Build
-      - run: cd examples/desktop
-      - run: cargo build
+        run: |
+        cd examples/desktop
+        cargo build
