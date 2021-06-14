@@ -7,12 +7,12 @@
 //!
 //! Read more [here](https://github.com/aniketfuryrocks/gxi)
 
+pub use binds::*;
 pub use components::*;
+pub use gxi_macro::gxi;
 pub use interface::*;
 pub use parser_macros::*;
 pub use should_render::*;
-pub use binds::*;
-pub use gxi_macro::gxi;
 
 mod components;
 mod interface;

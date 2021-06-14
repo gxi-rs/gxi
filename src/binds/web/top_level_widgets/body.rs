@@ -1,8 +1,8 @@
 use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::ops::Deref;
+use std::rc::Rc;
 
 pub struct Body {
     pub parent: WeakNodeType,

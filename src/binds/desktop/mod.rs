@@ -12,8 +12,8 @@ pub use tokio;
 // exports
 pub use containers::*;
 pub use run::*;
-pub use widgets::*;
 pub use top_level_widgets::*;
+pub use widgets::*;
 
 mod containers;
 mod run;

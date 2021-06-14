@@ -1,7 +1,7 @@
+use crate::{GxiNodeType, InitType, StrongNodeType, WeakNodeType};
+use std::cell::Ref;
 use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
-use crate::{GxiNodeType, StrongNodeType, WeakNodeType, InitType};
-use std::cell::{Ref};
 
 // TODO: replace init_type with f32 index
 /// if init_type doesn't already exist then run init() and return clone of the new member
@@ -9,7 +9,10 @@ use std::cell::{Ref};
 /// @return
 /// + bool: false if member already exists
 pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
-   mut this: StrongNodeType, init_type: InitType, init: F, is_this_root: bool
+    mut this: StrongNodeType,
+    init_type: InitType,
+    init: F,
+    is_this_root: bool,
 ) -> (StrongNodeType, bool) {
     // add accordingly
     return match init_type {
@@ -19,7 +22,7 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                 let this_borrow = this.clone();
                 let this_borrow = this_borrow.as_ref().borrow();
                 match this_borrow.deref() {
-                    GxiNodeType::Widget(_) =>  panic!("can't add node to a widget"),
+                    GxiNodeType::Widget(_) => panic!("can't add node to a widget"),
                     // if this is a component and isn't root then get self_substitute
                     GxiNodeType::Component(comp) => {
                         if !is_this_root {
@@ -27,24 +30,24 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
                                 .get_self_substitute()
                                 .as_ref()
                                 .expect("You are trying to add a child into component which doen't support #children");
-                            this = subst
-                                .upgrade()
-                                .expect("#children no longer exists. Make sure it lives long enough");
+                            this = subst.upgrade().expect(
+                                "#children no longer exists. Make sure it lives long enough",
+                            );
                         }
                     }
-                    _ => ()
+                    _ => (),
                 }
             }
 
             let mut this_borrow_mut = this.as_ref().borrow_mut();
-            // self_substitute already checked, so return child 
+            // self_substitute already checked, so return child
             if let Some(child) = this_borrow_mut.as_container().unwrap().get_child() {
                 return (child.clone(), false);
             }
 
             // create new child because it doesn't already exist
             let child = init(Rc::downgrade(&this));
-            // if 
+            // if
             *this_borrow_mut.as_container_mut().unwrap().get_child_mut() = Some(child.clone());
             drop(this_borrow_mut);
             // append native widget
@@ -58,7 +61,11 @@ pub fn init_member<F: FnOnce(WeakNodeType) -> StrongNodeType>(
             if let Some(sibling) = this_borrow_mut.as_node().get_sibling() {
                 return (sibling.clone(), false);
             }
-            let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
+            let parent = this_borrow_mut
+                .as_node_mut()
+                .get_parent()
+                .upgrade()
+                .unwrap();
             // create new sibling because it doesn't already exist
             let sibling = init(Rc::downgrade(&parent));
             // add sibling
@@ -89,7 +96,11 @@ fn append_native_widget(mut this: StrongNodeType, member_borrow: Ref<GxiNodeType
                         loop {
                             this = {
                                 let mut this_borrow_mut = this.as_ref().borrow_mut();
-                                let parent = this_borrow_mut.as_node_mut().get_parent().upgrade().unwrap();
+                                let parent = this_borrow_mut
+                                    .as_node_mut()
+                                    .get_parent()
+                                    .upgrade()
+                                    .unwrap();
                                 let mut parent_borrow = parent.as_ref().borrow_mut();
                                 if let Ok(parent) = parent_borrow.as_container_widget_node_mut() {
                                     parent.append(member.get_native_widget());

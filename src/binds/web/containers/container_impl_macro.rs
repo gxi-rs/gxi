@@ -3,8 +3,8 @@ macro_rules! create_web_container {
     ($name:ident) => {
         use std::any::Any;
         use std::cell::RefCell;
-        use std::rc::Rc;
         use std::ops::Deref;
+        use std::rc::Rc;
 
         pub struct $name {
             pub parent: WeakNodeType,
@@ -13,7 +13,6 @@ macro_rules! create_web_container {
             pub sibling: Option<StrongNodeType>,
             pub widget: web_sys::Element,
         }
-
     };
 }
 

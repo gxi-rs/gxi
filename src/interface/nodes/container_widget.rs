@@ -1,4 +1,4 @@
-use crate::{WidgetNode, Node, NativeContainer, NativeWidget, Container};
+use crate::{Container, NativeContainer, NativeWidget, Node, WidgetNode};
 
 /// Node which has a native widget
 /// and can hold children

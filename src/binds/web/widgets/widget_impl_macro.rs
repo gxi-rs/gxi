@@ -3,8 +3,8 @@ macro_rules! create_web_widget {
     ($name:ident) => {
         use std::any::Any;
         use std::cell::RefCell;
-        use std::rc::Rc;
         use std::ops::Deref;
+        use std::rc::Rc;
 
         pub struct $name {
             pub parent: WeakNodeType,

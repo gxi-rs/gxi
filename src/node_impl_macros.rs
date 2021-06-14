@@ -123,7 +123,6 @@ macro_rules! impl_node_getters {
     };
 }
 
-
 #[macro_export]
 macro_rules! impl_widget_node_deref {
     ($name:ident $target:path) => {

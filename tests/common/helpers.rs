@@ -27,7 +27,8 @@ pub fn check_child_type<T: 'static + Node>(node: StrongNodeType, name: &str) -> 
 }
 
 pub fn check_substs_child_type<T: 'static + Node>(
-    node: StrongNodeType, name: &str,
+    node: StrongNodeType,
+    name: &str,
 ) -> StrongNodeType {
     let node_borrow = node.as_ref().borrow();
     let subst = node_borrow

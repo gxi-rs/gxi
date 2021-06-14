@@ -25,7 +25,10 @@ impl Node for Pure {
         }))));
         {
             let mut this_borrow = this.as_ref().borrow_mut();
-            *this_borrow.as_component_node_mut().unwrap().get_self_substitute_mut() = Some(Rc::downgrade(&this));
+            *this_borrow
+                .as_component_node_mut()
+                .unwrap()
+                .get_self_substitute_mut() = Some(Rc::downgrade(&this));
         }
         this
     }

@@ -1,8 +1,8 @@
 use crate::*;
 use std::any::Any;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::ops::Deref;
+use std::rc::Rc;
 
 pub struct Html {
     pub parent: WeakNodeType,
@@ -13,7 +13,6 @@ pub struct Html {
 }
 
 impl Node for Html {
-
     fn new(parent: WeakNodeType) -> StrongNodeType {
         Rc::new(RefCell::new(GxiNodeType::TopLevelWidget(Box::new(Self {
             parent,
@@ -26,7 +25,6 @@ impl Node for Html {
                 document.get_elements_by_tag_name("html").item(0).unwrap()
             },
         }))))
-
     }
 
     impl_node_trait_as_any!();
@@ -45,7 +43,6 @@ impl Drop for Html {
         //need not drop head tag
     }
 }
-
 
 impl GlobalAttributes for Html {
     fn get_widget_as_element(&self) -> &web_sys::Element {

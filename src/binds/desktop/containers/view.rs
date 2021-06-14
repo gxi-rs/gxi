@@ -1,9 +1,9 @@
+use crate::*;
+use gtk::ContainerExt;
 use std::any::Any;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::ops::Deref;
-use crate::*;
-use gtk::{ContainerExt};
+use std::rc::Rc;
 
 pub struct View {
     parent: WeakNodeType,
@@ -35,4 +35,3 @@ impl_widget_node!(View);
 impl_component_node!(View);
 impl_drop!(View);
 impl_widget_node_deref!(View gtk::Box);
-

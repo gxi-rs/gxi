@@ -6,8 +6,8 @@ macro_rules! create_widget {
     ($name:ident,$widget_name:ident) => {
         use std::any::Any;
         use std::cell::RefCell;
-        use std::rc::Rc;
         use std::ops::Deref;
+        use std::rc::Rc;
 
         pub struct $name {
             parent: WeakNodeType,

@@ -28,7 +28,9 @@ impl Parse for TreeParser {
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_for_block(
-        input: ParseStream, init_type: &InitType, is_first_component: bool,
+        input: ParseStream,
+        init_type: &InitType,
+        is_first_component: bool,
     ) -> Result<TokenStream2> {
         if input.parse::<syn::token::For>().is_ok() {
             // parse : for loop_variable in loop_data_source { }
@@ -91,7 +93,9 @@ impl TreeParser {
     /// If an else branch is not provided then an else branch with a Pure node is appended.
     ///
     fn parse_condition_block(
-        input: &ParseStream, init_type: &InitType, is_first_component: bool,
+        input: &ParseStream,
+        init_type: &InitType,
+        is_first_component: bool,
     ) -> Result<TokenStream2> {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
@@ -145,7 +149,9 @@ impl TreeParser {
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
     fn parse_component(
-        input: &ParseStream, init_type: &InitType, is_first_component: bool,
+        input: &ParseStream,
+        init_type: &InitType,
+        is_first_component: bool,
     ) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Path>() {
             let mut static_props = vec![];
@@ -252,7 +258,9 @@ impl TreeParser {
 
     /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_child_injection(
-        input: ParseStream, init_type: &InitType, is_first_component: bool,
+        input: ParseStream,
+        init_type: &InitType,
+        is_first_component: bool,
     ) -> Result<TokenStream2> {
         if input.parse::<syn::token::Pound>().is_ok() {
             let ident = input.parse::<syn::Ident>()?;
@@ -290,7 +298,9 @@ impl TreeParser {
     }
 
     fn custom_parse(
-        input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool,
+        input: ParseStream,
+        mut init_type: InitType,
+        can_have_more_than_one_root_node: bool,
         mut is_first_component: bool,
     ) -> Result<TokenStream2> {
         let mut tree = TokenStream2::new();

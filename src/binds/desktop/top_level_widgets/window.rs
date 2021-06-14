@@ -1,9 +1,9 @@
 use std::any::Any;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::ops::Deref;
+use std::rc::Rc;
 
-use gtk::{WindowType, ContainerExt, WidgetExt};
+use gtk::{ContainerExt, WidgetExt, WindowType};
 
 use crate::*;
 
@@ -47,4 +47,3 @@ impl_container!(Window);
 impl_widget_node!(Window);
 impl_drop!(Window);
 impl_widget_node_deref!(Window gtk::Window);
-

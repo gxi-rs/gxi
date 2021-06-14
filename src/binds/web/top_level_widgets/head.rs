@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::*;
 
@@ -14,7 +14,6 @@ pub struct Head {
 }
 
 impl Node for Head {
-
     fn new(parent: WeakNodeType) -> StrongNodeType {
         Rc::new(RefCell::new(GxiNodeType::TopLevelWidget(Box::new(Self {
             parent,

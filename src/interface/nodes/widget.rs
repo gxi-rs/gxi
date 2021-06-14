@@ -1,4 +1,4 @@
-use crate::{Node, NativeWidget};
+use crate::{NativeWidget, Node};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 

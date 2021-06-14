@@ -4,7 +4,7 @@ macro_rules! impl_drop {
         impl Drop for $name {
             fn drop(&mut self) {
                 unsafe {
-                     self.widget.destroy();
+                    self.widget.destroy();
                 }
             }
         }
