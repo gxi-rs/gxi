@@ -1,6 +1,6 @@
 # GXI
 
-![example workflow](https://github.com/gxi-rs/gxi/actions/workflows/rust.yml/badge.svg)
+![Github Actions](https://github.com/gxi-rs/gxi/actions/workflows/main.yml/badge.svg)
 
 *Cross-Platform Native Widget based Component System in Rust*
 

@@ -1,10 +1,10 @@
-name: Rust
+name: Build
 
 on:
   push:
     branches: [ main, ci-test ]
   pull_request:
-    branches: [ main, ci-test ]
+    branches: [ main ]
 
 env:
   CARGO_TERM_COLOR: always
@@ -22,7 +22,7 @@ jobs:
         run: |
             sudo apt-get install libgtk-3-dev
 
-      - name: Run build
+      - name: Run desktop build
         run: |
           cd examples/desktop
           cargo build
@@ -43,7 +43,7 @@ jobs:
             mingw-w64-x86_64-gtk3
             mingw-w64-x86_64-rust
 
-      - name: Run build
+      - name: Run desktop build
         run: |
           cd examples/desktop
           cargo build
