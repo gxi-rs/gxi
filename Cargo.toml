@@ -30,7 +30,6 @@ members = [
     "gxi_macro",
     "examples/desktop",
     "examples/web",
-    "gxi_macro/tests",
 ]
 
 [dependencies]

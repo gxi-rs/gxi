@@ -1,16 +1,13 @@
-mod comps;
-mod helpers;
-
-pub use comps::*;
+mod common;
+pub use common::*;
 pub use gxi::*;
-pub use helpers::*;
 
 gxi! {
     pub App {
         limit : u32 = 0
     }
     render {
-        crate::comps::Comp [
+        crate::common::Comp [
             { println!("render"); },
             if state.limit == 0 {
                 { println!("true"); },

@@ -15,7 +15,7 @@ desktop:
 	gxib -d examples/desktop desktop $(args)
 
 test:
-	cd gxi_macro/tests && cargo test $(args)
+	cargo test $(args)
 
 release:
 	cargo release $(args) --workspace --exclude desktop --exclude tests --exclude web
