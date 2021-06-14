@@ -2,8 +2,8 @@ mod comps;
 mod helpers;
 
 pub use comps::*;
-pub use helpers::*;
 pub use gxi::*;
+pub use helpers::*;
 
 gxi! {
     pub App {
@@ -26,8 +26,7 @@ gxi! {
                 ],
                 { println!("true"); }
             } else {
-                Foo [
-                ]
+                Foo
             },
             Comp [
 
@@ -40,22 +39,22 @@ gxi! {
 #[test]
 fn traverse() {
     let root = Root::new_root();
-    let (app, ..) = init_member(root.clone(), InitType::Child, |this| App::new(this), false);
+    let (app, ..) = init_member(root.clone(), InitType::Child, |this| App::new(this), true);
     App::render(app.clone());
     //start traversing app
     {
         let node = check_child_type::<Comp>(app, "Comp");
         {
-            let node = check_child_type::<Pure>(node.clone(), "Pure");
+            let node = check_substs_child_type::<Pure>(node.clone(), "Pure");
             {
-                let node = check_child_type::<Comp>(node.clone(), "Comp");
+                let node = check_substs_child_type::<Comp>(node.clone(), "Comp");
                 {
-                    let node = check_child_type::<Comp>(node.clone(), "Comp");
+                    let node = check_substs_child_type::<Comp>(node.clone(), "Comp");
                     let node = check_sibling_type::<Comp>(node, "Comp");
                     // for loop
                     let node = check_sibling_type::<Pure>(node, "Pure");
                     {
-                        let node = check_child_type::<Pure>(node.clone(), "Pure");
+                        let node = check_substs_child_type::<Pure>(node.clone(), "Pure");
                         // for loop runs twice
                         let node = check_sibling_type::<Comp>(node, "Comp");
                         let node = check_sibling_type::<Comp>(node, "Comp");
@@ -72,4 +71,3 @@ fn traverse() {
         no_siblibng(node);
     }
 }
-

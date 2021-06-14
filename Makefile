@@ -1,5 +1,7 @@
 args:=
 
+all: clean
+
 doc:
 	cargo watch -- cargo doc --features web $(args)
 
@@ -14,3 +16,6 @@ desktop:
 
 test:
 	cd gxi_macro/tests && cargo test $(args)
+
+clean:
+	cargo clean

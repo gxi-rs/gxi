@@ -6,14 +6,14 @@ extern crate std;
 mod comps {
     mod comp {
         use crate::*;
-        use gxi::get_rc_state as get_state;
         use gxi::get_mut_rc_state as get_state_mut;
+        use gxi::get_rc_state as get_state;
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
-        use std::rc::Rc;
-        use std::sync::{Mutex, Arc};
         use std::ops::DerefMut;
+        use std::rc::Rc;
+        use std::sync::{Arc, Mutex};
         type State = Rc<RefCell<CompState>>;
         pub struct CompState {
             class: String,
@@ -80,21 +80,33 @@ mod comps {
                 };
                 let state = state.as_ref().borrow();
                 let node = {
-                    let (node, ..) =
-                        init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
-                    {
-                        let mut this_borrow = this.as_ref().borrow_mut();
-                        match this_borrow.deref_mut() {
-                            GxiNodeType::Component(t) => {
-                                *t.get_self_substitute_mut() = Some(Rc::downgrade(&node))
-                            }
-                            _ => {
-                                ::core::panicking::panic("internal error: entered unreachable code")
-                            }
-                        }
-                    }
+                    let (node, is_new) =
+                        init_member(node.clone(), InitType::Child, |this| Pure::new(this), true);
+                    Pure::render(node.clone());
                     node
                 };
+                {
+                    let node = {
+                        let (node, ..) = init_member(
+                            node.clone(),
+                            InitType::Child,
+                            |this| Pure::new(this),
+                            false,
+                        );
+                        {
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            match this_borrow.deref_mut() {
+                                GxiNodeType::Component(t) => {
+                                    *t.get_self_substitute_mut() = Some(Rc::downgrade(&node))
+                                }
+                                _ => ::core::panicking::panic(
+                                    "internal error: entered unreachable code",
+                                ),
+                            }
+                        }
+                        node
+                    };
+                }
             }
         }
         impl Container for Comp {
@@ -158,15 +170,15 @@ mod comps {
         }
     }
     mod foo {
-        use gxi::*;
-        use gxi::get_rc_state as get_state;
         use gxi::get_mut_rc_state as get_state_mut;
+        use gxi::get_rc_state as get_state;
+        use gxi::*;
         use std::any::Any;
         use std::borrow::Borrow;
         use std::cell::RefCell;
-        use std::rc::Rc;
-        use std::sync::{Mutex, Arc};
         use std::ops::DerefMut;
+        use std::rc::Rc;
+        use std::sync::{Arc, Mutex};
         type State = Rc<RefCell<FooState>>;
         pub struct FooState {}
         pub struct Foo {
@@ -286,9 +298,48 @@ mod helpers {
         drop(child_borrow);
         child
     }
+    pub fn check_substs_child_type<T: 'static + Node>(
+        node: StrongNodeType, name: &str,
+    ) -> StrongNodeType {
+        let node_borrow = node.as_ref().borrow();
+        let subst = node_borrow
+            .as_component_node()
+            .unwrap()
+            .get_self_substitute()
+            .as_ref()
+            .unwrap()
+            .upgrade()
+            .unwrap();
+        let subst_borrow = subst.as_ref().borrow();
+        let subst_child = subst_borrow
+            .as_container()
+            .unwrap()
+            .get_child()
+            .as_ref()
+            .unwrap();
+        subst_child
+            .as_ref()
+            .borrow()
+            .as_node()
+            .as_any()
+            .downcast_ref::<T>()
+            .expect(&{
+                let res = ::alloc::fmt::format(::core::fmt::Arguments::new_v1(
+                    &["expected \'", "\' here"],
+                    &match (&name,) {
+                        (arg0,) => [::core::fmt::ArgumentV1::new(
+                            arg0,
+                            ::core::fmt::Display::fmt,
+                        )],
+                    },
+                ));
+                res
+            });
+        drop(subst_borrow);
+        subst_child
+    }
     pub fn check_sibling_type<T: 'static + Node>(
-        node: StrongNodeType,
-        name: &str,
+        node: StrongNodeType, name: &str,
     ) -> StrongNodeType {
         let node_borrow = node.as_ref().borrow();
         let sibling = node_borrow
@@ -319,16 +370,16 @@ mod helpers {
     }
 }
 pub use comps::*;
-pub use helpers::*;
-pub use gxi::*;
-use gxi::get_rc_state as get_state;
 use gxi::get_mut_rc_state as get_state_mut;
+use gxi::get_rc_state as get_state;
+pub use gxi::*;
+pub use helpers::*;
 use std::any::Any;
 use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Mutex, Arc};
 use std::ops::DerefMut;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 type State = Rc<RefCell<AppState>>;
 pub struct AppState {
     limit: u32,
@@ -398,6 +449,7 @@ impl Node for App {
                 true,
             );
             crate::comps::Comp::render(node.clone());
+            node
         };
         {
             {
@@ -411,11 +463,10 @@ impl Node for App {
                         ));
                     };
                 }
-            };
+            }
             let (node, ..) =
                 init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
             {
-                let cont = node.clone();
                 if state.limit == 0 {
                     {
                         let mut node_borrow = node.as_ref().borrow_mut();
@@ -440,13 +491,13 @@ impl Node for App {
                                 ));
                             };
                         }
-                    };
+                    }
                     let node = {
                         let (node, is_new) = init_member(
                             node.clone(),
                             InitType::Child,
                             |this| Comp::new(this),
-                            true,
+                            false,
                         );
                         {
                             let mut node = node.as_ref().borrow_mut();
@@ -459,6 +510,7 @@ impl Node for App {
                             node.id("asd".to_string());
                         }
                         Comp::render(node.clone());
+                        node
                     };
                     {
                         let node = {
@@ -469,6 +521,7 @@ impl Node for App {
                                 false,
                             );
                             Comp::render(node.clone());
+                            node
                         };
                         {}
                         let node = {
@@ -479,6 +532,7 @@ impl Node for App {
                                 false,
                             );
                             Comp::render(node.clone());
+                            node
                         };
                         {}
                         let (node, ..) = init_member(
@@ -511,7 +565,7 @@ impl Node for App {
                                             ));
                                         };
                                     }
-                                };
+                                }
                                 let node = {
                                     let (node, is_new) = init_member(
                                         node.clone(),
@@ -520,6 +574,7 @@ impl Node for App {
                                         false,
                                     );
                                     Comp::render(node.clone());
+                                    node
                                 };
                                 {
                                     {
@@ -536,7 +591,7 @@ impl Node for App {
                                                 ));
                                             };
                                         }
-                                    };
+                                    }
                                 }
                                 prev_sibling = node;
                             }
@@ -558,7 +613,7 @@ impl Node for App {
                                 ));
                             };
                         }
-                    };
+                    }
                 } else {
                     {
                         let mut node_borrow = node.as_ref().borrow_mut();
@@ -573,9 +628,14 @@ impl Node for App {
                         }
                     }
                     let node = {
-                        let (node, is_new) =
-                            init_member(node.clone(), InitType::Child, |this| Foo::new(this), true);
+                        let (node, is_new) = init_member(
+                            node.clone(),
+                            InitType::Child,
+                            |this| Foo::new(this),
+                            false,
+                        );
                         Foo::render(node.clone());
+                        node
                     };
                     {}
                 }
@@ -588,6 +648,7 @@ impl Node for App {
                     false,
                 );
                 Comp::render(node.clone());
+                node
             };
             {}
         }
@@ -602,7 +663,7 @@ impl Node for App {
                     ));
                 };
             }
-        };
+        }
     }
 }
 impl Container for App {

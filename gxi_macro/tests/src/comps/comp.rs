@@ -6,6 +6,8 @@ gxi! {
         pub id : String = "".to_string()
     }
     render {
-        #children
+        Pure [
+            #children
+        ]
     }
 }
