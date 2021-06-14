@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
@@ -49,6 +50,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
