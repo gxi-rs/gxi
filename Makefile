@@ -18,7 +18,7 @@ test:
 	cd gxi_macro/tests && cargo test $(args)
 
 release:
-	cargo release --workspace --exclude desktop --exclude tests --exclude web $(args)
+	cargo release $(args) --workspace --exclude desktop --exclude tests --exclude web
 
 clean:
 	cargo clean
