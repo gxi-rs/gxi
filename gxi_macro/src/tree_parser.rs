@@ -96,7 +96,7 @@ impl TreeParser {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
             let mut pure_index = 0;
-            let mut if_logic: TokenStream2 = input.parse::<syn::Expr>()?.to_token_stream().into();
+            let mut if_logic: TokenStream2 = input.parse::<syn::Expr>()?.to_token_stream();
             // chain starts with if block
             let mut chain = quote! { if #if_logic };
             loop {
@@ -123,7 +123,7 @@ impl TreeParser {
                     // check for nested if
                     if input.parse::<syn::token::If>().is_ok() {
                         // parse if_logic of nested if
-                        if_logic = input.parse::<syn::Expr>()?.to_token_stream().into();
+                        if_logic = input.parse::<syn::Expr>()?.to_token_stream();
                         chain = quote! { #chain if #if_logic };
                     }
                 } else {
@@ -153,34 +153,30 @@ impl TreeParser {
             //parse properties enclosed in parenthesis
             if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
                 // loop till every thing inside parenthesis is parsed
-                loop {
-                    if let Ok(syn::ExprAssign { left, right, .. }) =
-                        content.parse::<syn::ExprAssign>()
-                    {
-                        // push closure and literals to static_props and others to dynamic_props
-                        match *right {
-                            syn::Expr::Closure(closure) => {
-                                let closure_body = closure.body;
-                                let closure_args = closure.inputs;
-                                static_props.push(quote! {{
+                while let Ok(syn::ExprAssign { left, right, .. }) =
+                    content.parse::<syn::ExprAssign>()
+                {
+                    // push closure and literals to static_props and others to dynamic_props
+                    match *right {
+                        syn::Expr::Closure(closure) => {
+                            let closure_body = closure.body;
+                            let closure_args = closure.inputs;
+                            static_props.push(quote! {{
                                         let state_clone = Rc::clone(&this);
                                         node.#left(move |#closure_args| Self::update(state_clone.clone(),#closure_body) );
                                     }});
-                            }
-                            syn::Expr::Lit(literal) => {
-                                static_props.push(quote! { node.#left(#literal); })
-                            }
-                            _ => dynamic_props.push(quote! { node.#left(#right); }),
                         }
-                        // if stream is empty then break
-                        if content.is_empty() {
-                            break;
-                        } else {
-                            // else expect a comma
-                            content.parse::<syn::token::Comma>()?;
+                        syn::Expr::Lit(literal) => {
+                            static_props.push(quote! { node.#left(#literal); })
                         }
-                    } else {
+                        _ => dynamic_props.push(quote! { node.#left(#right); }),
+                    }
+                    // if stream is empty then break
+                    if content.is_empty() {
                         break;
+                    } else {
+                        // else expect a comma
+                        content.parse::<syn::token::Comma>()?;
                     }
                 }
             }
@@ -258,9 +254,9 @@ impl TreeParser {
     fn parse_child_injection(
         input: ParseStream, init_type: &InitType, is_first_component: bool,
     ) -> Result<TokenStream2> {
-        if let Ok(_) = input.parse::<syn::token::Pound>() {
+        if input.parse::<syn::token::Pound>().is_ok() {
             let ident = input.parse::<syn::Ident>()?;
-            return match &ident.to_string()[..] {
+            match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
                         let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
@@ -278,7 +274,7 @@ impl TreeParser {
                     ident.span().unwrap().into(),
                     "Expected children here",
                 )),
-            };
+            }
         } else {
             Ok(TokenStream2::new())
         }

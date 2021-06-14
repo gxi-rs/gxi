@@ -36,7 +36,7 @@ impl GxiParser {
             // if equals-to is present, parse default value
             let field_value: TokenStream2 = if block.parse::<syn::token::Eq>().is_ok() {
                 let value = block.parse::<syn::Expr>()?;
-                value.to_token_stream().into()
+                value.to_token_stream()
             } else {
                 quote!(Default::default())
             };
@@ -106,7 +106,7 @@ impl GxiParser {
         };
         // inner logic for executing the update function
         let update_inner = {
-            let update_inner = if is_async && cfg!(feature = "desktop") {
+            if is_async && cfg!(feature = "desktop") {
                 quote! {
                     let (channel_sender, state) = {
                         let state_borrow = this.as_ref().borrow();
@@ -169,8 +169,7 @@ impl GxiParser {
                     }
                 }
                 update_inner
-            };
-            update_inner
+            }
         };
 
         Ok(quote! {
@@ -282,7 +281,7 @@ impl Parse for GxiParser {
                             }
                         }
                         Self::render(this); // render this
-                        glib::Continue(true) 
+                        glib::Continue(true)
                     });
                 }},
             )
