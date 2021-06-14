@@ -10,7 +10,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  tests:
+  ubuntu-tests-and-builds:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,17 +18,16 @@ jobs:
         run: |
           cargo test
 
-  desktop-ubuntu-example-build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run Ubuntu Desktop Build
+      - name: Run gtk-3 deps install
         run: |
-          sudo apt-get install libgtk-3-dev gcc
+            sudo apt-get install libgtk-3-dev gcc
+
+      - name: Run build
+        run: |
           cd examples/desktop
           cargo build
 
-  desktop-windows-example-build:
+  windows-tests-and-builds:
     runs-on: windows-latest
     defaults:
       run:
@@ -38,13 +37,13 @@ jobs:
       - uses: msys2/setup-msys2@v2
         with:
           msystem: MINGW64
-          update: true
           install: >-
             base-devel
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-gtk3
             mingw-w64-x86_64-rust
-      - name: cd
+
+      - name: Run build
         run: |
           cd examples/desktop
           cargo build
