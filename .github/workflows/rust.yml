@@ -2,17 +2,42 @@ name: Rust
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ci-test ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, ci-test ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  test:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run Macro tests
+        run: cargo test
+
+  desktop-ubuntu-example-build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Run tests
-      run: cargo test
+    - name: Run Ubuntu Desktop Build
+    - run: apt-get install libgtk2.0-dev
+    - run: cd examples/desktop
+    - run: cargo build
+
+  desktop-windows-example-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          update: true
+          install: >-
+            base-devel
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-gtk3
+      - uses: actions/checkout@v2
+      - run: cd examples/desktop && cargo build
