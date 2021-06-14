@@ -40,4 +40,5 @@ jobs:
             mingw-w64-x86_64-toolchain
             mingw-w64-x86_64-gtk3
       - uses: actions/checkout@v2
-      - run: cd examples/desktop && cargo build
+      - run: cd examples/desktop
+      - run: cargo build
