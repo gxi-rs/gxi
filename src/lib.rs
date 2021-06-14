@@ -7,26 +7,19 @@
 //!
 //! Read more [here](https://github.com/aniketfuryrocks/gxi)
 
-#[cfg(all(feature = "web", feature = "desktop"))]
-compile_error!("Cannot enable both `web` and `desktop` features.");
+pub use components::*;
+pub use interface::*;
+pub use parser_macros::*;
+pub use should_render::*;
+pub use binds::*;
+pub use gxi_macro::gxi;
 
-#[cfg(not(any(feature = "web", feature = "desktop")))]
-compile_error!("Either `web` or `desktop` feature must be enabled.");
+mod components;
+mod interface;
+mod parser_macros;
+mod should_render;
+#[macro_use]
+mod node_impl_macros;
+mod binds;
 
-macro_rules! transparent_block {( $($tt:tt)* ) => ( $($tt)* )}
-
-#[cfg(any(feature = "web", feature = "desktop"))]
-#[cfg(not(all(feature = "web", feature = "desktop")))]
-transparent_block! {
-    mod parser_macros;
-    mod binds;
-    mod should_render;
-    mod nodes;
-    pub use binds::*;
-    pub use parser_macros::*;
-    pub use gxi_macro::gxi;
-    pub use nodes::*;
-    pub use should_render::*;
-
-    pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;
-}
+pub type AsyncResult<T> = Result<T, Box<dyn std::error::Error>>;

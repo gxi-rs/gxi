@@ -110,7 +110,7 @@ impl GxiParser {
                 quote! {
                     let (channel_sender, state) = {
                         let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<#name>().unwrap();
+                        let state = state_borrow.as_node().as_any().downcast_ref::<#name>().unwrap();
                         (state.channel_sender.clone(), state.state.clone())
                     };
                     tokio::task::spawn(async move {
@@ -134,7 +134,7 @@ impl GxiParser {
                 let mut update_inner = quote! {
                     let state = {
                         let state_borrow = this.as_ref().borrow();
-                        let state = state_borrow.as_any().downcast_ref::<Self>().unwrap();
+                        let state = state_borrow.as_node().as_any().downcast_ref::<Self>().unwrap();
                         state.state.clone()
                     };
                     let render = {
@@ -142,8 +142,10 @@ impl GxiParser {
                         move || {
                             let this = Rc::clone(&this);
                             {
-                                let mut node = this.as_ref().borrow_mut();
-                                node.mark_dirty();
+                                let mut this_borrow = this.as_ref().borrow_mut();
+                                if let GxiNodeType::Component(this) = this_borrow.deref_mut() {
+                                    this.mark_dirty();
+                                }
                             }
                             Self::render(this);
                         }
@@ -151,8 +153,10 @@ impl GxiParser {
                     #update_fn
                     if let ShouldRender::Yes = update(state,msg,render)#await_call.unwrap() {
                         {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            if let GxiNodeType::Component(this) = this_borrow.deref_mut() {
+                                this.mark_dirty();
+                            }
                         }
                         Self::render(this);
                     }
@@ -170,7 +174,7 @@ impl GxiParser {
         };
 
         Ok(quote! {
-            fn update(this: NodeRc, msg: Msg) {
+            fn update(this: StrongNodeType, msg: Msg) {
                 #update_inner
             }
         })
@@ -208,11 +212,11 @@ impl Parse for GxiParser {
                         let block_content = group::parse_braces(&input)?.content;
                         let content = TreeParser::parse(&block_content)?.0;
                         render_func = quote! {
-                            fn render(this: NodeRc) {
-                                let cont = Rc::clone(&this);
+                            fn render(this: StrongNodeType) {
+                                let node = Rc::clone(&this);
                                 let state = {
-                                    let mut node_borrow = this.as_ref().borrow_mut();
-                                    let node = node_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
+                                    let mut node = this.as_ref().borrow_mut();
+                                    let node = node.as_node_mut().as_any_mut().downcast_mut::<Self>().unwrap();
                                     if !node.is_dirty() {
                                         return;
                                     }
@@ -270,13 +274,15 @@ impl Parse for GxiParser {
                     let this = this.clone();
                     re.attach(None, move |_| {
                         let this = Rc::clone(&this);
-                        //mark dirty
                         {
-                            let mut node = this.as_ref().borrow_mut();
-                            node.mark_dirty();
+                            let mut this_borrow = this.as_ref().borrow_mut();
+                            match this_borrow.deref_mut() {
+                                GxiNodeType::Component(t) => t.mark_dirty(),
+                                _ => unreachable!(),
+                            }
                         }
-                        Self::render(this);
-                        glib::Continue(true)
+                        Self::render(this); // render this
+                        glib::Continue(true) 
                     });
                 }},
             )
@@ -298,6 +304,7 @@ impl Parse for GxiParser {
                 use std::cell::RefCell;
                 use std::rc::Rc;
                 use std::sync::{Mutex, Arc};
+                use std::ops::DerefMut;
 
                 type State = #state_cell<#state_cell_inner<#state_name>>;
 
@@ -308,35 +315,32 @@ impl Parse for GxiParser {
                 #viz struct #name {
                     state: State,
                     #channel_sender_struct_field
-                    pub parent: WeakNodeRc,
-                    pub self_substitute : Option<WeakNodeRc>,
-                    pub dirty: bool,
-                    pub child: Option<NodeRc>,
-                    pub sibling: Option<NodeRc>
+                    pub parent: WeakNodeType,
+                    pub self_substitute : Option<WeakNodeType>,
+                    pub is_dirty: bool,
+                    pub child: Option<StrongNodeType>,
+                    pub sibling: Option<StrongNodeType>
                 }
 
                 impl Node for #name {
-                    impl_node_for_component!();
+                    impl_node_trait_as_node!();
+                    impl_node_trait_as_any!();
+                    impl_node_getters!();
 
-                    fn new(parent: WeakNodeRc) -> NodeRc {
+                    fn new(parent: WeakNodeType) -> StrongNodeType {
                         #desktop_channel_new
                         // init
-                        let this:NodeRc = Rc::new(RefCell::new(Box::new(Self {
+                        let this = Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
                             state: #state_cell::new(#state_cell_inner::new(#state_name {
                                 #state_new
                             })),
                             #channel_sender_field
                             self_substitute : None,
                             parent,
-                            dirty: true,
+                            is_dirty: true,
                             child: None,
                             sibling: None,
-                        })));
-                        {
-                            let mut this_borrow = this.as_ref().borrow_mut();
-                            let this_borrow = this_borrow.as_any_mut().downcast_mut::<Self>().unwrap();
-                            this_borrow.self_substitute = Some(Rc::downgrade(&this));
-                        }
+                        }))));
                         #desktop_channel_attach
                         this
                     }
@@ -344,12 +348,13 @@ impl Parse for GxiParser {
                     #render_func
                 }
 
+                impl_container!(#name);
+                impl_component_node!(#name impl_dirty);
+
                 impl #name {
                     #update_func
                     #state_setters
                 }
-
-                impl_drop_for_component!(#name);
             },
         })
     }

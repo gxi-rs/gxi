@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.2.0"
+version = "0.3.0-alpha.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "CrossPlatform Native Widget based Component System in rust"
@@ -19,25 +19,21 @@ keywords = [
     "gui",
     "framework"
 ]
-resolver = "2"
-exclude = [
-    "examples"
-]
 
 [features]
 desktop = ["gtk", "gxi_macro/desktop", "glib", "tokio"]
 web = ["web-sys", "gxi_macro/web", "wasm-bindgen", "wasm-bindgen-futures", "console_error_panic_hook"]
+default = ["gxi_macro"]
 
 [workspace]
 members = [
     "gxi_macro",
     "examples/desktop",
     "examples/web",
-    "tests"
 ]
 
 [dependencies]
-gxi_macro = { path = "gxi_macro", version = "0.2.0", optional = true }
+gxi_macro = { path = "gxi_macro", version = "^0.3.0-alpha.1", optional = true }
 #desktop
 gtk = { version = "0.9.2", optional = true }
 glib = { version = "0.10.3", optional = true }
@@ -46,9 +42,10 @@ tokio = { version = "1.5.0", features = ["sync", "rt", "rt-multi-thread"], optio
 wasm-bindgen = { version = "0.2.73", optional = true }
 wasm-bindgen-futures = { version = "0.4.23", optional = true }
 console_error_panic_hook = { version = "0.1.6", optional = true }
+
 [dependencies.web-sys]
 version = "0.3.50"
 features = [
-    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent'
+    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent', 'HtmlCollection'
 ]
 optional = true

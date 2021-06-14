@@ -15,14 +15,21 @@ impl Parse for TreeParser {
             TreeParser(TokenStream2::new())
         } else {
             // default init type is child
-            TreeParser(TreeParser::custom_parse(input, InitType::Child, false)?)
+            TreeParser(TreeParser::custom_parse(
+                input,
+                InitType::Child,
+                false,
+                true,
+            )?)
         })
     }
 }
 
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_for_block(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_for_block(
+        input: ParseStream, init_type: &InitType, is_first_component: bool,
+    ) -> Result<TokenStream2> {
         if input.parse::<syn::token::For>().is_ok() {
             // parse : for loop_variable in loop_data_source { }
             let loop_variable = input.parse::<syn::Expr>()?;
@@ -31,25 +38,17 @@ impl TreeParser {
             // parse the block with InitType::Sibling
             let parsed_loop_block = {
                 let block_content = syn::group::parse_braces(&input)?.content;
-                Self::custom_parse(&block_content, InitType::Sibling, false)?
+                Self::custom_parse(&block_content, InitType::Sibling, true, false)?
             };
             // concatenate
             Ok(quote! {
                 // parent node which will hold all the nodes from the for loop
-                let node = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                };
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
                 {
                     // this node will act as the child of pure block
                     // because there can be only one child but many siblings
                     // component inside the loop will be the sibling of this pure node
-                    let node = {
-                        let mut node_borrow = node.as_ref().borrow_mut();
-                        let weak_cont = Rc::downgrade(&cont);
-                        node_borrow.init_child(Box::new(move || Pure::new(weak_cont))).0
-                    };
+                    let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
                     // prev_sibling
                     let mut prev_sibling = node.clone();
                     for #loop_variable in #loop_data_source {
@@ -59,9 +58,7 @@ impl TreeParser {
                     }
                     // drop any left in the tree
                     // because the for loop may run a little less than the previous run
-                    {
-                        prev_sibling.as_ref().borrow_mut().get_sibling_mut().take();
-                    }
+                    *prev_sibling.as_ref().borrow_mut().as_node_mut().get_sibling_mut() = None;
                 }
             })
         } else {
@@ -72,17 +69,11 @@ impl TreeParser {
     /// generates the block to correctly drop `Pure` component without violating mutable rules.
     fn get_pure_remove_block(pure_index: u32) -> TokenStream2 {
         quote! {{
-            let pure_index = {
-                let mut node_borrow = node.as_ref().borrow_mut();
-                let pure: &mut Pure = node_borrow.as_any_mut().downcast_mut::<Pure>().unwrap();
-                let index = pure.pure_index.clone();
+            let mut node_borrow = node.as_ref().borrow_mut();
+            let pure = node_borrow.as_node_mut().as_any_mut().downcast_mut::<Pure>().unwrap();
+            if pure.pure_index != #pure_index {
                 pure.pure_index = #pure_index;
-                index
-            };
-            if pure_index != #pure_index {
-                let node = {
-                    node.as_ref().borrow_mut().get_child_mut().take()
-                };
+                pure.child = None;
             }
         }}
     }
@@ -99,7 +90,9 @@ impl TreeParser {
     ///
     /// If an else branch is not provided then an else branch with a Pure node is appended.
     ///
-    fn parse_condition_block(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_condition_block(
+        input: &ParseStream, init_type: &InitType, is_first_component: bool,
+    ) -> Result<TokenStream2> {
         // check for if
         if input.parse::<syn::token::If>().is_ok() {
             let mut pure_index = 0;
@@ -112,7 +105,7 @@ impl TreeParser {
                 {
                     let parsed_block = {
                         let block = syn::group::parse_braces(&input)?.content;
-                        TreeParser::parse(&block)?.0
+                        TreeParser::custom_parse(&block, InitType::Child, true, false)?
                     };
                     let pure_remove_block = TreeParser::get_pure_remove_block(pure_index);
                     chain = quote! { #chain {
@@ -142,15 +135,8 @@ impl TreeParser {
             }
 
             Ok(quote! {
-                let node = {
-                    let mut node_borrow = node.as_ref().borrow_mut();
-                    let weak_cont = Rc::downgrade(&cont);
-                    node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                };
-                {
-                    let cont = node.clone();
-                    #chain
-                }
+                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
+                { #chain }
             })
         } else {
             Ok(TokenStream2::new())
@@ -158,7 +144,9 @@ impl TreeParser {
     }
 
     /// Parses the Component with its properties and its children recursively from the syntax defined by the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html)
-    fn parse_component(input: &ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_component(
+        input: &ParseStream, init_type: &InitType, is_first_component: bool,
+    ) -> Result<TokenStream2> {
         if let Ok(name) = input.parse::<syn::Path>() {
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
@@ -167,15 +155,16 @@ impl TreeParser {
                 // loop till every thing inside parenthesis is parsed
                 loop {
                     if let Ok(syn::ExprAssign { left, right, .. }) =
-                    content.parse::<syn::ExprAssign>()
+                        content.parse::<syn::ExprAssign>()
                     {
                         // push closure and literals to static_props and others to dynamic_props
                         match *right {
                             syn::Expr::Closure(closure) => {
                                 let closure_body = closure.body;
+                                let closure_args = closure.inputs;
                                 static_props.push(quote! {{
                                         let state_clone = Rc::clone(&this);
-                                        node.#left(move | | Self::update(state_clone.clone(),#closure_body) );
+                                        node.#left(move |#closure_args| Self::update(state_clone.clone(),#closure_body) );
                                     }});
                             }
                             syn::Expr::Lit(literal) => {
@@ -204,8 +193,8 @@ impl TreeParser {
                         TokenStream2::new()
                     } else {
                         let mut block = quote! {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let node = node_borrow.as_any_mut().downcast_mut::<#name>().unwrap();
+                            let mut node = node.as_ref().borrow_mut();
+                            let node = node.as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
                         };
                         if !static_props.is_empty() {
                             block = quote! {
@@ -226,20 +215,11 @@ impl TreeParser {
                         }}
                     }
                 };
-                // if init_type is child then add to cont else add to node
-                let node_rename = if let InitType::Child = init_type {
-                    quote! { cont }
-                } else {
-                    quote! { node }
-                };
 
+                // if init_type is child then get self_substitute
                 quote! {
                     let node = {
-                        let (node, is_new) = {
-                            let mut node_borrow = #node_rename.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || #name::new(weak_cont)))
-                        };
+                        let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this), #is_first_component);
                         #prop_setter_block
                         #name::render(node.clone());
                         node
@@ -249,22 +229,13 @@ impl TreeParser {
 
             // parse children
             let children = if let syn::__private::Ok(syn::group::Brackets { content, .. }) =
-            syn::group::parse_brackets(&input)
+                syn::group::parse_brackets(&input)
             {
                 // if content is empty don't parse it
                 if content.is_empty() {
                     TokenStream2::new()
                 } else {
-                    // parse content with init_child and pure_index 0
-                    let content = TreeParser::custom_parse(&content, InitType::Child, true)?;
-                    // set parent and concatenate the parsed content
-                    quote! {
-                        let cont = {
-                            let node_borrow = node.as_ref().borrow();
-                            node_borrow.get_self_substitute()
-                        };
-                        #content
-                    }
+                    TreeParser::custom_parse(&content, InitType::Child, true, false)?
                 }
             } else {
                 TokenStream2::new()
@@ -276,7 +247,7 @@ impl TreeParser {
                 {
                     #children
                 }
-                #name::render(node.clone());
+                //#name::render(node.clone());
             })
         } else {
             Ok(TokenStream2::new())
@@ -284,20 +255,21 @@ impl TreeParser {
     }
 
     /// Parses the `#children` statement as defined in the [#children statement section][../gxi_c_macro/macro.gxi_c_macro.html#children-statement] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
-    fn parse_child_injection(input: ParseStream, init_type: &InitType) -> Result<TokenStream2> {
+    fn parse_child_injection(
+        input: ParseStream, init_type: &InitType, is_first_component: bool,
+    ) -> Result<TokenStream2> {
         if let Ok(_) = input.parse::<syn::token::Pound>() {
             let ident = input.parse::<syn::Ident>()?;
             return match &ident.to_string()[..] {
                 "children" => Ok(quote! {
                     let node = {
-                        let node = {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let weak_cont = Rc::downgrade(&cont);
-                            node_borrow.#init_type(Box::new(move || Pure::new(weak_cont))).0
-                        };
+                        let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
                         {
                             let mut this_borrow = this.as_ref().borrow_mut();
-                            this_borrow.set_self_substitute(node.clone());
+                            match this_borrow.deref_mut() {
+                                GxiNodeType::Component(t) => *t.get_self_substitute_mut() = Some(Rc::downgrade(&node)),
+                                _ => unreachable!(),
+                            }
                         }
                         node
                     };
@@ -323,6 +295,7 @@ impl TreeParser {
 
     fn custom_parse(
         input: ParseStream, mut init_type: InitType, can_have_more_than_one_root_node: bool,
+        mut is_first_component: bool,
     ) -> Result<TokenStream2> {
         let mut tree = TokenStream2::new();
         let mut has_one_root_component = false;
@@ -343,15 +316,26 @@ impl TreeParser {
                             "didn't expect this here. Help: You can't have more than one node here.",
                         ));
                     }
-                    let component_block = TreeParser::parse_component(&input, &init_type)?;
+                    let component_block =
+                        TreeParser::parse_component(&input, &init_type, is_first_component)?;
                     let parsed = if component_block.is_empty() {
-                        let conditional_block =
-                            TreeParser::parse_condition_block(&input, &init_type)?;
+                        let conditional_block = TreeParser::parse_condition_block(
+                            &input,
+                            &init_type,
+                            is_first_component,
+                        )?;
                         if conditional_block.is_empty() {
-                            let child_injection =
-                                TreeParser::parse_child_injection(&input, &init_type)?;
+                            let child_injection = TreeParser::parse_child_injection(
+                                &input,
+                                &init_type,
+                                is_first_component,
+                            )?;
                             if child_injection.is_empty() {
-                                let for_parse = TreeParser::parse_for_block(&input, &init_type)?;
+                                let for_parse = TreeParser::parse_for_block(
+                                    &input,
+                                    &init_type,
+                                    is_first_component,
+                                )?;
                                 if for_parse.is_empty() {
                                     return Err(syn::Error::new(
                                         input.span().unwrap().into(),
@@ -368,6 +352,8 @@ impl TreeParser {
                     } else {
                         component_block
                     };
+                    // now no longer any component can be root
+                    is_first_component = false;
                     // there can only be one root component
                     has_one_root_component = true;
                     // there can only be one child, therefore after parsing a component

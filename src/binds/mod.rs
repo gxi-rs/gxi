@@ -1,9 +1,15 @@
 #[cfg(feature = "desktop")]
-pub use desktop_binds::*;
+pub use desktop::*;
 #[cfg(feature = "web")]
-pub use web_binds::*;
+pub use web::*;
 
 #[cfg(feature = "desktop")]
-mod desktop_binds;
+mod desktop;
 #[cfg(feature = "web")]
-mod web_binds;
+mod web;
+
+#[cfg(not(any(feature = "web", feature = "desktop")))]
+mod default;
+
+#[cfg(not(any(feature = "web", feature = "desktop")))]
+pub use default::*;
