@@ -38,6 +38,12 @@ macro_rules! impl_widget {
                     sibling: None,
                 }))))
             }
+
+            fn render(this: StrongNodeType) {
+                let this = this.as_ref().borrow();
+                let this = this.as_widget_node().unwrap();
+                this.get_native_widget().show();
+            }
         }
 
         impl_widget_node_deref!($name gtk::$widget_name);

@@ -27,6 +27,12 @@ impl Node for View {
             widget: gtk::Box::new(gtk::Orientation::Horizontal, 0),
         }))))
     }
+    
+    fn render(this: StrongNodeType) {
+        let this = this.as_ref().borrow();
+        let this = this.as_container_widget_node().unwrap();
+        this.get_native_container().show();
+    }
 }
 
 impl_container_node!(View);
