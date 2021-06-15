@@ -6,16 +6,13 @@ Cross-Platform Native Widget based Component System in Rust
 
 ## For release 0.3.0
 
-- [ ] Complete unit tests for the compiler
 - [ ] Complete the docs
-- [ ] Fix #children call
-- [ ] Finish init_member()
-- [ ] Deref nodes
-- [ ] Change height and width from u32 to string in web binds
 - [ ] Generate Bindings for Desktop
 - [ ] Organise imports
 - [ ] Remove use statements from macro expansions
-- [ ] Explicit Drop trait for Containers and Widgets
+- [ ] Add support for constructor args
+- [ ] Add support for functions that don't take no params
+- [ ] Add if-else block in params block  
 
 ## Others
 
@@ -25,6 +22,12 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### Completed ✓
 
+- [X] Change height and width from u32 to string in web binds
+- [X] Complete unit tests for the compiler
+- [X] Fix #children call
+- [X] Finish init_member()
+- [X] Deref nodes
+- [X] Explicit Drop trait for Containers and Widgets
 - [x] Async Rendering
 - [x] Comp Macro
 - [x] `render!()` macro in update function
