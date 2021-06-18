@@ -12,7 +12,9 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Remove use statements from macro expansions
 - [ ] Add support for constructor args
 - [ ] Add support for functions that don't take no params
-- [ ] Add if-else block in params block  
+- [ ] Add web event handling
+- [ ] Add support for event handelers using web-sys
+- [ ] correctly export web-sys
 
 ## Others
 
