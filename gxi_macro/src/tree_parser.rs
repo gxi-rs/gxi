@@ -4,6 +4,7 @@ use syn::parse::{Parse, ParseStream};
 use syn::Result;
 
 use crate::InitType;
+use syn::spanned::Spanned;
 
 /// Parser for the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
 pub struct TreeParser(pub TokenStream2);
@@ -153,7 +154,48 @@ impl TreeParser {
         init_type: &InitType,
         is_first_component: bool,
     ) -> Result<TokenStream2> {
-        if let Ok(name) = input.parse::<syn::Path>() {
+        if let Ok(path_expr) = input.parse::<syn::Path>() {
+            // if last path segment is in lower case them it as a function call on Self
+            let (name, init_call) = {
+                let last_segment = path_expr.segments.last().unwrap();
+                let last_segment_token_stream = last_segment.to_token_stream();
+                // if it's first char is in lower case then it is a function call
+                if last_segment_token_stream
+                    .to_string()
+                    .chars()
+                    .next()
+                    .unwrap()
+                    .is_lowercase()
+                {
+                    // there must be least of 2 segments
+                    if path_expr.segments.len() < 2 {
+                        return Err(syn::Error::new(
+                            path_expr.span().unwrap().into(),
+                            "There must be at least 2 segments in this path. Eg. Comp::new()",
+                        ));
+                    }
+                    // the segment before the last segment is the required name of the node
+                    let name = &path_expr.segments[path_expr.segments.len() - 2];
+                    let syn::group::Parens { content, .. } = syn::group::parse_parens(&input)?;
+                    let mut params = vec![];
+                    loop {
+                        params.push(content.parse::<syn::Expr>()?);
+                        // if stream is empty then break
+                        if content.is_empty() {
+                            break;
+                        } else {
+                            // else expect a comma
+                            content.parse::<syn::token::Comma>()?;
+                        }
+                    }
+                    (
+                        name.to_token_stream(),
+                        quote! {#last_segment(parent, #(#params),*)},
+                    )
+                } else {
+                    (last_segment_token_stream, quote! {new(parent)})
+                }
+            };
             let mut static_props = vec![];
             let mut dynamic_props = vec![];
             //parse properties enclosed in parenthesis
@@ -221,7 +263,7 @@ impl TreeParser {
                 // if init_type is child then get self_substitute
                 quote! {
                     let node = {
-                        let (node, is_new) = init_member(node.clone(), #init_type, |this| #name::new(this), #is_first_component);
+                        let (node, is_new) = init_member(node.clone(), #init_type, |parent| #name::#init_call, #is_first_component);
                         #prop_setter_block
                         #name::render(node.clone());
                         node

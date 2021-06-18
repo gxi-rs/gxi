@@ -1,6 +1,6 @@
 use gxi::*;
 
-pub fn no_siblibng(node: StrongNodeType) {
+pub fn no_sibling(node: StrongNodeType) {
     let node_borrow = node.as_ref().borrow();
     if node_borrow.as_node().get_sibling().is_some() {
         panic!("no sibling was expected");
