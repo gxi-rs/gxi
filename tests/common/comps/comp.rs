@@ -23,4 +23,18 @@ impl Comp {
             sibling: None,
         }))))
     }
+    pub fn from_class_and_id(
+        parent: WeakNodeType,
+        class: &'static str,
+        id: &'static str,
+    ) -> StrongNodeType {
+        Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
+            state: Rc::new(RefCell::new(CompState { class, id })),
+            self_substitute: None,
+            parent,
+            is_dirty: true,
+            child: None,
+            sibling: None,
+        }))))
+    }
 }

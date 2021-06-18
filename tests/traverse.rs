@@ -7,13 +7,13 @@ gxi! {
         limit : u32 = 0
     }
     render {
-        crate::common::Comp [
+        crate::common::Comp::from_class_and_id("h1","12") [
             { println!("render"); },
             if state.limit == 0 {
                 { println!("true"); },
-                Comp ( class = "h1", id = "asd" ) [
-                    Comp,
-                    Comp,
+                Comp::from_class("h1") ( id = "asd" ) [
+                    Comp::from_class("1"),
+                    Comp ( id = "1", class = "12" ),
                     for x in 0..2 {
                         { println!("{}",x); },
                         Comp [
