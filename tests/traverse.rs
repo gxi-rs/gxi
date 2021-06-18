@@ -56,15 +56,15 @@ fn traverse() {
                         let node = check_sibling_type::<Comp>(node, "Comp");
                         let node = check_sibling_type::<Comp>(node, "Comp");
 
-                        no_siblibng(node);
+                        no_sibling(node);
                     }
-                    no_siblibng(node);
+                    no_sibling(node);
                 }
-                no_siblibng(node);
+                no_sibling(node);
             }
             let node = check_sibling_type::<Comp>(node, "Comp");
-            no_siblibng(node);
+            no_sibling(node);
         }
-        no_siblibng(node);
+        no_sibling(node);
     }
 }
