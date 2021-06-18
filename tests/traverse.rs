@@ -11,7 +11,7 @@ gxi! {
             { println!("render"); },
             if state.limit == 0 {
                 { println!("true"); },
-                Comp ( class = "h1".to_string(), id = "asd".to_string() ) [
+                Comp ( class = "h1", id = "asd" ) [
                     Comp,
                     Comp,
                     for x in 0..2 {
