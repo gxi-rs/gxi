@@ -1,10 +1,19 @@
 # Changelog
 
+## [v0.3.0-alpha.2] 14 Jun 2021
+
+> Warn: Breaking changes
+
+### Changes
+
+- [X] execution block is no longer scoped
+
 ## [v0.3.0-alpha.1] 14 Jun 2021
 
 > Warn: Breaking changes
 
 ### Changes
+
 - [X] Complete unit tests for the compiler
 - [X] Explicit Drop trait for Containers and Widgets
 - [X] render function for widgets
