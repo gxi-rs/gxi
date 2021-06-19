@@ -163,7 +163,7 @@ impl GxiParser {
                 };
                 if cfg!(feature = "web") {
                     update_inner = quote! {
-                        spawn_local(async move {
+                        wasm_bindgen_futures::spawn_local(async move {
                             #update_inner
                         });
                     }

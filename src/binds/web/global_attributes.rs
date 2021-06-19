@@ -1,4 +1,5 @@
 use crate::*;
+use wasm_bindgen::JsCast;
 
 pub trait GlobalAttributes: WidgetNode {
     fn get_widget_as_element(&self) -> &web_sys::Element;
