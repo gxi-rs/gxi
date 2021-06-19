@@ -12,7 +12,7 @@ gxi! {
     }
     render {
         Init ( on_init = || Msg::Fetch(true) ) [
-            Button ( class = "btn btn-dark" , on_click = || Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
+            Button ( class = "btn btn-dark" , on_click = |_| Msg::Fetch(false), inner_html = "Fetch Cat Memes" ),
             Div [
                 if state.cat_fact.is_none() {
                     Div ( class = "spinner-border text-info" )
