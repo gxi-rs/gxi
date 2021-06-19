@@ -2,6 +2,7 @@ pub use base::*;
 pub use hr::*;
 pub use iframe::*;
 pub use img::*;
+pub use input::*;
 pub use link::*;
 pub use meta::*;
 pub use script::*;

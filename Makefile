@@ -7,7 +7,7 @@ web:
 	gxib -d examples/web web $(args)
 
 serve:
-	make web args="-wrs localhost:8080"
+	make web args="-p examples/web/public -wrs localhost:8080"
 
 desktop:
 	gxib -d examples/desktop desktop $(args)
