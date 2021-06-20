@@ -22,8 +22,11 @@ gxi! {
             Div ( title = "todo" ) [
                 for todo in &state.todo_map {
                     Div ( class = "todo_task" ) [
-                        { let todo_clone = todo.clone(); },
-                        Button ( inner_html = "X", on_click = |_| Msg::RmItem(todo_clone.clone()) ),
+                        {
+                            let todo_clone = todo.clone();
+                            log!("todo {} ", &todo_clone);
+                        },
+                        Button ( inner_html = &format!("X {}", &todo), on_click = |_| Msg::RmItem(todo_clone.clone()) ),
                         P ( inner_html = &todo.clone() )
                     ]
                 }
@@ -40,13 +43,15 @@ gxi! {
                     let todo_input = document.get_element_by_id("todo_input").unwrap();
                     let value = todo_input.get_attribute("value").unwrap();
                     let mut state = get_state_mut!(state);
+                    let len = state.todo_map.len();
                     log!("adding todo {} ", value);
-                    state.todo_map.insert(value);
+                    state.todo_map.insert(format!("{}{}",value, len));
                     return Ok(ShouldRender::Yes)
                 }
             },
             Msg::RmItem(i) => {
                 let mut state = get_state_mut!(state);
+                log!("removing todo {} ", &i);
                 state.todo_map.remove(&i);
                 return Ok(ShouldRender::Yes);
             }
