@@ -20,7 +20,7 @@ gxi! {
                 Input ( on_keyup = |e| Msg::Input(e), id = "todo_input", value = "asd")
             ],
             Div ( title = "todo" ) [
-                for todo in &state.todo_map {
+                for todo in &state.todo_map/* where todo:String*/ {
                     Div ( class = "todo_task" ) [
                         {
                             let todo_clone = todo.clone();

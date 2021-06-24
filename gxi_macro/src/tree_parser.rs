@@ -53,11 +53,25 @@ impl TreeParser {
                     // component inside the loop will be the sibling of this pure node
                     let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
                     // prev_sibling
-                    let mut prev_sibling = node.clone();
+                    let mut __prev_index:u32 = 0;
+                    let mut __prev_sibling = node.clone();
                     for #loop_variable in #loop_data_source {
-                        let node = prev_sibling.clone();
+                        let (node, is_new) = init_member(__prev_sibling.clone(), InitType::Sibling, |this| Pure::new(this), false);
+                        {
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let pure = node_borrow.as_node_mut().as_any_mut().downcast_mut::<Pure>().unwrap();
+                            if is_new {
+                                pure.pure_index = __prev_index.clone();
+                            }
+                            // if pure_index != __prev_index then for loop is out of order
+                            else if pure.pure_index != __prev_index {
+                                panic!("This for loop is out of order. Make sure you maintain the correct ")
+                            }
+
+                            pure.pure_index = 2;
+                        }
                         #parsed_loop_block
-                        prev_sibling = node;
+                        __prev_sibling = node;
                     }
                     // drop any left in the tree
                     // because the for loop may run a little less than the previous run
