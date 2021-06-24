@@ -27,18 +27,8 @@ where
         }))))
     }
 
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
-    fn as_node(&self) -> &dyn Node {
-        self
-    }
-    fn as_node_mut(&mut self) -> &mut dyn Node {
-        self
-    }
+    impl_node_trait_as_any!();
+    impl_node_trait_as_node!(); 
     impl_node_getters!();
 }
 
