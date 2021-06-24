@@ -43,40 +43,32 @@ impl TreeParser {
                 let block_content = syn::group::parse_braces(&input)?.content;
                 Self::custom_parse(&block_content, InitType::Sibling, true, false)?
             };
+            // TODO: optimise for constants
+
+            // you have a hash map which stores a key:String and a weak reference pair
+            // you have a loop in which you don't know the order of access
+            // Question: how do you
+            // you have to maintain the sibling order of the chain as well
             // concatenate
             Ok(quote! {
-                // parent node which will hold all the nodes from the for loop
-                let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
-                {
-                    // this node will act as the child of pure block
-                    // because there can be only one child but many siblings
-                    // component inside the loop will be the sibling of this pure node
-                    let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
-                    // prev_sibling
-                    let mut __prev_index:u32 = 0;
-                    let mut __prev_sibling = node.clone();
-                    for #loop_variable in #loop_data_source {
-                        let (node, is_new) = init_member(__prev_sibling.clone(), InitType::Sibling, |this| Pure::new(this), false);
-                        {
-                            let mut node_borrow = node.as_ref().borrow_mut();
-                            let pure = node_borrow.as_node_mut().as_any_mut().downcast_mut::<Pure>().unwrap();
-                            if is_new {
-                                pure.pure_index = __prev_index.clone();
-                            }
-                            // if pure_index != __prev_index then for loop is out of order
-                            else if pure.pure_index != __prev_index {
-                                panic!("This for loop is out of order. Make sure you maintain the correct ")
-                            }
+                let node = {
+                    // parent node which will hold all the nodes from the for loop
+                    let (__node, __if_for_wrapper_new) = init_member(node.clone(), #init_type, |this| ForWrapper::<String>::new(this), #is_first_component);
+                    let mut __node_borrow = __node.as_ref().borrow_mut(); 
+                    let __for_wrapper = __node_borrow.as_node_mut().as_any_mut().downcast_mut::<ForWrapper<String>>().unwrap();
+                    // list of components that exist
+                    let __existing_children = Vec::<StrongNodeType>::with_capacity(__for_wrapper.children.len());
 
-                            pure.pure_index = 2;
+                    {
+                        for #loop_variable in #loop_data_source {
+                            // TODO: add a where clause for key name
+                            let (node, is_new) = __for_wrapper.init_child(__node.clone(), key.clone());
+                            #parsed_loop_block
                         }
-                        #parsed_loop_block
-                        __prev_sibling = node;
                     }
-                    // drop any left in the tree
-                    // because the for loop may run a little less than the previous run
-                    *prev_sibling.as_ref().borrow_mut().as_node_mut().get_sibling_mut() = None;
-                }
+                    drop(__node_borrow);
+                    __node
+                };
             })
         } else {
             Ok(TokenStream2::new())

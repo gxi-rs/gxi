@@ -9,8 +9,8 @@ pub struct ForWrapper<T>
 where
     T: 'static,
 {
-    /// index of current if block where 0 is default i.e no if block has been executed yet
-    pub map: HashMap<T, WeakNodeType>,
+    /// all children indexed with a key of type T
+    pub children: HashMap<T, StrongNodeType>,
     sibling: Option<StrongNodeType>,
     parent: WeakNodeType,
 }
@@ -21,7 +21,7 @@ where
 {
     fn new(parent: WeakNodeType) -> StrongNodeType {
         Rc::new(RefCell::new(GxiNodeType::Component(Box::new(Self {
-            map: HashMap::new(),
+            children: HashMap::new(),
             sibling: None,
             parent,
         }))))
@@ -41,6 +41,8 @@ where
     }
     impl_node_getters!();
 }
+
+//TODO: add types for macros
 
 const SUBST_ERR: &str =
     "can't get self_substitute of ForWrapper. Note: ForWrapper is meant for internal use only.";
@@ -72,5 +74,11 @@ impl<T> Container for ForWrapper<T> {
 
     fn as_container_mut(&mut self) -> &mut dyn Container {
         self
+    }
+}
+
+impl<T> ForWrapper<T> {
+    pub fn init_child(&self, this: StrongNodeType, key: T) -> (StrongNodeType, bool) {
+        unimplemented!();
     }
 }
