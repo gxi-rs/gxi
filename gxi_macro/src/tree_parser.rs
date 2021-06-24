@@ -54,19 +54,15 @@ impl TreeParser {
                 let node = {
                     // parent node which will hold all the nodes from the for loop
                     let (__node, __if_for_wrapper_new) = init_member(node.clone(), #init_type, |this| ForWrapper::<String>::new(this), #is_first_component);
-                    let mut __node_borrow = __node.as_ref().borrow_mut(); 
-                    let __for_wrapper = __node_borrow.as_node_mut().as_any_mut().downcast_mut::<ForWrapper<String>>().unwrap();
-                    // list of components that exist
-                    let __existing_children = Vec::<StrongNodeType>::with_capacity(__for_wrapper.children.len());
 
-                    {
-                        for #loop_variable in #loop_data_source {
-                            // TODO: add a where clause for key name
-                            let (node, is_new) = __for_wrapper.init_child(__node.clone(), key.clone());
-                            #parsed_loop_block
-                        }
+                    for #loop_variable in #loop_data_source {
+                        // TODO: add a where clause for key name
+                        let (node, is_new) = ForWrapper::<String>::init_child(__node.clone(), key.clone());
+                        #parsed_loop_block
                     }
-                    drop(__node_borrow);
+                    
+                    ForWrapper::<String>::clear_unused(__node.clone());
+
                     __node
                 };
             })
