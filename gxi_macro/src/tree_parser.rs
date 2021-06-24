@@ -53,15 +53,15 @@ impl TreeParser {
             Ok(quote! {
                 let node = {
                     // parent node which will hold all the nodes from the for loop
-                    let (__node, __if_for_wrapper_new) = init_member(node.clone(), #init_type, |this| ForWrapper::<String>::new(this), #is_first_component);
+                    let (__node, __if_for_wrapper_new) = init_member(node.clone(), #init_type, |this| ForWrapper::<Rc<String>>::new(this), #is_first_component);
 
                     for #loop_variable in #loop_data_source {
                         // TODO: add a where clause for key name
-                        let (node, is_new) = ForWrapper::<String>::init_child(__node.clone(), key.clone());
+                        let (node, is_new) = ForWrapper::<Rc<String>>::init_child(__node.clone(), key.clone());
                         #parsed_loop_block
                     }
                     
-                    ForWrapper::<String>::clear_unused(__node.clone());
+                    ForWrapper::<Rc<String>>::clear_unused(__node.clone());
 
                     __node
                 };

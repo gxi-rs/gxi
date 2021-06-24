@@ -6,12 +6,12 @@ const ENTER_KEY_CODE: u32 = 13;
 
 enum Msg {
     Input(web_sys::KeyboardEvent),
-    RmItem(String),
+    RmItem(Rc<String>),
 }
 
 gxi! {
     pub Todo {
-        todo_map : HashSet<String>
+        todo_map : HashSet<Rc<String>>
     }
     render {
         Div [
@@ -45,7 +45,7 @@ gxi! {
                     let mut state = get_state_mut!(state);
                     let len = state.todo_map.len();
                     log!("adding todo {} ", value);
-                    state.todo_map.insert(format!("{}{}",value, len));
+                    state.todo_map.insert(Rc::new(format!("{}{}",value, len)));
                     return Ok(ShouldRender::Yes)
                 }
             },
