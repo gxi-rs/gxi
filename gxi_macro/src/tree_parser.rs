@@ -1,4 +1,3 @@
-use quote::__private::TokenStream;
 use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
@@ -54,13 +53,33 @@ impl TreeParser {
 
             let is_data_source_linear = is_data_source_linear(&loop_data_source);
 
-            let (key, key_type, linear_key_pre_init, linear_key_mut) = if is_data_source_linear {
-                (
-                    quote!(__for_index),
-                    quote!(usize),
-                    quote!(let mut __for_index = 0;),
-                    quote!(__for_index += 1;),
-                )
+            return if is_data_source_linear {
+                // parse the block with InitType::Sibling
+                let parsed_loop_block = {
+                    let block_content = syn::group::parse_braces(&input)?.content;
+                    Self::custom_parse(&block_content, InitType::Sibling, true, false)?
+                };
+
+                Ok(quote! {
+                    // parent node which will hold all the nodes from the for loop
+                    let (node, ..) = init_member(node.clone(), #init_type, |this| Pure::new(this), #is_first_component);
+                    {
+                        // this node will act as the child of pure block
+                        // because there can be only one child but many siblings
+                        // component inside the loop will be the sibling of this pure node
+                        let (node, ..) = init_member(node.clone(), InitType::Child, |this| Pure::new(this), false);
+                        // prev_sibling
+                        let mut prev_sibling = node.clone();
+                        for #loop_variable in #loop_data_source {
+                            let node = prev_sibling.clone();
+                            #parsed_loop_block
+                            prev_sibling = node;
+                        }
+                        // drop any left in the tree
+                        // because the for loop may run a little less than the previous run
+                        *prev_sibling.as_ref().borrow_mut().as_node_mut().get_sibling_mut() = None;
+                    }
+                })
             } else {
                 // parse where clause
                 // where var:type
@@ -81,40 +100,31 @@ Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
                 let key = input.parse::<syn::Ident>()?;
                 input.parse::<syn::Token![:]>()?;
                 let key_type = input.parse::<syn::Type>()?;
-                (
-                    key.into_token_stream(),
-                    key_type.into_token_stream(),
-                    TokenStream::new(),
-                    TokenStream::new(),
-                )
-            };
 
-            // parse the block with InitType::Sibling
-            let parsed_loop_block = {
-                let block_content = syn::group::parse_braces(&input)?.content;
-                Self::custom_parse(&block_content, InitType::Sibling, true, false)?
-            };
-
-            Ok(quote! {
-                let node = {
-                    // parent node which will hold all the nodes from the for loop
-                    let (__node, ..) = init_member(node.clone(), #init_type, |this| ForWrapper::<#key_type>::new(this), #is_first_component);
-
-                    #linear_key_pre_init
-
-                    for #loop_variable in #loop_data_source {
-
-                        // TODO: add a where clause for key name
-                        let (node, is_new) = ForWrapper::<#key_type>::init_child(__node.clone(), #key.clone());
-                        #parsed_loop_block
-                        #linear_key_mut
-                    }
-
-                    ForWrapper::<#key_type>::clear_unused(__node.clone());
-
-                    __node
+                // parse the block with InitType::Sibling
+                let parsed_loop_block = {
+                    let block_content = syn::group::parse_braces(&input)?.content;
+                    Self::custom_parse(&block_content, InitType::Sibling, true, false)?
                 };
-            })
+
+                Ok(quote! {
+                    let node = {
+                        // parent node which will hold all the nodes from the for loop
+                        let (__node, ..) = init_member(node.clone(), #init_type, |this| ForWrapper::<#key_type>::new(this), #is_first_component);
+
+                        for #loop_variable in #loop_data_source {
+
+                            // TODO: add a where clause for key name
+                            let (node, is_new) = ForWrapper::<#key_type>::init_child(__node.clone(), #key.clone());
+                            #parsed_loop_block
+                        }
+
+                        ForWrapper::<#key_type>::clear_unused(__node.clone());
+
+                        __node
+                    };
+                })
+            };
         } else {
             Ok(TokenStream2::new())
         }
