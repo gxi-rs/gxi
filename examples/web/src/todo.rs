@@ -20,14 +20,14 @@ gxi! {
                 Input ( on_keyup = |e| Msg::Input(e), id = "todo_input", value = "asd")
             ],
             Div ( title = "todo" ) [
-                for key in &state.todo_map/* where todo:String*/ {
+                for todo in &state.todo_map where todo:Rc<String> {
                     Div ( class = "todo_task" ) [
                         {
-                            let todo_clone = key.clone();
+                            let todo_clone = todo.clone();
                             log!("todo {} ", &todo_clone);
                         },
-                        Button ( inner_html = &format!("X {}", &key), on_click = |_| Msg::RmItem(todo_clone.clone()) ),
-                        P ( inner_html = &key.clone() )
+                        Button ( inner_html = "X", on_click = |_| Msg::RmItem(todo_clone.clone()) ),
+                        P ( inner_html = &todo.clone() )
                     ]
                 }
             ],

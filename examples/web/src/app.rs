@@ -14,9 +14,11 @@ gxi! {
             ],
             Body ( style = r#"background-color : #121212;"# ) [
                 Div [
-                    A ( href = "https://webbuddy360.com" ) [
-                        H1 ( inner_html = "hello world" ),
-                    ],
+                    for x in 0..2 {
+                        A ( href = "https://webbuddy360.com" ) [
+                            H1 ( inner_html = &format!("hello world {}", x) ),
+                        ]
+                    },
                     Counter,
                     CatFact
                 ]

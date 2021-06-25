@@ -1,8 +1,9 @@
+use quote::__private::TokenStream;
 use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
-use syn::Result;
+use syn::{Expr, Result};
 
 use crate::InitType;
 
@@ -26,6 +27,18 @@ impl Parse for TreeParser {
     }
 }
 
+/// check if the data source has linear data
+/// i.e it can't have any unexpected values in between
+/// eg, 0..n can't have any new values inserted at an index say 2
+/// variable a can have an un-ordered changing iter
+fn is_data_source_linear(data_source: &Expr) -> bool {
+    match data_source {
+        Expr::Array(_) | Expr::Range(_) | Expr::Repeat(_) => true,
+        Expr::Paren(paren) => is_data_source_linear(&paren.expr),
+        _ => false,
+    }
+}
+
 impl TreeParser {
     /// Parses the `for` block as defined in the [Looping Section][../gxi_c_macro/macro.gxi_c_macro.html#Looping] of the [gxi_c_macro macro](../gxi_c_macro/macro.gxi_c_macro.html).
     fn parse_for_block(
@@ -38,30 +51,66 @@ impl TreeParser {
             let loop_variable = input.parse::<syn::Expr>()?;
             input.parse::<syn::token::In>()?;
             let loop_data_source = input.parse::<syn::Expr>()?;
+
+            let is_data_source_linear = is_data_source_linear(&loop_data_source);
+
+            let (key, key_type, linear_key_pre_init, linear_key_mut) = if is_data_source_linear {
+                (
+                    quote!(__for_index),
+                    quote!(usize),
+                    quote!(let mut __for_index = 0;),
+                    quote!(__for_index += 1;),
+                )
+            } else {
+                // parse where clause
+                // where var:type
+                if input.parse::<syn::token::Where>().is_err() {
+                    return Err(syn::Error::new(
+                        input.span().unwrap().into(),
+                        // TODO: add docs link
+                        format!(
+                            r#"expected a where clause here.
+Since {loop_data_source} can change in order, you have to provide a key for the pattern.
+Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
+                            loop_data_source = loop_data_source.to_token_stream().to_string(),
+                            loop_variable = loop_variable.to_token_stream().to_string()
+                        ),
+                    ));
+                }
+
+                let key = input.parse::<syn::Ident>()?;
+                input.parse::<syn::Token![:]>()?;
+                let key_type = input.parse::<syn::Type>()?;
+                (
+                    key.into_token_stream(),
+                    key_type.into_token_stream(),
+                    TokenStream::new(),
+                    TokenStream::new(),
+                )
+            };
+
             // parse the block with InitType::Sibling
             let parsed_loop_block = {
                 let block_content = syn::group::parse_braces(&input)?.content;
                 Self::custom_parse(&block_content, InitType::Sibling, true, false)?
             };
-            // TODO: optimise for constants
 
-            // you have a hash map which stores a key:String and a weak reference pair
-            // you have a loop in which you don't know the order of access
-            // Question: how do you
-            // you have to maintain the sibling order of the chain as well
-            // concatenate
             Ok(quote! {
                 let node = {
                     // parent node which will hold all the nodes from the for loop
-                    let (__node, __if_for_wrapper_new) = init_member(node.clone(), #init_type, |this| ForWrapper::<Rc<String>>::new(this), #is_first_component);
+                    let (__node, ..) = init_member(node.clone(), #init_type, |this| ForWrapper::<#key_type>::new(this), #is_first_component);
+
+                    #linear_key_pre_init
 
                     for #loop_variable in #loop_data_source {
+
                         // TODO: add a where clause for key name
-                        let (node, is_new) = ForWrapper::<Rc<String>>::init_child(__node.clone(), key.clone());
+                        let (node, is_new) = ForWrapper::<#key_type>::init_child(__node.clone(), #key.clone());
                         #parsed_loop_block
+                        #linear_key_mut
                     }
-                    
-                    ForWrapper::<Rc<String>>::clear_unused(__node.clone());
+
+                    ForWrapper::<#key_type>::clear_unused(__node.clone());
 
                     __node
                 };
