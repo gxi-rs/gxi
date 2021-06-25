@@ -1,10 +1,11 @@
-mod common;
 pub use common::*;
 pub use gxi::*;
 
+mod common;
 gxi! {
     pub App {
-        limit : u32 = 0
+        limit : u32 = 0,
+        names: Vec<Rc<String>> = vec![Rc::new(String::from("A")), Rc::new(String::from("B"))]
     }
     render {
         crate::common::Comp::from_class_and_id("h1","12") [
@@ -19,6 +20,9 @@ gxi! {
                         Comp [
                             { println!("{}", x); }
                         ]
+                    },
+                    for x in &state.names where x:Rc<String> {
+                        Comp
                     }
                 ],
                 { println!("true"); }
@@ -57,6 +61,23 @@ fn traverse() {
                         let node = check_sibling_type::<Comp>(node, "Comp");
 
                         no_sibling(node);
+                    }
+                    // for loop 2
+                    let node =
+                        check_sibling_type::<ForWrapper<Rc<String>>>(node.clone(), "ForWrapper");
+                    {
+                        let node_borrow = node.as_ref().borrow();
+                        let node = node_borrow
+                            .as_node()
+                            .as_any()
+                            .downcast_ref::<ForWrapper<Rc<String>>>()
+                            .unwrap();
+
+                        for (.., (child, exists)) in &node.children {
+                            let node = check_child_type::<Comp>(child.clone(), "Comp");
+                            no_sibling(node);
+                            assert_eq!(exists, &false);
+                        }
                     }
                     no_sibling(node);
                 }

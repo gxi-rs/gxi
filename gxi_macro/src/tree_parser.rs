@@ -104,7 +104,7 @@ Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
                 // parse the block with InitType::Sibling
                 let parsed_loop_block = {
                     let block_content = syn::group::parse_braces(&input)?.content;
-                    Self::custom_parse(&block_content, InitType::Sibling, true, false)?
+                    Self::custom_parse(&block_content, InitType::Child, true, false)?
                 };
 
                 Ok(quote! {
