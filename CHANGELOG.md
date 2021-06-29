@@ -7,6 +7,9 @@
 ### Changes
 
 - [X] execution block is no longer scoped
+- [X] for loop with now takes keys for non-linear data sources
+- [X] constructor support
+- [X] fixed web-sys export
 
 ## [v0.3.0-alpha.1] 14 Jun 2021
 

@@ -20,6 +20,3 @@ Cross-Platform Native Widget based Component System in Rust
 
 ### Completed ✓
 
-- [X] for loop with keys
-- [X] Add support for constructor args
-- [X] correctly export web-sys
