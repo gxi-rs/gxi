@@ -39,13 +39,17 @@ gxi! {
         match msg {
             Msg::Input(e) => {
                 if e.key_code() == ENTER_KEY_CODE {
-                    /*let mut state = get_state_mut!(state);
-                    let input_field = unwrap_node!(state.input_field as Input);
-                    let value = input_field.get_attribute("value").unwrap();
-                    let len = state.todo_map.len();
-                    log!("adding todo {} ", value);
-                    state.todo_map.insert(Rc::new(format!("{}{}",value, len)));
-                    return Ok(ShouldRender::Yes)*/
+                    let mut state = get_state_mut!(state);
+                    if let Some(input_field) = &state.input_field {
+                        let node = input_field.upgrade().unwrap();
+                        let node = node.as_ref().borrow();
+                        let input_field = node.as_node().as_any().downcast_ref::<Input>().unwrap();
+                        let value = input_field.get_attribute("value").unwrap();
+                        let len = state.todo_map.len();
+                        log!("adding todo {} ", value);
+                        state.todo_map.insert(Rc::new(format!("{}{}",value, len)));
+                        return Ok(ShouldRender::Yes)
+                    }
                 }
             },
             Msg::RmItem(i) => {
