@@ -12,7 +12,7 @@ enum Msg {
 gxi! {
     pub Todo {
         todo_map : HashSet<Rc<String>>,
-        input_field : Option<>
+        input_field : Option<WeakNodeType>
     }
     render {
         Div [
@@ -39,13 +39,13 @@ gxi! {
         match msg {
             Msg::Input(e) => {
                 if e.key_code() == ENTER_KEY_CODE {
-                    let mut state = get_state_mut!(state);
+                    /*let mut state = get_state_mut!(state);
                     let input_field = unwrap_node!(state.input_field as Input);
                     let value = input_field.get_attribute("value").unwrap();
                     let len = state.todo_map.len();
                     log!("adding todo {} ", value);
                     state.todo_map.insert(Rc::new(format!("{}{}",value, len)));
-                    return Ok(ShouldRender::Yes)
+                    return Ok(ShouldRender::Yes)*/
                 }
             },
             Msg::RmItem(i) => {

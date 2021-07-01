@@ -262,24 +262,33 @@ Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
             //parse properties enclosed in parenthesis
             if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
                 // loop till every thing inside parenthesis is parsed
-                while let Ok(syn::ExprAssign { left, right, .. }) =
-                    content.parse::<syn::ExprAssign>()
-                {
-                    // TODO: parse enum variants without data to be static_props
-                    // push closure and literals to static_props and others to dynamic_props
-                    match *right {
-                        syn::Expr::Closure(closure) => {
-                            let closure_body = closure.body;
-                            let closure_args = closure.inputs;
-                            static_props.push(quote! {{
+                loop {
+                    // ref
+                    if content.parse::<syn::token::Ref>().is_ok() {
+                        content.parse::<syn::token::Eq>()?;
+                        let state_expr = content.parse::<syn::Expr>()?;
+                        static_props.push(quote! {
+                            #state_expr = Some(Rc::downgrade(&node));
+                        });
+                    } else if let Ok(syn::ExprAssign { left, right, .. }) =
+                        content.parse::<syn::ExprAssign>()
+                    {
+                        // TODO: parse enum variants without data to be static_props
+                        // push closure and literals to static_props and others to dynamic_props
+                        match *right {
+                            syn::Expr::Closure(closure) => {
+                                let closure_body = closure.body;
+                                let closure_args = closure.inputs;
+                                static_props.push(quote! {{
                                         let state_clone = Rc::clone(&this);
-                                        node.#left(move |#closure_args| Self::update(state_clone.clone(),#closure_body) );
+                                        node_borrow.#left(move |#closure_args| Self::update(state_clone.clone(),#closure_body) );
                                     }});
+                            }
+                            syn::Expr::Lit(literal) => {
+                                static_props.push(quote! { node_borrow.#left(#literal); })
+                            }
+                            _ => dynamic_props.push(quote! { node_borrow.#left(#right); }),
                         }
-                        syn::Expr::Lit(literal) => {
-                            static_props.push(quote! { node.#left(#literal); })
-                        }
-                        _ => dynamic_props.push(quote! { node.#left(#right); }),
                     }
                     // if stream is empty then break
                     if content.is_empty() {
@@ -299,8 +308,8 @@ Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
                         TokenStream2::new()
                     } else {
                         let mut block = quote! {
-                            let mut node = node.as_ref().borrow_mut();
-                            let node = node.as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
+                            let mut node_borrow = node.as_ref().borrow_mut();
+                            let node_borrow = node_borrow.as_node_mut().as_any_mut().downcast_mut::<#name>().unwrap();
                         };
                         if !static_props.is_empty() {
                             block = quote! {

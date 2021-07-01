@@ -222,7 +222,7 @@ impl Parse for GxiParser {
                                     node.mark_clean();
                                     node.state.clone()
                                 };
-                                let state = get_state!(state);
+                                let mut state = get_state_mut!(state);
                                 #content
                             }
                         };
