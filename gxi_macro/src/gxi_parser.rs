@@ -41,7 +41,7 @@ impl GxiParser {
                 quote!(Default::default())
             };
 
-            state_struct_lines.push(quote!( #field_name : #field_type ));
+            state_struct_lines.push(quote!( #viz #field_name : #field_type ));
             state_init_lines.push(quote!( #field_name : #field_value ));
 
             match viz {
@@ -312,7 +312,7 @@ impl Parse for GxiParser {
                 }
 
                 #viz struct #name {
-                    state: State,
+                    pub state: State,
                     #channel_sender_struct_field
                     pub parent: WeakNodeType,
                     pub self_substitute : Option<WeakNodeType>,
