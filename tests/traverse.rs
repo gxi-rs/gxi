@@ -5,7 +5,8 @@ mod common;
 gxi! {
     pub App {
         limit : u32 = 0,
-        names: Vec<Rc<String>> = vec![Rc::new(String::from("A")), Rc::new(String::from("B"))]
+        names: Vec<Rc<String>> = vec![Rc::new(String::from("A")), Rc::new(String::from("B"))],
+        comp_ref : Option<WeakNodeType>
     }
     render {
         crate::common::Comp::from_class_and_id("h1","12") [
@@ -14,7 +15,7 @@ gxi! {
                 { println!("true"); },
                 Comp::from_class("h1") ( id = "asd" ) [
                     Comp::from_class("1"),
-                    Comp ( id = "1", class = "12" ),
+                    Comp ( ref = state.comp_ref, id = "1", class = "12" ),
                     for x in 0..2 {
                         { println!("{}",x); },
                         Comp [
@@ -44,7 +45,7 @@ fn traverse() {
     App::render(app.clone());
     //start traversing app
     {
-        let node = check_child_type::<Comp>(app, "Comp");
+        let node = check_child_type::<Comp>(app.clone(), "Comp");
         {
             let node = check_substs_child_type::<Pure>(node.clone(), "Pure");
             {
@@ -87,5 +88,16 @@ fn traverse() {
             no_sibling(node);
         }
         no_sibling(node);
+    }
+    // ref test
+    {
+        let app = app.as_ref().borrow();
+        let app = app.as_node().as_any().downcast_ref::<App>().unwrap();
+        let state = app.state.as_ref().borrow();
+        let comp_ref = state.comp_ref.as_ref().unwrap();
+        unwrap_weak_node!(comp_ref as Comp);
+        let comp_state = comp_ref.state.as_ref().borrow();
+        assert_eq!(comp_state.class, "12");
+        assert_eq!(comp_state.id, "1");
     }
 }
