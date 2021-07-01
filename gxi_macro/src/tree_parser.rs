@@ -265,6 +265,7 @@ Eg. for {loop_variable} in {loop_data_source} where {loop_variable}:String"#,
                 while let Ok(syn::ExprAssign { left, right, .. }) =
                     content.parse::<syn::ExprAssign>()
                 {
+                    // TODO: parse enum variants without data to be static_props
                     // push closure and literals to static_props and others to dynamic_props
                     match *right {
                         syn::Expr::Closure(closure) => {

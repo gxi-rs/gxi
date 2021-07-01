@@ -11,13 +11,14 @@ enum Msg {
 
 gxi! {
     pub Todo {
-        todo_map : HashSet<Rc<String>>
+        todo_map : HashSet<Rc<String>>,
+        input_field : Option<>
     }
     render {
         Div [
             H1 ( inner_html = "Todo app" ),
             Div [
-                Input ( on_keyup = |e| Msg::Input(e), id = "todo_input", value = "asd")
+                Input ( ref = state.input_field, on_keyup = |e| Msg::Input(e), id = "todo_input", value = "asd")
             ],
             Div ( title = "todo" ) [
                 for todo in &state.todo_map where todo:Rc<String> {
@@ -38,11 +39,9 @@ gxi! {
         match msg {
             Msg::Input(e) => {
                 if e.key_code() == ENTER_KEY_CODE {
-                    let window = web_sys::window().unwrap();
-                    let document = window.document().unwrap();
-                    let todo_input = document.get_element_by_id("todo_input").unwrap();
-                    let value = todo_input.get_attribute("value").unwrap();
                     let mut state = get_state_mut!(state);
+                    let input_field = unwrap_node!(state.input_field as Input);
+                    let value = input_field.get_attribute("value").unwrap();
                     let len = state.todo_map.len();
                     log!("adding todo {} ", value);
                     state.todo_map.insert(Rc::new(format!("{}{}",value, len)));
