@@ -1,13 +1,18 @@
 # Changelog
 
-## [v0.3.0-alpha.2] 14 Jun 2021
+## [v0.3.0-alpha.3] 14 Jun 2021
 
-> Warn: Breaking changes
+### Changes
+
+- [X] reference nodes using `ref`
+- [X] struct fields follow `viz`
+
+## [v0.3.0-alpha.2] 14 Jun 2021
 
 ### Changes
 
 - [X] execution block is no longer scoped
-- [X] for loop with now takes keys for non-linear data sources
+- [X] for loop will now take keys for non-linear data sources
 - [X] constructor support
 - [X] fixed web-sys export
 

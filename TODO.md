@@ -11,6 +11,7 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Add support for functions that don't take any params
 - [ ] Add web event handling
 - [ ] deref web
+- [ ] deref state for components
 
 ## Others
 
