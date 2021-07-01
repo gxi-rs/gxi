@@ -41,9 +41,7 @@ gxi! {
                 if e.key_code() == ENTER_KEY_CODE {
                     let mut state = get_state_mut!(state);
                     if let Some(input_field) = &state.input_field {
-                        let node = input_field.upgrade().unwrap();
-                        let node = node.as_ref().borrow();
-                        let input_field = node.as_node().as_any().downcast_ref::<Input>().unwrap();
+                        unwrap_weak_node!(input_field as Input);
                         let value = input_field.get_attribute("value").unwrap();
                         let len = state.todo_map.len();
                         log!("adding todo {} ", value);
