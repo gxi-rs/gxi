@@ -1,76 +1,31 @@
 mod comp {
-    use std::any::Any;
     use std::cell::RefCell;
     use std::rc::Rc;
 
-    use gxi::{Node, VComponent, VNode, VNodeType};
+    use gxi::{GxiComponent, Node};
 
     /// App is a component which is cloneable
-    #[derive(Clone, Default)]
+    #[derive(Clone, Default, GxiComponent)]
     pub struct Comp {
-        state: Rc<RefCell<AppState>>,
         node: Rc<RefCell<Node>>,
-    }
-
-    #[derive(Default)]
-    struct AppState {}
-
-    impl VNode for Comp {
-        fn new() -> Self { Self::default() }
-
-        fn into_vnode_type(self) -> VNodeType where Self: Sized {
-            VNodeType::Component(Box::from(self))
-        }
-    }
-
-    impl AsRef<dyn VNode> for Comp {
-        fn as_ref(&self) -> &dyn VNode {
-            self
-        }
-    }
-
-    impl AsMut<dyn VNode> for Comp {
-        fn as_mut(&mut self) -> &mut dyn VNode {
-            self
-        }
-    }
-
-    impl AsRef<dyn Any> for Comp {
-        fn as_ref(&self) -> &dyn Any {
-            self
-        }
-    }
-
-    impl AsMut<dyn Any> for Comp {
-        fn as_mut(&mut self) -> &mut dyn Any {
-            self
-        }
-    }
-
-    impl VComponent for Comp {
-        fn get_node_ref(&self) -> &RefCell<Node> {
-            self.node.as_ref()
-        }
     }
 }
 
-
 mod app {
-    use std::any::Any;
     use std::cell::RefCell;
-    use std::ops::{Deref, DerefMut};
+    use std::ops::DerefMut;
     use std::rc::Rc;
 
-    use gxi::{init_member, InitType, Node, VComponent, VNode, VNodeType};
+    use gxi::{init_member, GxiComponent, InitType, Node, VNode};
 
     use crate::comp::Comp;
 
-    enum Msg {
-        FOO
+    pub enum Msg {
+        FOO,
     }
 
     /// App is a component which is cloneable
-    #[derive(Clone, Default)]
+    #[derive(Clone, Default, GxiComponent)]
     pub struct App {
         state: Rc<RefCell<AppState>>,
         node: Rc<RefCell<Node>>,
@@ -103,115 +58,23 @@ mod app {
             self.name = name
         }
     }
-
-    // impl deref for app state
-    impl Deref for App {
-        type Target = RefCell<AppState>;
-
-        fn deref(&self) -> &Self::Target {
-            self.state.as_ref()
-        }
-    }
-
-    impl VNode for App {
-        fn new() -> Self { Self::default() }
-
-        fn into_vnode_type(self) -> VNodeType where Self: Sized {
-            VNodeType::Component(Box::from(self))
-        }
-    }
-
-    impl AsRef<dyn VNode> for App {
-        fn as_ref(&self) -> &dyn VNode {
-            self
-        }
-    }
-
-    impl AsMut<dyn VNode> for App {
-        fn as_mut(&mut self) -> &mut dyn VNode {
-            self
-        }
-    }
-
-    impl AsRef<dyn Any> for App {
-        fn as_ref(&self) -> &dyn Any {
-            self
-        }
-    }
-
-    impl AsMut<dyn Any> for App {
-        fn as_mut(&mut self) -> &mut dyn Any {
-            self
-        }
-    }
-
-
-    impl VComponent for App {
-        fn get_node_ref(&self) -> &RefCell<Node> {
-            self.node.as_ref()
-        }
-    }
 }
 
 mod text {
-    use std::any::Any;
-
-    use gxi::{Node, VNode, VNodeType, VWidget};
+    use gxi::{GxiWidget, Node};
 
     /// App is a component which is cloneable
-    #[derive(Default)]
+    #[derive(Default, GxiWidget)]
     pub struct Text {
         node: Node,
-    }
-
-    impl VNode for Text {
-        fn new() -> Self { Self::default() }
-
-        fn into_vnode_type(self) -> VNodeType where Self: Sized {
-            VNodeType::Widget(Box::from(self))
-        }
-    }
-
-    impl AsRef<dyn VNode> for Text {
-        fn as_ref(&self) -> &dyn VNode {
-            self
-        }
-    }
-
-    impl AsMut<dyn VNode> for Text {
-        fn as_mut(&mut self) -> &mut dyn VNode {
-            self
-        }
-    }
-
-    impl AsRef<dyn Any> for Text {
-        fn as_ref(&self) -> &dyn Any {
-            self
-        }
-    }
-
-    impl AsMut<dyn Any> for Text {
-        fn as_mut(&mut self) -> &mut dyn Any {
-            self
-        }
-    }
-
-
-    impl VWidget for Text {
-        fn get_node(&self) -> &Node {
-            &self.node
-        }
-
-        fn get_node_mut(&mut self) -> &mut Node {
-            &mut self.node
-        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::app::App;
     use gxi::VNode;
+
+    use crate::app::App;
 
     #[test]
     fn main() {
