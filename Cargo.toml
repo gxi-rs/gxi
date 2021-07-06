@@ -23,7 +23,8 @@ keywords = [
 [workspace]
 members = [
     "gxi-derive",
-    "gxi-web"
+    "gxi-web",
+    "gxi-web/example"
 ]
 
 [dependencies]
