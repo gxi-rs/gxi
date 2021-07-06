@@ -3,8 +3,8 @@ use std::ops::DerefMut;
 use std::rc::Rc;
 
 use common::Comp;
-use gxi::{init_member, InitType, Node};
 use gxi::VNode;
+use gxi::{init_member, InitType, Node, Renderable};
 
 mod common;
 
@@ -24,8 +24,8 @@ pub struct AppState {
     name: String,
 }
 
-impl App {
-    pub fn render(&mut self) {
+impl Renderable for App {
+    fn render(&mut self) {
         let mut node_mut_borrow = self.node.as_ref().borrow_mut();
         let mut _state = self.state.borrow_mut();
         let _node = init_member(node_mut_borrow.deref_mut(), InitType::Child, Comp::new);
@@ -49,7 +49,7 @@ impl AppState {
 
 #[cfg(test)]
 mod tests {
-    use gxi::VNode;
+    use gxi::{Renderable, VNode};
 
     use crate::App;
 
