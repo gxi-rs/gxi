@@ -22,8 +22,9 @@ keywords = [
 
 [workspace]
 members = [
-    "gxi_derive"
+    "gxi-derive",
+    "gxi-web"
 ]
 
 [dependencies]
-gxi_derive = { path = "./gxi_derive", version = "0.1.0" }
+gxi-derive = { path = "gxi-derive", version = "0.1.0" }
