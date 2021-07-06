@@ -1,3 +1,5 @@
 pub use gxi::*;
+pub use web_widget::*;
 
-mod widget;
+mod web_element;
+mod web_widget;
