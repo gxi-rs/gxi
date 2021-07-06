@@ -1,4 +1,4 @@
-pub fn run<C: gxi::VNode + 'static>() {
-    let node = C::new();
-    // node.render()
+pub fn run<C: gxi::VNode + gxi::Renderable + 'static>() {
+    let mut node = C::new();
+    node.render();
 }

@@ -3,8 +3,8 @@ use std::ops::DerefMut;
 use std::rc::Rc;
 
 use common::Comp;
-use gxi::VNode;
 use gxi::{init_member, InitType, Node};
+use gxi::VNode;
 
 mod common;
 
