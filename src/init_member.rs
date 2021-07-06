@@ -7,7 +7,11 @@ pub enum InitType {
     Sibling,
 }
 
-pub fn init_member<C: FnOnce() -> N, N: VNode>(tree: &mut Node, init_type: InitType, init: C) -> &mut N {
+pub fn init_member<C: FnOnce() -> N, N: VNode>(
+    tree: &mut Node,
+    init_type: InitType,
+    init: C,
+) -> &mut N {
     match init_type {
         InitType::Child => {
             let t = tree.child.get_or_insert_with(|| init().into_vnode_type());

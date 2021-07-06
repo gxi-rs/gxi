@@ -13,7 +13,7 @@ impl Deref for VNodeType {
     fn deref(&self) -> &Self::Target {
         match self {
             VNodeType::Component(node) => node.deref().as_ref(),
-            VNodeType::Widget(node) => node.deref().as_ref()
+            VNodeType::Widget(node) => node.deref().as_ref(),
         }
     }
 }
@@ -22,7 +22,7 @@ impl DerefMut for VNodeType {
     fn deref_mut(&mut self) -> &mut Self::Target {
         match self {
             VNodeType::Component(node) => node.deref_mut().as_mut(),
-            VNodeType::Widget(node) => node.deref_mut().as_mut()
+            VNodeType::Widget(node) => node.deref_mut().as_mut(),
         }
     }
 }

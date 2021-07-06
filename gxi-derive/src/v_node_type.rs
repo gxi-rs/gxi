@@ -1,5 +1,5 @@
+use quote::{quote, TokenStreamExt, ToTokens};
 use quote::__private::TokenStream;
-use quote::{quote, ToTokens, TokenStreamExt};
 
 pub enum VNodeType {
     Component,

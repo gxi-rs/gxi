@@ -5,8 +5,12 @@ use crate::{Node, VNodeType};
 
 /// anything that can fuck
 pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
-    fn new() -> Self where Self: Sized;
-    fn into_vnode_type(self) -> VNodeType where Self: Sized;
+    fn new() -> Self
+        where
+            Self: Sized;
+    fn into_vnode_type(self) -> VNodeType
+        where
+            Self: Sized;
 }
 
 /// anything that can fuck

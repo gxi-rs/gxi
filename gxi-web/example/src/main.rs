@@ -1,5 +1,5 @@
 mod app;
 
 fn main() {
-    println!("Hello, world!");
+    gxi_web::run::<app::App>();
 }

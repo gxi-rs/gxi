@@ -4,11 +4,12 @@
 
 *Zero-Cost Cross-Platform Native Widget based Component System in Rust*
 
-Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html), gxi compiles the component tree to optimized
-n-binary tree without any [virtual dom](https://reactjs.org/docs/faq-internals.html)
-or [diffing algorithm](https://reactjs.org/docs/reconciliation.html). Making the component system `zero-cost`. Therefore,
-the components are `highly optimized`, ready to meet the needs of every project while maintaining the standard
-features of frameworks like `React`. Built-in `async support` provides `zero-cost` abstractions to rust futures.
+Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html), gxi compiles the component tree to
+optimized n-binary tree without any [virtual dom](https://reactjs.org/docs/faq-internals.html)
+or [diffing algorithm](https://reactjs.org/docs/reconciliation.html). Making the component system `zero-cost`.
+Therefore, the components are `highly optimized`, ready to meet the needs of every project while maintaining the
+standard features of frameworks like `React`. Built-in `async support` provides `zero-cost` abstractions to rust
+futures.
 
 Since the framework is a compiler, therefore, it allows mixing of platform-dependent and independent components, i.e the
 framework provides components like `div`, `h1` (platform dependent) and [React Native](https://reactnative.dev/) like

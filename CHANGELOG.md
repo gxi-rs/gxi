@@ -41,8 +41,7 @@
 - `if` `for` `execution` blocks now require a comma separation
 - reduced if code size
 - performance increase
-- drastically decreased code size by moving implementations from macro
-to trait functions
+- drastically decreased code size by moving implementations from macro to trait functions
 - InitType no longer maintains a pure_index
 - Reduced effective use of `Pure` component
 - State Block is passed by `gxi!` macro instead of `macro_impl`
@@ -56,12 +55,15 @@ to trait functions
 ## [v0.1.3] 5 May 2021
 
 ### Added
+
 - `get_state!(state)` macro to get state
 - Optimised state and reduced code size
 - `async` update branch
 
 ### Removed
+
 - `#[update(Name)]` macro removed
 
 ### Others
+
 - `optimised` async routine code size
