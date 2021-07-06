@@ -40,7 +40,7 @@ mod app {
         pub fn render(&mut self) {
             let mut node_mut_borrow = self.node.as_ref().borrow_mut();
             let mut _state = self.state.borrow_mut();
-            let _node = init_member(node_mut_borrow.deref_mut(), InitType::Child, || Comp::new());
+            let _node = init_member(node_mut_borrow.deref_mut(), InitType::Child, Comp::new);
         }
     }
 
