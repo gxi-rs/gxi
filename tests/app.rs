@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use common::Comp;
 use gxi::VNode;
-use gxi::{init_member, GxiComponent, InitType, Node};
+use gxi::{init_member, InitType, Node};
 
 mod common;
 
@@ -13,7 +13,7 @@ pub enum Msg {
 }
 
 /// App is a component which is cloneable
-#[derive(Clone, Default, GxiComponent)]
+#[derive(Clone, Default, gxi::Component)]
 pub struct App {
     state: Rc<RefCell<AppState>>,
     node: Rc<RefCell<Node>>,

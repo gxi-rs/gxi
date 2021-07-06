@@ -1,7 +1,5 @@
-use gxi::{GxiWidget, Node};
-
 /// App is a component which is cloneable
-#[derive(Default, GxiWidget)]
+#[derive(Default, gxi::Widget)]
 pub struct Text {
-    node: Node,
+    node: gxi::Node,
 }
