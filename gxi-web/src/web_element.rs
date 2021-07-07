@@ -4,7 +4,15 @@ use gxi::NativeWidget;
 
 pub struct WebElement(web_sys::Element);
 
-impl NativeWidget for WebElement {}
+impl NativeWidget for WebElement {
+    fn append(&mut self, widget: &dyn NativeWidget) {
+        todo!()
+    }
+
+    fn move_to_index(&mut self, widget: &dyn NativeWidget, index: usize) {
+        todo!()
+    }
+}
 
 impl Default for WebElement {
     fn default() -> Self {
