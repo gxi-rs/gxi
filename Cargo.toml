@@ -20,12 +20,18 @@ keywords = [
     "framework"
 ]
 
+[features]
+web = ["gxi-derive/web", "web-sys"]
+desktop = ["gxi-derive/desktop"]
+default = ["gxi-derive/default"]
+
 [workspace]
 members = [
     "gxi-derive",
-    "gxi-web",
-    "gxi-web/example"
+    "examples/web"
 ]
 
 [dependencies]
-gxi-derive = { path = "gxi-derive", version = "0.1.0" }
+gxi-derive = { path = "gxi-derive", version = "0.1.0", optional = true }
+# web
+web-sys = { version = "0.3.51", features = ["Element", "Window", "Document"], optional = true }

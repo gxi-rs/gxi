@@ -6,6 +6,11 @@ edition = "2018"
 [lib]
 proc-macro = true
 
+[features]
+web = []
+desktop = []
+default = []
+
 [dependencies]
 syn = "1.0.73"
 quote = "1.0.9"

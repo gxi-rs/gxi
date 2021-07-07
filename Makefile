@@ -4,10 +4,10 @@ doc:
 	cargo watch -- cargo doc --features web $(args)
 
 web:
-	gxib -d gxi-web/example web $(args)
+	gxib -d examples/web web $(args)
 
 serve:
-	make web args="-p gxi-web/example/public -wrs localhost:8080"
+	make web args="-p examples/web/public -wrs localhost:8080"
 
 desktop:
 	gxib -d examples/desktop desktop $(args)

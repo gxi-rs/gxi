@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use gxi::NativeWidget;
+use crate::NativeWidget;
 
 pub struct WebElement(web_sys::Element);
 

@@ -1,10 +1,11 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::web_element::WebElement;
+use crate as gxi;
+use crate::WebElement;
 
-#[derive(Default, gxi::Widget)]
+#[derive(Default, crate::Widget)]
 pub struct WebWidget {
-    node: gxi::Node,
+    node: crate::Node,
     element: WebElement,
 }
 
