@@ -2,6 +2,9 @@
 
 ![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
 
+> :warning: The api is being actively refactored to reach a perfect balance between memory, runtime and compile time needs.
+> Internal docs may or may not be up to date.  
+
 *Zero-Cost Cross-Platform Native Widget based Component System in Rust*
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html), gxi compiles the component tree to optimized
