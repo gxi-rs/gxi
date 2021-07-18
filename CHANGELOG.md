@@ -57,7 +57,7 @@
 ### Added
 
 - `get_state!(state)` macro to get state
-- Optimised state and reduced code size
+- Optimized state and reduced code size
 - `async` update branch
 
 ### Removed
@@ -66,4 +66,4 @@
 
 ### Others
 
-- `optimised` async routine code size
+- `optimized` async routine code size

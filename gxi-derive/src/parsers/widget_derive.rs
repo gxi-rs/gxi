@@ -21,6 +21,21 @@ pub fn parse_widget_derive(input: TokenStream) -> TokenStream2 {
                 &mut self.node
             }
         }
+
+        impl std::ops::Deref for #name {
+            type Target = gxi::NativeWidget;
+
+            fn deref(&self) -> &dyn Self::Target {
+                &self.native_widget
+            }
+        }
+
+        impl std::ops::DerefMut for #name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.native_widget
+            }
+        }
+
         #v_node_impl
     }
 }

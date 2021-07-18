@@ -1,26 +1,26 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::NativeWidget;
+use crate::{NativeContainer, NativeWidget, NativeContainerExt};
 
-pub struct WebElement(web_sys::Element);
+pub struct WebContainerWrapper(NativeContainer);
 
-impl NativeWidget for WebElement {
-    fn append(&mut self, widget: &dyn NativeWidget) {
+impl NativeContainerExt for WebContainerWrapper {
+    fn append(&mut self, widget: &NativeWidget) {
         todo!()
     }
 
-    fn move_to_index(&mut self, widget: &dyn NativeWidget, index: usize) {
+    fn move_to_index(&mut self, widget: &NativeWidget, index: usize) {
         todo!()
     }
 }
 
-impl Default for WebElement {
+impl Default for WebContainerWrapper {
     fn default() -> Self {
         "div".into()
     }
 }
 
-impl From<&str> for WebElement {
+impl From<&str> for WebContainerWrapper {
     fn from(name: &str) -> Self {
         Self({
             let window = web_sys::window().unwrap();
@@ -30,15 +30,15 @@ impl From<&str> for WebElement {
     }
 }
 
-impl Deref for WebElement {
-    type Target = web_sys::Element;
+impl Deref for WebContainerWrapper {
+    type Target = NativeContainer;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl DerefMut for WebElement {
+impl DerefMut for WebContainerWrapper {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

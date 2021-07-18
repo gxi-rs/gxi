@@ -1,25 +1,32 @@
 use std::ops::DerefMut;
 
-use crate::{Node, VNode};
+use crate::{Node, VNode, VNodeType};
 
 pub enum InitType {
     Child,
     Sibling,
 }
 
-pub fn init_member<C: FnOnce() -> N, N: VNode>(
-    tree: &mut Node,
-    init_type: InitType,
-    init: C,
-) -> &mut N {
-    match init_type {
-        InitType::Child => {
-            let t = tree.child.get_or_insert_with(|| init().into_vnode_type());
-            t.deref_mut().as_mut().downcast_mut().unwrap()
-        }
-        InitType::Sibling => {
-            let t = tree.sibling.get_or_insert_with(|| init().into_vnode_type());
-            t.deref_mut().as_mut().downcast_mut().unwrap()
+impl VNodeType {
+    pub fn init_member<C: FnOnce() -> VNode>(
+        &mut self,
+        init_type: InitType,
+        init: C,
+    ) -> Result<&mut VNodeType, &'static str> {
+        match init_type {
+            InitType::Child => {
+                let child = self.get_child_mut()?;
+                child.get_or_insert_with(|| init().into_vnode_type())
+            }
+            InitType::Sibling => {
+                let sibling = match self {
+                    Node::Widget(c) => &mut c.sibling,
+                    Node::Container(c) => &mut c.sibling,
+                };
+
+                let t = sibling.get_or_insert_with(|| init().into_vnode_type());
+                Ok(t)
+            }
         }
     }
 }
