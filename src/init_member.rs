@@ -1,6 +1,4 @@
-use std::ops::DerefMut;
-
-use crate::{Node, VNode, VNodeType};
+use crate::VNodeType;
 
 pub enum InitType {
     Child,
@@ -8,24 +6,23 @@ pub enum InitType {
 }
 
 impl VNodeType {
-    pub fn init_member<C: FnOnce() -> VNode>(
+    pub fn init_member<C: FnOnce() -> VNodeType>(
         &mut self,
         init_type: InitType,
         init: C,
     ) -> Result<&mut VNodeType, &'static str> {
         match init_type {
             InitType::Child => {
-                let child = self.get_child_mut()?;
-                child.get_or_insert_with(|| init().into_vnode_type())
+                let node = match self {
+                    VNodeType::Component(comp) => comp.get_node_ref().borrow_mut(),
+                    VNodeType::Widget(widget) => widget.get_node(),
+                    VNodeType::TopLevelWidget(top) => top.get_node(),
+                };
+                let child = node.get_child_mut()?;
+                Ok(child.get_or_insert_with(init))
             }
             InitType::Sibling => {
-                let sibling = match self {
-                    Node::Widget(c) => &mut c.sibling,
-                    Node::Container(c) => &mut c.sibling,
-                };
-
-                let t = sibling.get_or_insert_with(|| init().into_vnode_type());
-                Ok(t)
+                todo!()
             }
         }
     }
