@@ -2,7 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use crate::{NativeContainer, NativeWidget, NativeContainerExt};
 
-pub struct WebContainerWrapper(NativeContainer);
+pub struct WebContainerWrapper(web_sys::Element);
 
 impl NativeContainerExt for WebContainerWrapper {
     fn append(&mut self, widget: &NativeWidget) {
@@ -31,7 +31,7 @@ impl From<&str> for WebContainerWrapper {
 }
 
 impl Deref for WebContainerWrapper {
-    type Target = NativeContainer;
+    type Target = web_sys::Element;
 
     fn deref(&self) -> &Self::Target {
         &self.0
