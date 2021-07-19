@@ -1,3 +1,8 @@
+use std::{
+    borrow::BorrowMut,
+    ops::{Deref, DerefMut},
+};
+
 use crate::VNodeType;
 
 pub enum InitType {
@@ -14,12 +19,14 @@ impl VNodeType {
         match init_type {
             InitType::Child => {
                 let node = match self {
-                    VNodeType::Component(comp) => comp.get_node_ref().borrow_mut(),
-                    VNodeType::Widget(widget) => widget.get_node(),
-                    VNodeType::TopLevelWidget(top) => top.get_node(),
+                    VNodeType::Component(comp) => comp.get_node_ref().get_mut(),
+                    VNodeType::Widget(_) => {
+                        return Err("Can't add node to a widget. Use a container instead.")
+                    }
+                    VNodeType::ContainerWidget(cont) => cont.get_node_mut(),
+                    VNodeType::TopLevelContainerWidget(top) => top.get_node_mut(),
                 };
-                let child = node.get_child_mut()?;
-                Ok(child.get_or_insert_with(init))
+                Ok(node.child.get_or_insert_with(init))
             }
             InitType::Sibling => {
                 todo!()

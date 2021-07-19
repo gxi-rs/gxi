@@ -4,13 +4,17 @@ use quote::__private::TokenStream;
 pub enum VNodeType {
     Component,
     Widget,
+    ContainerWidget,
+    TopLevelContainerWidget,
 }
 
 impl ToTokens for VNodeType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        match self {
-            VNodeType::Component => tokens.append_all(quote! { Component }),
-            VNodeType::Widget => tokens.append_all(quote! { Widget }),
-        }
+        tokens.append_all(match self {
+            VNodeType::Component => quote! { Component },
+            VNodeType::Widget => quote! { Widget },
+            VNodeType::ContainerWidget => quote! { ContainerWidget },
+            VNodeType::TopLevelContainerWidget => quote! { TopLevelContainerWidget },
+        });
     }
 }

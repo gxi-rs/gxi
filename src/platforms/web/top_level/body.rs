@@ -1,51 +1,36 @@
-use crate::{NativeWidget, Node, VTopLevelWidget};
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
+use crate::{ContainerNode, WebContainerWrapper};
 
 use crate as gxi;
 
-#[derive(crate::Component)]
+#[derive(gxi::TopLevelContainerWidget)]
 pub struct Body {
-    node: Rc<RefCell<Node>>,
-    element: web_sys::HtmlElement,
-}
-
-impl VTopLevelWidget for Body {}
-
-impl NativeWidget for Body {
-    fn append(&mut self, _widget: &dyn NativeWidget) {
-        todo!()
-    }
-
-    fn move_to_index(&mut self, _widget: &dyn NativeWidget, _index: usize) {
-        todo!()
-    }
+    node: ContainerNode,
+    native_widget: WebContainerWrapper,
 }
 
 impl Default for Body {
     fn default() -> Self {
         Self {
             node: Default::default(),
-            element: {
+            native_widget: WebContainerWrapper({
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.body().unwrap()
-            },
+                document.body().unwrap().into()
+            }),
         }
     }
 }
 
-impl Deref for Body {
-    type Target = web_sys::HtmlElement;
 
-    fn deref(&self) -> &Self::Target {
-        &self.element
-    }
-}
 
-impl DerefMut for Body {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.element
-    }
-}
+
+
+
+
+
+
+
+
+
+
+

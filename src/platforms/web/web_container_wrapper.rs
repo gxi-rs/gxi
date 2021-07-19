@@ -1,8 +1,8 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::{NativeContainer, NativeWidget, NativeContainerExt};
+use crate::{NativeWidget, NativeContainerExt};
 
-pub struct WebContainerWrapper(web_sys::Element);
+pub struct WebContainerWrapper(pub web_sys::Element);
 
 impl NativeContainerExt for WebContainerWrapper {
     fn append(&mut self, widget: &NativeWidget) {

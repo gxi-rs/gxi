@@ -13,7 +13,7 @@ pub fn parse_component_derive(input: TokenStream) -> TokenStream2 {
 
     quote! {
         impl gxi::VComponent for #name {
-            fn get_node_ref(&self) -> &std::cell::RefCell<gxi::Node> {
+            fn get_node_ref(&self) -> &std::cell::RefCell<gxi::ContainerNode> {
                 self.node.as_ref()
             }
         }

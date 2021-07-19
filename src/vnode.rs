@@ -21,7 +21,7 @@ pub trait VTopLevelContainerWidget: VContainerWidget {}
 
 /// VNode defined by the user
 pub trait VComponent: VNode + AsRef<dyn VNode> + AsMut<dyn VNode> {
-    fn get_node_ref(&self) -> &RefCell<ContainerNode>;
+    fn get_node_ref(&mut self) -> &mut RefCell<ContainerNode>;
 }
 
 /// VNode referring to a native widget. It itself can't hold other widgets
@@ -36,6 +36,6 @@ pub trait VWidget:
 pub trait VContainerWidget:
     VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut
 {
-    fn get_node(&mut self) -> &ContainerNode;
-    fn get_node_mut(&mut self) -> &ContainerNode;
+    fn get_node(&self) -> &ContainerNode;
+    fn get_node_mut(&mut self) -> &mut ContainerNode;
 }
