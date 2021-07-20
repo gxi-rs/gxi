@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 
 use crate::{ContainerNode, NativeContainer, NativeWidget, VNodeType, WidgetNode};
@@ -21,7 +20,8 @@ pub trait VTopLevelContainerWidget: VContainerWidget {}
 
 /// VNode defined by the user
 pub trait VComponent: VNode + AsRef<dyn VNode> + AsMut<dyn VNode> {
-    fn get_node_ref(&mut self) -> &mut RefCell<ContainerNode>;
+    fn get_node(&self) -> &ContainerNode;
+    fn get_node_mut(&mut self) -> &mut ContainerNode;
 }
 
 /// VNode referring to a native widget. It itself can't hold other widgets

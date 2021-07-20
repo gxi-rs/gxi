@@ -1,6 +1,9 @@
-use std::ops::{Deref, DerefMut};
+use std::{cell::RefCell, ops::{Deref, DerefMut}, rc::{Rc, Weak}};
 
 use crate::{VComponent, VContainerWidget, VNode, VTopLevelContainerWidget, VWidget};
+
+pub type StrongNodeType = Rc<RefCell<VNodeType>>;
+pub type WeakNodeType = Weak<RefCell<VNodeType>>;
 
 pub enum VNodeType {
     /// User defined Node
