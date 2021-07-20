@@ -9,7 +9,7 @@ use crate::v_node_type::VNodeType;
 pub fn parse_top_level_container_widget_derive(input: TokenStream) -> TokenStream2 {
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
     let name = &input.ident;
-
+    
     let v_node_impl = derive_vnode(name, VNodeType::TopLevelContainerWidget);
 
     quote! {

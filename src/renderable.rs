@@ -1,3 +1,5 @@
+use crate::StrongNodeType;
+
 pub trait Renderable {
-    fn render(&mut self) {}
+    fn render(this: &StrongNodeType) {}
 }

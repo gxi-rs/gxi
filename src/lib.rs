@@ -7,6 +7,7 @@ pub use platforms::*;
 pub use renderable::*;
 pub use vnode::*;
 pub use vnode_type::*;
+pub use componemts::*;
 
 mod init_member;
 mod native_widget;
@@ -15,3 +16,4 @@ mod platforms;
 mod renderable;
 mod vnode;
 mod vnode_type;
+mod components;

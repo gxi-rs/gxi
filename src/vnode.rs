@@ -1,12 +1,12 @@
 use std::any::Any;
 use std::ops::{Deref, DerefMut};
 
-use crate::{ContainerNode, NativeContainer, NativeWidget, VNodeType, WidgetNode};
+use crate::{ContainerNode, NativeContainer, NativeWidget, VNodeType, WeakNodeType, WidgetNode};
 
 /// Smallest node which can be added to other nodes but
 /// it itself may or may not have the ability to hold a child
 pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
-    fn new() -> Self
+    fn new(parent: WeakNodeType) -> Self
     where
         Self: Sized;
     fn into_vnode_type(self) -> VNodeType

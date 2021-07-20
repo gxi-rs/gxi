@@ -1,6 +1,6 @@
 use std::{borrow::BorrowMut, cell::RefCell, ops::DerefMut, rc::Rc};
 
-use crate::{StrongNodeType, VNodeType, WeakNodeType};
+use crate::{StrongNodeType, VNodeType, WeakNodeType, VComponent};
 
 pub enum InitType {
     Child,
