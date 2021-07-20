@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::ops::{Deref, DerefMut};
 
-use crate::{ContainerNode, NativeContainer, NativeWidget, VNodeType, WeakNodeType, WidgetNode};
+use crate::{ContainerNode, NativeContainer, NativeWidget, TopLevelNode, VNodeType, WeakNodeType, WidgetNode};
 
 /// Smallest node which can be added to other nodes but
 /// it itself may or may not have the ability to hold a child
@@ -16,7 +16,11 @@ pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
 
 /// VNode which hold's a native widget but can't be added to other nodes.
 /// It itself can hold a node.
-pub trait VTopLevelContainerWidget: VContainerWidget {}
+pub trait VTopLevelContainerWidget: 
+    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut {
+    fn get_node(&self) -> &TopLevelNode;
+    fn get_node_mut(&mut self) -> &mut TopLevelNode;
+}
 
 /// VNode defined by the user
 pub trait VComponent: VNode + AsRef<dyn VNode> + AsMut<dyn VNode> {

@@ -13,17 +13,16 @@ pub fn parse_top_level_container_widget_derive(input: TokenStream) -> TokenStrea
     let v_node_impl = derive_vnode(name, VNodeType::TopLevelContainerWidget);
 
     quote! {
-        impl gxi::VTopLevelContainerWidget for #name { }
-        
-        impl gxi::VContainerWidget for #name {
-            fn get_node(&self) -> &gxi::ContainerNode {             
+        impl gxi::VTopLevelContainerWidget for #name {
+            fn get_node(&self) -> &gxi::TopLevelNode {             
                 &self.node
             }
-            fn get_node_mut(&mut self) -> &mut gxi::ContainerNode {
+                                                                     
+            fn get_node_mut(&mut self) -> &mut gxi::TopLevelNode {
                 &mut self.node
             }
         }
-
+        
         impl std::ops::Deref for #name {
             type Target = gxi::NativeContainer;
 
