@@ -1,8 +1,9 @@
-use crate::{self as gxi, ContainerNode, TopLevelNode}
+use crate::{self as gxi, ContainerNode, TopLevelNode};
 
-#[derive(Default,gxi::TopLevelContainerWidget)]
+#[derive(Default, gxi::TopLevelContainerWidget)]
 struct Root {
-    node: TopLevelNode
+    node: TopLevelNode,
+    native_widget: ()
 }
 
 
