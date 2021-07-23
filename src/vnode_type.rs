@@ -1,6 +1,12 @@
-use std::{cell::RefCell, ops::{Deref, DerefMut}, rc::{Rc, Weak}};
+use std::{
+    cell::RefCell,
+    ops::{Deref, DerefMut},
+    rc::{Rc, Weak},
+};
 
-use crate::{VTopLevelContainer, VComponent, VContainerWidget, VNode, VTopLevelContainerWidget, VWidget};
+use crate::{
+    VComponent, VContainerWidget, VNode, VTopLevelContainer, VTopLevelContainerWidget, VWidget,
+};
 
 pub type StrongNodeType = Rc<RefCell<VNodeType>>;
 pub type WeakNodeType = Weak<RefCell<VNodeType>>;
@@ -43,4 +49,3 @@ impl DerefMut for VNodeType {
         }
     }
 }
-

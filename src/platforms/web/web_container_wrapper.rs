@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::{NativeWidget, NativeContainerExt};
+use crate::{NativeContainerExt, NativeWidget};
 
 pub struct WebContainerWrapper(pub web_sys::Element);
 

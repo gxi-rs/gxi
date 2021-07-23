@@ -7,14 +7,14 @@ pub struct WebContainer {
 }
 
 impl WebContainer {
-    pub fn from_str(from: &'static str, parent:WeakNodeType) -> Self {
+    pub fn from_str(from: &'static str, parent: WeakNodeType) -> Self {
         Self {
             node: ContainerNode {
                 parent,
                 child: Default::default(),
-                sibling: Default::default()
+                sibling: Default::default(),
             },
-            native_widget: WebContainerWrapper::from(from)
+            native_widget: WebContainerWrapper::from(from),
         }
     }
-}   
+}
