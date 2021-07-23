@@ -6,6 +6,9 @@ use crate::{ContainerNode, NativeContainer, NativeWidget, TopLevelNode, VNodeTyp
 /// Smallest node which can be added to other nodes but
 /// it itself may or may not have the ability to hold a child
 pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
+    /// create a new instance of the node
+    /// > TopLevelNode doesn't require a parent yet it needs to implement this function
+    /// > to mantain a common interface for the gxi compiler
     fn new(parent: WeakNodeType) -> Self
     where
         Self: Sized;

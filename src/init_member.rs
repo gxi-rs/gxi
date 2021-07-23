@@ -17,17 +17,15 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             let mut this_borrow = this.as_ref().borrow_mut();
 
             let node = match this_borrow.deref_mut() {
-                VNodeType::Component(comp) => comp.get_node_mut(),
+                VNodeType::Component(comp) => &mut comp.get_node_mut().child,
                 VNodeType::Widget(_) => {
                     return Err("Can't add node to a widget. Use a container instead.")
                 }
-                VNodeType::ContainerWidget(cont) => cont.get_node_mut(),
-                VNodeType::TopLevelContainerWidget(top) => top.get_node_mut(),
+                VNodeType::ContainerWidget(cont) => &mut cont.get_node_mut().child,
+                VNodeType::TopLevelContainerWidget(top) => &mut top.get_node_mut().child,
             };
 
-            let child = node
-                .child
-                .get_or_insert_with(|| Rc::new(RefCell::new(init(Rc::downgrade(this)))));
+            let child = node.get_or_insert_with(|| Rc::new(RefCell::new(init(Rc::downgrade(this)))));
 
             Ok(child.clone())
         }

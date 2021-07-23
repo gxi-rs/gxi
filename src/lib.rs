@@ -7,7 +7,7 @@ pub use platforms::*;
 pub use renderable::*;
 pub use vnode::*;
 pub use vnode_type::*;
-pub use componemts::*;
+pub use components::*;
 
 mod init_member;
 mod native_widget;
