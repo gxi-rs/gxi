@@ -17,10 +17,16 @@ pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
         Self: Sized;
 }
 
-/// VNode which hold's a native widget but can't be added to other nodes.
-/// It itself can hold a node.
+/// Node with refence to native widget and contains other nodes, but doesn't have a reference to it's parent. 
 pub trait VTopLevelContainerWidget: 
     VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut {
+    fn get_node(&self) -> &TopLevelNode;
+    fn get_node_mut(&mut self) -> &mut TopLevelNode;
+}
+
+/// Node which can contain other nodes, but doesn't have a reference to it's parent. 
+pub trait VTopLevelContainer: 
+    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> {
     fn get_node(&self) -> &TopLevelNode;
     fn get_node_mut(&mut self) -> &mut TopLevelNode;
 }
