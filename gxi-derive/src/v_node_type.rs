@@ -6,6 +6,7 @@ pub enum VNodeType {
     Widget,
     ContainerWidget,
     TopLevelContainerWidget,
+    TopLevelContainer,
 }
 
 impl ToTokens for VNodeType {
@@ -15,6 +16,7 @@ impl ToTokens for VNodeType {
             VNodeType::Widget => quote! { Widget },
             VNodeType::ContainerWidget => quote! { ContainerWidget },
             VNodeType::TopLevelContainerWidget => quote! { TopLevelContainerWidget },
+            VNodeType::TopLevelContainer => quote! { TopLevelContainer },
         });
     }
 }

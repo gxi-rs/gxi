@@ -9,7 +9,17 @@ use crate::v_node_type::VNodeType;
 pub fn parse_component_derive(input: TokenStream) -> TokenStream2 {
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
     let name = &input.ident;
-    let v_node_impl = derive_vnode(name, VNodeType::Component);
+
+
+    let v_node_impl = derive_vnode(name, VNodeType::Component, &quote! {
+        Self {
+            node : gxi::ContainerNode {
+                parent,
+                child: Default::default(),
+                sibling: Default::default(),
+            },
+        }
+    });
 
     quote! {
         impl gxi::VComponent for #name {

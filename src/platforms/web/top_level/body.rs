@@ -1,4 +1,4 @@
-use crate::{ContainerNode, TopLevelNode, WebContainerWrapper};
+use crate::{TopLevelNode, WebContainerWrapper};
 
 use crate as gxi;
 

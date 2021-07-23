@@ -1,6 +1,6 @@
-use crate::{self as gxi, ContainerNode};
+use crate::{self as gxi, TopLevelNode};
 
-#[derive(Default, gxi::Component)]
+#[derive(Default,gxi::TopLevelContainer)]
 pub struct Root {
-    node: ContainerNode
+    node: TopLevelNode
 }

@@ -23,6 +23,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
                 }
                 VNodeType::ContainerWidget(cont) => &mut cont.get_node_mut().child,
                 VNodeType::TopLevelContainerWidget(top) => &mut top.get_node_mut().child,
+                VNodeType::TopLevelContainer(top) => &mut top.get_node_mut().child,
             };
 
             let child = node.get_or_insert_with(|| Rc::new(RefCell::new(init(Rc::downgrade(this)))));

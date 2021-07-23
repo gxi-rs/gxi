@@ -10,7 +10,9 @@ pub fn parse_top_level_container_widget_derive(input: TokenStream) -> TokenStrea
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
     let name = &input.ident;
     
-    let v_node_impl = derive_vnode(name, VNodeType::TopLevelContainerWidget);
+    let v_node_impl = derive_vnode(name, VNodeType::TopLevelContainerWidget, & quote! {
+        Self::default()
+    });
 
     quote! {
         impl gxi::VTopLevelContainerWidget for #name {
