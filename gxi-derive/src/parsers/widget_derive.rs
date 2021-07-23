@@ -10,15 +10,19 @@ pub fn parse_widget_derive(input: TokenStream) -> TokenStream2 {
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
     let name = &input.ident;
 
-    let v_node_impl = derive_vnode(name, VNodeType::Widget, &quote! {
-        Self {
-            node: gxi::WidgetNode {
-                parent,
+    let v_node_impl = derive_vnode(
+        name,
+        VNodeType::Widget,
+        &quote! {
+            Self {
+                node: gxi::WidgetNode {
+                    parent,
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            ..Default::default()
-        }
-    });
+            }
+        },
+    );
 
     quote! {
         impl gxi::VWidget for #name {

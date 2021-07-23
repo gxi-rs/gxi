@@ -3,7 +3,11 @@ use syn::__private::TokenStream2;
 
 use crate::v_node_type::VNodeType;
 
-pub fn derive_vnode(name: &syn::Ident, v_node_type: VNodeType, new_impl: &TokenStream2) -> TokenStream2 {
+pub fn derive_vnode(
+    name: &syn::Ident,
+    v_node_type: VNodeType,
+    new_impl: &TokenStream2,
+) -> TokenStream2 {
     quote! {
         impl gxi::VNode for #name {
             fn new(parent: gxi::WeakNodeType) -> Self {
