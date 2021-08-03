@@ -10,7 +10,7 @@ pub struct App {
 
 impl gxi::Renderable for App {
     fn render(this: &StrongNodeType) {
-        let node = init_member(this, InitType::Child, |parent| {
+        let (node, _) = init_member(this, InitType::Child, |parent| {
             gxi::Body::new(parent).into_vnode_type()
         })
         .unwrap();
