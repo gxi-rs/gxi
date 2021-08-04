@@ -5,8 +5,8 @@ use crate::{NativeContainerExt, NativeWidget};
 pub struct WebContainerWrapper(pub web_sys::Element);
 
 impl NativeContainerExt for WebContainerWrapper {
-    fn append(&mut self, _widget: &NativeWidget) {
-        todo!()
+    fn append(&mut self, widget: &NativeWidget) {
+       self.0.append_child(widget).unwrap();
     }
 
     fn move_to_index(&mut self, _widget: &NativeWidget, _index: usize) {
