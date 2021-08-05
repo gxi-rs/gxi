@@ -1,3 +1,3 @@
-mod root;
-
 pub use root::*;
+
+mod root;

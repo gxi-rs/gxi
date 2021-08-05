@@ -1,11 +1,12 @@
-use crate::{
-    native_widget::NativeContainerExt, NativeContainer, NativeWidget, StrongNodeType, VNodeType,
-    WeakNodeType,
-};
 use std::{
     cell::RefCell,
     ops::{Deref, DerefMut},
     rc::Rc,
+};
+
+use crate::{
+    native_widget::NativeContainerExt, NativeContainer, NativeWidget, StrongNodeType, VNodeType,
+    WeakNodeType,
 };
 
 pub enum InitType<'a> {
@@ -35,7 +36,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             let child = match this_borrow.deref_mut() {
                 VNodeType::Component(comp) => &mut comp.get_node_mut().child,
                 VNodeType::Widget(_) => {
-                    return Err("Can't add node to a widget. Use a container instead.")
+                    return Err("Can't add node to a widget. Use a container instead.");
                 }
                 VNodeType::ContainerWidget(cont) => &mut cont.get_node_mut().child,
                 VNodeType::TopLevelContainerWidget(top) => &mut top.get_node_mut().child,

@@ -17,14 +17,14 @@ impl gxi::Renderable for App {
         {
             let cont = node.clone();
 
-            let (node,_) = init_member(&node, InitType::Child, |parent| {
+            let (node, _) = init_member(&node, InitType::Child, |parent| {
                 gxi::WebContainer::from_str("h1", parent).into_vnode_type()
             })
-                .unwrap();
+            .unwrap();
             let _ = init_member(&node, InitType::Sibling(&cont), |parent| {
                 gxi::WebContainer::from_str("h1", parent).into_vnode_type()
             })
-                .unwrap();
+            .unwrap();
         }
     }
 }

@@ -1,6 +1,5 @@
-use crate::{TopLevelNode, WebContainerWrapper};
-
 use crate as gxi;
+use crate::{TopLevelNode, WebContainerWrapper};
 
 #[derive(gxi::TopLevelContainerWidget)]
 pub struct Body {

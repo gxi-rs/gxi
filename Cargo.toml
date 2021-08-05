@@ -34,4 +34,4 @@ members = [
 [dependencies]
 gxi-derive = { path = "gxi-derive", version = "0.1.0", optional = true }
 # web
-web-sys = { version = "0.3.51", features = ["Element", "Window", "Document", "HtmlElement" ], optional = true }
+web-sys = { version = "0.3.51", features = ["Element", "Window", "Document", "HtmlElement"], optional = true }
