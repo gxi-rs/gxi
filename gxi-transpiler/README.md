@@ -59,10 +59,9 @@ which is equal to
 
 ```rust
 gxi::NativeElement::from_str($name, parent)
-  .set("title", "header_one)
+  .set("title", "header_one")
   .set_name("aniket")
   .into_vnode_type()
-  .
 ```
 
 > TODO: literal values
