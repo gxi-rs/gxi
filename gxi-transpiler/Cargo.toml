@@ -1,10 +1,10 @@
 [package]
-name = "gxi-derive"
+name = "gxi-transpiler"
 version = "0.4.0-nightly.1"
 edition = "2018"
 license = "MIT"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
-description = "derive macros for gxi-rs"
+description = "transpiles component tree to gxi component system"
 repository = "https://github.com/gxi-rs/gxi.git"
 homepage = "https://gxi-rs.com/"
 keywords = [
@@ -23,3 +23,4 @@ default = []
 [dependencies]
 syn = "1.0.73"
 quote = "1.0.9"
+

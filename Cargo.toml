@@ -21,17 +21,19 @@ keywords = [
 ]
 
 [features]
-web = ["gxi-derive/web", "web-sys"]
-desktop = ["gxi-derive/desktop"]
-default = ["gxi-derive/default"]
+web = ["gxi-derive/web","gxi-transpiler/web", "web-sys"]
+desktop = ["gxi-derive/desktop", "gxi-transpiler/desktop"]
+default = ["gxi-derive/default", "gxi-transpiler/default"]
 
 [workspace]
 members = [
     "gxi-derive",
+    "gxi-transpiler",
     "examples/web"
 ]
 
 [dependencies]
-gxi-derive = { path = "gxi-derive", version = "0.1.0", optional = true }
+gxi-derive = { path = "gxi-derive", version = "0.4.0-nightly.1", optional = true }
+gxi-transpiler = { path = "gxi-transpiler", version = "0.4.0-nightly.1", optional = true }
 # web
 web-sys = { version = "0.3.51", features = ["Element", "Window", "Document", "HtmlElement"], optional = true }
