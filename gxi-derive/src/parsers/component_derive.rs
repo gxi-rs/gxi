@@ -17,6 +17,7 @@ pub fn parse_component_derive(input: TokenStream) -> TokenStream2 {
             Self {
                 node : gxi::ContainerNode {
                     parent,
+                    self_substitute: None,
                     child: Default::default(),
                     sibling: Default::default(),
                 },

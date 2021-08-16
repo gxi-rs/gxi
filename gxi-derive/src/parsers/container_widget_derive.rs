@@ -17,6 +17,7 @@ pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
             Self {
                 node: gxi::ContainerNode {
                     parent,
+                    self_substitute: None,
                     child: None,
                     sibling: None
                 },

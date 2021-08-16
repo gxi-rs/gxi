@@ -11,6 +11,7 @@ impl WebContainer {
         Self {
             node: ContainerNode {
                 parent,
+                self_substitute: None,
                 child: Default::default(),
                 sibling: Default::default(),
             },
