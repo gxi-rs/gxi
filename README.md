@@ -32,13 +32,13 @@ pub struct App {
 impl Renderable for App {
   fn render(node: &StrongNodeType) {
     gxi! {
-      Body { // top level node
-        h1 { // native widget
+      Body [ // top level node
+        h1 [ // native widget
           "title"
-        },
+        ],
         Counter::with_data(23) ( min = 24, max = 124 ) // user defined component
-      }
-    };
+      ]
+    }
   }
 }
 ```
