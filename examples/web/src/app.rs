@@ -9,16 +9,20 @@ pub struct App {
 impl gxi::Renderable for App {
     fn render(node: &StrongNodeType) {
         gxi! {
-            Body::new()
+            Body
         };
 
         {
             let cont = node.clone();
 
-            let (node, _) = init_member(&node, InitType::Child, |parent| {
-                gxi::Element::from_str("h1", parent).into_vnode_type()
-            })
-            .unwrap();
+            gxi! {
+                h1
+            };
+            {
+                gxi! {
+                    h1
+                }
+            }
             let _ = init_member(&node, InitType::Sibling(&cont), |parent| {
                 gxi::Element::from_str("h1", parent).into_vnode_type()
             })
