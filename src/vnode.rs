@@ -20,7 +20,7 @@ pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
         Self: Sized;
 }
 
-/// Node with refence to native widget and contains other nodes, but doesn't have a reference to it's parent.
+/// Node with reference to native widget and contains other nodes, but doesn't have a reference to it's parent.
 pub trait VTopLevelContainerWidget:
     VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainerWidget> + DerefMut
 {

@@ -9,7 +9,7 @@ pub struct ContainerNode {
     pub sibling: Option<StrongNodeType>,
 }
 
-/// node of a n-binary tree which can hold only one sibling and contain's a weak reference to it's
+/// node of a n-binary tree which can hold only one sibling and contains a weak reference to it's
 /// parent
 #[derive(Clone)]
 pub struct WidgetNode {

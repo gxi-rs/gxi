@@ -16,9 +16,9 @@ pub enum VNodeType {
     Component(Box<dyn VComponent>),
     /// widget which cannot contain other nodes
     Widget(Box<dyn VWidget>),
-    /// widget container which can hild other nodes
+    /// widget which can hold other widgets
     ContainerWidget(Box<dyn VContainerWidget>),
-    /// widget which can hold other widgets but can't be added to other widgets
+    /// widget which can hold other widgets but can't be added to other nodes
     TopLevelContainerWidget(Box<dyn VTopLevelContainerWidget>),
     /// widget which can hold other widgets but can't be added to other widgets
     TopLevelContainer(Box<dyn VTopLevelContainer>),
