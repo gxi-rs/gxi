@@ -10,20 +10,29 @@ Name::constructor(..args) (..props) [
 
 ### Name (required)
 
-`$name` represents name of the component.
+`$name` represents the name of the component.
+It should be a valid [rust path](https://doc.rust-lang.org/reference/paths.html#paths-in-types).
 
-If `$name` starts with
+**If**
 
-0. `lower-case` = `gxi::NativeElement::from_str($name, parent).into_vnode_type()`
-1. `upper-case` = `$name::constructor(parent).into_vnode_type()`
+`$name` has 0 path segments, no [`$constructor`](#constructor--default--newparent-) and starts
+with a lowercase character then it is a `gxi::Element` constructed using the
+`from_str(String, StrongNodeType)` associated function.
 
-### Constructor ( default = $name::new(parent) )
+*e.g*
+`gxi::NativeElement::from_str($name, parent).into_vnode_type()`
 
-`$constructor` may be an associated function of the component which returns `Self` and takes parent as the last argument
+**else**
+
+`$name::$constructor(parent).into_vnode_type()`
+
+### Constructor ( default = new(parent) )
+
+`$constructor` should be a lower-cased associated function of the component which returns `Self` and takes parent as the last argument
 
 ### args ( optional )
 
-comma separated arguments passed to the `constructor` function.
+comma separated arguments passed to [`$constructor`](#constructor--default--newparent-)
 
 ### props
 

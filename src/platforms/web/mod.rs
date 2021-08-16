@@ -13,4 +13,7 @@ mod web_container_wrapper;
 pub type NativeWidget = web_sys::Node;
 
 /// An element of the native widget system which can hold a child
-pub type NativeContainer = WebContainerWrapper;
+pub type NativeContainerWidget = WebContainerWrapper;
+
+/// An
+pub type Element = WebContainer;

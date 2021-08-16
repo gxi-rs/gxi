@@ -5,8 +5,8 @@ use std::{
 };
 
 use crate::{
-    native_widget::NativeContainerExt, NativeContainer, NativeWidget, StrongNodeType, VNodeType,
-    WeakNodeType,
+    native_widget::NativeContainerExt, NativeContainerWidget, NativeWidget, StrongNodeType,
+    VNodeType, WeakNodeType,
 };
 
 pub enum InitType<'a> {
@@ -93,7 +93,7 @@ fn append_native_widget(this: &mut VNodeType, member: &VNodeType) -> Result<(), 
         }
     };
 
-    let container_widget: &mut NativeContainer = match this {
+    let container_widget: &mut NativeContainerWidget = match this {
         VNodeType::TopLevelContainerWidget(t) => t.deref_mut(),
         VNodeType::ContainerWidget(t) => t.deref_mut(),
         VNodeType::Component(comp) => {
@@ -101,7 +101,7 @@ fn append_native_widget(this: &mut VNodeType, member: &VNodeType) -> Result<(), 
             let mut parent = comp.get_node_mut().parent.upgrade().unwrap();
             loop {
                 let mut parent_borrow = parent.as_ref().borrow_mut();
-                let parent_widget: &mut NativeContainer = match parent_borrow.deref_mut() {
+                let parent_widget: &mut NativeContainerWidget = match parent_borrow.deref_mut() {
                     VNodeType::TopLevelContainerWidget(t) => t.deref_mut(),
                     VNodeType::ContainerWidget(c) => c.deref_mut(),
                     VNodeType::Component(c) => {

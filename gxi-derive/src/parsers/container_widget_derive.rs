@@ -20,7 +20,7 @@ pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
                     child: None,
                     sibling: None
                 },
-                native_widget: gxi::NativeContainer::default()
+                native_widget: gxi::NativeContainerWidget::default()
             }
         },
     );
@@ -36,7 +36,7 @@ pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
         }
 
         impl std::ops::Deref for #name {
-            type Target = gxi::NativeContainer;
+            type Target = gxi::NativeContainerWidget;
 
             fn deref(&self) -> &Self::Target {
                 &self.native_widget

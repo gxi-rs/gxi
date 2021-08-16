@@ -2,7 +2,8 @@ use std::any::Any;
 use std::ops::{Deref, DerefMut};
 
 use crate::{
-    ContainerNode, NativeContainer, NativeWidget, TopLevelNode, VNodeType, WeakNodeType, WidgetNode,
+    ContainerNode, NativeContainerWidget, NativeWidget, TopLevelNode, VNodeType, WeakNodeType,
+    WidgetNode,
 };
 
 /// Smallest node which can be added to other nodes but
@@ -10,7 +11,7 @@ use crate::{
 pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
     /// create a new instance of the node
     /// > TopLevelNode doesn't require a parent yet it needs to implement this function
-    /// > to mantain a common interface for the gxi compiler
+    /// > to maintain a common interface for the gxi compiler
     fn new(parent: WeakNodeType) -> Self
     where
         Self: Sized;
@@ -21,7 +22,7 @@ pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
 
 /// Node with refence to native widget and contains other nodes, but doesn't have a reference to it's parent.
 pub trait VTopLevelContainerWidget:
-    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut
+    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainerWidget> + DerefMut
 {
     fn get_node(&self) -> &TopLevelNode;
     fn get_node_mut(&mut self) -> &mut TopLevelNode;
@@ -49,7 +50,7 @@ pub trait VWidget:
 
 /// VNode referring to a native widget which can hold other widgets
 pub trait VContainerWidget:
-    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut
+    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainerWidget> + DerefMut
 {
     fn get_node(&self) -> &ContainerNode;
     fn get_node_mut(&mut self) -> &mut ContainerNode;

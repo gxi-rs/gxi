@@ -1,7 +1,5 @@
-use gxi::init_member;
-use gxi::InitType;
-use gxi::StrongNodeType;
-use gxi::VNode;
+use gxi::Body;
+use gxi::{gxi, init_member, InitType, StrongNodeType, VNode};
 
 #[derive(Clone, gxi::Component)]
 pub struct App {
@@ -9,20 +7,20 @@ pub struct App {
 }
 
 impl gxi::Renderable for App {
-    fn render(this: &StrongNodeType) {
-        let (node, _) = init_member(this, InitType::Child, |parent| {
-            gxi::Body::new(parent).into_vnode_type()
-        })
-        .unwrap();
+    fn render(node: &StrongNodeType) {
+        gxi! {
+            Body
+        };
+
         {
             let cont = node.clone();
 
             let (node, _) = init_member(&node, InitType::Child, |parent| {
-                gxi::WebContainer::from_str("h1", parent).into_vnode_type()
+                gxi::Element::from_str("h1", parent).into_vnode_type()
             })
             .unwrap();
             let _ = init_member(&node, InitType::Sibling(&cont), |parent| {
-                gxi::WebContainer::from_str("h1", parent).into_vnode_type()
+                gxi::Element::from_str("h1", parent).into_vnode_type()
             })
             .unwrap();
         }
