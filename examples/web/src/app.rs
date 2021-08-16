@@ -9,7 +9,7 @@ pub struct App {
 impl gxi::Renderable for App {
     fn render(node: &StrongNodeType) {
         gxi! {
-            Body
+            Body::new()
         };
 
         {
