@@ -62,4 +62,4 @@ Licensed under the **[MIT LICENSE](LICENSE)**
 ## Contributors
 
 + [Aniket Prajapati](https://aniketprajapati.me)
-  @[prajapati.ani306@gmail.com](mailto:contact@aniketprajapati.me)
+  @[mail](mailto:contact@aniketprajapati.me)
