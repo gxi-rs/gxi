@@ -1,7 +1,4 @@
 # GXI
-
-![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
-
 *Zero-Cost Cross-Platform Native Widget based Component System in Rust*
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
@@ -65,4 +62,4 @@ Licensed under the **[MIT LICENSE](LICENSE)**
 ## Contributors
 
 + [Aniket Prajapati](https://aniketprajapati.me)
-  @[prajapati.ani306@gmail.com](mailto:contact@aniketprajapati.me
+  @[prajapati.ani306@gmail.com](mailto:contact@aniketprajapati.me)
