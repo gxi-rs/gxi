@@ -5,7 +5,7 @@ macro_rules! create_web_widget {
         use std::cell::RefCell;
         use std::ops::Deref;
         use std::rc::Rc;
-        
+
         pub struct $name {
             pub parent: WeakNodeType,
             pub sibling: Option<StrongNodeType>,
