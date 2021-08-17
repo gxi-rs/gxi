@@ -1,6 +1,8 @@
 # GXI
 *Zero-Cost Cross-Platform Native Widget based Component System in Rust*
 
+> This branch is a complete re-write of the project
+
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
 the [gxi transpiler](gxi-transpiler/README.md) transpiles a component tree into an n-binary tree order, without using
 any [virtual dom](https://reactjs.org/docs/faq-internals.html)
