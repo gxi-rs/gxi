@@ -1,9 +1,9 @@
-use crate::*;
-
 use std::any::Any;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
+
+use crate::*;
 
 pub struct ForWrapper<T>
 where
@@ -28,7 +28,7 @@ where
     }
 
     impl_node_trait_as_any!();
-    impl_node_trait_as_node!(); 
+    impl_node_trait_as_node!();
     impl_node_getters!();
 }
 
@@ -69,27 +69,37 @@ impl<T> Container for ForWrapper<T> {
 
 impl<T> ForWrapper<T>
 where
-    T: std::hash::Hash + std::cmp::Eq+ 'static
+    T: std::hash::Hash + std::cmp::Eq + 'static,
 {
     pub fn init_child(this: StrongNodeType, key: T) -> (StrongNodeType, bool) {
         let weak_this = Rc::downgrade(&this);
-        
-        let mut this_mut_borrow = this.as_ref().borrow_mut(); 
-        let this_mut_borrow = this_mut_borrow.as_node_mut().as_any_mut().downcast_mut::<ForWrapper<T>>().unwrap();
-        
+
+        let mut this_mut_borrow = this.as_ref().borrow_mut();
+        let this_mut_borrow = this_mut_borrow
+            .as_node_mut()
+            .as_any_mut()
+            .downcast_mut::<ForWrapper<T>>()
+            .unwrap();
+
         let children = &mut this_mut_borrow.children;
-        
+
         let is_new = children.contains_key(&key);
 
-        let (node, existed) = children.entry(key).or_insert_with(move || (Pure::new(weak_this), true));
+        let (node, existed) = children
+            .entry(key)
+            .or_insert_with(move || (Pure::new(weak_this), true));
         *existed = true;
 
         (node.clone(), is_new)
     }
-    
+
     pub fn clear_unused(this: StrongNodeType) {
-        let mut this_mut_borrow = this.as_ref().borrow_mut(); 
-        let this_mut_borrow = this_mut_borrow.as_node_mut().as_any_mut().downcast_mut::<ForWrapper<T>>().unwrap();
+        let mut this_mut_borrow = this.as_ref().borrow_mut();
+        let this_mut_borrow = this_mut_borrow
+            .as_node_mut()
+            .as_any_mut()
+            .downcast_mut::<ForWrapper<T>>()
+            .unwrap();
         this_mut_borrow.children.retain(|_k, v| {
             let existed = v.1.clone();
             v.1 = false;
@@ -97,4 +107,3 @@ where
         });
     }
 }
-
