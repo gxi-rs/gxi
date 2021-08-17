@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.3.0-alpha.1"
+version = "0.3.0-alpha.2"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "Zero-Cost Cross-Platform Native Widget based Component System in Rust"
@@ -46,6 +46,23 @@ console_error_panic_hook = { version = "0.1.6", optional = true }
 [dependencies.web-sys]
 version = "0.3.50"
 features = [
-    'Document', 'Element', 'HtmlElement', 'Node', 'HtmlHeadElement', 'Window', 'console', 'Event', 'EventListener', 'MouseEvent', 'HtmlCollection'
+    'Document',
+    'Element',
+    'HtmlElement',
+    'Node',
+    'HtmlHeadElement',
+    'HtmlCollection',
+    'Window',
+    'console',
+    'Event',
+    # events
+    'EventListener',
+    'MouseEvent',
+    'DragEvent',
+    'InputEvent',
+    'FocusEvent',
+    'KeyboardEvent',
+    'ProgressEvent',
+    'WheelEvent',
 ]
 optional = true

@@ -43,11 +43,10 @@ gxi! {
                     Button ( connect_clicked = |_| Msg::Fetch(false), set_label = "Fetch Cat Memes" ),
                     View [
                         if state.cat_fact.is_none() {
-                            Pure [
-                                Text ( set_label = "loading" ),
-                                Spinner ( spin = true )
-                            ]
+                            Text ( set_label = "loading" ),
+                            Spinner ( spin = true )
                         } else {
+                            Text ( set_label = "loaded" ),
                             Text ( set_label = &state.cat_fact.as_ref().unwrap().fact )
                         }
                     ],

@@ -12,8 +12,8 @@ gxi! {
     render {
         Div [
             Div [
-                Button ( inner_html = "Inc", on_click = || Msg::INC , class="btn btn-dark"),
-                Button ( inner_html = "Dec", on_click = || Msg::DEC , class="btn btn-light")
+                Button ( inner_html = "Inc", on_click = |_| Msg::INC , class="btn btn-dark"),
+                Button ( inner_html = "Dec", on_click = |_| Msg::DEC , class="btn btn-light")
             ],
             H2 ( inner_html = &state.count.to_string() , class = "text-info")
         ]

@@ -41,7 +41,7 @@ impl GxiParser {
                 quote!(Default::default())
             };
 
-            state_struct_lines.push(quote!( #field_name : #field_type ));
+            state_struct_lines.push(quote!( #viz #field_name : #field_type ));
             state_init_lines.push(quote!( #field_name : #field_value ));
 
             match viz {
@@ -163,7 +163,7 @@ impl GxiParser {
                 };
                 if cfg!(feature = "web") {
                     update_inner = quote! {
-                        spawn_local(async move {
+                        wasm_bindgen_futures::spawn_local(async move {
                             #update_inner
                         });
                     }
@@ -222,7 +222,7 @@ impl Parse for GxiParser {
                                     node.mark_clean();
                                     node.state.clone()
                                 };
-                                let state = get_state!(state);
+                                let mut state = get_state_mut!(state);
                                 #content
                             }
                         };
@@ -312,7 +312,7 @@ impl Parse for GxiParser {
                 }
 
                 #viz struct #name {
-                    state: State,
+                    pub state: State,
                     #channel_sender_struct_field
                     pub parent: WeakNodeType,
                     pub self_substitute : Option<WeakNodeType>,
