@@ -45,7 +45,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
 
             // if child already exists return it
             if let Some(child) = child {
-                return Ok((child.to_owned(), true));
+                return Ok((child.to_owned(), false));
             }
 
             let child = child
@@ -54,7 +54,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
 
             append_native_widget(this_borrow.deref_mut(), &child.borrow().deref())?;
 
-            Ok((child, false))
+            Ok((child, true))
         }
         InitType::Sibling(parent) => {
             let mut this_borrow = this.as_ref().borrow_mut();
@@ -69,7 +69,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
 
             // if child already exists return it
             if let Some(sibling) = sibling {
-                return Ok((sibling.to_owned(), true));
+                return Ok((sibling.to_owned(), false));
             }
 
             let sibling = sibling
@@ -78,7 +78,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
 
             append_native_widget(parent.borrow_mut().deref_mut(), &sibling.borrow().deref())?;
 
-            Ok((sibling, false))
+            Ok((sibling, true))
         }
     }
 }
