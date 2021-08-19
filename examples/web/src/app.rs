@@ -1,3 +1,5 @@
+use std::ops::DerefMut;
+
 use gxi::Body;
 use gxi::{gxi, init_member, InitType, StrongNodeType, VNode};
 
@@ -7,26 +9,27 @@ pub struct App {
 }
 
 impl gxi::Renderable for App {
-    fn render(node: &StrongNodeType) {
+    fn render(__node: &StrongNodeType) {
         gxi! {
             Body
         };
 
         {
-            let cont = node.clone();
+            let cont = __node.clone();
 
             gxi! {
-                h1
-            };
-            {
-                gxi! {
-                    h1
-                }
+                h1 ( inner_html = "23", on_click = |_| panic!("hello world"))
             }
-            let _ = init_member(&node, InitType::Sibling(&cont), |parent| {
-                gxi::Element::from_str("h1", parent).into_vnode_type()
-            })
-            .unwrap();
+
+            /*{*/
+            /*    gxi! {*/
+            /*        h1*/
+            /*    }*/
+            /*}*/
+            /*let (node, ..) = init_member(&__node, InitType::Sibling(&cont), |parent| {*/
+            /*    gxi::Element::from_str("h1", parent).into_vnode_type()*/
+            /*})*/
+            /*.unwrap();*/
         }
     }
 }

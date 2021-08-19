@@ -3,6 +3,7 @@ pub use top_level::*;
 pub use web_container::*;
 pub use web_container_wrapper::*;
 
+mod gen_macros;
 mod run;
 mod top_level;
 mod web_container;

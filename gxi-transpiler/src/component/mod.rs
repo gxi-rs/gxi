@@ -1,10 +1,12 @@
 use proc_macro::TokenTree::Ident;
+use std::ops::Deref;
 
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
-use syn::{PathArguments, PathSegment};
+use syn::spanned::Spanned;
+use syn::{Expr, PathArguments, PathSegment};
 
 use crate::init_type::InitType;
 
@@ -93,11 +95,91 @@ pub(crate) fn parse_component_block(
             }
         };
 
+        // parse props
+        let mut init_props = TokenStream2::new();
+        let mut is_new_props = TokenStream2::new();
+        let open_props = TokenStream2::new();
+
+        if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
+            if !content.is_empty() {
+                loop {
+                    let syn::ExprAssign { left, right, .. } = content.parse::<syn::ExprAssign>()?;
+                    // check for static and dynamic props
+                    match right.deref() {
+                        syn::Expr::Closure(syn::ExprClosure {
+                            asyncness,
+                            output,
+                            attrs,
+                            inputs,
+                            body,
+                            ..
+                        }) => {
+                            if asyncness.is_some() {
+                                return Err(
+                                    syn::Error::new(
+                                        content.span(),
+                                        "async closures are not supported. Using async update function instead.",
+                                    )
+                                );
+                            }
+
+                            if !output.to_token_stream().is_empty() {
+                                return Err(syn::Error::new(
+                                    content.span(),
+                                    "this closure cannot return a value",
+                                ));
+                            }
+
+                            is_new_props.append_all(quote! {
+                                __node.#left(
+                                    #(#attrs)*
+                                    move |#inputs| {
+                                        #body
+                                    }
+                                );
+                            })
+                        }
+                        syn::Expr::Lit(syn::ExprLit { lit, .. }) => init_props.append_all(quote! {
+                            __node.#left(#lit);
+                        }),
+                        &_ => {}
+                    }
+
+                    if content.is_empty() {
+                        break;
+                    } else {
+                        content.parse::<syn::token::Comma>()?;
+                    }
+                }
+            }
+        }
+
+        let props_calls = if is_new_props.is_empty() && open_props.is_empty() {
+            TokenStream2::new()
+        } else {
+            // TODO: replace unwrap with expect clause
+            quote! {{
+                let mut __node = __node.as_ref().borrow_mut();
+                let __node = __node.deref_mut().as_mut().downcast_mut::<#path#node>().unwrap();
+
+                if __is_new {
+                    #is_new_props
+                }
+
+                #open_props
+            }}
+        };
+
+        println!("props_call {}", props_calls.to_string());
+
         // TODO: add expect clause per line
         return Ok(Some(quote! {
-           let (node, is_new) = init_member(&node, #init_type, |parent| {
-               #path#node::#constructor.into_vnode_type()
-           }).unwrap();
+            let (__node, __is_new) = init_member(&__node, #init_type, |parent| {
+                let __node = #path#node::#constructor;
+                #init_props
+                __node.into_vnode_type()
+            }).unwrap();
+            #props_calls
         }));
     }
     Ok(None)
