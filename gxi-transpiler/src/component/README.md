@@ -58,19 +58,65 @@ On enabling feature `web`, if `$prop.name` doesn't start with `on` or `set` then
 invoked with args `set($prop.name, $prop.value)`
 
 ```rust
-h0 ( title = "header one", set_name = "aniket" )
+h1 ( title = "header one", set_name = "aniket" )
 ```
 
-which is equal to
+~
 
 ```rust
-gxi::NativeElement::from_str( $ name, parent)
+gxi::NativeElement::from_str("h1", parent)
 .set("title", "header_one")
 .set_name("aniket")
-.into_vnode_type()
+.into_vnode_type();
 ```
 
-> TODO: literal values
+**right-hand values**
+
+**if**
+
+values on the right side of the assignment operator are static or independent of the environment then they shall be
+called in the `init()` closure of the `init_member()` closure call.
+
+*eg*
+
+```rust
+h1 ( title = "header one", set_name = "aniket" , on_click = |event| {}, value = state.name )
+```
+
+~
+
+```rust
+let (node, is_new) = init_member(node, InitType::Child, |parent| {
+    gxi::NativeElement::from_str("h1", parent)
+        .set("title", "header one")
+        .set_name("aniket")
+        .into_vnode_type()
+}).unwrap();
+```
+
+**else if**
+
+value expression is of type `closure` then it should be assigned once after
+`initialisation` by checking the `is_new` flag.
+
+```rust
+let node_borrow = node.borrow_mut();
+if is_new {
+    node_borrow
+        .on_click(|event| {
+
+        });
+}
+```
+
+**else**
+
+other values which depend on the environment shall not be checked, updating them on each render call.
+
+```rust
+node_borrow
+    .value(state.name);
+```
 
 ### Children
 
