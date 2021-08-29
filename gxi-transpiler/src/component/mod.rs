@@ -220,23 +220,45 @@ impl ExprInitLocation {
             Expr::Tuple(_) => todo!(),
             Expr::Unary(_) => todo!(),
             Expr::Unsafe(_) => todo!(),
-            Expr::Assign(_) 
-                | Expr::Async(_)
-                | Expr::Await(_)
-                | Expr::Box(_)
-                | Expr::Continue(_)
-                | Expr::Group(_)
-                | Expr::Let(_)
-                | Expr::Struct(_)
-                | Expr::Field(_)
-                | Expr::Type(_)
-                | Expr::Break(_)
-                | Expr::Return(_)
-                | Expr::Yield(_)
-                => {
-                Err(syn::Error::new(expr.span(), "didn't expect this here"))
-            }
-            Expr::Verbatim(_)| Expr::__TestExhaustive(_) => unreachable!(),
+            Expr::Assign(_)
+            | Expr::Async(_)
+            | Expr::Await(_)
+            | Expr::Box(_)
+            | Expr::Continue(_)
+            | Expr::Group(_)
+            | Expr::Let(_)
+            | Expr::Struct(_)
+            | Expr::Field(_)
+            | Expr::Type(_)
+            | Expr::Break(_)
+            | Expr::Return(_)
+            | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
+            Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
         };
+    }
+}
+
+mod tets {
+
+    use crate::component::ExprInitLocation;
+    use quote::quote;
+
+    struct MyParser(syn::Expr);
+    impl syn::parse::Parse for MyParser {
+        fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+            Ok(Self(input.parse::<syn::Expr>()?))
+        }
+    }
+
+    #[test]
+    fn expr_init_location() -> syn::Result<()> {
+        {
+            let tokens = quote! {
+                [1, 2]
+            };
+
+            ExprInitLocation::find(&syn::parse2::<MyParser>(tokens)?.0)?;
+        }
+        Ok(())
     }
 }
