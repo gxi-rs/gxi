@@ -184,3 +184,59 @@ pub(crate) fn parse_component_block(
     }
     Ok(None)
 }
+
+enum ExprInitLocation {
+    Constructor,
+    IfIsNew,
+    Open,
+}
+
+impl ExprInitLocation {
+    fn find(expr: &syn::Expr) -> syn::Result<Self> {
+        return match expr {
+            Expr::Array(_) => todo!(),
+            Expr::AssignOp(_) => todo!(),
+            Expr::Binary(_) => todo!(),
+            Expr::Block(_) => todo!(),
+            Expr::Call(_) => todo!(),
+            Expr::Cast(_) => todo!(),
+            Expr::Closure(_) => todo!(),
+            Expr::ForLoop(_) => todo!(),
+            Expr::If(_) => todo!(),
+            Expr::Index(_) => todo!(),
+            Expr::Lit(_) => todo!(),
+            Expr::Loop(_) => todo!(),
+            Expr::While(_) => todo!(),
+            Expr::Macro(_) => todo!(),
+            Expr::Match(_) => todo!(),
+            Expr::MethodCall(_) => todo!(),
+            Expr::Paren(_) => todo!(),
+            Expr::Path(_) => todo!(),
+            Expr::Range(_) => todo!(),
+            Expr::Reference(_) => todo!(),
+            Expr::Repeat(_) => todo!(),
+            Expr::Try(_) => todo!(),
+            Expr::TryBlock(_) => todo!(),
+            Expr::Tuple(_) => todo!(),
+            Expr::Unary(_) => todo!(),
+            Expr::Unsafe(_) => todo!(),
+            Expr::Assign(_) 
+                | Expr::Async(_)
+                | Expr::Await(_)
+                | Expr::Box(_)
+                | Expr::Continue(_)
+                | Expr::Group(_)
+                | Expr::Let(_)
+                | Expr::Struct(_)
+                | Expr::Field(_)
+                | Expr::Type(_)
+                | Expr::Break(_)
+                | Expr::Return(_)
+                | Expr::Yield(_)
+                => {
+                Err(syn::Error::new(expr.span(), "didn't expect this here"))
+            }
+            Expr::Verbatim(_)| Expr::__TestExhaustive(_) => unreachable!(),
+        };
+    }
+}
