@@ -185,6 +185,7 @@ pub(crate) fn parse_component_block(
     Ok(None)
 }
 
+#[derive(Debug,PartialEq)]
 enum ExprInitLocation {
     Constructor,
     IfIsNew,
@@ -238,7 +239,7 @@ impl ExprInitLocation {
     }
 }
 
-mod tets {
+mod expr_init_location {
 
     use crate::component::ExprInitLocation;
     use quote::quote;
@@ -250,15 +251,24 @@ mod tets {
         }
     }
 
+    macro_rules! mp_match {
+        ($expect:ident, $($expr:tt)* ) => {
+        assert_eq!(
+            ExprInitLocation::$expect,
+            ExprInitLocation::find(
+                &syn::parse2::<MyParser>(quote! {
+                    $($expr)*
+                })?
+                .0,
+            )?
+        );
+            
+        };
+    }
+    
     #[test]
-    fn expr_init_location() -> syn::Result<()> {
-        {
-            let tokens = quote! {
-                [1, 2]
-            };
-
-            ExprInitLocation::find(&syn::parse2::<MyParser>(tokens)?.0)?;
-        }
+    fn array() -> syn::Result<()> {
+        mp_match!(Open, [1, 2]);
         Ok(())
     }
 }
