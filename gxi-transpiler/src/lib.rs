@@ -1,14 +1,18 @@
 use proc_macro::TokenStream;
 
-use crate::tree_parser::TreeParser;
-
+mod block;
 mod component;
+mod execution;
 mod init_type;
-mod tree_parser;
+
+pub(crate) use block::*;
+pub(crate) use component::*;
+pub(crate) use execution::*;
+pub(crate) use init_type::*;
 
 #[doc = include_str!("../README.md")]
 #[proc_macro]
 pub fn gxi(input: TokenStream) -> TokenStream {
-    let TreeParser(tree) = syn::parse_macro_input!(input as TreeParser);
-    tree.into()
+    let block_parser = syn::parse_macro_input!(input as BlockParser);
+    block_parser.into()
 }

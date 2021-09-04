@@ -8,6 +8,10 @@ pub struct App {
     node: gxi::ContainerNode,
 }
 
+enum Msg {
+    Panic
+}
+
 impl gxi::Renderable for App {
     fn render(__node: &StrongNodeType) {
         gxi! {
@@ -18,7 +22,7 @@ impl gxi::Renderable for App {
             let cont = __node.clone();
 
             gxi! {
-                h1 ( inner_html = "23", on_click = |_| panic!("hello world"))
+                h1 ( inner_html = "23", on_click = |_| -> Msg::Noop { println("hello") } )
             }
 
             /*{*/

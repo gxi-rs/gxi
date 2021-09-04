@@ -109,6 +109,18 @@ if is_new {
 }
 ```
 
+#### Closures
+
+due to the limiting powers of macros, and to adhere to lifetime rules, closure syntax is a little different from rust-lang spec.
+
+//TODO: mpsc spec
+```rust
+|$args| -> $msg { $body }
+```
+
+here `$msg` is any enum variant which needs to passed to the update function in-order to update state.
+Note: any state update out of update function can't be recognized due to various limitations, therefore one should not update state from the closure.
+
 **else**
 
 other values which depend on the environment shall not be checked, updating them on each render call.

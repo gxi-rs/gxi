@@ -1,6 +1,7 @@
 use quote::__private::TokenStream;
 use quote::{quote, ToTokens, TokenStreamExt};
 
+#[derive(Clone)]
 pub enum InitType {
     Child,
     Sibling,
