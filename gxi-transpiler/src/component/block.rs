@@ -1,4 +1,4 @@
-use crate::{BlockParser, ComponentProp, ExprInitLocation, InitType};
+ese crate::{BlockParser, ComponentProp, ExprInitLocation, InitType};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -18,13 +18,14 @@ impl Default for NodeType {
 
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
-    serializable: bool,
-    node_type: NodeType,
-    init_type: InitType,
-    props: Vec<ComponentProp>,
-    constructor: TokenStream2,
-    path: syn::Path,
-    children: Vec<crate::Block>,
+    pub node_type: NodeType,
+    pub init_type: InitType,
+    pub props: Vec<ComponentProp>,
+    pub constructor: TokenStream2,
+    pub path: syn::Path,
+    pub subtree: Vec<crate::Block>,
+    /// serializable if the subtree and the node itself if constant
+    pub serializable: bool,
 }
 
 impl NodeBlock {
@@ -134,7 +135,7 @@ impl NodeBlock {
             }
 
             // parse children
-            let children =
+            let subtree =
                 if let Ok(syn::group::Braces { content, .. }) = syn::group::parse_braces(&input) {
                     if !content.is_empty() {
                         content.parse::<BlockParser>()?.blocks
@@ -150,11 +151,29 @@ impl NodeBlock {
                 props,
                 constructor,
                 path,
-                children,
                 serializable,
                 node_type,
+                subtree,
             }));
         }
         Ok(None)
     }
 }
+
+/// Optimization Rules:
+/// 1. If a component consists of a serializable sub tree then serialize them to string
+///
+impl ToTokens for NodeBlock {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
+        //TODO: component optimization goes here
+    }
+}
+
+impl ToString for NodeBlock {
+    /// if to string is called it means that the whole sub tree is serializable
+    fn to_string(&self) -> String {
+        //TODO: serialize only if cfg!(feature = "web") 
+    }
+}
+
+//TODO: unit tests about serialize, token sub tree

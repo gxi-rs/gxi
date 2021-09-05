@@ -1,11 +1,13 @@
 use proc_macro::TokenStream;
 
 mod block;
+mod block_parser;
 mod component;
 mod execution;
 mod init_type;
 
 pub(crate) use block::*;
+pub(crate) use block_parser::*;
 pub(crate) use component::*;
 pub(crate) use execution::*;
 pub(crate) use init_type::*;

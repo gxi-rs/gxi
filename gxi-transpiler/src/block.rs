@@ -3,7 +3,7 @@ use quote::{ToTokens, TokenStreamExt};
 use crate::{component::NodeBlock, execution::ExecutionBlock, init_type::InitType};
 
 pub enum Block {
-    ComponentBlock(NodeBlock),
+    NodeBlock(NodeBlock),
     ExecutionBlock(ExecutionBlock),
     ConditionalBlock,
     IterBlock,
@@ -12,7 +12,7 @@ pub enum Block {
 impl syn::parse::Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         if let Some(comp) = NodeBlock::parse(&input, InitType::Child)? {
-            return Ok(Self::ComponentBlock(comp));
+            return Ok(Self::NodeBlock(comp));
         }
 
         Err(syn::Error::new(input.span(), "didn't expect this here"))
@@ -21,41 +21,22 @@ impl syn::parse::Parse for Block {
 
 impl ToTokens for Block {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+        tokens.append(match self {
+            Block::NodeBlock(comp) => comp,
+            Block::ExecutionBlock(_ex) => todo!(),
+            Block::ConditionalBlock => todo!(),
+            Block::IterBlock => todo!(),
+        });
+    }
+}
+
+impl Block {
+    pub fn is_serializable(self) -> bool {
         match self {
-            _ => {},
+            Block::NodeBlock(node) => node.serializable,
+            Block::ExecutionBlock(_) => false,
+            Block::ConditionalBlock => todo!(),
+            Block::IterBlock => todo!(),
         }
-        todo!()
-    }
-}
-
-/// comma separated multiple blocks
-#[derive(Default)]
-pub struct BlockParser {
-    pub blocks: Vec<Block>,
-}
-
-impl syn::parse::Parse for BlockParser {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut blocks = Vec::default();
-
-        loop {
-            if input.is_empty() {
-                break;
-            }
-
-            blocks.push(input.parse()?);
-
-            if input.parse::<syn::Token![,]>().is_err() {
-                break;
-            }
-        }
-
-        Ok(Self { blocks })
-    }
-}
-
-impl ToTokens for BlockParser {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-       //append
     }
 }
