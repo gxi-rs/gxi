@@ -4,14 +4,14 @@ use syn::spanned::Spanned;
 use syn::Expr;
 
 pub struct ComponentProp {
-    left: Box<syn::Expr>,
-    right: Box<syn::Expr>,
-    init_location: ExprInitLocation,
+    pub left: Box<syn::Expr>,
+    pub right: Box<syn::Expr>,
+    pub init_location: ExprInitLocation,
 }
 
 impl Parse for ComponentProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let syn::ExprAssign { left, right, .. } = input.parse()?;
+        let syn::ExprAssign { left, mut right, .. } = input.parse()?;
         let init_location = ExprInitLocation::find(&mut right)?;
         Ok(Self {
             left,
@@ -22,7 +22,7 @@ impl Parse for ComponentProp {
 }
 
 #[derive(Debug, PartialEq)]
-enum ExprInitLocation {
+pub enum ExprInitLocation {
     Constructor,
     IfIsNew,
     Open,

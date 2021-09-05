@@ -1,11 +1,25 @@
-use crate::{BlockParser, ComponentProp, InitType};
+use crate::{BlockParser, ComponentProp, ExprInitLocation, InitType};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
 
+pub enum NodeType {
+    // gxi::Element
+    Element(String),
+    Others,
+}
+
+impl Default for NodeType {
+    fn default() -> Self {
+        Self::Others
+    }
+}
+
 #[doc = include_str ! ("./README.md")]
-pub struct ComponentBlock {
+pub struct NodeBlock {
+    serializable: bool,
+    node_type: NodeType,
     init_type: InitType,
     props: Vec<ComponentProp>,
     constructor: TokenStream2,
@@ -13,10 +27,10 @@ pub struct ComponentBlock {
     children: Vec<crate::Block>,
 }
 
-impl ComponentBlock {
+impl NodeBlock {
     pub fn parse(input: &ParseStream, init_type: InitType) -> syn::Result<Option<Self>> {
         if let Ok(mut path) = input.parse::<syn::Path>() {
-            let constructor = {
+            let (constructor, mut serializable, node_type) = {
                 let last_segment = path.segments.last().unwrap();
                 let node = last_segment.ident.clone().into_token_stream();
                 let name = last_segment.ident.to_string();
@@ -38,15 +52,24 @@ impl ComponentBlock {
                                 quote! {
                                     gxi::Element
                                 }
-                                .into_token_stream(),
+                                .into_token_stream()
+                                .into(),
                             )?;
-                            quote! {
-                                from_str(#last_segment, parent)
-                            }
+                            (
+                                quote! {
+                                    from_str(#node, parent)
+                                },
+                                true,
+                                NodeType::Element(name),
+                            )
                         } else {
-                            quote! {
-                                new(parent)
-                            }
+                            (
+                                quote! {
+                                    new(parent)
+                                },
+                                Default::default(),
+                                Default::default(),
+                            )
                         }
                     }
                     // more than 1 then
@@ -70,17 +93,25 @@ impl ComponentBlock {
                                     content.parse::<syn::token::Comma>()?;
                                 }
                             }
-                            quote! { #constructor( #args parent) }
+                            (
+                                quote! { #constructor( #args parent) },
+                                Default::default(),
+                                Default::default(),
+                            )
                         } else {
-                            quote! {
-                                new(parent)
-                            }
+                            (
+                                quote! {
+                                    new(parent)
+                                },
+                                Default::default(),
+                                Default::default(),
+                            )
                         }
                     }
                 }
             };
 
-            let props = Vec::default();
+            let mut props = Vec::default();
 
             // parse props
             if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
@@ -88,7 +119,12 @@ impl ComponentBlock {
                     if content.is_empty() {
                         break;
                     }
-                    props.push(content.parse()?);
+                    let prop: ComponentProp = content.parse()?;
+                    match prop.init_location {
+                        ExprInitLocation::Constructor => (),
+                        _ => serializable = false,
+                    }
+                    props.push(prop);
                     if !content.is_empty() {
                         content.parse::<syn::token::Comma>()?;
                     } else {
@@ -115,6 +151,8 @@ impl ComponentBlock {
                 constructor,
                 path,
                 children,
+                serializable,
+                node_type,
             }));
         }
         Ok(None)
