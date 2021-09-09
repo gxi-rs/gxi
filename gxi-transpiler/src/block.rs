@@ -1,6 +1,10 @@
 use quote::{ToTokens, TokenStreamExt};
 
-use crate::{component::{NodeBlock, Scope}, execution::ExecutionBlock, init_type::InitType};
+use crate::{
+    component::{NodeBlock, Scope},
+    execution::ExecutionBlock,
+    init_type::InitType,
+};
 
 pub enum Block {
     NodeBlock(NodeBlock),

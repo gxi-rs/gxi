@@ -1,6 +1,5 @@
-mod prop;
 mod block;
+mod prop;
 
-pub use prop::*;
 pub use block::*;
-
+pub use prop::*;

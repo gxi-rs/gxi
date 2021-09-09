@@ -9,7 +9,7 @@ pub struct App {
 }
 
 enum Msg {
-    Panic
+    Panic,
 }
 
 impl gxi::Renderable for App {

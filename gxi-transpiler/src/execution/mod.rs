@@ -1,3 +1,1 @@
-pub struct ExecutionBlock {
-    
-}
+pub struct ExecutionBlock {}
