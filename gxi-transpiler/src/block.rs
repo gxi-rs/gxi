@@ -21,8 +21,8 @@ impl syn::parse::Parse for Block {
 
 impl ToTokens for Block {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-        tokens.append(match self {
-            Block::NodeBlock(comp) => comp,
+        tokens.append_all(match self {
+            Block::NodeBlock(comp) => comp.to_token_stream(),
             Block::ExecutionBlock(_ex) => todo!(),
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),
