@@ -35,9 +35,9 @@ impl ToTokens for Block {
 }
 
 impl Block {
-    pub fn get_scope(self) -> Scope {
+    pub fn get_scope(&self) -> Scope {
         match self {
-            Block::NodeBlock(node) => node.scope,
+            Block::NodeBlock(node) => node.scope.clone(),
             Block::ExecutionBlock(_) => Scope::Open,
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),

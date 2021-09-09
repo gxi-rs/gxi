@@ -48,12 +48,13 @@ impl Scope {
     }
     /// compare and promote self if others scope is higher
     pub fn comp_and_promote(&mut self, other: &Self) {
-        *self = match (self, other) {
+        let scope = match (&self, other) {
             (Self::Constant, _) => other.clone(),
-            (Self::PartialOpen, Self::Constant) => Self::PartialOpen,
+            (Self::PartialOpen, Self::Constant | Self::PartialOpen) => Self::PartialOpen,
             (Self::PartialOpen, Self::Open) => Self::Open,
             (Self::Open, _) => Self::Open,
-        }
+        };
+        *self = scope;
     }
 
     fn find_prop_scope(expr: &mut syn::Expr) -> syn::Result<Self> {
