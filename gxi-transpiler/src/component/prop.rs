@@ -150,7 +150,7 @@ impl Scope {
 #[cfg(test)]
 mod expr_init_location {
 
-    use crate::component::ExprInitLocation;
+    use crate::Scope;
     use quote::quote;
 
     struct MyParser(syn::Expr);
@@ -163,9 +163,9 @@ mod expr_init_location {
     macro_rules! mp_match {
         ($expect:ident, $($expr:tt)* ) => {
         assert_eq!(
-            ExprInitLocation::$expect,
-            ExprInitLocation::find(
-                &syn::parse2::<MyParser>(quote! {
+            Scope::$expect,
+            Scope::find_prop_scope(
+                &mut syn::parse2::<MyParser>(quote! {
                     $($expr)*
                 })?
                 .0,
@@ -176,9 +176,13 @@ mod expr_init_location {
 
     #[test]
     fn array() -> syn::Result<()> {
+        //FIX: fix test case
+        println!("1");
         mp_match!(Constant, [1, 2]);
-        mp_match!(Once, [1, || { println!!("hello") }]);
-        mp_match!(Open, [state.2, 3, Hello::hi()]);
+        println!("2");
+        mp_match!(PartialOpen, [1, || println!!("hello") ]);
+        println!("3");
+        mp_match!(Open, [state.a, 3, Hello::hi()]);
         Ok(())
     }
 }
