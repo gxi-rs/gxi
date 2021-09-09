@@ -1,6 +1,6 @@
 use quote::{ToTokens, TokenStreamExt};
 
-use crate::{component::NodeBlock, execution::ExecutionBlock, init_type::InitType};
+use crate::{component::{NodeBlock, Scope}, execution::ExecutionBlock, init_type::InitType};
 
 pub enum Block {
     NodeBlock(NodeBlock),
@@ -31,10 +31,10 @@ impl ToTokens for Block {
 }
 
 impl Block {
-    pub fn is_serializable(self) -> bool {
+    pub fn get_scope(self) -> Scope {
         match self {
-            Block::NodeBlock(node) => node.serializable,
-            Block::ExecutionBlock(_) => false,
+            Block::NodeBlock(node) => node.scope,
+            Block::ExecutionBlock(_) => Scope::Open,
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),
         }

@@ -1,4 +1,4 @@
-ese crate::{BlockParser, ComponentProp, ExprInitLocation, InitType};
+use crate::{Blocks, ComponentProp, InitType, Scope};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -23,15 +23,14 @@ pub struct NodeBlock {
     pub props: Vec<ComponentProp>,
     pub constructor: TokenStream2,
     pub path: syn::Path,
-    pub subtree: Vec<crate::Block>,
-    /// serializable if the subtree and the node itself if constant
-    pub serializable: bool,
+    pub subtree: Blocks,
+    pub scope: Scope,
 }
 
 impl NodeBlock {
     pub fn parse(input: &ParseStream, init_type: InitType) -> syn::Result<Option<Self>> {
         if let Ok(mut path) = input.parse::<syn::Path>() {
-            let (constructor, mut serializable, node_type) = {
+            let (constructor, node_type) = {
                 let last_segment = path.segments.last().unwrap();
                 let node = last_segment.ident.clone().into_token_stream();
                 let name = last_segment.ident.to_string();
@@ -60,7 +59,6 @@ impl NodeBlock {
                                 quote! {
                                     from_str(#node, parent)
                                 },
-                                true,
                                 NodeType::Element(name),
                             )
                         } else {
@@ -68,7 +66,6 @@ impl NodeBlock {
                                 quote! {
                                     new(parent)
                                 },
-                                Default::default(),
                                 Default::default(),
                             )
                         }
@@ -94,17 +91,12 @@ impl NodeBlock {
                                     content.parse::<syn::token::Comma>()?;
                                 }
                             }
-                            (
-                                quote! { #constructor( #args parent) },
-                                Default::default(),
-                                Default::default(),
-                            )
+                            (quote! { #constructor( #args parent) }, Default::default())
                         } else {
                             (
                                 quote! {
                                     new(parent)
                                 },
-                                Default::default(),
                                 Default::default(),
                             )
                         }
@@ -113,7 +105,7 @@ impl NodeBlock {
             };
 
             let mut props = Vec::default();
-
+            let mut scope = Scope::default();
             // parse props
             if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
                 loop {
@@ -121,10 +113,7 @@ impl NodeBlock {
                         break;
                     }
                     let prop: ComponentProp = content.parse()?;
-                    match prop.init_location {
-                        ExprInitLocation::Constructor => (),
-                        _ => serializable = false,
-                    }
+                    scope.comp_and_promote(&prop.scope);
                     props.push(prop);
                     if !content.is_empty() {
                         content.parse::<syn::token::Comma>()?;
@@ -138,7 +127,7 @@ impl NodeBlock {
             let subtree =
                 if let Ok(syn::group::Braces { content, .. }) = syn::group::parse_braces(&input) {
                     if !content.is_empty() {
-                        content.parse::<BlockParser>()?.blocks
+                        content.parse::<Blocks>()?
                     } else {
                         Default::default()
                     }
@@ -151,8 +140,8 @@ impl NodeBlock {
                 props,
                 constructor,
                 path,
-                serializable,
                 node_type,
+                scope,
                 subtree,
             }));
         }
@@ -172,7 +161,8 @@ impl ToTokens for NodeBlock {
 impl ToString for NodeBlock {
     /// if to string is called it means that the whole sub tree is serializable
     fn to_string(&self) -> String {
-        //TODO: serialize only if cfg!(feature = "web") 
+        //TODO: serialize only if cfg!(feature = "web")
+        todo!()
     }
 }
 

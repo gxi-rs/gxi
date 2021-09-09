@@ -1,41 +1,38 @@
-use crate::Block;
+use crate::{Block, Scope};
 use quote::{ToTokens, TokenStreamExt};
 
 /// comma separated multiple blocks
 #[derive(Default)]
-pub struct BlockParser {
+pub struct Blocks {
     pub blocks: Vec<Block>,
-    /// serializable if the subtree and the node itself is constant
-    pub serializable: bool
+    pub scope: Scope,
 }
 
-impl syn::parse::Parse for BlockParser {
+impl syn::parse::Parse for Blocks {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut blocks = Vec::default();
-        let mut serializable = true;
+        let mut this = Self::default();
+
         loop {
             if input.is_empty() {
                 break;
             }
-            
-            let block:Block = input.parse()?;
-            
-            if !block.is_serializable() {
-              serializable = false;      
-            }
 
-            blocks.push(block);
+            let block: Block = input.parse()?;
+
+            this.scope.comp_and_promote(&block.get_scope());
+
+            this.blocks.push(block);
 
             if input.parse::<syn::token::Comma>().is_err() {
                 break;
             }
         }
 
-        Ok(Self { blocks, serializable })
+        Ok(this)
     }
 }
 
-impl ToTokens for BlockParser {
+impl ToTokens for Blocks {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         //just append all the blocks
         for x in &self.blocks {

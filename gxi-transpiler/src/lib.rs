@@ -1,13 +1,13 @@
 use proc_macro::TokenStream;
 
 mod block;
-mod block_parser;
+mod blocks;
 mod component;
 mod execution;
 mod init_type;
 
 pub(crate) use block::*;
-pub(crate) use block_parser::*;
+pub(crate) use blocks::*;
 pub(crate) use component::*;
 pub(crate) use execution::*;
 pub(crate) use init_type::*;
@@ -16,6 +16,6 @@ use quote::ToTokens;
 #[doc = include_str!("../README.md")]
 #[proc_macro]
 pub fn gxi(input: TokenStream) -> TokenStream {
-    let block_parser = syn::parse_macro_input!(input as BlockParser);
+    let block_parser = syn::parse_macro_input!(input as Blocks);
     block_parser.into_token_stream().into()
 }

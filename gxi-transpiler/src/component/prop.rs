@@ -6,32 +6,59 @@ use syn::Expr;
 pub struct ComponentProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
-    pub init_location: ExprInitLocation,
+    pub scope: Scope,
 }
 
 impl Parse for ComponentProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let syn::ExprAssign { left, mut right, .. } = input.parse()?;
-        let init_location = ExprInitLocation::find(&mut right)?;
-        Ok(Self {
-            left,
-            init_location,
-            right,
-        })
+        let syn::ExprAssign {
+            left, mut right, ..
+        } = input.parse()?;
+        let scope = Scope::find_prop_scope(&mut right)?;
+        Ok(Self { left, scope, right })
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub enum ExprInitLocation {
-    Constructor,
-    IfIsNew,
+#[derive(Debug, PartialEq, Clone)]
+pub enum Scope {
+    /// the value wont change i.e constant
+    Constant,
+    /// the value is constant but needs to be kept in a partial open env.
+    /// may or may not depend on the env
+    /// eg in a if statement which executes once
+    /// eg closures, need to assigned once
+    PartialOpen,
+    /// the value is dependent on external factors and may change
+    /// eg. state
     Open,
 }
 
-impl ExprInitLocation {
-    fn find(expr: &mut syn::Expr) -> syn::Result<Self> {
+impl Default for Scope {
+    fn default() -> Self {
+        Self::Constant
+    }
+}
+
+impl Scope {
+    pub fn is_serializable(&self) -> bool {
+        match self {
+            Self::Constant => true,
+            _ => false,
+        }
+    }
+    /// compare and promote self if others scope is higher
+    pub fn comp_and_promote(&mut self, other: &Self) {
+        *self = match (self, other) {
+            (Self::Constant, _) => other.clone(),
+            (Self::PartialOpen, Self::Constant) => Self::PartialOpen,
+            (Self::PartialOpen, Self::Open) => Self::Open,
+            (Self::Open, _) => Self::Open,
+        }
+    }
+
+    fn find_prop_scope(expr: &mut syn::Expr) -> syn::Result<Self> {
         return match expr {
-            Expr::Lit(_) => Ok(Self::Constructor),
+            Expr::Lit(_) => Ok(Self::Constant),
 
             // find a way to edit expr
             Expr::Closure(syn::ExprClosure {
@@ -64,19 +91,19 @@ impl ExprInitLocation {
                 // }) * expr = Expr::Closure(syn::parse2::<syn::ExprClosure>(quote! {
                 //     ||
                 // })?);
-                Ok(Self::IfIsNew)
+                Ok(Self::PartialOpen)
             }
 
             Expr::Array(syn::ExprArray { elems, .. }) => {
                 for x in elems {
-                    let k = Self::find(x)?;
+                    let k = Self::find_prop_scope(x)?;
 
                     match k {
-                        Self::Constructor => continue,
+                        Self::Constant => continue,
                         _ => return Ok(k),
                     }
                 }
-                Ok(Self::Constructor)
+                Ok(Self::Constant)
             }
             Expr::AssignOp(_) => todo!(),
             Expr::Binary(_) => todo!(),
@@ -148,8 +175,8 @@ mod expr_init_location {
 
     #[test]
     fn array() -> syn::Result<()> {
-        mp_match!(Constructor, [1, 2]);
-        mp_match!(IfIsNew, [1, || { println!!("hello") }]);
+        mp_match!(Constant, [1, 2]);
+        mp_match!(Once, [1, || { println!!("hello") }]);
         mp_match!(Open, [state.2, 3, Hello::hi()]);
         Ok(())
     }
