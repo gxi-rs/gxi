@@ -22,7 +22,7 @@ impl gxi::Renderable for App {
             let cont = __node.clone();
 
             gxi! {
-                h1 ( inner_html = "23", on_click = |_| -> Msg::Noop { println("hello") } )
+                h1 ( inner_html = "23", on_click = |_| println("hello") )
             }
 
             /*{*/

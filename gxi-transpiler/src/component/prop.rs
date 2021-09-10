@@ -1,4 +1,3 @@
-use quote::ToTokens;
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::Expr;
@@ -14,7 +13,8 @@ impl Parse for ComponentProp {
         let syn::ExprAssign {
             left, mut right, ..
         } = input.parse()?;
-        let scope = Scope::find_prop_scope(&mut right)?;
+        //TODO: add event listener handler using *= token
+        let scope = Scope::find_prop_scope(&right)?;
         Ok(Self { left, scope, right })
     }
 }
@@ -57,55 +57,21 @@ impl Scope {
         *self = scope;
     }
 
-    fn find_prop_scope(expr: &mut syn::Expr) -> syn::Result<Self> {
+    fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
         return match expr {
             Expr::Lit(_) => Ok(Self::Constant),
             Expr::Field(_) => Ok(Self::Open),
-            // find a way to edit expr
-            Expr::Closure(syn::ExprClosure {
-                body,
-                asyncness,
-                output,
-                ..
-            }) => {
-                println!("as");
-                if asyncness.is_some() {
-                    return Err(syn::Error::new(
-                        expr.span(),
-                        "async closures are not supported yet. Use async update function instead.",
-                    ));
-                }
-
-                if !output.to_token_stream().is_empty() {
-                    return Err(syn::Error::new(
-                        expr.span(),
-                        "this closure cannot return a value",
-                    ));
-                }
-
-                // is_new_props.append_all(quote! {
-                //     __node.#left(
-                //         #(#attrs)*
-                //         move |#inputs| {
-                //             #body
-                //         }
-                //     );
-                // }) * expr = Expr::Closure(syn::parse2::<syn::ExprClosure>(quote! {
-                //     ||
-                // })?);
-                Ok(Self::PartialOpen)
-            }
-
+            Expr::Closure(_) => Ok(Self::PartialOpen),
             Expr::Array(syn::ExprArray { elems, .. }) => {
+                let mut scope = Scope::Constant;
                 for x in elems {
                     let k = Self::find_prop_scope(x)?;
-
-                    match k {
-                        Self::Constant => continue,
-                        _ => return Ok(k),
+                    scope.comp_and_promote(&k);
+                    if let Scope::Open = k {
+                        break;
                     }
                 }
-                Ok(Self::Constant)
+                Ok(scope)
             }
             Expr::AssignOp(_) => todo!(),
             Expr::Binary(_) => todo!(),
@@ -158,7 +124,7 @@ mod expr_init_location {
         assert_eq!(
             Scope::$expect,
             Scope::find_prop_scope(
-                &mut syn::Expr::$variant(syn::parse2(quote! {
+                &syn::Expr::$variant(syn::parse2(quote! {
                     $($expr)*
                 })?)
             )?
