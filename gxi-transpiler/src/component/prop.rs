@@ -60,7 +60,7 @@ impl Scope {
     fn find_prop_scope(expr: &mut syn::Expr) -> syn::Result<Self> {
         return match expr {
             Expr::Lit(_) => Ok(Self::Constant),
-
+            Expr::Field(_) => Ok(Self::Open),
             // find a way to edit expr
             Expr::Closure(syn::ExprClosure {
                 body,
@@ -68,6 +68,7 @@ impl Scope {
                 output,
                 ..
             }) => {
+                println!("as");
                 if asyncness.is_some() {
                     return Err(syn::Error::new(
                         expr.span(),
@@ -137,7 +138,6 @@ impl Scope {
             | Expr::Group(_)
             | Expr::Let(_)
             | Expr::Struct(_)
-            | Expr::Field(_)
             | Expr::Type(_)
             | Expr::Break(_)
             | Expr::Return(_)
@@ -153,22 +153,14 @@ mod expr_init_location {
     use crate::Scope;
     use quote::quote;
 
-    struct MyParser(syn::Expr);
-    impl syn::parse::Parse for MyParser {
-        fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-            Ok(Self(input.parse::<syn::Expr>()?))
-        }
-    }
-
     macro_rules! mp_match {
-        ($expect:ident, $($expr:tt)* ) => {
+        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
         assert_eq!(
             Scope::$expect,
             Scope::find_prop_scope(
-                &mut syn::parse2::<MyParser>(quote! {
+                &mut syn::Expr::$variant(syn::parse2(quote! {
                     $($expr)*
-                })?
-                .0,
+                })?)
             )?
         );
         };
@@ -176,13 +168,12 @@ mod expr_init_location {
 
     #[test]
     fn array() -> syn::Result<()> {
-        //FIX: fix test case
         println!("1");
-        mp_match!(Constant, [1, 2]);
+        mp_match!(Constant, Array, [1, 2]);
         println!("2");
-        mp_match!(PartialOpen, [1, || println!!("hello") ]);
+        mp_match!(PartialOpen, Array, [1, |_| println!("hello")]);
         println!("3");
-        mp_match!(Open, [state.a, 3, Hello::hi()]);
+        mp_match!(Open, Array, [state.a, 3, Hello::hi()]);
         Ok(())
     }
 }
