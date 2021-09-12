@@ -16,6 +16,6 @@ use quote::ToTokens;
 #[doc = include_str!("../README.md")]
 #[proc_macro]
 pub fn gxi(input: TokenStream) -> TokenStream {
-    let block_parser = syn::parse_macro_input!(input as Blocks);
-    block_parser.into_token_stream().into()
+    let block = syn::parse_macro_input!(input as Block);
+    block.into_token_stream().into()
 }

@@ -1,5 +1,4 @@
 use crate::{Block, Scope};
-use quote::{ToTokens, TokenStreamExt};
 
 /// comma separated multiple blocks
 #[derive(Default)]
@@ -29,15 +28,6 @@ impl syn::parse::Parse for Blocks {
         }
 
         Ok(this)
-    }
-}
-
-impl ToTokens for Blocks {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-        //just append all the blocks
-        for x in &self.blocks {
-            tokens.append_all(x.to_token_stream());
-        }
     }
 }
 

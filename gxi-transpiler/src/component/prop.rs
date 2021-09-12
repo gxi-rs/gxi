@@ -1,14 +1,46 @@
+use quote::ToTokens;
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::Expr;
 
-pub struct ComponentProp {
+// list of comma separated props inside parenthesis
+#[derive(Default)]
+pub struct NodeProps {
+    pub props: Vec<NodeProp>,
+    pub scope: Scope,
+}
+
+impl Parse for NodeProps {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        let this = Self::default();
+        // parse props
+        if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
+            loop {
+                if content.is_empty() {
+                    break;
+                }
+                let prop: NodeProp = content.parse()?;
+                this.scope.comp_and_promote(&prop.scope);
+                this.props.push(prop);
+                if !content.is_empty() {
+                    content.parse::<syn::token::Comma>()?;
+                } else {
+                    break;
+                }
+            }
+        }
+
+        Ok(this)
+    }
+}
+
+pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
     pub scope: Scope,
 }
 
-impl Parse for ComponentProp {
+impl Parse for NodeProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let syn::ExprAssign {
             left, mut right, ..

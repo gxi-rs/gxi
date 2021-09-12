@@ -1,8 +1,10 @@
-use crate::{Blocks, ComponentProp, InitType, Scope};
+use crate::{init_type, Blocks, InitType, NodeProp, Scope};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
+
+use super::NodeProps;
 
 pub enum NodeType {
     // gxi::Element
@@ -20,10 +22,11 @@ impl Default for NodeType {
 pub struct NodeBlock {
     pub node_type: NodeType,
     pub init_type: InitType,
-    pub props: Vec<ComponentProp>,
     pub constructor: TokenStream2,
     pub path: syn::Path,
     pub subtree: Blocks,
+    pub props: NodeProps,
+    /// highest scope of node, compared to scope of subtree and props
     pub scope: Scope,
 }
 
@@ -104,24 +107,7 @@ impl NodeBlock {
                 }
             };
 
-            let mut props = Vec::default();
-            let mut scope = Scope::default();
-            // parse props
-            if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
-                loop {
-                    if content.is_empty() {
-                        break;
-                    }
-                    let prop: ComponentProp = content.parse()?;
-                    scope.comp_and_promote(&prop.scope);
-                    props.push(prop);
-                    if !content.is_empty() {
-                        content.parse::<syn::token::Comma>()?;
-                    } else {
-                        break;
-                    }
-                }
-            }
+            let props = input.parse::<NodeProps>()?;
 
             // parse children
             let subtree =
@@ -134,6 +120,10 @@ impl NodeBlock {
                 } else {
                     Default::default()
                 };
+
+            let mut scope = Scope::default();
+            scope.comp_and_promote(&props.scope);
+            scope.comp_and_promote(&subtree.scope);
 
             return Ok(Some(Self {
                 init_type: init_type.clone(),
@@ -154,14 +144,60 @@ impl NodeBlock {
 ///
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        //TODO: component optimization goes here
+        let init_type = &self.init_type;
+        let mut const_scope = TokenStream2::new();
+        let mut partial_scope = TokenStream2::new();
+        let mut open_scope = TokenStream2::new();
+
+        // props
+        {
+            match self.scope {
+                Scope::Constant => {
+                    const_scope.append_all(quote! {});
+                }
+                Scope::PartialOpen => {
+                    partial_scope.append_all(quote! {
+                        if __is_new {
+
+                        }
+                    });
+                }
+                Scope::Open => open_scope.append_all(quote! {}),
+            }
+        }
+        match self.subtree.scope {
+            Scope::Constant => {
+                const_scope.append_all(quote! {});
+            }
+            Scope::PartialOpen => {
+                partial_scope.append_all(quote! {
+                    if __is_new {
+
+                    }
+                });
+            }
+            Scope::Open => open_scope.append_all(quote! {}),
+        }
+
+        tokens.append_all(quote! {
+            let (__node, __is_new) = init_member(&__node, #init_type, |parent| {
+                let __node = #path#node::#constructor;
+                #const_scope
+                __node.into_vnode_type()
+            }).unwrap();
+            #partial_scope
+            #open_scope
+        });
     }
 }
 
 impl ToString for NodeBlock {
     /// if to string is called it means that the whole sub tree is serializable
     fn to_string(&self) -> String {
-        //TODO: serialize only if cfg!(feature = "web")
+        if cfg!(feature = "web") {
+        } else {
+            unreachable!("Can't serialize with the current feature flag. Most likely an internal error. Please use the github issue tracker https://github.com/gxi-rs/gxi/issues")
+        }
         todo!()
     }
 }
