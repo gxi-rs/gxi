@@ -1,4 +1,4 @@
-use crate::{init_type, Blocks, InitType, NodeProp, Scope};
+use crate::{Blocks, InitType, Scope};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -60,7 +60,7 @@ impl NodeBlock {
                             )?;
                             (
                                 quote! {
-                                    from_str(#node, parent)
+                                    from_str(#name, parent)
                                 },
                                 NodeType::Element(name),
                             )
@@ -110,16 +110,17 @@ impl NodeBlock {
             let props = input.parse::<NodeProps>()?;
 
             // parse children
-            let subtree =
-                if let Ok(syn::group::Braces { content, .. }) = syn::group::parse_braces(&input) {
-                    if !content.is_empty() {
-                        content.parse::<Blocks>()?
-                    } else {
-                        Default::default()
-                    }
+            let subtree = if let Ok(syn::group::Brackets { content, .. }) =
+                syn::group::parse_brackets(&input)
+            {
+                if !content.is_empty() {
+                    content.parse::<Blocks>()?
                 } else {
                     Default::default()
-                };
+                }
+            } else {
+                Default::default()
+            };
 
             let mut scope = Scope::default();
             scope.comp_and_promote(&props.scope);
@@ -145,48 +146,99 @@ impl NodeBlock {
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let init_type = &self.init_type;
+        let path = &self.path;
+        let constructor = &self.constructor;
         let mut const_scope = TokenStream2::new();
-        let mut partial_scope = TokenStream2::new();
-        let mut open_scope = TokenStream2::new();
 
-        // props
-        {
-            match self.scope {
-                Scope::Constant => {
-                    const_scope.append_all(quote! {});
+        let outer_props = {
+            let mut partial_scope = TokenStream2::new();
+            let mut open_scope = TokenStream2::new();
+
+            // props
+            for prop in &self.props.props {
+                match prop.scope {
+                    Scope::Constant => const_scope.append_all(quote! {
+                        #prop
+                    }),
+                    Scope::PartialOpen => partial_scope.append_all(quote! {
+                        #prop
+                    }),
+                    Scope::Open => open_scope.append_all(quote! {
+                        #prop
+                    }),
                 }
-                Scope::PartialOpen => {
-                    partial_scope.append_all(quote! {
+            }
+
+            if partial_scope.is_empty() && open_scope.is_empty() {
+                TokenStream2::new()
+            } else {
+                // enclose partial_scope inside is_new logic if it is not empty
+                if !partial_scope.is_empty() {
+                    partial_scope = quote! {
                         if __is_new {
-
+                            #partial_scope
                         }
-                    });
-                }
-                Scope::Open => open_scope.append_all(quote! {}),
-            }
-        }
-        match self.subtree.scope {
-            Scope::Constant => {
-                const_scope.append_all(quote! {});
-            }
-            Scope::PartialOpen => {
-                partial_scope.append_all(quote! {
-                    if __is_new {
-
                     }
-                });
-            }
-            Scope::Open => open_scope.append_all(quote! {}),
-        }
+                }
 
+                // enclose open_scope inside block
+                if !open_scope.is_empty() {
+                    open_scope = quote! {
+                        {
+                            #open_scope
+                        }
+                    }
+                }
+
+                quote! {
+                    {
+                        use std::ops::DerefMut;
+
+                        let mut __node = __node.as_ref().borrow_mut();
+                        let __node = __node.deref_mut().as_mut().downcast_mut::<#path>().unwrap();
+                        #partial_scope
+                        #open_scope
+                    }
+                }
+            }
+        };
+
+        //TODO: implement serialization in case of cfg web amd subtree constant scope, enclosed in
+        // a wrapper
+
+        // subtree
+        let outer_subtree = {
+            let subtree = &self.subtree;
+
+            match self.subtree.scope {
+                // if block is constant it has to be put in partial open scope, beccause in
+                // constant env, Rc is not ready
+                Scope::PartialOpen | Scope::Constant => {
+                    if subtree.blocks.is_empty() {
+                        TokenStream2::new()
+                    } else {
+                        quote! {
+                            if __is_new {
+                                #subtree
+                            }
+                        }
+                    }
+                }
+                Scope::Open => quote! {
+                    #subtree
+                },
+            }
+        };
+
+        // assemble
         tokens.append_all(quote! {
             let (__node, __is_new) = init_member(&__node, #init_type, |parent| {
-                let __node = #path#node::#constructor;
+                let __node = #path::#constructor;
                 #const_scope
                 __node.into_vnode_type()
             }).unwrap();
-            #partial_scope
-            #open_scope
+            #outer_props
+            #outer_subtree
         });
     }
 }

@@ -1,4 +1,4 @@
-use quote::ToTokens;
+use quote::{ToTokens, TokenStreamExt, quote};
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::Expr;
@@ -12,7 +12,7 @@ pub struct NodeProps {
 
 impl Parse for NodeProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let this = Self::default();
+        let mut this = Self::default();
         // parse props
         if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
             loop {
@@ -51,6 +51,17 @@ impl Parse for NodeProp {
     }
 }
 
+impl ToTokens for NodeProp {
+    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+        let left = &self.left;
+        let right = &self.right;
+
+        tokens.append_all(quote! {
+            __node.#left(#right);
+        })  
+    }
+}
+    
 #[derive(Debug, PartialEq, Clone)]
 pub enum Scope {
     /// the value wont change i.e constant
