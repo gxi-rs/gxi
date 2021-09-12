@@ -31,7 +31,7 @@ pub struct NodeBlock {
 }
 
 impl NodeBlock {
-    pub fn parse(input: &ParseStream, init_type: InitType) -> syn::Result<Option<Self>> {
+    pub fn parse(input: &ParseStream, init_type: &InitType) -> syn::Result<Option<Self>> {
         if let Ok(mut path) = input.parse::<syn::Path>() {
             let (constructor, node_type) = {
                 let last_segment = path.segments.last().unwrap();
@@ -210,23 +210,23 @@ impl ToTokens for NodeBlock {
         let outer_subtree = {
             let subtree = &self.subtree;
 
-            match self.subtree.scope {
-                // if block is constant it has to be put in partial open scope, beccause in
-                // constant env, Rc is not ready
-                Scope::PartialOpen | Scope::Constant => {
-                    if subtree.blocks.is_empty() {
-                        TokenStream2::new()
-                    } else {
-                        quote! {
-                            if __is_new {
-                                #subtree
-                            }
+            if subtree.blocks.is_empty() {
+                TokenStream2::new()
+            } else {
+                let subtree = quote! {
+                    let __cont = __node.clone();
+                    #subtree
+                };
+
+                if let Scope::Open = self.subtree.scope {
+                    subtree
+                } else {
+                    quote! {
+                        if __is_new {
+                            #subtree
                         }
                     }
                 }
-                Scope::Open => quote! {
-                    #subtree
-                },
             }
         };
 

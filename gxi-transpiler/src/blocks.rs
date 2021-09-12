@@ -1,6 +1,6 @@
 use quote::{ToTokens, TokenStreamExt, quote};
 
-use crate::{Block, Scope};
+use crate::{Block, Scope, init_type::{self, InitType}};
 
 /// comma separated multiple blocks
 #[derive(Default)]
@@ -13,12 +13,14 @@ impl syn::parse::Parse for Blocks {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut this = Self::default();
 
+        let mut init_type = InitType::Child;
+
         loop {
             if input.is_empty() {
                 break;
             }
 
-            let block: Block = input.parse()?;
+            let block = Block::parse(&input, &init_type)?;
 
             this.scope.comp_and_promote(&block.get_scope());
 
@@ -27,6 +29,8 @@ impl syn::parse::Parse for Blocks {
             if input.parse::<syn::token::Comma>().is_err() {
                 break;
             }
+            
+            init_type = InitType::Sibling;
         }
 
         Ok(this)

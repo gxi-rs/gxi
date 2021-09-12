@@ -15,6 +15,7 @@ impl gxi::Renderable for App {
         gxi! {
             Body [
                 h1 ( inner_html = "23", on_click = |_| panic!("hello") ) [
+                    h1 ( inner_html = "12" ),
                     h1 ( inner_html = "12" )
                 ]
             ]

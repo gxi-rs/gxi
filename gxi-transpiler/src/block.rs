@@ -1,4 +1,5 @@
 use quote::{ToTokens, TokenStreamExt};
+use syn::parse::Parse;
 
 use crate::{
     component::{NodeBlock, Scope},
@@ -13,9 +14,15 @@ pub enum Block {
     IterBlock,
 }
 
-impl syn::parse::Parse for Block {
+impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        if let Some(comp) = NodeBlock::parse(&input, InitType::Child)? {
+        Self::parse(input, &InitType::Child)
+    }
+}
+
+impl Block {
+    pub fn parse(input: syn::parse::ParseStream, init_type: &InitType) -> syn::Result<Self> {
+        if let Some(comp) = NodeBlock::parse(&input, init_type)? {
             return Ok(Self::NodeBlock(comp));
         }
 

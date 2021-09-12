@@ -11,7 +11,7 @@ impl ToTokens for InitType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             InitType::Child => tokens.append_all(quote! {InitType::Child}),
-            InitType::Sibling => tokens.append_all(quote! {InitType::Sibling(parent)}),
+            InitType::Sibling => tokens.append_all(quote! {InitType::Sibling(&__cont)}),
         }
     }
 }
