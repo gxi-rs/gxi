@@ -26,8 +26,10 @@ impl syn::parse::Parse for Blocks {
 
             this.blocks.push(block);
 
-            if input.parse::<syn::token::Comma>().is_err() {
+            if input.is_empty() {
                 break;
+            } else {
+                input.parse::<syn::token::Comma>()?;
             }
             
             init_type = InitType::Sibling;
