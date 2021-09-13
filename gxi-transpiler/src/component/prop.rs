@@ -1,9 +1,9 @@
-use quote::{ToTokens, TokenStreamExt, quote};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::Expr;
 
-// list of comma separated props inside parenthesis
+/// list of comma separated props inside parenthesis
 #[derive(Default)]
 pub struct NodeProps {
     pub props: Vec<NodeProp>,
@@ -42,11 +42,25 @@ pub struct NodeProp {
 
 impl Parse for NodeProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let syn::ExprAssign {
-            left, right, ..
-        } = input.parse()?;
+        // check for * used to mark sccope to be OPen
+        // TODO: update docs about *
+        // TODO: add to docs, if not explicitly marked, each prop has a scope of PartialOpen if it
+        // TODO: is not a constant or a filed( eg state.a )
+        
+        let mut scope = Scope::default();
+
+        if let Ok(_) = input.parse::<syn::Token!(*)>() {
+            scope = Scope::Open;
+        }
+
+        let syn::ExprAssign { left, right, .. } = input.parse()?;
+
         //TODO: add event listener handler using *= token
-        let scope = Scope::find_prop_scope(&right)?;
+
+        if let Scope::Constant = scope {
+            scope = Scope::find_prop_scope(&right)?;
+        }
+
         Ok(Self { left, scope, right })
     }
 }
@@ -58,10 +72,10 @@ impl ToTokens for NodeProp {
 
         tokens.append_all(quote! {
             __node.#left(#right);
-        })  
+        })
     }
 }
-    
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum Scope {
     /// the value wont change i.e constant
@@ -117,9 +131,14 @@ impl Scope {
                 }
                 Ok(scope)
             }
-            Expr::AssignOp(_) => todo!(),
-            Expr::Binary(_) => todo!(),
-            Expr::Block(_) => todo!(),
+            Expr::Binary(syn::ExprBinary { left, right, .. }) => {
+                let mut scope = Scope::default();
+                scope.comp_and_promote(&Self::find_prop_scope(&left)?);
+                scope.comp_and_promote(&Self::find_prop_scope(&right)?);
+                Ok(scope)
+            }
+            //TODO: update docs, blocks wont update with state
+            Expr::Block(_) => Ok(Scope::PartialOpen),
             Expr::Call(_) => todo!(),
             Expr::Cast(_) => todo!(),
             Expr::ForLoop(_) => todo!(),
@@ -151,6 +170,7 @@ impl Scope {
             | Expr::Type(_)
             | Expr::Break(_)
             | Expr::Return(_)
+            | Expr::AssignOp(_)
             | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
         };
@@ -178,12 +198,18 @@ mod expr_init_location {
 
     #[test]
     fn array() -> syn::Result<()> {
-        println!("1");
         mp_match!(Constant, Array, [1, 2]);
-        println!("2");
         mp_match!(PartialOpen, Array, [1, |_| println!("hello")]);
-        println!("3");
         mp_match!(Open, Array, [state.a, 3, Hello::hi()]);
+        Ok(())
+    }
+
+    #[test]
+    fn binary_op() -> syn::Result<()> {
+        mp_match!(Constant, Binary, 2 == 3);
+        mp_match!(Constant, Binary, 2 == "str");
+        mp_match!(Open, Binary, 2 == state.a);
+        mp_match!(PartialOpen, Binary, 2 == || {});
         Ok(())
     }
 }
