@@ -9,6 +9,7 @@ pub use platforms::*;
 pub use renderable::*;
 pub use vnode::*;
 pub use vnode_type::*;
+pub use macros::*;
 
 mod components;
 mod init_member;
@@ -18,3 +19,4 @@ mod platforms;
 mod renderable;
 mod vnode;
 mod vnode_type;
+mod macros;
