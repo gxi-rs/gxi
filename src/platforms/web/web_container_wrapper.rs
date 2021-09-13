@@ -4,7 +4,7 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::convert::FromWasmAbi;
 use wasm_bindgen::JsCast;
 
-use crate::{generate_on_func, NativeContainerExt, NativeWidget, WebContainer};
+use crate::{generate_on_func, NativeContainerExt, NativeWidget};
 
 pub struct WebContainerWrapper(pub web_sys::Element);
 

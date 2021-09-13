@@ -35,7 +35,6 @@ impl NodeBlock {
         if let Ok(mut path) = input.parse::<syn::Path>() {
             let (constructor, node_type) = {
                 let last_segment = path.segments.last().unwrap();
-                let node = last_segment.ident.clone().into_token_stream();
                 let name = last_segment.ident.to_string();
                 // if there is only one path segment and name starts with a lower case character then
                 // it's a NativeElement

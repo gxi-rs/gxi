@@ -43,7 +43,7 @@ pub struct NodeProp {
 impl Parse for NodeProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let syn::ExprAssign {
-            left, mut right, ..
+            left, right, ..
         } = input.parse()?;
         //TODO: add event listener handler using *= token
         let scope = Scope::find_prop_scope(&right)?;
@@ -101,6 +101,7 @@ impl Scope {
     }
 
     fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
+        //TODO: complete this
         return match expr {
             Expr::Lit(_) => Ok(Self::Constant),
             Expr::Field(_) => Ok(Self::Open),

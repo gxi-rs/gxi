@@ -1,6 +1,6 @@
 use quote::{ToTokens, TokenStreamExt, quote};
 
-use crate::{Block, Scope, init_type::{self, InitType}};
+use crate::{Block, Scope, init_type::{InitType}};
 
 /// comma separated multiple blocks
 #[derive(Default)]
