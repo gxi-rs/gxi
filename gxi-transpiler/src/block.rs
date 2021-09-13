@@ -23,10 +23,12 @@ impl Parse for Block {
 impl Block {
     pub fn parse(input: syn::parse::ParseStream, init_type: &InitType) -> syn::Result<Self> {
         if let Some(comp) = NodeBlock::parse(&input, init_type)? {
-            return Ok(Self::NodeBlock(comp));
+            Ok(Self::NodeBlock(comp))
+        } else if let Some(ex) = ExecutionBlock::parse(&input)? {
+            Ok(Self::ExecutionBlock(ex))
+        } else {
+            Err(syn::Error::new(input.span(), "didn't expect this here"))
         }
-
-        Err(syn::Error::new(input.span(), "didn't expect this here"))
     }
 }
 
@@ -34,7 +36,7 @@ impl ToTokens for Block {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         tokens.append_all(match self {
             Block::NodeBlock(comp) => comp.to_token_stream(),
-            Block::ExecutionBlock(_ex) => todo!(),
+            Block::ExecutionBlock(ex) => ex.to_token_stream(),
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),
         });
@@ -45,7 +47,8 @@ impl Block {
     pub fn get_scope(&self) -> Scope {
         match self {
             Block::NodeBlock(node) => node.scope.clone(),
-            Block::ExecutionBlock(_) => Scope::Open,
+            //WARN: change this, put more thought
+            Block::ExecutionBlock(_) => Scope::PartialOpen,
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),
         }
