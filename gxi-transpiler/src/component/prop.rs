@@ -179,7 +179,7 @@ impl Scope {
 #[cfg(test)]
 mod expr_init_location {
 
-    use crate::Scope;
+    use crate::component::Scope;
     use quote::quote;
 
     macro_rules! mp_match {
