@@ -18,7 +18,8 @@ pub enum InitType<'a> {
 
 /// # Args
 ///
-/// * `this` - In case of InitType::Child, `this` is the parent and owner of the child node
+/// * `this` - In case of InitType::Child, if `this` if of VNodeType::Component and self_substitute exists then self_substitute is the parent and owner of the child node
+/// otherwise the owner and parent is this
 ///          - In case of InitType::Sibling, `this` is the owner but not the parent of the sibling node.
 ///
 /// # Return
@@ -34,7 +35,17 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             let mut this_borrow = this.as_ref().borrow_mut();
 
             let child = match this_borrow.deref_mut() {
-                VNodeType::Component(comp) => &mut comp.get_node_mut().child,
+                VNodeType::Component(comp) => {
+                    let node = comp.get_node_mut();
+                    // if self_substitute exists add child to it
+                    if let Some(self_substitute) = &mut node.self_substitute {
+                        if let Some(self_substitute) = self_substitute.upgrade() {
+                            return init_member(&self_substitute, InitType::Child, init);
+                        }
+                    }
+
+                    &mut comp.get_node_mut().child
+                }
                 VNodeType::Widget(_) => {
                     return Err("Can't add node to a widget. Use a container instead.");
                 }
