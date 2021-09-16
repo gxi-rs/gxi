@@ -233,7 +233,8 @@ impl ToTokens for NodeBlock {
 
         // assemble
         tokens.append_all(quote! {
-            let (__node, __is_new) = init_member(&__node, #init_type, |parent| {
+            let (__node, __is_new) = gxi::init_member(&__node, #init_type, |parent| {
+                use gxi::VNode;
                 let __node = #path::#constructor;
                 #const_scope
                 __node.into_vnode_type()

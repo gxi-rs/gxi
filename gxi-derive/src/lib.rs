@@ -10,7 +10,7 @@ mod v_node_type;
 
 #[proc_macro_derive(Component)]
 pub fn gxi_component_derive(input: TokenStream) -> TokenStream {
-    parse_component_derive(input).into()
+    parse_component_derive(input).unwrap().into()
 }
 
 #[proc_macro_derive(Widget)]
