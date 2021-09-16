@@ -1,4 +1,4 @@
-use quote::{ToTokens, TokenStreamExt, quote};
+use quote::{quote, ToTokens, TokenStreamExt};
 
 pub struct ExecutionBlock(syn::Block);
 

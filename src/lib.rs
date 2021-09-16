@@ -1,8 +1,8 @@
 // re-exports
 pub use components::*;
 pub use gxi_derive::*;
-pub use gxi_transpiler::*;
 pub use gxi_macros::*;
+pub use gxi_transpiler::*;
 pub use init_member::*;
 pub use native_widget::*;
 pub use node::*;
