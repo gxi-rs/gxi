@@ -1,9 +1,8 @@
-use std::rc::Rc;
 
-use gxi::{gxi, init_member, InitType, StrongNodeType, VNode};
+use gxi::{gxi, StrongNodeType};
 use gxi::{update, Body, WeakNodeType};
 
-#[derive(Clone, gxi::Component)]
+#[derive(gxi::Component)]
 pub struct App {
     node: gxi::ContainerNode,
 }
@@ -24,7 +23,12 @@ impl gxi::Renderable for App {
                  h1 ( inner_html = "23", on_click = update!(Msg::CustomPanic("hello")) ) [
                      h1 ( inner_html = "12" ),
                      h1 ( inner_html = "12" )
-                 ]
+                 ],
+                 crate::Counter,
+                 { 
+                    crate::Counter::render(&__node.clone());
+                 }, 
+                 h1
              ]
         }
     }
