@@ -7,7 +7,7 @@ enum Msg {
 #[derive(gxi::Component)]
 pub struct Counter {
     node: gxi::ContainerNode,
-    state: CounterState,
+    state: gxi::State<CounterState>,
 }
 
 #[derive(Default)]
