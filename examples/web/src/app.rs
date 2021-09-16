@@ -15,8 +15,6 @@ enum Msg {
 
 impl gxi::Renderable for App {
     fn render(this: &StrongNodeType) {
-        let __node = this.clone();
-
         gxi! {
              Body [
                  div [
