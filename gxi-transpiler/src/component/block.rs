@@ -1,10 +1,12 @@
-use crate::{Blocks, InitType, Scope};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
 
-use super::NodeProps;
+use crate::blocks::Blocks;
+use crate::init_type::InitType;
+
+use super::{NodeProps, Scope};
 
 pub enum NodeType {
     // gxi::Element
