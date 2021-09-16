@@ -14,6 +14,7 @@ enum Msg {
 
 impl gxi::Renderable for App {
     fn render(this: &StrongNodeType) {
+        //TODO: add unwrap line numbers
         gxi! {
              Body [
                  div [
@@ -25,10 +26,9 @@ impl gxi::Renderable for App {
                      h1 ( inner_html = "12" )
                  ],
                  crate::Counter,
-                 { 
+                 {
                     crate::Counter::render(&__node.clone());
-                 }, 
-                 h1
+                 } 
              ]
         }
     }

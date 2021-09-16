@@ -43,10 +43,9 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
                         if let Some(self_substitute) = &mut node.self_substitute {
                             if let Some(self_substitute) = self_substitute.upgrade() {
                                 return init_member(&self_substitute, init_type, init);
-                            } else {
-                                return Err("child place holder of the parent node either does not live long enough or isn't supported. Make sure #children injection is used correctly");
                             }
                         }
+                        return Err("child place holder of the parent node either does not live long enough or isn't supported. Make sure #children injection is used correctly");
                     }
                     &mut comp.get_node_mut().child
                 }

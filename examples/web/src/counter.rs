@@ -4,6 +4,7 @@ enum Msg {
     Modify(i32),
 }
 
+// TODO: Move gxi::Component macro from derive to functional macro, auto add node and state fields
 #[derive(gxi::Component)]
 pub struct Counter {
     node: gxi::ContainerNode,
@@ -17,6 +18,7 @@ struct CounterState {
 
 impl Renderable for Counter {
     fn render(this: &StrongNodeType) {
+        // TODO: check if state.is_dirty() 
         gxi! {
             div [
                 {
@@ -37,6 +39,7 @@ impl Counter {
     fn update(this: &WeakNodeType, msg: Msg) {
         if let Some(this) = this.upgrade() {
             {
+                //TODO: create an update functional proc macro
                 let mut __this_borrow = this.as_ref().borrow_mut();
                 let state = &mut __this_borrow.as_mut().downcast_mut::<Self>().unwrap().state;
 
