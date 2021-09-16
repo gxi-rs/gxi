@@ -16,7 +16,7 @@ pub enum Block {
 
 impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        Self::parse(input, &InitType::Child)
+        Self::parse(input, &InitType::Child(false))
     }
 }
 

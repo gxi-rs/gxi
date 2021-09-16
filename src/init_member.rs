@@ -10,7 +10,9 @@ use crate::{
 };
 
 pub enum InitType<'a> {
-    Child,
+    /// # Args
+    /// bool: add_to_self_substitute
+    Child(bool),
     /// # Args
     /// reference to parent
     Sibling(&'a StrongNodeType),
@@ -31,19 +33,21 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
     init: C,
 ) -> Result<(StrongNodeType, bool), &'static str> {
     match init_type {
-        InitType::Child => {
+        InitType::Child(add_to_self_substitute) => {
             let mut this_borrow = this.as_ref().borrow_mut();
 
             let child = match this_borrow.deref_mut() {
                 VNodeType::Component(comp) => {
                     let node = comp.get_node_mut();
-                    // if self_substitute exists add child to it
-                    if let Some(self_substitute) = &mut node.self_substitute {
-                        if let Some(self_substitute) = self_substitute.upgrade() {
-                            return init_member(&self_substitute, InitType::Child, init);
+                    if add_to_self_substitute {
+                        if let Some(self_substitute) = &mut node.self_substitute {
+                            if let Some(self_substitute) = self_substitute.upgrade() {
+                                return init_member(&self_substitute, init_type, init);
+                            } else {
+                                return Err("child place holder of the parent node either does not live long enough or isn't supported. Make sure #children injection is used correctly");
+                            }
                         }
                     }
-
                     &mut comp.get_node_mut().child
                 }
                 VNodeType::Widget(_) => {

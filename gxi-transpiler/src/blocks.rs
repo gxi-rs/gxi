@@ -13,7 +13,9 @@ impl syn::parse::Parse for Blocks {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut this = Self::default();
 
-        let mut init_type = InitType::Child;
+        // blocks parse is called only after the first block has been parsed
+        // so add_to_self_substitute
+        let mut init_type = InitType::Child(true);
 
         loop {
             if input.is_empty() {
