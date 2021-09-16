@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use gxi::{gxi, init_member, InitType, StrongNodeType, VNode};
-use gxi::{Body, WeakNodeType};
+use gxi::{update, Body, WeakNodeType};
 
 #[derive(Clone, gxi::Component)]
 pub struct App {
@@ -9,7 +9,8 @@ pub struct App {
 }
 
 enum Msg {
-    Panic,
+    ReRender,
+    CustomPanic(&'static str),
 }
 
 impl gxi::Renderable for App {
@@ -19,20 +20,10 @@ impl gxi::Renderable for App {
         gxi! {
              Body [
                  div [
-                    {
-                        let weak_this1 = Rc::downgrade(&this);
-                    },
-                     button ( inner_html = "hello buddy", on_click = move |_| {
-                         Self::update(&weak_this1, Msg::Panic);
-                     }) ,
+                     button ( inner_html = "hello buddy", on_click = update!(Msg::ReRender) ),
                      hello
                  ],
-                 {
-                    let weak_this2 = Rc::downgrade(&this);
-                 },
-                 h1 ( *inner_html = "23", on_click = move |_| {
-                         Self::update(&weak_this2, Msg::Panic);
-                 }) [
+                 h1 ( inner_html = "23", on_click = update!(Msg::CustomPanic("hello")) ) [
                      h1 ( inner_html = "12" ),
                      h1 ( inner_html = "12" )
                  ]
@@ -45,7 +36,10 @@ impl App {
     fn update(this: &WeakNodeType, msg: Msg) {
         use gxi::Renderable;
         match msg {
-            Msg::Panic => Self::render(&this.upgrade().unwrap()),
+            Msg::ReRender => Self::render(&this.upgrade().unwrap()),
+            Msg::CustomPanic(msg) => {
+                panic!("{}", msg)
+            }
         }
     }
 }

@@ -7,18 +7,8 @@ description = "Zero-Cost Cross-Platform Native Widget based Component System in 
 license = "MIT"
 repository = "https://github.com/gxi-rs/gxi.git"
 homepage = "https://gxi-rs.com/"
-categories = [
-    "gui",
-    "wasm",
-    "web-programming"
-]
-keywords = [
-    "gxi-rs",
-    "wasm",
-    "gtk",
-    "gui",
-    "framework"
-]
+categories = ["gui", "wasm", "web-programming"]
+keywords = ["gxi-rs", "wasm", "gtk", "gui", "framework"]
 
 [features]
 web = ["gxi-derive/web", "gxi-transpiler/web", "web-sys", "wasm-bindgen"]
@@ -26,30 +16,28 @@ desktop = ["gxi-derive/desktop", "gxi-transpiler/desktop"]
 default = ["gxi-derive/default", "gxi-transpiler/default"]
 
 [workspace]
-members = [
-    "gxi-derive",
-    "gxi-transpiler",
-    "examples/web"
-]
+members = ["gxi-derive", "gxi-transpiler", "gxi-macros", "examples/web"]
 
 [dependencies]
 gxi-derive = { path = "gxi-derive", version = "0.4.0-nightly.1", optional = true }
 gxi-transpiler = { path = "gxi-transpiler", version = "0.4.0-nightly.1", optional = true }
+gxi-macros = { path = "gxi-macros", version = "0.4.0-nightly.1" }
+
 # web
 wasm-bindgen = { version = "0.2.73", optional = true }
 web-sys = { version = "0.3.51", features = [
-    "Element",
-    "Window",
-    "Document",
-    "HtmlElement",
-    # events
-    'Event',
-    'EventListener',
-    'MouseEvent',
-    'DragEvent',
-    'InputEvent',
-    'FocusEvent',
-    'KeyboardEvent',
-    'ProgressEvent',
-    'WheelEvent'
+  "Element",
+  "Window",
+  "Document",
+  "HtmlElement",
+  # events
+  'Event',
+  'EventListener',
+  'MouseEvent',
+  'DragEvent',
+  'InputEvent',
+  'FocusEvent',
+  'KeyboardEvent',
+  'ProgressEvent',
+  'WheelEvent',
 ], optional = true }
