@@ -46,7 +46,7 @@ impl Parse for NodeProp {
         // TODO: update docs about *
         // TODO: add to docs, if not explicitly marked, each prop has a scope of PartialOpen if it
         // TODO: is not a constant or a filed( eg state.a )
-        
+
         let mut scope = Scope::default();
 
         if let Ok(_) = input.parse::<syn::Token!(*)>() {
@@ -139,14 +139,13 @@ impl Scope {
             }
             //TODO: update docs, blocks wont update with state
             Expr::Block(_) => Ok(Scope::PartialOpen),
-            Expr::Call(_) => todo!(),
             Expr::Cast(_) => todo!(),
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
             Expr::Index(_) => todo!(),
             Expr::Loop(_) => todo!(),
             Expr::While(_) => todo!(),
-            Expr::Macro(_) => todo!(),
+            Expr::Macro(_) | Expr::Call(_) => Ok(Scope::PartialOpen),
             Expr::Match(_) => todo!(),
             Expr::MethodCall(_) => todo!(),
             Expr::Paren(_) => todo!(),
