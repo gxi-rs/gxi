@@ -1,6 +1,6 @@
-use gxi::{gxi, update, Renderable, StrongNodeType, WeakNodeType};
+use gxi::{gxi, render, set_state, update};
 
-enum Msg {
+pub enum Msg {
     Modify(i32),
 }
 
@@ -12,44 +12,29 @@ pub struct Counter {
 }
 
 #[derive(Default)]
-struct CounterState {
+pub struct CounterState {
     counter: i32,
 }
 
-impl Renderable for Counter {
-    fn render(this: &StrongNodeType) {
-        // TODO: check if state.is_dirty() 
-        gxi! {
+// TODO: check if state.is_dirty()
+#[render(Counter)]
+fn render(state: &gxi::State<CounterState>) {
+    gxi! {
+        div [
+            h3 ( *inner_html = &state.counter.to_string()[..]),
             div [
-                {
-                    let __this_borrow = this.as_ref().borrow();
-                    let state = &__this_borrow.as_ref().downcast_ref::<Self>().unwrap().state;
-                },
-                h3 ( *inner_html = &state.counter.to_string()[..]),
-                div [
-                    button ( inner_html = "+" , on_click = update!(Msg::Modify(1)) ),
-                    button ( inner_html = "-" , on_click = update!(Msg::Modify(-1)) ),
-                ]
+                button ( inner_html = "+" , on_click = set_state!(Msg::Modify(1)) ),
+                button ( inner_html = "-" , on_click = set_state!(Msg::Modify(-1)) ),
             ]
-        }
+        ]
     }
 }
 
-impl Counter {
-    fn update(this: &WeakNodeType, msg: Msg) {
-        if let Some(this) = this.upgrade() {
-            {
-                //TODO: create an update functional proc macro
-                let mut __this_borrow = this.as_ref().borrow_mut();
-                let state = &mut __this_borrow.as_mut().downcast_mut::<Self>().unwrap().state;
-
-                match msg {
-                    Msg::Modify(by) => {
-                        state.counter += by;
-                    }
-                }
-            }
-            Self::render(&this)
+#[update(Counter)]
+fn update(msg: Msg, state: &mut Self::State) {
+    match msg {
+        Msg::Modify(by) => {
+            state.counter += by;
         }
     }
 }
