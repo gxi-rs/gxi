@@ -19,9 +19,12 @@ impl Parse for RenderParser {
             for ele in args {
                 if let syn::FnArg::Typed(arg) = ele {
                     match &arg.pat.to_token_stream().to_string()[..] {
-                        "state" => extra.append_all(quote! {
-                            let state = &__this_borrow.as_ref().downcast_ref::<Self>().unwrap().state;
-                        }),
+                        "state" => {
+                            let ty = &arg.ty;
+                            extra.append_all(quote! {
+                                let state:#ty = &__this_borrow.as_ref().downcast_ref::<Self>().unwrap().state;
+                            })
+                        }
                         _ => {
                             return Err(syn::Error::new(arg.span(), "didn't expect this arg here"));
                         }
