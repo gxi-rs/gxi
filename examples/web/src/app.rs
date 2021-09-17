@@ -1,19 +1,12 @@
-use gxi::{gxi, render, set_state, update, Body};
-
-#[derive(gxi::Component)]
-pub struct App {
-    node: gxi::ContainerNode,
-}
-
-#[derive(Default)]
-pub struct AppState {
-
-}
+use gxi::{gxi, render, set_state, update, Body, comp};
 
 pub enum Msg {
     ReRender,
     CustomPanic(&'static str),
 }
+
+#[comp]
+pub struct App;
 
 #[render(App)]
 fn render() {

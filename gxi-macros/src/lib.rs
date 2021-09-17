@@ -1,5 +1,5 @@
 use proc_macro::TokenStream;
-use quote::quote;
+use quote::{ToTokens, __private::Span, quote, spanned::Spanned};
 
 mod render;
 mod update;
@@ -46,6 +46,52 @@ pub fn update(attrs: TokenStream, input: TokenStream) -> TokenStream {
             type State = gxi::State<#state_ty>;
 
             #update_fn
+        }
+    })
+    .into()
+}
+
+#[proc_macro_attribute]
+pub fn comp(attrs: TokenStream, input: TokenStream) -> TokenStream {
+    if !attrs.is_empty() {
+        return syn::Error::new(
+            syn::parse::<syn::Ident>(attrs).unwrap().span(),
+            "didn't expect this here",
+        )
+        .to_compile_error()
+        .into();
+    }
+
+    let syn::ItemStruct {
+        ident,
+        fields,
+        vis,
+        generics,
+        attrs,
+        ..
+    } = syn::parse_macro_input!(input as syn::ItemStruct);
+
+    if !generics.to_token_stream().is_empty() {
+        return syn::Error::new(generics.__span(), "gxi::Component can't be generic")
+            .to_compile_error()
+            .into();
+    }
+
+    let state_ty = syn::Ident::new(&format!("{}State", &ident)[..], Span::call_site());
+    
+    let fields = fields.iter();
+
+    (quote! {
+        #[derive(gxi::Component)]
+        #vis struct #ident {
+            #vis node: gxi::ContainerNode,
+            #vis state: gxi::State<#state_ty>,
+        }
+
+        #[derive(Default)]
+        #(#attrs)*
+        #vis struct #state_ty { 
+            #(#vis #fields),*
         }
     })
     .into()

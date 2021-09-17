@@ -6,6 +6,7 @@ pub struct RenderParser(TokenStream2);
 
 impl Parse for RenderParser {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        // TODO: check if state.is_dirty()
         let syn::ItemFn {
             block, sig, vis, ..
         } = input.parse::<syn::ItemFn>()?;

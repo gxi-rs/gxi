@@ -1,22 +1,14 @@
-use gxi::{gxi, render, set_state, update};
+use gxi::{gxi, render, set_state, update, comp};
 
 pub enum Msg {
     Modify(i32),
 }
 
-// TODO: Move gxi::Component macro from derive to functional macro, auto add node and state fields
-#[derive(gxi::Component)]
+#[comp]
 pub struct Counter {
-    node: gxi::ContainerNode,
-    state: gxi::State<CounterState>,
-}
-
-#[derive(Default)]
-pub struct CounterState {
     counter: i32,
 }
 
-// TODO: check if state.is_dirty()
 #[render(Counter)]
 fn render(state: &gxi::State<CounterState>) {
     gxi! {
