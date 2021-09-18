@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use gxi::{Body, StrongNodeType, VNode, gxi};
+use gxi::{gxi, Body, StrongNodeType, VNode};
 
 pub enum Msg {
     ReRender,

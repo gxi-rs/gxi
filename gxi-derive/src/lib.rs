@@ -22,4 +22,3 @@ pub fn gxi_tpp_level_container_widget_derive(input: TokenStream) -> TokenStream 
 pub fn gxi_container_widget_derive(input: TokenStream) -> TokenStream {
     parse_container_widget_derive(input).into()
 }
-

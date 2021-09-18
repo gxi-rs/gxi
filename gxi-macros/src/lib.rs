@@ -78,7 +78,7 @@ pub fn comp(attrs: TokenStream, input: TokenStream) -> TokenStream {
     }
 
     let state_ty = syn::Ident::new(&format!("{}State", &ident)[..], Span::call_site());
-    
+
     let fields = fields.iter();
 
     (quote! {
@@ -90,7 +90,7 @@ pub fn comp(attrs: TokenStream, input: TokenStream) -> TokenStream {
 
         #[derive(Default)]
         #(#attrs)*
-        #vis struct #state_ty { 
+        #vis struct #state_ty {
             #(#vis #fields),*
         }
     })
