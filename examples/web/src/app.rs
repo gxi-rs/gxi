@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc};
 
-use gxi::{Body, StrongNodeType, VNode, gxi, render, set_state, update};
+use gxi::{Body, StrongNodeType, VNode, gxi};
 
 pub enum Msg {
     ReRender,
@@ -11,7 +11,9 @@ pub fn App() -> StrongNodeType {
     let this = Rc::new(RefCell::new(Body::default().into_vnode_type()));
 
     gxi! {
-       h1
+       h1 [
+         button ( on_click = |_| panic!("hello"), inner_html = "click me")
+       ]
     }
 
     return __node;
