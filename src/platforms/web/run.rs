@@ -1,7 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
+use crate::StrongNodeType;
 
-pub fn run<C: crate::VNode + crate::Renderable + 'static>() {
-    let node = Rc::new(RefCell::new(C::new().into_vnode_type()));
-    C::render(&node);
+pub fn run(node: StrongNodeType) {
     std::mem::forget(node);
 }

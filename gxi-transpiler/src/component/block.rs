@@ -61,14 +61,14 @@ impl NodeBlock {
                             )?;
                             (
                                 quote! {
-                                    from_str(#name, parent)
+                                    from_str(#name )
                                 },
                                 NodeType::Element(name),
                             )
                         } else {
                             (
                                 quote! {
-                                    new(parent)
+                                    new()
                                 },
                                 Default::default(),
                             )
@@ -95,11 +95,11 @@ impl NodeBlock {
                                     content.parse::<syn::token::Comma>()?;
                                 }
                             }
-                            (quote! { #constructor( #args parent) }, Default::default())
+                            (quote! { #constructor( #args ) }, Default::default())
                         } else {
                             (
                                 quote! {
-                                    new(parent)
+                                    new()
                                 },
                                 Default::default(),
                             )
@@ -233,7 +233,7 @@ impl ToTokens for NodeBlock {
 
         // assemble
         tokens.append_all(quote! {
-            let (__node, __is_new) = gxi::init_member(&__node, #init_type, |parent| {
+            let (__node, __is_new) = gxi::init_member(&__node, #init_type, || {
                 use gxi::VNode;
                 let __node = #path::#constructor;
                 #const_scope

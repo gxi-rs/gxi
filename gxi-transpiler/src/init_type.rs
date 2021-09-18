@@ -3,16 +3,14 @@ use quote::{quote, ToTokens, TokenStreamExt};
 
 #[derive(Clone)]
 pub enum InitType {
-    Child(bool),
+    Child,
     Sibling,
 }
 
 impl ToTokens for InitType {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
-            InitType::Child(add_to_self_substitute) => {
-                tokens.append_all(quote! {gxi::InitType::Child(#add_to_self_substitute)})
-            }
+            InitType::Child => tokens.append_all(quote! {gxi::InitType::Child}),
             InitType::Sibling => tokens.append_all(quote! {gxi::InitType::Sibling(&__cont)}),
         }
     }
