@@ -6,7 +6,7 @@ use std::{
 
 use crate::{
     native_widget::NativeContainerExt, NativeContainerWidget, NativeWidget, StrongNodeType,
-    VNodeType, WeakNodeType,
+    VNodeType,
 };
 
 pub enum InitType<'a> {
@@ -25,7 +25,7 @@ pub enum InitType<'a> {
 /// # Return
 ///
 /// `( member, is_member_new )`
-pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
+pub fn init_member<C: FnOnce() -> VNodeType>(
     this: &StrongNodeType,
     init_type: InitType,
     init: C,
@@ -48,7 +48,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             }
 
             let child = child
-                .get_or_insert_with(|| Rc::new(RefCell::new(init(Rc::downgrade(this)))))
+                .get_or_insert_with(|| Rc::new(RefCell::new(init())))
                 .to_owned();
 
             append_native_widget(this_borrow.deref_mut(), &child.borrow().deref())?;
@@ -70,7 +70,7 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             }
 
             let sibling = sibling
-                .get_or_insert_with(|| Rc::new(RefCell::new(init(Rc::downgrade(parent)))))
+                .get_or_insert_with(|| Rc::new(RefCell::new(init())))
                 .to_owned();
 
             append_native_widget(parent.borrow_mut().deref_mut(), &sibling.borrow().deref())?;

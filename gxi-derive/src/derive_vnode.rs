@@ -6,12 +6,11 @@ use crate::v_node_type::VNodeType;
 pub fn derive_vnode(
     name: &syn::Ident,
     v_node_type: VNodeType,
-    new_impl: &TokenStream2,
 ) -> TokenStream2 {
     quote! {
         impl gxi::VNode for #name {
-            fn new(parent: gxi::WeakNodeType) -> Self {
-                #new_impl
+            fn new() -> Self {
+                Self::default()
             }
 
             fn into_vnode_type(self) -> gxi::VNodeType {

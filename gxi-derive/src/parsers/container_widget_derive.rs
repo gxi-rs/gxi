@@ -10,28 +10,14 @@ pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
     let name = &input.ident;
 
-    let v_node_impl = derive_vnode(
-        name,
-        VNodeType::ContainerWidget,
-        &quote! {
-            Self {
-                node: gxi::ContainerNode {
-                    parent,
-                    self_substitute: None,
-                    child: None,
-                    sibling: None
-                },
-                native_widget: gxi::NativeContainerWidget::default()
-            }
-        },
-    );
+    let v_node_impl = derive_vnode(name, VNodeType::ContainerWidget);
 
     quote! {
         impl gxi::VContainerWidget for #name {
-            fn get_node(&self) -> &gxi::ContainerNode {
+            fn get_node(&self) -> &gxi::TreeNode {
                 &self.node
             }
-            fn get_node_mut(&mut self) -> &mut gxi::ContainerNode {
+            fn get_node_mut(&mut self) -> &mut gxi::TreeNode {
                 &mut self.node
             }
         }
