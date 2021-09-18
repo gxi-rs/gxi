@@ -4,24 +4,18 @@ use std::{
     rc::{Rc, Weak},
 };
 
-use crate::{
-    VComponent, VContainerWidget, VNode, VTopLevelContainer, VTopLevelContainerWidget, VWidget,
-};
+use crate::{VContainerWidget, VNode, VWidget};
 
 pub type StrongNodeType = Rc<RefCell<VNodeType>>;
 pub type WeakNodeType = Weak<RefCell<VNodeType>>;
 
 pub enum VNodeType {
-    /// User defined container node
-    Component(Box<dyn VComponent>),
     /// widget which cannot contain other nodes
     Widget(Box<dyn VWidget>),
     /// widget which can hold other widgets
     ContainerWidget(Box<dyn VContainerWidget>),
     /// widget which can hold other widgets but can't be added to other nodes
-    TopLevelContainerWidget(Box<dyn VTopLevelContainerWidget>),
-    /// widget which can hold other widgets but can't be added to other widgets
-    TopLevelContainer(Box<dyn VTopLevelContainer>),
+    TopLevelContainerWidget(Box<dyn VContainerWidget>),
 }
 
 impl Deref for VNodeType {
@@ -29,10 +23,8 @@ impl Deref for VNodeType {
 
     fn deref(&self) -> &Self::Target {
         match self {
-            VNodeType::Component(node) => node.deref().as_ref(),
             VNodeType::Widget(node) => node.deref().as_ref(),
             VNodeType::TopLevelContainerWidget(node) => node.deref().as_ref(),
-            VNodeType::TopLevelContainer(node) => node.deref().as_ref(),
             VNodeType::ContainerWidget(node) => node.deref().as_ref(),
         }
     }
@@ -41,10 +33,8 @@ impl Deref for VNodeType {
 impl DerefMut for VNodeType {
     fn deref_mut(&mut self) -> &mut Self::Target {
         match self {
-            VNodeType::Component(node) => node.deref_mut().as_mut(),
             VNodeType::Widget(node) => node.deref_mut().as_mut(),
             VNodeType::ContainerWidget(node) => node.deref_mut().as_mut(),
-            VNodeType::TopLevelContainer(node) => node.deref_mut().as_mut(),
             VNodeType::TopLevelContainerWidget(node) => node.deref_mut().as_mut(),
         }
     }

@@ -10,9 +10,7 @@ use crate::{
 };
 
 pub enum InitType<'a> {
-    /// # Args
-    /// bool: add_to_self_substitute
-    Child(bool),
+    Child,
     /// # Args
     /// reference to parent
     Sibling(&'a StrongNodeType),
@@ -33,28 +31,15 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
     init: C,
 ) -> Result<(StrongNodeType, bool), &'static str> {
     match init_type {
-        InitType::Child(add_to_self_substitute) => {
+        InitType::Child => {
             let mut this_borrow = this.as_ref().borrow_mut();
 
             let child = match this_borrow.deref_mut() {
-                VNodeType::Component(comp) => {
-                    let node = comp.get_node_mut();
-                    if add_to_self_substitute {
-                        if let Some(self_substitute) = &mut node.self_substitute {
-                            if let Some(self_substitute) = self_substitute.upgrade() {
-                                return init_member(&self_substitute, init_type, init);
-                            }
-                        }
-                        return Err("child place holder of the parent node either does not live long enough or isn't supported. Make sure #children injection is used correctly");
-                    }
-                    &mut comp.get_node_mut().child
-                }
                 VNodeType::Widget(_) => {
                     return Err("Can't add node to a widget. Use a container instead.");
                 }
                 VNodeType::ContainerWidget(cont) => &mut cont.get_node_mut().child,
                 VNodeType::TopLevelContainerWidget(top) => &mut top.get_node_mut().child,
-                VNodeType::TopLevelContainer(top) => &mut top.get_node_mut().child,
             };
 
             // if child already exists return it
@@ -74,11 +59,9 @@ pub fn init_member<C: FnOnce(WeakNodeType) -> VNodeType>(
             let mut this_borrow = this.as_ref().borrow_mut();
 
             let sibling = match this_borrow.deref_mut() {
-                VNodeType::Component(comp) => &mut comp.get_node_mut().sibling,
                 VNodeType::Widget(w) => &mut w.get_node_mut().sibling,
                 VNodeType::ContainerWidget(cont) => &mut cont.get_node_mut().sibling,
                 VNodeType::TopLevelContainerWidget(top) => &mut top.get_node_mut().sibling,
-                VNodeType::TopLevelContainer(top) => &mut top.get_node_mut().sibling,
             };
 
             // if child already exists return it
@@ -110,29 +93,6 @@ fn append_native_widget(this: &mut VNodeType, member: &VNodeType) -> Result<(), 
     let container_widget: &mut NativeContainerWidget = match this {
         VNodeType::TopLevelContainerWidget(t) => t.deref_mut(),
         VNodeType::ContainerWidget(t) => t.deref_mut(),
-        VNodeType::Component(comp) => {
-            // search for a widget up the tree
-            let mut parent = comp.get_node_mut().parent.upgrade().unwrap();
-            loop {
-                let mut parent_borrow = parent.as_ref().borrow_mut();
-                let parent_widget: &mut NativeContainerWidget = match parent_borrow.deref_mut() {
-                    VNodeType::TopLevelContainerWidget(t) => t.deref_mut(),
-                    VNodeType::ContainerWidget(c) => c.deref_mut(),
-                    VNodeType::Component(c) => {
-                        let pa = c.get_node_mut().parent.upgrade().unwrap();
-                        drop(parent_borrow);
-                        parent = pa;
-                        continue;
-                    }
-                    _ => unreachable!(),
-                };
-                parent_widget.append(widget);
-                return Ok(());
-            }
-        }
-        VNodeType::TopLevelContainer(_) => {
-            return Err("Can't add widget to top level container. Consider using a top level widget container. Eg. Body, Window");
-        }
         // Widget has already been checked for in the init_member call
         VNodeType::Widget(_) => unreachable!(),
     };

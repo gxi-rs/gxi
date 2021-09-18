@@ -1,4 +1,4 @@
-use gxi::{gxi, render, set_state, update, Body, comp};
+use gxi::{comp, gxi, render, set_state, update, Body};
 
 pub enum Msg {
     ReRender,
