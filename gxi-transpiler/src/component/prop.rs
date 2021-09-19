@@ -115,8 +115,9 @@ impl Scope {
     }
 
     fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
+        return Ok(Self::Open);
         //TODO: complete this
-        return match expr {
+        /*return match expr {
             Expr::Lit(_) => Ok(Self::Constant),
             Expr::Field(_) => Ok(Self::Open),
             Expr::Closure(_) => Ok(Self::PartialOpen),
@@ -171,7 +172,7 @@ impl Scope {
             | Expr::AssignOp(_)
             | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
-        };
+        };*/
     }
 }
 
