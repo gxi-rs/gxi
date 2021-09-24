@@ -1,12 +1,9 @@
+use super::{NodeProps, Scope};
+use crate::blocks::Blocks;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
-
-use crate::blocks::Blocks;
-use crate::init_type::InitType;
-
-use super::{NodeProps, Scope};
 
 pub enum NodeType {
     // gxi::Element
@@ -23,17 +20,14 @@ impl Default for NodeType {
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
     pub node_type: NodeType,
-    pub init_type: InitType,
     pub constructor: TokenStream2,
     pub path: syn::Path,
     pub subtree: Blocks,
     pub props: NodeProps,
-    /// highest scope of node, compared to scope of subtree and props
-    pub scope: Scope,
 }
 
 impl NodeBlock {
-    pub fn parse(input: &ParseStream, init_type: &InitType) -> syn::Result<Option<Self>> {
+    pub fn parse(input: &ParseStream) -> syn::Result<Option<Self>> {
         if let Ok(mut path) = input.parse::<syn::Path>() {
             let (constructor, node_type) = {
                 let last_segment = path.segments.last().unwrap();
@@ -123,17 +117,11 @@ impl NodeBlock {
                 Default::default()
             };
 
-            let mut scope = Scope::default();
-            scope.comp_and_promote(&props.scope);
-            scope.comp_and_promote(&subtree.scope);
-
             return Ok(Some(Self {
-                init_type: init_type.clone(),
                 props,
                 constructor,
                 path,
                 node_type,
-                scope,
                 subtree,
             }));
         }
@@ -146,102 +134,39 @@ impl NodeBlock {
 ///
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let init_type = &self.init_type;
-        let path = &self.path;
-        let constructor = &self.constructor;
-        let mut const_scope = TokenStream2::new();
+        let Self {
+            constructor,
+            path,
+            subtree,
+            props,
+            ..
+        } = self;
 
-        let outer_props = {
-            let mut partial_scope = TokenStream2::new();
-            let mut open_scope = TokenStream2::new();
+        let mut const_props = TokenStream2::new();
+        let mut observable_props = TokenStream2::new();
 
-            // props
-            for prop in &self.props.props {
-                match prop.scope {
-                    Scope::Constant => const_scope.append_all(quote! {
-                        #prop
-                    }),
-                    Scope::PartialOpen => partial_scope.append_all(quote! {
-                        #prop
-                    }),
-                    Scope::Open => open_scope.append_all(quote! {
-                        #prop
-                    }),
-                }
-            }
-
-            if partial_scope.is_empty() && open_scope.is_empty() {
-                TokenStream2::new()
+        for prop in &props.props {
+            if let Scope::Constant = prop.scope {
+                prop.to_tokens(&mut const_props, path)
             } else {
-                // enclose partial_scope inside is_new logic if it is not empty
-                if !partial_scope.is_empty() {
-                    partial_scope = quote! {
-                        if __is_new {
-                            #partial_scope
-                        }
-                    }
-                }
-
-                // enclose open_scope inside block
-                if !open_scope.is_empty() {
-                    open_scope = quote! {
-                        {
-                            #open_scope
-                        }
-                    }
-                }
-
-                quote! {
-                    {
-                        use std::ops::DerefMut;
-
-                        let mut __node = __node.as_ref().borrow_mut();
-                        let __node = __node.deref_mut().as_mut().downcast_mut::<#path>().unwrap();
-                        #partial_scope
-                        #open_scope
-                    }
-                }
+                prop.to_tokens(&mut observable_props, path)
             }
-        };
-
-        //TODO: implement serialization in case of cfg web amd subtree constant scope, enclosed in
-        // a wrapper
-
-        // subtree
-        let outer_subtree = {
-            let subtree = &self.subtree;
-
-            if subtree.blocks.is_empty() {
-                TokenStream2::new()
-            } else {
-                let subtree = quote! {
-                    let __cont = __node.clone();
-                    #subtree
-                };
-
-                if let Scope::Open = self.subtree.scope {
-                    subtree
-                } else {
-                    quote! {
-                        if __is_new {
-                            #subtree
-                        }
-                    }
-                }
-            }
-        };
-
+        }
         // assemble
-        tokens.append_all(quote! {
-            let (__node, __is_new) = gxi::init_member(&__node, #init_type, || {
-                use gxi::VNode;
-                let __node = #path::#constructor;
-                #const_scope
-                __node.into_vnode_type()
-            }).unwrap();
-            #outer_props
-            #outer_subtree
-        });
+        tokens.append_all(quote! {{
+            let __node = #path::#constructor;
+            #subtree
+
+            #const_props
+
+            use gxi::VNode;
+
+            let __node = std::rc::Rc::new(std::cell::RefCell::new(__node.into_vnode_type()));
+
+            #observable_props
+
+            __node
+        }});
     }
 }
 

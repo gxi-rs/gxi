@@ -1,11 +1,7 @@
-use quote::{ToTokens, TokenStreamExt};
+use quote::ToTokens;
 use syn::parse::Parse;
 
-use crate::{
-    component::{NodeBlock, Scope},
-    execution::ExecutionBlock,
-    init_type::InitType,
-};
+use crate::{component::NodeBlock, execution::ExecutionBlock};
 
 pub enum Block {
     NodeBlock(NodeBlock),
@@ -16,13 +12,7 @@ pub enum Block {
 
 impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        Self::parse(input, &InitType::Child)
-    }
-}
-
-impl Block {
-    pub fn parse(input: syn::parse::ParseStream, init_type: &InitType) -> syn::Result<Self> {
-        if let Some(comp) = NodeBlock::parse(&input, init_type)? {
+        if let Some(comp) = NodeBlock::parse(&input)? {
             Ok(Self::NodeBlock(comp))
         } else if let Some(ex) = ExecutionBlock::parse(&input)? {
             Ok(Self::ExecutionBlock(ex))
@@ -34,21 +24,9 @@ impl Block {
 
 impl ToTokens for Block {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-        tokens.append_all(match self {
-            Block::NodeBlock(comp) => comp.to_token_stream(),
-            Block::ExecutionBlock(ex) => ex.to_token_stream(),
-            Block::ConditionalBlock => todo!(),
-            Block::IterBlock => todo!(),
-        });
-    }
-}
-
-impl Block {
-    pub fn get_scope(&self) -> Scope {
         match self {
-            Block::NodeBlock(node) => node.scope.clone(),
-            //WARN: change this, put more thought
-            Block::ExecutionBlock(_) => Scope::PartialOpen,
+            Block::NodeBlock(comp) => comp.to_tokens(tokens),
+            Block::ExecutionBlock(ex) => ex.to_tokens(tokens),
             Block::ConditionalBlock => todo!(),
             Block::IterBlock => todo!(),
         }

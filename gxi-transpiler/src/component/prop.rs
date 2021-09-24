@@ -1,13 +1,12 @@
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
-use syn::Expr;
+use syn::{Expr, Token};
 
 /// list of comma separated props inside parenthesis
 #[derive(Default)]
 pub struct NodeProps {
     pub props: Vec<NodeProp>,
-    pub scope: Scope,
 }
 
 impl Parse for NodeProps {
@@ -20,7 +19,6 @@ impl Parse for NodeProps {
                     break;
                 }
                 let prop: NodeProp = content.parse()?;
-                this.scope.comp_and_promote(&prop.scope);
                 this.props.push(prop);
                 if !content.is_empty() {
                     content.parse::<syn::token::Comma>()?;
@@ -43,21 +41,15 @@ pub struct NodeProp {
 impl Parse for NodeProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         // check for * used to mark sccope to be OPen
-        // TODO: update docs about *
-        // TODO: add to docs, if not explicitly marked, each prop has a scope of PartialOpen if it
-        // TODO: is not a constant or a filed( eg state.a )
-
         let mut scope = Scope::default();
 
-        if let Ok(_) = input.parse::<syn::Token!(*)>() {
-            scope = Scope::Open;
-        }
+        // TODO: add to doc, const
+
+        let const_tt = input.parse::<Token!(const)>();
 
         let syn::ExprAssign { left, right, .. } = input.parse()?;
 
-        //TODO: add event listener handler using *= token
-
-        if let Scope::Constant = scope {
+        if let Err(_) = const_tt {
             scope = Scope::find_prop_scope(&right)?;
         }
 
@@ -65,29 +57,34 @@ impl Parse for NodeProp {
     }
 }
 
-impl ToTokens for NodeProp {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+impl NodeProp {
+    pub fn to_tokens(&self, tokens: &mut quote::__private::TokenStream, path: &syn::Path) {
         let left = &self.left;
         let right = &self.right;
 
-        tokens.append_all(quote! {
-            __node.#left(#right);
+        tokens.append_all(match &self.scope {
+            Scope::Observable(name) => quote! {
+                let __node = __node.clone();
+                #name.add_observer(Box::new(|#name| {
+                    use std::ops::DerefMut;
+
+                    let mut __node = __node.as_ref().borrow_mut();
+                    let __node = __node.deref_mut().as_mut().downcast_mut::<#path>().unwrap();
+
+                    __node.#left(#right);
+                }));
+            },
+            Scope::Constant => quote! {
+                __node.#left(#right);
+            },
         })
     }
 }
 
 #[derive(Debug, PartialEq, Clone)]
 pub enum Scope {
-    /// the value wont change i.e constant
+    Observable(syn::Ident),
     Constant,
-    /// the value is constant but needs to be kept in a partial open env.
-    /// may or may not depend on the env
-    /// eg in a if statement which executes once
-    /// eg closures, need to assigned once
-    PartialOpen,
-    /// the value is dependent on external factors and may change
-    /// eg. state
-    Open,
 }
 
 impl Default for Scope {
@@ -97,67 +94,34 @@ impl Default for Scope {
 }
 
 impl Scope {
-    pub fn is_serializable(&self) -> bool {
-        match self {
-            Self::Constant => true,
-            _ => false,
-        }
-    }
-    /// compare and promote self if others scope is higher
-    pub fn comp_and_promote(&mut self, other: &Self) {
-        let scope = match (&self, other) {
-            (Self::Constant, _) => other.clone(),
-            (Self::PartialOpen, Self::Constant | Self::PartialOpen) => Self::PartialOpen,
-            (Self::PartialOpen, Self::Open) => Self::Open,
-            (Self::Open, _) => Self::Open,
-        };
-        *self = scope;
-    }
-
     fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
-        return Ok(Self::Open);
-        //TODO: complete this
-        /*return match expr {
-            Expr::Lit(_) => Ok(Self::Constant),
-            Expr::Field(_) => Ok(Self::Open),
-            Expr::Closure(_) => Ok(Self::PartialOpen),
-            Expr::Array(syn::ExprArray { elems, .. }) => {
-                let mut scope = Scope::Constant;
-                for x in elems {
-                    let k = Self::find_prop_scope(x)?;
-                    scope.comp_and_promote(&k);
-                    if let Scope::Open = k {
-                        break;
-                    }
-                }
-                Ok(scope)
-            }
-            Expr::Binary(syn::ExprBinary { left, right, .. }) => {
-                let mut scope = Scope::default();
-                scope.comp_and_promote(&Self::find_prop_scope(&left)?);
-                scope.comp_and_promote(&Self::find_prop_scope(&right)?);
-                Ok(scope)
-            }
-            //TODO: update docs, blocks wont update with state
-            Expr::Block(_) => Ok(Scope::PartialOpen),
+        match expr {
+            Expr::Array(_) => todo!(),
+            Expr::Binary(_) => todo!(),
+            Expr::Block(_) => todo!(),
+            Expr::Call(_) => todo!(),
             Expr::Cast(_) => todo!(),
+            Expr::Closure(_) => todo!(),
+            Expr::Field(_) => todo!(),
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
             Expr::Index(_) => todo!(),
+            Expr::Lit(_) => todo!(),
             Expr::Loop(_) => todo!(),
-            Expr::While(_) => todo!(),
-            Expr::Macro(_) | Expr::Call(_) | Expr::MethodCall(_) => Ok(Scope::PartialOpen),
+            Expr::Macro(_) => todo!(),
             Expr::Match(_) => todo!(),
+            Expr::MethodCall(_) => todo!(),
             Expr::Paren(_) => todo!(),
             Expr::Path(_) => todo!(),
             Expr::Range(_) => todo!(),
-            Expr::Reference(_) => Ok(Scope::PartialOpen),
+            Expr::Reference(_) => todo!(),
             Expr::Repeat(_) => todo!(),
             Expr::Try(_) => todo!(),
             Expr::TryBlock(_) => todo!(),
             Expr::Tuple(_) => todo!(),
             Expr::Unary(_) => todo!(),
             Expr::Unsafe(_) => todo!(),
+            Expr::While(_) => todo!(),
             Expr::Assign(_)
             | Expr::Async(_)
             | Expr::Await(_)
@@ -172,7 +136,7 @@ impl Scope {
             | Expr::AssignOp(_)
             | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
-        };*/
+        }
     }
 }
 

@@ -1,35 +1,23 @@
 use quote::{quote, ToTokens, TokenStreamExt};
 
-use crate::{block::Block, component::Scope, init_type::InitType};
+use crate::block::Block;
 
 /// comma separated multiple blocks
 #[derive(Default)]
 pub struct Blocks {
     pub blocks: Vec<Block>,
-    pub scope: Scope,
 }
 
 impl syn::parse::Parse for Blocks {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut this = Self::default();
 
-        // blocks parse is called only after the first block has been parsed
-        // so add_to_self_substitute
-        let mut init_type = InitType::Child;
-
         loop {
             if input.is_empty() {
                 break;
             }
 
-            let block = Block::parse(&input, &init_type)?;
-
-            // after the first node block every other block is of init_type Sibling
-            if let Block::NodeBlock(_) = block {
-                init_type = InitType::Sibling;
-            }
-
-            this.scope.comp_and_promote(&block.get_scope());
+            let block = Block::parse(&input)?;
 
             this.blocks.push(block);
 
@@ -47,9 +35,15 @@ impl syn::parse::Parse for Blocks {
 impl ToTokens for Blocks {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         for block in &self.blocks {
-            tokens.append_all(quote! {
-                #block
-            });
+            if let Block::NodeBlock(_) = block {
+                tokens.append_all(quote! {
+                    __node.add(
+                        #block
+                    );
+                });
+            } else {
+                block.to_tokens(tokens);
+            }
         }
     }
 }
