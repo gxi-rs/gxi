@@ -37,7 +37,6 @@ impl ToTokens for Blocks {
         for block in &self.blocks {
             if let Block::NodeBlock(_) = block {
                 tokens.append_all(quote! {
-                    use gxi::VContainerWidget;
                     __node.push(
                         #block
                     );

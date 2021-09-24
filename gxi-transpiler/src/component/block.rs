@@ -154,12 +154,12 @@ impl ToTokens for NodeBlock {
         }
         // assemble
         tokens.append_all(quote! {{
+            use gxi::{VNode, VContainerWidget};
+
             let mut __node = #path::#constructor;
             #subtree
 
             #const_props
-
-            use gxi::VNode;
 
             let __node = std::rc::Rc::new(std::cell::RefCell::new(__node.into_vnode_type()));
 

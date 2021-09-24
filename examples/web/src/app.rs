@@ -1,53 +1,17 @@
 use gxi::{gxi, Body, StrongNodeType};
 
-pub enum Msg {
-    ReRender,
-    CustomPanic(&'static str),
+fn use_state<T>(v: T) -> gxi::Observable<T> {
+    gxi::Observable::new(v)
 }
 
-pub fn App() -> StrongNodeType {
-    let value = "hello";
-
-    // convert any value moved to gxi! macro, observable depending on the needs
-    let value = gxi::Observable::new(value);
+pub fn app() -> StrongNodeType {
+    let _counter = use_state(0);
+    let _const_value = "yp";
     // add this to gxi macro
     return gxi! {
         Body [
-           h1 ( const inner_html = "hello" ) [
-               
-    //         button ( on_click = |_| panic!("hello"), inner_html = "click me"),
-     //        p ( inner_html = *value )
-           ]
+           button ( /*on_click = |_| panic!("hello"),*/ inner_html = "click me"),
+           p ( inner_html = "yp" )
         ]
     };
 }
-
-//#[render(App)]
-//fn render() {
-//    gxi! {
-//      Body [
-//         div [
-//            button ( inner_html = "hello buddy", on_click = set_state!(Msg::ReRender) ),
-//            hello
-//         ],
-//         h1 ( inner_html = "23", on_click = set_state!(Msg::CustomPanic("hello")) ) [
-//            h1 ( inner_html = "12" ),
-//            h1 ( inner_html = "12" )
-//         ],
-//         crate::Counter,
-//         {
-//            crate::Counter::render(&__node.clone());
-//         }
-//      ]
-//    }
-//}
-//
-//#[update(App)]
-//fn update(msg: Self::Msg) {
-//    match msg {
-//        Msg::ReRender => (),
-//        Msg::CustomPanic(msg) => {
-//            panic!("{}", msg)
-//        }
-//    }
-//}

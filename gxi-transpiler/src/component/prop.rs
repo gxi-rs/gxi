@@ -106,7 +106,7 @@ impl Scope {
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
             Expr::Index(_) => todo!(),
-            Expr::Lit(_) => todo!(),
+            Expr::Lit(_) => Ok(Self::Constant),
             Expr::Loop(_) => todo!(),
             Expr::Macro(_) => todo!(),
             Expr::Match(_) => todo!(),
