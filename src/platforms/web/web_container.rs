@@ -1,15 +1,15 @@
-use crate::{self as gxi, TreeNode, WebContainerWrapper};
+use crate::{self as gxi, StrongNodeType, WebContainerWrapper};
 
 #[derive(Default, crate::ContainerWidget)]
 pub struct WebContainer {
-    node: TreeNode,
+    children: Vec<StrongNodeType>,
     native_widget: WebContainerWrapper,
 }
 
 impl WebContainer {
     pub fn from_str(from: &'static str) -> Self {
         Self {
-            node: TreeNode::default(),
+            children: Default::default(),
             native_widget: WebContainerWrapper::from(from),
         }
     }

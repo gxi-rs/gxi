@@ -14,12 +14,6 @@ pub fn parse_widget_derive(input: TokenStream) -> TokenStream2 {
 
     quote! {
         impl gxi::VWidget for #name {
-            fn get_node(&self) -> &gxi::WidgetNode {
-                &self.node
-            }
-            fn get_node_mut(&mut self) -> &mut gxi::WidgetNode {
-                &mut self.node
-            }
         }
 
         impl std::ops::Deref for #name {

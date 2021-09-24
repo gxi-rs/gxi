@@ -1,4 +1,4 @@
-use gxi::{gxi, StrongNodeType};
+use gxi::{gxi, Body, StrongNodeType};
 
 pub enum Msg {
     ReRender,
@@ -12,11 +12,14 @@ pub fn App() -> StrongNodeType {
     let value = gxi::Observable::new(value);
     // add this to gxi macro
     return gxi! {
-           h1 [
+        Body [
+           h1 ( const inner_html = "hello" ) [
+               
     //         button ( on_click = |_| panic!("hello"), inner_html = "click me"),
      //        p ( inner_html = *value )
            ]
-        };
+        ]
+    };
 }
 
 //#[render(App)]

@@ -1,15 +1,15 @@
-use crate::{self as gxi, TreeNode, WebContainerWrapper};
+use crate::{self as gxi, StrongNodeType, WebContainerWrapper};
 
 #[derive(gxi::TopLevelContainerWidget)]
 pub struct Body {
-    node: TreeNode,
+    children: Vec<StrongNodeType>,
     native_widget: WebContainerWrapper,
 }
 
 impl Default for Body {
     fn default() -> Self {
         Self {
-            node: Default::default(),
+            children: Default::default(),
             native_widget: WebContainerWrapper({
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();

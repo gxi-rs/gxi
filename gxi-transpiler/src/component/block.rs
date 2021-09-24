@@ -154,7 +154,7 @@ impl ToTokens for NodeBlock {
         }
         // assemble
         tokens.append_all(quote! {{
-            let __node = #path::#constructor;
+            let mut __node = #path::#constructor;
             #subtree
 
             #const_props

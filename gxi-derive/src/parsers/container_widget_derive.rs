@@ -14,11 +14,11 @@ pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
 
     quote! {
         impl gxi::VContainerWidget for #name {
-            fn get_node(&self) -> &gxi::TreeNode {
-                &self.node
+            fn get_children(&self) -> &Vec<gxi::StrongNodeType> {
+                &self.children
             }
-            fn get_node_mut(&mut self) -> &mut gxi::TreeNode {
-                &mut self.node
+            fn get_children_mut(&mut self) -> &mut Vec<gxi::StrongNodeType> {
+                &mut self.children
             }
         }
 
