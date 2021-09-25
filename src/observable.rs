@@ -4,13 +4,13 @@ pub type Observer<V> = Box<dyn FnMut(&V) -> ()>;
 
 #[derive(Clone)]
 pub struct Observable<V> {
-    value: Rc<V>,
+    value: Rc<RefCell<V>>,
     observers: Rc<RefCell<Vec<Observer<V>>>>,
     value_synced: bool,
 }
 
 impl<V> Deref for Observable<V> {
-    type Target = V;
+    type Target = RefCell<V>;
 
     fn deref(&self) -> &Self::Target {
         &*self.value
@@ -21,14 +21,14 @@ impl<V> Observable<V> {
     pub fn new(value: V) -> Self {
         Self {
             observers: Default::default(),
-            value: Rc::new(value),
+            value: Rc::new(RefCell::new(value)),
             value_synced: false,
         }
     }
 
     /// mutates value, and notifies all the observers
     pub fn set_value(&mut self, value: V) {
-        self.value = Rc::new(value);
+        *self.value.as_ref().borrow_mut() = value;
         self.notify();
     }
 
@@ -42,7 +42,7 @@ impl<V> Observable<V> {
         if !self.value_synced {
             let mut observers = self.observers.as_ref().borrow_mut();
             for observer in &mut *observers {
-                (observer)(&self.value);
+                (observer)(&*self.value.as_ref().borrow_mut());
             }
         }
     }

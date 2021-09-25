@@ -11,7 +11,13 @@ pub fn set_state(input: TokenStream) -> TokenStream {
     (quote! {
         {
             let mut #name = #name.clone();
-            move |e| #name.set_value(#body)
+            move |e| {
+                let value =  {
+                    let #name = &mut *(*#name).borrow_mut();
+                    #body
+                };
+                #name.set_value(value);
+            }
         }
     })
     .into()
