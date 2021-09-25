@@ -58,8 +58,8 @@ impl WebContainerWrapper {
     //*************************************** Event Handlers ***************************************
 
     // Assigns the closure f to the the given event
-    pub fn on<T: 'static + FromWasmAbi, F: Fn(T) + 'static>(&self, event: &str, f: F) {
-        let closure = Closure::wrap(Box::new(f) as Box<dyn Fn(_)>);
+    pub fn on<T: 'static + FromWasmAbi, F: FnMut(T) + 'static>(&self, event: &str, f: F) {
+        let closure = Closure::wrap(Box::new(f) as Box<dyn FnMut(_)>);
         self.0
             .add_event_listener_with_callback(event, closure.as_ref().unchecked_ref())
             .unwrap();

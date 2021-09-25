@@ -7,7 +7,7 @@ macro_rules! generate_on_func {
         #[allow(non_snake_case)]
         #[allow(dead_code)]
         #[inline]
-        pub fn $name<F: Fn(web_sys::$event) + 'static>(&self, f: F) {
+        pub fn $name<F: FnMut(web_sys::$event) + 'static>(&self, f: F) {
             self.on($event_name, f);
         }
     };
