@@ -1,4 +1,5 @@
-use quote::{quote, TokenStreamExt};
+use quote::{quote, ToTokens, TokenStreamExt};
+use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::spanned::Spanned;
 use syn::{Expr, Token};
@@ -63,9 +64,9 @@ impl NodeProp {
         let right = &self.right;
 
         tokens.append_all(match &self.scope {
-            Scope::Observable(name) => quote! {
+            Scope::Observable(name) => quote! {{
                 let __node = __node.clone();
-                #name.add_observer(Box::new(|#name| {
+                #name.add_observer(Box::new(move |#name| {
                     use std::ops::DerefMut;
 
                     let mut __node = __node.as_ref().borrow_mut();
@@ -73,7 +74,7 @@ impl NodeProp {
 
                     __node.#left(#right);
                 }));
-            },
+            }},
             Scope::Constant => quote! {
                 __node.#left(#right);
             },
@@ -81,9 +82,8 @@ impl NodeProp {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
 pub enum Scope {
-    Observable(syn::Ident),
+    Observable(TokenStream2),
     Constant,
 }
 
@@ -93,28 +93,89 @@ impl Default for Scope {
     }
 }
 
+const MORE_THAN_ONE_ERR: &'static str =
+    "can't have more than one observables in a single expression";
+
 impl Scope {
+    fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
+        let mut k = Scope::default();
+        for x in iter {
+            let x_scope = Self::find_prop_scope(x)?;
+            match (&x_scope, &k) {
+                (Scope::Observable(_), Scope::Observable(_)) => {
+                    return Err(syn::Error::new(x.span(), MORE_THAN_ONE_ERR));
+                }
+                _ => {
+                    k = x_scope;
+                }
+            }
+        }
+        Ok(k)
+    }
     fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
         match expr {
-            Expr::Array(_) => todo!(),
-            Expr::Binary(_) => todo!(),
-            Expr::Block(_) => todo!(),
-            Expr::Call(_) => todo!(),
-            Expr::Cast(_) => todo!(),
-            Expr::Closure(_) => todo!(),
-            Expr::Field(_) => todo!(),
+            Expr::Array(syn::ExprArray { elems, .. }) => {
+                return Self::find_iter_scope(&mut elems.iter());
+            }
+            Expr::Binary(syn::ExprBinary { left, right, .. }) => {
+                match (
+                    Self::find_prop_scope(&left)?,
+                    Self::find_prop_scope(&right)?,
+                ) {
+                    (Scope::Observable(_), Scope::Observable(_)) => {
+                        return Err(syn::Error::new(right.span(), MORE_THAN_ONE_ERR));
+                    }
+                    (Scope::Observable(name), Scope::Constant) => {
+                        return Ok(Scope::Observable(name));
+                    }
+                    (Scope::Constant, Scope::Observable(name)) => {
+                        return Ok(Scope::Observable(name));
+                    }
+                    (Scope::Constant, Scope::Constant) => {
+                        return Ok(Scope::Constant);
+                    }
+                }
+            }
+            Expr::Block(b) => {
+                return Err(syn::Error::new(b.span(), "blocks not allowed yet"));
+            }
+            Expr::Call(syn::ExprCall { args, .. }) => {
+                return Scope::find_iter_scope(&mut args.iter());
+            }
+            Expr::Cast(syn::ExprCast { expr, .. }) => {
+                return Scope::find_prop_scope(&expr);
+            }
+            Expr::Field(syn::ExprField { base, .. }) => {
+                return Self::find_prop_scope(&base);
+            }
+            Expr::Index(syn::ExprIndex { expr, .. }) => {
+                return Self::find_prop_scope(expr);
+            }
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
-            Expr::Index(_) => todo!(),
-            Expr::Lit(_) => Ok(Self::Constant),
+            Expr::Lit(_) | Expr::Closure(_) => Ok(Self::Constant),
             Expr::Loop(_) => todo!(),
             Expr::Macro(_) => todo!(),
             Expr::Match(_) => todo!(),
-            Expr::MethodCall(_) => todo!(),
-            Expr::Paren(_) => todo!(),
-            Expr::Path(_) => todo!(),
+            Expr::MethodCall(syn::ExprMethodCall { receiver, .. }) => {
+                return Self::find_prop_scope(&receiver);
+            }
+            Expr::Paren(syn::ExprParen { expr, .. }) => {
+                return Self::find_prop_scope(&expr);
+            }
+            Expr::Path(syn::ExprPath { path, .. }) => {
+                let segments = &path.segments;
+                // path of length 1 is an identifier
+                if segments.len() == 1 {
+                    return Ok(Self::Observable(segments[0].to_token_stream()));
+                } else {
+                    return Ok(Self::Constant);
+                }
+            }
             Expr::Range(_) => todo!(),
-            Expr::Reference(_) => todo!(),
+            Expr::Reference(syn::ExprReference { expr, .. }) => {
+                return Self::find_prop_scope(expr);
+            }
             Expr::Repeat(_) => todo!(),
             Expr::Try(_) => todo!(),
             Expr::TryBlock(_) => todo!(),
