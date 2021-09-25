@@ -10,8 +10,10 @@ pub fn derive_vnode(name: &syn::Ident, v_node_type: VNodeType) -> TokenStream2 {
                 Self::default()
             }
 
-            fn into_vnode_type(self) -> gxi::VNodeType {
-                gxi::VNodeType::#v_node_type(Box::from(self))
+            fn into_strong_node_type(self) -> gxi::StrongNodeType {
+                std::rc::Rc::new(std::cell::RefCell::new(
+                    gxi::VNodeType::#v_node_type(Box::from(self)
+                )))
             }
         }
 

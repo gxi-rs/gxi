@@ -136,8 +136,8 @@ impl Scope {
                     }
                 }
             }
-            Expr::Block(b) => {
-                return Err(syn::Error::new(b.span(), "blocks not allowed yet"));
+            Expr::Block(_) | Expr::Macro(_) | Expr::Lit(_) | Expr::Closure(_) => {
+                return Ok(Scope::Constant)
             }
             Expr::Call(syn::ExprCall { args, .. }) => {
                 return Scope::find_iter_scope(&mut args.iter());
@@ -153,9 +153,7 @@ impl Scope {
             }
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
-            Expr::Lit(_) | Expr::Closure(_) => Ok(Self::Constant),
             Expr::Loop(_) => todo!(),
-            Expr::Macro(_) => todo!(),
             Expr::Match(_) => todo!(),
             Expr::MethodCall(syn::ExprMethodCall { receiver, .. }) => {
                 return Self::find_prop_scope(&receiver);

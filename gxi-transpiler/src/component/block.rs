@@ -72,6 +72,7 @@ impl NodeBlock {
                     _ => {
                         if last_starts_with_lower_case {
                             let constructor = path.segments.pop();
+
                             let syn::group::Parens { content, .. } =
                                 syn::group::parse_parens(&input)?;
                             let mut args = TokenStream2::new();
@@ -152,16 +153,24 @@ impl ToTokens for NodeBlock {
                 prop.to_tokens(&mut observable_props, path)
             }
         }
+
+        let mut path = path.to_token_stream();
+
+        if !path.to_string().ends_with("::") {
+            path.append_all(quote! {::});
+        }
         // assemble
         tokens.append_all(quote! {{
+
             use gxi::{VNode, VContainerWidget};
 
-            let mut __node = #path::#constructor;
+            let mut __node = #path#constructor;
+
             #subtree
 
             #const_props
 
-            let __node = std::rc::Rc::new(std::cell::RefCell::new(__node.into_vnode_type()));
+            let __node = __node.into_strong_node_type();
 
             #observable_props
 

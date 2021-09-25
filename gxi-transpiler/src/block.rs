@@ -6,7 +6,9 @@ use crate::{component::NodeBlock, execution::ExecutionBlock};
 pub enum Block {
     NodeBlock(NodeBlock),
     ExecutionBlock(ExecutionBlock),
+    #[allow(dead_code)]
     ConditionalBlock,
+    #[allow(dead_code)]
     IterBlock,
 }
 

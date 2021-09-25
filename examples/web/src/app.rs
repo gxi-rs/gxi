@@ -1,18 +1,30 @@
-use gxi::{gxi, Body, StrongNodeType}; use std::ops::Deref;
-//
-fn use_state<T>(v: T) -> gxi::Observable<T> {
-    gxi::Observable::new(v)
-}
+use gxi::{gxi, set_state, use_state, Body, StrongNodeType};
 //
 pub fn app() -> StrongNodeType {
-    let mut counter = use_state(0);
-    let _const_value = "yp";
+    let h1_value = "hello";
+    let reduce_emoji = use_state("🙃");
+    
     // add this to gx
-    let mut counter2 = counter.clone();
     return gxi! {
         Body [
-           button ( on_click = move |_| counter2.set_value(*counter2 + 1), inner_html = "click me"),
-           p ( inner_html = &(counter.deref().to_string())[..] )
+           h1 ( const inner_html = h1_value ),
+           Counter::new(2, reduce_emoji.clone()),
+           Counter::new(20, reduce_emoji.clone())
+        ]
+    };
+}
+
+#[gxi::comp]
+pub fn Counter(initial: i32, mut reduce_emoji: gxi::Observable<&'static str>) -> StrongNodeType {
+    let mut counter = use_state(initial);
+
+    return gxi! {
+        div [
+            h1 ( inner_html = &counter.to_string()[..] ),
+            div [
+                button ( on_click = set_state!( counter, *counter + 1), inner_html = "+" ),
+                button ( on_click = set_state!( counter, *counter - 1), inner_html = &reduce_emoji.to_string()[..] )
+            ]
         ]
     };
 }

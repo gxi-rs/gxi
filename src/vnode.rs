@@ -12,16 +12,14 @@ pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
     fn new() -> Self
     where
         Self: Sized;
-    fn into_vnode_type(self) -> VNodeType
-    where
-        Self: Sized;
+    fn into_strong_node_type(self) -> StrongNodeType;
 }
 
 /// VNode referring to a native widget. It itself can't hold other widgets
 pub trait VWidget:
     VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeWidget> + DerefMut
 {
-    fn push(&mut self, member: StrongNodeType) {
+    fn push(&mut self, _member: StrongNodeType) {
         panic!("can't add child to this widget")
     }
 }
