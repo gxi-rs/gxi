@@ -22,7 +22,6 @@ members = ["gxi-derive", "gxi-transpiler", "gxi-macros", "examples/web"]
 name = "web"
 path = "examples/web/src/main.rs"
 required-features = ["web"]
-publish = false
 
 [dependencies]
 gxi-derive = { path = "gxi-derive", version = "0.4.0-nightly.1", optional = true }
