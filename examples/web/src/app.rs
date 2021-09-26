@@ -1,11 +1,11 @@
-use gxi::{gxi, set_state, use_state, Body, StrongNodeType};
+use gxi::{gxi, set_state, Body, State, StrongNodeType};
 
 const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
 pub fn app() -> StrongNodeType {
     let h1_value = "hello";
-    let reduce_emoji = use_state(EMOTICONS[0]);
-    let mut reduce_emoji_index = use_state(0 as usize);
+    let reduce_emoji = State::new(EMOTICONS[0]);
+    let reduce_emoji_index = State::new(0 as usize);
 
     let reduce_emoji_listener = {
         set_state!([reduce_emoji, reduce_emoji_index], {
@@ -31,8 +31,8 @@ pub fn app() -> StrongNodeType {
 }
 
 #[gxi::comp]
-pub fn Counter(initial: i32, mut reduce_emoji: gxi::Observable<&'static str>) -> StrongNodeType {
-    let mut counter = use_state(initial);
+pub fn Counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
+    let counter = State::new(initial);
 
     return gxi! {
         div [

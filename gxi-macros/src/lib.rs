@@ -11,6 +11,7 @@ pub fn set_state(input: TokenStream) -> TokenStream {
     let mut clone_tt = TokenStream2::new();
     let mut borrow_tt = TokenStream2::new();
     let mut notify_tt = TokenStream2::new();
+
     for name in &names.elems {
         clone_tt.append_all(quote! {
             let mut #name = #name.clone();
