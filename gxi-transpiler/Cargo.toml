@@ -1,0 +1,26 @@
+[package]
+name = "gxi-transpiler"
+version = "0.4.0-nightly.1"
+edition = "2018"
+license = "MIT"
+authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
+description = "transpiles component tree to gxi component system"
+repository = "https://github.com/gxi-rs/gxi.git"
+homepage = "https://gxi-rs.com/"
+keywords = [
+    "gxi-rs",
+    "gxi-macro"
+]
+
+[lib]
+proc-macro = true
+
+[features]
+web = []
+desktop = []
+default = []
+
+[dependencies]
+syn = { version = "1.0.73", features = ["full"] }
+quote = "1.0.9"
+

@@ -1,37 +1,32 @@
-use crate::*;
+use gxi::{gxi, render, set_state, update, comp};
 
-enum Msg {
-    INC,
-    DEC,
+pub enum Msg {
+    Modify(i32),
 }
 
-gxi! {
-    pub Counter {
-        count: u32 = 0
-    }
-    render {
-        Div [
-            Div [
-                Button ( inner_html = "Inc", on_click = |_| Msg::INC , class="btn btn-dark"),
-                Button ( inner_html = "Dec", on_click = |_| Msg::DEC , class="btn btn-light")
-            ],
-            H2 ( inner_html = &state.count.to_string() , class = "text-info")
+#[comp]
+pub struct Counter {
+    counter: i32,
+}
+
+#[render(Counter)]
+fn render(state: &gxi::State<CounterState>) {
+    gxi! {
+        div [
+            h3 ( *inner_html = &state.counter.to_string()[..]),
+            div [
+                button ( inner_html = "+" , on_click = set_state!(Msg::Modify(1)) ),
+                button ( inner_html = "-" , on_click = set_state!(Msg::Modify(-1)) ),
+            ]
         ]
     }
-    update {
-        let mut state = get_state_mut!(state);
-        match msg {
-            Msg::INC => {
-                state.count += 1;
-            }
-            _ => {
-                if state.count > 0 {
-                    state.count -= 1;
-                } else {
-                    return Ok(ShouldRender::No);
-                }
-            }
+}
+
+#[update(Counter)]
+fn update(msg: Msg, state: &mut Self::State) {
+    match msg {
+        Msg::Modify(by) => {
+            state.counter += by;
         }
-        Ok(ShouldRender::Yes)
     }
 }
