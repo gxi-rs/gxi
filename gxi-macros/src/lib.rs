@@ -1,22 +1,37 @@
 use proc_macro::TokenStream;
-use quote::quote;
-
+use quote::{quote, TokenStreamExt};
+use syn::__private::TokenStream2;
 mod comp;
 mod state;
 
 #[proc_macro]
 pub fn set_state(input: TokenStream) -> TokenStream {
-    let state::StateParser { name, body } = syn::parse_macro_input!(input as state::StateParser);
+    let state::StateParser { names, body } = syn::parse_macro_input!(input as state::StateParser);
+
+    let mut clone_tt = TokenStream2::new();
+    let mut borrow_tt = TokenStream2::new();
+    let mut notify_tt = TokenStream2::new();
+    for name in &names.elems {
+        clone_tt.append_all(quote! {
+            let mut #name = #name.clone();
+        });
+        borrow_tt.append_all(quote! {
+            let #name = &mut *(*#name).borrow_mut();
+        });
+        notify_tt.append_all(quote! {
+            #name.notify();
+        });
+    }
 
     (quote! {
         {
-            let mut #name = #name.clone();
+            #clone_tt
             move |e| {
-                let value =  {
-                    let #name = &mut *(*#name).borrow_mut();
+                {
+                    #borrow_tt
                     #body
                 };
-                #name.set_value(value);
+                #notify_tt
             }
         }
     })
