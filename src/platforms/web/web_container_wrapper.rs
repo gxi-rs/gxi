@@ -51,7 +51,7 @@ impl DerefMut for WebContainerWrapper {
 // add extra calls
 
 impl WebContainerWrapper {
-    pub fn inner_html(&self, str: &str) {
+    pub unsafe fn inner_html(&self, str: &str) {
         self.0.set_inner_html(str)
     }
 

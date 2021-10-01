@@ -65,14 +65,18 @@ impl NodeProp {
 
         tokens.append_all(match &self.scope {
             Scope::Observable(name) => quote! {{
-                let __node = __node.clone();
+                let __node = std::rc::Rc::downgrade(&__node);
                 #name.add_observer(Box::new(move |#name| {
                     use std::ops::DerefMut;
+                    if let Some(__node) = __node.upgrade() {
+                        let mut __node = __node.as_ref().borrow_mut();
+                        let __node = __node.deref_mut().as_mut().downcast_mut::<#path>().unwrap();
 
-                    let mut __node = __node.as_ref().borrow_mut();
-                    let __node = __node.deref_mut().as_mut().downcast_mut::<#path>().unwrap();
-
-                    __node.#left(#right);
+                        __node.#left(#right);
+                        false
+                    } else {
+                        true
+                    }
                 }));
             }},
             Scope::Constant => quote! {
