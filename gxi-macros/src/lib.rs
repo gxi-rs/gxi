@@ -45,10 +45,11 @@ pub fn comp(_: TokenStream, input: TokenStream) -> TokenStream {
         name,
         render_func,
         new_func,
+        viz
     } = syn::parse_macro_input!(input as comp::CompParser);
 
     (quote! {
-        struct #name (gxi::StrongNodeType);
+        #viz struct #name (gxi::StrongNodeType);
 
         impl #name {
             #new_func

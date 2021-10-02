@@ -9,6 +9,7 @@ pub struct CompParser {
     pub name: syn::Ident,
     pub render_func: TokenStream2,
     pub new_func: TokenStream2,
+    pub viz: TokenStream2,
 }
 
 fn get_pat_ident(pat: &syn::Pat) -> Option<String> {
@@ -22,6 +23,9 @@ fn get_pat_ident(pat: &syn::Pat) -> Option<String> {
 impl Parse for CompParser {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut func = input.parse::<syn::ItemFn>()?;
+        let viz = func.vis.to_token_stream();
+        let unsafety = func.sig.unsafety.to_token_stream();
+
         let name = func.sig.ident.clone();
         if name.to_string().chars().next().unwrap().is_lowercase() {
             return Err(syn::Error::new(
@@ -95,7 +99,7 @@ impl Parse for CompParser {
                 }
             }
             quote! {
-                pub fn new(#args_with_type) -> Self {
+                #viz #unsafety fn new(#args_with_type) -> Self {
                     Self ( Self::render(#args_without_type) )
                 }
             }
@@ -105,6 +109,7 @@ impl Parse for CompParser {
             name,
             render_func: func.to_token_stream(),
             new_func,
+            viz,
         })
     }
 }
