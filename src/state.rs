@@ -35,12 +35,6 @@ impl<V> Drop for State<V> {
     }
 }
 
-impl<V> From<V> for State<V> {
-    fn from(v: V) -> Self {
-        Self::new(v)
-    }
-}
-
 impl<V> WeakState<V> {
     pub fn upgrade(&self) -> State<V> {
         State(self.0.upgrade().unwrap())

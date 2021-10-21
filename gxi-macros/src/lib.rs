@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
+use syn::spanned::Spanned;
 mod comp;
 mod state;
 
@@ -13,26 +14,54 @@ pub fn set_state(input: TokenStream) -> TokenStream {
     let mut notify_tt = TokenStream2::new();
 
     for name in &names.elems {
+        let name_under = syn::Ident::new(&format!("_{}", quote! {#name})[..], name.span());
         clone_tt.append_all(quote! {
-            let mut #name = #name.clone();
+            let #name_under = #name.clone();
         });
         borrow_tt.append_all(quote! {
-            let #name = &mut *(*#name).borrow_mut();
+            let mut #name = (*#name_under).borrow_mut();
         });
         notify_tt.append_all(quote! {
-            #name.notify();
+            #name_under.notify();
         });
     }
+
+    let exec_block = if let syn::Expr::Async(syn::ExprAsync { block, .. }) = body {
+        if cfg!(feature = "web") {
+            let mut clone_tt2 = TokenStream2::new();
+            for name in &names.elems {
+                let name_under = syn::Ident::new(&format!("_{}", quote! {#name})[..], name.span());
+                clone_tt2.append_all(quote! {
+                    let #name = #name_under.clone();
+                });
+            }
+            quote! {
+                #clone_tt2
+                gxi::spawn_local(async move {
+                    {
+                        #block
+                    };
+                    #notify_tt
+                });
+            }
+        } else {
+            panic!("async state not supported for current feature flag");
+        }
+    } else {
+        quote! {
+            {
+                #borrow_tt
+                #body
+            };
+            #notify_tt
+        }
+    };
 
     (quote! {
         {
             #clone_tt
             move |e| {
-                {
-                    #borrow_tt
-                    #body
-                };
-                #notify_tt
+                #exec_block
             }
         }
     })
@@ -45,7 +74,7 @@ pub fn comp(_: TokenStream, input: TokenStream) -> TokenStream {
         name,
         render_func,
         new_func,
-        viz
+        viz,
     } = syn::parse_macro_input!(input as comp::CompParser);
 
     (quote! {
