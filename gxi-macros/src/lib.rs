@@ -2,8 +2,47 @@ use proc_macro::TokenStream;
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::spanned::Spanned;
+
+use crate::mod_state::ModStateAttr;
 mod comp;
+mod mod_state;
 mod state;
+
+/// clones state objects passed over as attributes
+///
+/// *e.g*
+/// ```rust
+/// pub fn app() -> StrongNodeType {
+///     let counter = gxi::State::new(2);
+///     
+///     #[mod_state(ref counter, )]
+///     let click_handler = |_| {
+///         counter+=1;
+///     };
+///
+///     return gxi! {
+///         h1 ( const on_click = click_handler, inner_html = &counter.to_string()[..] )
+///     }
+/// }
+///
+/// ```
+/// *move* is automatically added to closure
+///
+/// ## attribute prefix
+///
+/// passed attributes can be prefixed with keywords to reduce boiler plate code
+///
+/// + `ref` => <attr>.as_ref().borrow_mut()
+#[proc_macro_attribute]
+pub fn mod_state(attr: TokenStream, input: TokenStream) -> TokenStream {
+    let mod_state = syn::parse_macro_input!(input as mod_state::ModState);
+    let mod_state_attr = syn::parse_macro_input!(attr as mod_state::ModStateAttrs);
+
+    match mod_state.to_tokens(&mod_state_attr) {
+        Ok(k) => k.into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
 
 #[proc_macro]
 pub fn set_state(input: TokenStream) -> TokenStream {

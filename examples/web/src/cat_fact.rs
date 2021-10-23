@@ -1,12 +1,11 @@
-use std::sync::{Arc, Mutex};
-
-use gxi::{gxi, set_state, AsyncState, State, StrongNodeType};
+use gxi::{gxi, mod_state , AsyncState, State, StrongNodeType};
 
 #[gxi::comp]
 pub unsafe fn CatFact() -> StrongNodeType {
     let cat_fact = AsyncState::new(String::new());
 
-    #[set_state(cat_fact)]
+    ////// dammnnn this is not allowed, let me play cs, ill fix this later
+    #[mod_state(cat_fact)]
     let fetch_cat_fact = move |_| {
         let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
             .await
