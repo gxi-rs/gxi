@@ -1,17 +1,19 @@
-use gxi::{gxi, mod_state , AsyncState, State, StrongNodeType};
+use gxi::{gxi, set_state, State, StrongNodeType};
 
 #[gxi::comp]
 pub unsafe fn CatFact() -> StrongNodeType {
-    let cat_fact = AsyncState::new(String::new());
+    let cat_fact = State::new(String::new());
 
     ////// dammnnn this is not allowed, let me play cs, ill fix this later
-    #[mod_state(cat_fact)]
-    let fetch_cat_fact = move |_| {
-        let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
-            .await
-            .unwrap();
-        *cat_fact.lock().unwrap() = resp.text().await.unwrap();
-    };
+    let fetch_cat_fact = set_state!(
+        async |_| {
+            let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
+                .await
+                .unwrap();
+            *(*cat_fact).borrow_mut() = resp.text().await.unwrap();
+        },
+        [cat_fact]
+    );
 
     return gxi! {
         div [

@@ -1,9 +1,9 @@
 use proc_macro::TokenStream;
 use quote::quote;
+use quote::ToTokens;
 
 mod comp;
 mod set_state;
-mod state;
 
 /// manages state ownership, borrow, and async event handlers to reduce boiler plate code
 ///
@@ -67,13 +67,9 @@ mod state;
 ///
 /// + `ref` => <attr>.as_ref().borrow_mut()
 #[proc_macro]
-pub fn mod_state(input: TokenStream) -> TokenStream {
+pub fn set_state(input: TokenStream) -> TokenStream {
     let mod_state = syn::parse_macro_input!(input as set_state::SetState);
-
-    match mod_state.to_tokens(&mod_state_attr) {
-        Ok(k) => k.into(),
-        Err(err) => err.to_compile_error().into(),
-    }
+    mod_state.to_token_stream().into()
 }
 
 #[proc_macro_attribute]

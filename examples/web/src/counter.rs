@@ -8,15 +8,14 @@ pub fn ComplexCounter() -> StrongNodeType {
     let reduce_emoji = State::new(EMOTICONS[0]);
     let reduce_emoji_index = State::new(0 as usize);
 
-    let reduce_emoji_listener = {
-        set_state!([reduce_emoji, reduce_emoji_index], {
-            if *reduce_emoji_index == EMOTICONS.len() {
-                *reduce_emoji_index = 0;
-            }
-            *reduce_emoji = EMOTICONS[*reduce_emoji_index];
-            *reduce_emoji_index += 1;
-        })
-    };
+    let reduce_emoji_listener = set_state! {|_| {
+        if *reduce_emoji_index == EMOTICONS.len() {
+            *reduce_emoji_index = 0;
+        }
+        *reduce_emoji = EMOTICONS[*reduce_emoji_index];
+        *reduce_emoji_index += 1;
+    }, [ref reduce_emoji, ref reduce_emoji_index]};
+
     unsafe {
         // add this to gx
         return gxi! {
@@ -43,8 +42,8 @@ fn Counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
             div [
                 h1 ( inner_html = &counter.to_string()[..] ),
                 div [
-                    button ( on_click = set_state!( counter, *counter += 1), inner_html = "+" ),
-                    button ( on_click = set_state!( counter, *counter -= 1), inner_html = &reduce_emoji.to_string()[..] )
+                    button ( on_click = set_state!(*counter += 1, [ref counter]), inner_html = "+" ),
+                    button ( on_click = set_state!(*counter -= 1, [ref counter]), inner_html = &reduce_emoji.to_string()[..] )
                 ]
             ]
         };
