@@ -4,7 +4,6 @@ use gxi::{gxi, set_state, State, StrongNodeType};
 pub unsafe fn CatFact() -> StrongNodeType {
     let cat_fact = State::new(String::new());
 
-    ////// dammnnn this is not allowed, let me play cs, ill fix this later
     let fetch_cat_fact = set_state!(
         async |_| {
             let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
