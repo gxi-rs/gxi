@@ -1,110 +1,79 @@
 use proc_macro::TokenStream;
-use quote::{quote, TokenStreamExt};
-use syn::__private::TokenStream2;
-use syn::spanned::Spanned;
+use quote::quote;
 
-use crate::mod_state::ModStateAttr;
 mod comp;
-mod mod_state;
+mod set_state;
 mod state;
 
-/// clones state objects passed over as attributes
+/// manages state ownership, borrow, and async event handlers to reduce boiler plate code
+///
+/// ## args
+///     
+/// 1. `expression`
+///     + if expression is of type closure, then automatic borrow is avoided
+///     + otherwise dependent variables are cloned and borrowed to scope.
+///     
+///     *e.g*
+///     
+///     ```rust
+///         set_state!(*counter+=1);
+///     ```
+///     
+///     *is equal to*
+///     
+///     ```rust
+///         set_state!(|_| {
+///             *counter+=1;
+///         }, [ref counter])
+///     ```
+///     
+///     *or*
+///
+///     ```rust
+///         set_state!(|_| {
+///             *counter.as_ref().borrow_mut()+=1;
+///         }, [counter])
+///     ```
+///     
+/// 2. `variables` on which closure depends on
+///
+/// In case variables not are specified then dependencies are automatically guessed.
+/// If first expression is of type closure then automatic guessing is avoided, due to complexity of
+/// closure expressions.
 ///
 /// *e.g*
 /// ```rust
 /// pub fn app() -> StrongNodeType {
 ///     let counter = gxi::State::new(2);
 ///     
-///     #[mod_state(ref counter, )]
-///     let click_handler = |_| {
-///         counter+=1;
-///     };
+///     let click_handler = set_state!(|_| {
+///         *counter += 1;
+///     }, [ref counter]);
 ///
 ///     return gxi! {
-///         h1 ( const on_click = click_handler, inner_html = &counter.to_string()[..] )
+///         div [
+///             h1 ( const on_click = click_handler, inner_html = &counter.to_string()[..] ),
+///             button ( on_click = set_state!(counter += 1) )
+///         ]
 ///     }
 /// }
 ///
 /// ```
-/// *move* is automatically added to closure
+/// *move* is automatically added to resultant closure regardless of expression type
 ///
-/// ## attribute prefix
+/// ## dependency prefix
 ///
-/// passed attributes can be prefixed with keywords to reduce boiler plate code
+/// passed dependencies can be prefixed with keywords to reduce boiler plate code
 ///
 /// + `ref` => <attr>.as_ref().borrow_mut()
-#[proc_macro_attribute]
-pub fn mod_state(attr: TokenStream, input: TokenStream) -> TokenStream {
-    let mod_state = syn::parse_macro_input!(input as mod_state::ModState);
-    let mod_state_attr = syn::parse_macro_input!(attr as mod_state::ModStateAttrs);
+#[proc_macro]
+pub fn mod_state(input: TokenStream) -> TokenStream {
+    let mod_state = syn::parse_macro_input!(input as set_state::SetState);
 
     match mod_state.to_tokens(&mod_state_attr) {
         Ok(k) => k.into(),
         Err(err) => err.to_compile_error().into(),
     }
-}
-
-#[proc_macro]
-pub fn set_state(input: TokenStream) -> TokenStream {
-    let state::StateParser { names, body } = syn::parse_macro_input!(input as state::StateParser);
-
-    let mut clone_tt = TokenStream2::new();
-    let mut borrow_tt = TokenStream2::new();
-    let mut notify_tt = TokenStream2::new();
-
-    for name in &names.elems {
-        let name_under = syn::Ident::new(&format!("_{}", quote! {#name})[..], name.span());
-        clone_tt.append_all(quote! {
-            let #name_under = #name.clone();
-        });
-        borrow_tt.append_all(quote! {
-            let mut #name = (*#name_under).borrow_mut();
-        });
-        notify_tt.append_all(quote! {
-            #name_under.notify();
-        });
-    }
-
-    let exec_block = if let syn::Expr::Async(syn::ExprAsync { block, .. }) = body {
-        if cfg!(feature = "web") {
-            let mut clone_tt2 = TokenStream2::new();
-            for name in &names.elems {
-                let name_under = syn::Ident::new(&format!("_{}", quote! {#name})[..], name.span());
-                clone_tt2.append_all(quote! {
-                    let #name = #name_under.clone();
-                });
-            }
-            quote! {
-                #clone_tt2
-                gxi::spawn_local(async move {
-                    {
-                        #block
-                    };
-                    #notify_tt
-                });
-            }
-        } else {
-            panic!("async state not supported for current feature flag");
-        }
-    } else {
-        quote! {
-            {
-                #borrow_tt
-                #body
-            };
-            #notify_tt
-        }
-    };
-
-    (quote! {
-        {
-            #clone_tt
-            move |e| {
-                #exec_block
-            }
-        }
-    })
-    .into()
 }
 
 #[proc_macro_attribute]
