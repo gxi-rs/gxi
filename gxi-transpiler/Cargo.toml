@@ -23,4 +23,3 @@ default = []
 [dependencies]
 syn = { version = "1.0.73", features = ["full"] }
 quote = "1.0.9"
-

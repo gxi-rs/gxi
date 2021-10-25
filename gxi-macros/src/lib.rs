@@ -8,25 +8,25 @@ mod set_state;
 /// manages state ownership, borrow, and async event handlers to reduce boiler plate code
 ///
 /// ## args
-///     
+///
 /// 1. `expression`
 ///     + if expression is of type closure, then automatic borrow is avoided
 ///     + otherwise dependent variables are cloned and borrowed to scope.
-///     
+///
 ///     *e.g*
-///     
+///
 ///     ```rust
 ///         set_state!(*counter+=1);
 ///     ```
-///     
+///
 ///     *is equal to*
-///     
+///
 ///     ```rust
 ///         set_state!(|_| {
 ///             *counter+=1;
 ///         }, [ref counter])
 ///     ```
-///     
+///
 ///     *or*
 ///
 ///     ```rust
@@ -34,7 +34,7 @@ mod set_state;
 ///             *counter.as_ref().borrow_mut()+=1;
 ///         }, [counter])
 ///     ```
-///     
+///
 /// 2. `variables` on which closure depends on
 ///
 /// In case variables not are specified then dependencies are automatically guessed.
@@ -45,7 +45,7 @@ mod set_state;
 /// ```rust
 /// pub fn app() -> StrongNodeType {
 ///     let counter = gxi::State::new(2);
-///     
+///
 ///     let click_handler = set_state!(|_| {
 ///         *counter += 1;
 ///     }, [ref counter]);
