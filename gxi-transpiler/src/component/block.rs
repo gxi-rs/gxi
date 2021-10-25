@@ -2,18 +2,181 @@ use super::{NodeProps, Scope};
 use crate::blocks::Blocks;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
+use syn::Token;
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
+use syn::spanned::Spanned;
+
+type Prop = syn::ExprAssign;
+type Arg = syn::Expr;
 
 pub enum NodeType {
-    // gxi::Element
-    Element(String),
-    Others,
+    /// name(args..)(props..)
+    FunctionalComponent { args: Vec<Arg>, props: Vec<Arg> },
+    /// gxi::Element
+    /// name(props..)
+    Element { name: String, props: Vec<Prop> },
+    /// Name::constructor(args..)(props..)
+    Component {
+        args: Vec<Arg>,
+        props: Vec<Prop>,
+        path: syn::Path,
+        constructor: syn::PathSegment,
+    },
 }
 
-impl Default for NodeType {
-    fn default() -> Self {
-        Self::Others
+impl NodeType {
+    fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
+        let path = if let Ok(path) = input.parse::<syn::Path>() {
+            path
+        } else {
+            return Ok(None);
+        };
+
+        // parse () parenthesis. If parenthesis contain assignment expressions then categorise them
+        // as props otherwise args.
+        let mut props = Vec::<Prop>::default();
+        let mut args = Vec::<Arg>::default();
+
+        for _ in 0..2 {
+            if !props.is_empty() {
+                break;
+            }
+            if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
+                // props
+                let mut first_iter = false;
+                let mut is_first_assign_expr = false;
+
+                while !content.is_empty() {
+                    if first_iter {
+                        // props have special keywords like const
+                        if content.peek(Token!(const)) {
+                            is_first_assign_expr = true;
+                            props.push(content.parse());
+                        }
+
+                        let expr = content.parse::<syn::Expr>()?;
+                        match expr {
+                            syn::Expr::Assign(expr) => {
+                                props.push(expr);
+                            }
+                            _ => args.push(expr),
+                        }
+                    } else if is_first_assign_expr {
+                        props.push(content.parse()?);
+                    } else {
+                        args.push(content.parse()?);
+                    }
+
+                    if !content.is_empty() {
+                        content.parse::<syn::Token!(,)>()?;
+                    }
+
+                    first_iter = true;
+                }
+            }
+        }
+
+        let last_segment = path.segments.last().unwrap();
+        let name = last_segment.ident.to_string();
+
+        // if there is only one path segment and name starts with a lower case character then
+        // it's a NativeElement
+
+        // check if last_segment starts with a lower case character
+        let last_starts_with_lower_case = match name.chars().next().unwrap() {
+            'a'..='z' => true,
+            _ => false,
+        };
+
+        // parse args
+
+        match (last_starts_with_lower_case, path.segments.len()) {
+            // element
+            (true, 1) => {
+                // elements can't have args
+                if !args.is_empty() {
+                    Err(syn::Error::new(
+                        args[0].span(),
+                        "gxi elements can't have functional args.",
+                    ))
+                } else {
+                    Ok(Some(Self::Element { name, props }))
+                }
+            }
+            // component
+            (false, _) => {
+                if !args.is_empty() {
+                    Err(syn::Error::new(args[0].span(), "consider specifying an assicated function for these args.\n Help: functional components and gxi elements start with a lower case"))
+                } else {
+                    Ok(Some(Self::Component {
+                        args,
+                        props,
+                        //NOTE: order is important
+                        constructor: path.segments.pop().unwrap().into_value(),
+                        path,
+                    }))
+                }
+            }
+            // component or functional component
+            (true, _) => {
+                if 
+            },
+        }
+        //        if path.segments.len() == 1 {
+        //            if last_starts_with_lower_case {
+        //                path = syn::parse(
+        //                    quote! {
+        //                        gxi::Element
+        //                    }
+        //                    .into_token_stream()
+        //                    .into(),
+        //                )?;
+        //                NodeType::Element {
+        //                    cunstructor: quote! {
+        //                        from_str(#name )
+        //                    },
+        //                    name,
+        //                }
+        //            } else {
+        //                (
+        //                    quote! {
+        //                        new()
+        //                    },
+        //                    Default::default(),
+        //                )
+        //            }
+        //        } else {
+        //            if last_starts_with_lower_case {
+        //                let constructor = path.segments.pop();
+        //
+        //                let syn::group::Parens { content, .. } = syn::group::parse_parens(&input)?;
+        //                let mut args = TokenStream2::new();
+        //                loop {
+        //                    if content.is_empty() {
+        //                        break;
+        //                    }
+        //                    args.append_all(content.parse::<syn::Expr>()?.into_token_stream());
+        //                    args.append_all(quote! {,});
+        //                    // if stream is empty then break
+        //                    if content.is_empty() {
+        //                        break;
+        //                    } else {
+        //                        // else expect a comma
+        //                        content.parse::<syn::token::Comma>()?;
+        //                    }
+        //                }
+        //                (quote! { #constructor( #args ) }, Default::default())
+        //            } else {
+        //                (
+        //                    quote! {
+        //                        new()
+        //                    },
+        //                    Default::default(),
+        //                )
+        //            }
+        //        }
+        //        Ok(Some(Self::default()))
     }
 }
 
