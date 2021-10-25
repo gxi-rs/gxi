@@ -92,6 +92,7 @@ fn starts_with_lower_case(string: &str) -> bool {
 
 impl NodeType {
     fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
+        #[allow(clippy::question_mark)]
         let mut path = if let Ok(path) = input.parse::<syn::Path>() {
             path
         } else {
