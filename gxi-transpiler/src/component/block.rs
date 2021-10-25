@@ -145,7 +145,7 @@ impl NodeType {
                                 }
                             }
                             return Ok(Some(Self::FunctionalComponent {
-                                args: Default::default(),
+                                args,
                                 path: TokenStream2::new(),
                                 constructor: path.to_token_stream(),
                             }));
@@ -333,10 +333,10 @@ mod tests {
                 panic!()
             }
             let return_type = node_type.get_return_type();
-            assert_eq!(return_type.to_string(), "gxi::Comp");
+            assert_eq!(return_type.to_string(), quote! {gxi::Comp}.to_string());
             assert_eq!(
                 node_type.get_init_call().to_string(),
-                quote! {Body::new()}.to_string()
+                quote! {func(12, 12)}.to_string()
             );
         }
         Ok(())
