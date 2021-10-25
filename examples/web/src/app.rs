@@ -1,12 +1,12 @@
-use crate::{cat_fact::CatFact, ComplexCounter};
+use crate::{cat_fact, comlex_counter};
 use gxi::{gxi, Body, StrongNodeType};
 
 pub fn app() -> StrongNodeType {
     unsafe {
         return gxi! {
             Body [
-                ComplexCounter,
-                CatFact
+                comlex_counter(),
+                cat_fact()
             ]
         };
     }

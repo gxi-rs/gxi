@@ -2,8 +2,7 @@ use gxi::{gxi, set_state, State, StrongNodeType};
 
 const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
-#[gxi::comp]
-pub fn ComplexCounter() -> StrongNodeType {
+pub unsafe fn complex_counter() -> StrongNodeType {
     let h1_value = "hello";
     let reduce_emoji = State::new(EMOTICONS[0]);
     let reduce_emoji_index = State::new(0 as usize);
@@ -16,36 +15,31 @@ pub fn ComplexCounter() -> StrongNodeType {
         *reduce_emoji_index += 1;
     }, [ref reduce_emoji, ref reduce_emoji_index]};
 
-    unsafe {
-        // add this to gx
-        return gxi! {
-            //TODO: pure component
-            div [
-               h1 ( const inner_html = h1_value, const on_click = reduce_emoji_listener.clone() ),
-               div ( const on_click = reduce_emoji_listener ) [
-                span ( inner_html = "reducer emoji :"),
-                span ( inner_html = &reduce_emoji_index.to_string()[..] )
-               ],
-               Counter::new(2, reduce_emoji.clone()),
-               Counter::new(20, reduce_emoji)
-            ]
-        };
-    }
+    // add this to gx
+    return gxi! {
+        //TODO: pure component
+        div [
+           h1 ( const inner_html = h1_value, const on_click = reduce_emoji_listener.clone() ),
+           div ( const on_click = reduce_emoji_listener ) [
+            span ( inner_html = "reducer emoji :"),
+            span ( inner_html = &reduce_emoji_index.to_string()[..] )
+           ],
+           counter(2, reduce_emoji.clone()),
+           counter(20, reduce_emoji)
+        ]
+    };
 }
 
-#[gxi::comp]
-fn Counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
+unsafe fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
     let counter = State::new(initial);
 
-    unsafe {
-        return gxi! {
+    return gxi! {
+        div [
+            h1 ( inner_html = &counter.to_string()[..] ),
             div [
-                h1 ( inner_html = &counter.to_string()[..] ),
-                div [
-                    button ( on_click = set_state!(*counter += 1, [ref counter]), inner_html = "+" ),
-                    button ( on_click = set_state!(*counter -= 1, [ref counter]), inner_html = &reduce_emoji.to_string()[..] )
-                ]
+                button ( on_click = set_state!(*counter += 1, [ref counter]), inner_html = "+" ),
+                button ( on_click = set_state!(*counter -= 1, [ref counter]), inner_html = &reduce_emoji.to_string()[..] )
             ]
-        };
-    }
+        ]
+    };
 }
