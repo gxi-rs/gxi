@@ -53,7 +53,9 @@ impl NodeType {
 
     pub fn get_return_type(&self) -> TokenStream2 {
         match self {
-            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
+            NodeType::FunctionalComponent { .. } => {
+                unreachable!("Internal Error: functional components have unknown return type")
+            }
             NodeType::Element { .. } => quote! {gxi::Element},
             NodeType::Component { path, .. } => path.to_token_stream(),
         }
@@ -184,7 +186,7 @@ impl NodeType {
                         path.pop();
                     }
 
-                    let path = path.to_token_stream();
+                    let path = syn::parse_str(&path)?;
 
                     // if second last segment starts with upper case then it a standard component
                     if second_last_starts_with_upper_case {
@@ -289,10 +291,9 @@ impl ToString for NodeBlock {
     }
 }
 
-#[cfg(tests)]
 mod tests {
     use super::NodeType;
-    use quote::quote;
+    use quote::{quote, ToTokens};
     use syn::parse::Parse;
 
     struct NodeTypeParser(NodeType);
@@ -342,11 +343,33 @@ mod tests {
             } else {
                 panic!()
             }
-            let return_type = node_type.get_return_type();
-            assert_eq!(return_type.to_string(), quote! {gxi::Comp}.to_string());
             assert_eq!(
                 node_type.get_init_call().to_string(),
                 quote! {func(12, 12)}.to_string()
+            );
+        }
+        {
+            let node_type =
+                syn::parse2::<NodeTypeParser>(quote! { Comp::with_name("hey") }.into())?.0;
+            if let NodeType::Component {
+                args,
+                props,
+                path,
+                constructor,
+            } = &node_type
+            {
+                assert_eq!(constructor.to_string(), "with_name");
+                assert_eq!(path.to_string(), quote! {Comp}.to_string());
+                assert_eq!(props.props.is_empty(), true);
+                assert_eq!(args.len(), 1);
+            } else {
+                panic!()
+            }
+            let return_type = node_type.get_return_type();
+            assert_eq!(return_type.to_string(), quote! {Comp}.to_string());
+            assert_eq!(
+                node_type.get_init_call().to_string(),
+                quote! {Comp::with_name("hey")}.to_string()
             );
         }
         Ok(())
