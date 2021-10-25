@@ -4,20 +4,20 @@ use syn::parse::Parse;
 use crate::{component::NodeBlock, execution::ExecutionBlock};
 
 pub enum Block {
-    NodeBlock(NodeBlock),
-    ExecutionBlock(ExecutionBlock),
+    Node(NodeBlock),
+    Execution(ExecutionBlock),
     #[allow(dead_code)]
-    ConditionalBlock,
+    Conditional,
     #[allow(dead_code)]
-    IterBlock,
+    Iter,
 }
 
 impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         if let Some(comp) = NodeBlock::parse(&input)? {
-            Ok(Self::NodeBlock(comp))
+            Ok(Self::Node(comp))
         } else if let Some(ex) = ExecutionBlock::parse(input)? {
-            Ok(Self::ExecutionBlock(ex))
+            Ok(Self::Execution(ex))
         } else {
             Err(syn::Error::new(input.span(), "didn't expect this here"))
         }
@@ -27,10 +27,10 @@ impl Parse for Block {
 impl ToTokens for Block {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         match self {
-            Block::NodeBlock(comp) => comp.to_tokens(tokens),
-            Block::ExecutionBlock(ex) => ex.to_tokens(tokens),
-            Block::ConditionalBlock => todo!(),
-            Block::IterBlock => todo!(),
+            Block::Node(comp) => comp.to_tokens(tokens),
+            Block::Execution(ex) => ex.to_tokens(tokens),
+            Block::Conditional => todo!(),
+            Block::Iter => todo!(),
         }
     }
 }
