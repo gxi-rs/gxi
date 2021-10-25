@@ -65,23 +65,25 @@ impl NodeType {
     ) -> (TokenStream2, TokenStream2) {
         let mut const_props = TokenStream2::new();
         let mut observable_props = TokenStream2::new();
-        if let Some(props) = self.get_props() {
-            for prop in &props.props {
-                if let Scope::Constant = prop.scope {
-                    prop.to_tokens(&mut const_props, return_type);
-                } else {
-                    prop.to_tokens(&mut observable_props, return_type);
-                }
+        let props = self.get_props();
+
+        for prop in &props.props {
+            if let Scope::Constant = prop.scope {
+                prop.to_tokens(&mut const_props, return_type);
+            } else {
+                prop.to_tokens(&mut observable_props, return_type);
             }
         }
+
         (const_props, observable_props)
     }
 
-    pub fn get_props(&self) -> Option<&NodeProps> {
+    pub fn get_props(&self) -> &NodeProps {
         match self {
-            NodeType::FunctionalComponent { .. } => Default::default(),
-            NodeType::Element { props, .. } => Some(props),
-            NodeType::Component { props, .. } => Some(props),
+            NodeType::FunctionalComponent { .. } => {
+                unreachable!("Internal Error: functional component's can't have props.")
+            }
+            NodeType::Element { props, .. } | NodeType::Component { props, .. } => props,
         }
     }
 }
