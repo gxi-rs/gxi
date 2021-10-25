@@ -1,6 +1,6 @@
 mod app;
-mod counter;
 mod cat_fact;
+mod counter;
 
 pub use cat_fact::*;
 pub use counter::*;

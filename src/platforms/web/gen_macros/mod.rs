@@ -16,9 +16,7 @@ macro_rules! generate_attr {
     ($name:ident) => {
         #[allow(non_snake_case)]
         pub fn $name(&self, value: &str) {
-            self
-                .set_attribute(stringify!($name), value)
-                .unwrap();
+            self.set_attribute(stringify!($name), value).unwrap();
         }
     };
 }
