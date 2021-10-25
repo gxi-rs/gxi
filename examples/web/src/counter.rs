@@ -1,32 +1,45 @@
-use gxi::{gxi, render, set_state, update, comp};
+use gxi::{gxi, set_state, State, StrongNodeType};
 
-pub enum Msg {
-    Modify(i32),
-}
+const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
-#[comp]
-pub struct Counter {
-    counter: i32,
-}
+pub unsafe fn complex_counter() -> StrongNodeType {
+    let h1_value = "hello";
+    let reduce_emoji = State::new(EMOTICONS[0]);
+    let reduce_emoji_index = State::new(0 as usize);
 
-#[render(Counter)]
-fn render(state: &gxi::State<CounterState>) {
-    gxi! {
+    let reduce_emoji_listener = set_state! {|_| {
+        if *reduce_emoji_index == EMOTICONS.len() {
+            *reduce_emoji_index = 0;
+        }
+        *reduce_emoji = EMOTICONS[*reduce_emoji_index];
+        *reduce_emoji_index += 1;
+    }, [ref reduce_emoji, ref reduce_emoji_index]};
+
+    // add this to gx
+    return gxi! {
+        //TODO: pure component
         div [
-            h3 ( *inner_html = &state.counter.to_string()[..]),
+           h1 ( const inner_html = h1_value, const on_click = reduce_emoji_listener.clone() ),
+           div ( const on_click = reduce_emoji_listener ) [
+            span ( inner_html = "reducer emoji :"),
+            span ( inner_html = &reduce_emoji_index.to_string()[..] )
+           ],
+           counter(2, reduce_emoji.clone()),
+           counter(20, reduce_emoji)
+        ]
+    };
+}
+
+unsafe fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
+    let counter = State::new(initial);
+
+    return gxi! {
+        div [
+            h1 ( inner_html = &counter.to_string()[..] ),
             div [
-                button ( inner_html = "+" , on_click = set_state!(Msg::Modify(1)) ),
-                button ( inner_html = "-" , on_click = set_state!(Msg::Modify(-1)) ),
+                button ( on_click = set_state!(*counter += 1, [ref counter]), inner_html = "+" ),
+                button ( on_click = set_state!(*counter -= 1, [ref counter]), inner_html = &reduce_emoji.to_string()[..] )
             ]
         ]
-    }
-}
-
-#[update(Counter)]
-fn update(msg: Msg, state: &mut Self::State) {
-    match msg {
-        Msg::Modify(by) => {
-            state.counter += by;
-        }
-    }
+    };
 }

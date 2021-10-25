@@ -3,6 +3,9 @@ pub use top_level::*;
 pub use web_container::*;
 pub use web_container_wrapper::*;
 
+#[cfg(feature = "async-web")]
+pub use wasm_bindgen_futures::*;
+
 mod gen_macros;
 mod run;
 mod top_level;

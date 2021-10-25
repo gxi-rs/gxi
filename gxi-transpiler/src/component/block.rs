@@ -2,113 +2,227 @@ use super::{NodeProps, Scope};
 use crate::blocks::Blocks;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
+use syn::Token;
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
 
+type Arg = syn::Expr;
+
 pub enum NodeType {
-    // gxi::Element
-    Element(String),
-    Others,
+    /// name(args..)(props..)
+    FunctionalComponent {
+        args: Vec<Arg>,
+        path: TokenStream2,
+        constructor: TokenStream2,
+    },
+    /// gxi::Element
+    /// name(props..)
+    Element { name: String, props: NodeProps },
+    /// Name::constructor(args..)(props..)
+    Component {
+        args: Vec<Arg>,
+        props: NodeProps,
+        path: TokenStream2,
+        constructor: TokenStream2,
+    },
 }
 
-impl Default for NodeType {
-    fn default() -> Self {
-        Self::Others
+impl NodeType {
+    pub fn get_init_call(&self) -> TokenStream2 {
+        match self {
+            NodeType::FunctionalComponent {
+                args,
+                path,
+                constructor,
+            }
+            | NodeType::Component {
+                args,
+                path,
+                constructor,
+                ..
+            } => {
+                let mut path = path.to_token_stream();
+                if !path.is_empty() {
+                    path.append_all(quote! {::})
+                };
+                quote! { #path#constructor(#(#args),*) }
+            }
+            NodeType::Element { name, .. } => quote! { gxi::Element::from_str(#name) },
+        }
+    }
+
+    pub fn get_return_type(&self) -> TokenStream2 {
+        match self {
+            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
+            NodeType::Element { .. } => quote! {gxi::Element},
+            NodeType::Component { path, .. } => path.to_token_stream(),
+        }
+    }
+
+    pub fn get_const_and_observable_props(
+        &self,
+        return_type: &TokenStream2,
+    ) -> (TokenStream2, TokenStream2) {
+        let mut const_props = TokenStream2::new();
+        let mut observable_props = TokenStream2::new();
+        let props = self.get_props();
+
+        for prop in &props.props {
+            if let Scope::Constant = prop.scope {
+                prop.to_tokens(&mut const_props, return_type);
+            } else {
+                prop.to_tokens(&mut observable_props, return_type);
+            }
+        }
+
+        (const_props, observable_props)
+    }
+
+    pub fn get_props(&self) -> &NodeProps {
+        match self {
+            NodeType::FunctionalComponent { .. } => {
+                unreachable!("Internal Error: functional component's can't have props.")
+            }
+            NodeType::Element { props, .. } | NodeType::Component { props, .. } => props,
+        }
+    }
+}
+
+fn starts_with_lower_case(string: &str) -> bool {
+    matches!(string.chars().next().unwrap(), 'a'..='z')
+}
+
+impl NodeType {
+    fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
+        #[allow(clippy::question_mark)]
+        let mut path = if let Ok(path) = input.parse::<syn::Path>() {
+            path
+        } else {
+            return Ok(None);
+        };
+
+        let last_segment = path.segments.last().unwrap();
+        let last_segment = last_segment.ident.to_string();
+
+        // if there is only one path segment and name starts with a lower case character then
+        // it's a NativeElement
+
+        // check if last_segment starts with a lower case character
+
+        return Ok(Some(
+            // component with no explicit function call
+            if !starts_with_lower_case(&last_segment) {
+                Self::Component {
+                    args: Default::default(),
+                    props: input.parse()?,
+                    path: path.to_token_stream(),
+                    constructor: quote! {new},
+                }
+            } else {
+                // starts with lower case
+                if path.segments.len() == 1 {
+                    // only element or function
+                    // if props then element else function
+                    let mut props = NodeProps::default();
+
+                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
+                    {
+                        if content.peek(Token!(const)) || content.peek2(Token!(=)) {
+                            // parse props
+                            // WARN: code duplication
+                            while !content.is_empty() {
+                                props.props.push(content.parse()?);
+                                if !content.is_empty() {
+                                    content.parse::<syn::token::Comma>()?;
+                                }
+                            }
+                        } else {
+                            let mut args = Vec::<Arg>::default();
+                            while !content.is_empty() {
+                                args.push(content.parse()?);
+                                if !content.is_empty() {
+                                    content.parse::<syn::token::Comma>()?;
+                                }
+                            }
+                            return Ok(Some(Self::FunctionalComponent {
+                                args,
+                                path: TokenStream2::new(),
+                                constructor: path.to_token_stream(),
+                            }));
+                        }
+                    }
+
+                    Self::Element {
+                        name: last_segment,
+                        props,
+                    }
+                } else {
+                    // only function or component with constructor
+                    // if second last is capital then component
+                    // otherwise function
+
+                    let mut args = Vec::<Arg>::default();
+
+                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
+                    {
+                        while !content.is_empty() {
+                            args.push(content.parse()?);
+
+                            if !content.is_empty() {
+                                content.parse::<syn::Token!(,)>()?;
+                            }
+                        }
+                    }
+
+                    let constructor = path.segments.pop().unwrap().into_value().to_token_stream();
+                    let second_last_starts_with_upper_case =
+                        !starts_with_lower_case(&path.segments.last().unwrap().ident.to_string());
+                    // remove trailing ::
+                    let mut path = path.to_token_stream().to_string();
+                    if path.ends_with("::") {
+                        path.pop();
+                        path.pop();
+                    }
+
+                    let path = path.to_token_stream();
+
+                    // if second last segment starts with upper case then it a standard component
+                    if second_last_starts_with_upper_case {
+                        Self::Component {
+                            args,
+                            props: input.parse()?,
+                            path,
+                            constructor,
+                        }
+                    } else {
+                        Self::FunctionalComponent {
+                            args,
+                            path,
+                            constructor,
+                        }
+                    }
+                }
+            },
+        ));
     }
 }
 
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
     pub node_type: NodeType,
-    pub constructor: TokenStream2,
-    pub path: syn::Path,
     pub subtree: Blocks,
-    pub props: NodeProps,
 }
 
 impl NodeBlock {
     pub fn parse(input: &ParseStream) -> syn::Result<Option<Self>> {
-        if let Ok(mut path) = input.parse::<syn::Path>() {
-            let (constructor, node_type) = {
-                let last_segment = path.segments.last().unwrap();
-                let name = last_segment.ident.to_string();
-                // if there is only one path segment and name starts with a lower case character then
-                // it's a NativeElement
-
-                // check if last_segment starts with a lower case character
-                let last_starts_with_lower_case = match name.chars().next().unwrap() {
-                    'a'..='z' => true,
-                    _ => false,
-                };
-
-                match path.segments.len() {
-                    // if name starts_with lower case and there is only 1 segment
-                    // then the node is an element otherwise it is a regular node
-                    1 => {
-                        if last_starts_with_lower_case {
-                            path = syn::parse(
-                                quote! {
-                                    gxi::Element
-                                }
-                                .into_token_stream()
-                                .into(),
-                            )?;
-                            (
-                                quote! {
-                                    from_str(#name )
-                                },
-                                NodeType::Element(name),
-                            )
-                        } else {
-                            (
-                                quote! {
-                                    new()
-                                },
-                                Default::default(),
-                            )
-                        }
-                    }
-                    // more than 1 then
-                    _ => {
-                        if last_starts_with_lower_case {
-                            let constructor = path.segments.pop();
-
-                            let syn::group::Parens { content, .. } =
-                                syn::group::parse_parens(&input)?;
-                            let mut args = TokenStream2::new();
-                            loop {
-                                if content.is_empty() {
-                                    break;
-                                }
-                                args.append_all(content.parse::<syn::Expr>()?.into_token_stream());
-                                args.append_all(quote! {,});
-                                // if stream is empty then break
-                                if content.is_empty() {
-                                    break;
-                                } else {
-                                    // else expect a comma
-                                    content.parse::<syn::token::Comma>()?;
-                                }
-                            }
-                            (quote! { #constructor( #args ) }, Default::default())
-                        } else {
-                            (
-                                quote! {
-                                    new()
-                                },
-                                Default::default(),
-                            )
-                        }
-                    }
-                }
-            };
-
-            let props = input.parse::<NodeProps>()?;
-
-            // parse children
-            let subtree = if let Ok(syn::group::Brackets { content, .. }) =
-                syn::group::parse_brackets(&input)
-            {
+        let node_type = if let Some(node_type) = NodeType::parse(input)? {
+            node_type
+        } else {
+            return Ok(None);
+        };
+        // parse children
+        let subtree =
+            if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
                     content.parse::<Blocks>()?
                 } else {
@@ -118,15 +232,7 @@ impl NodeBlock {
                 Default::default()
             };
 
-            return Ok(Some(Self {
-                props,
-                constructor,
-                path,
-                node_type,
-                subtree,
-            }));
-        }
-        Ok(None)
+        Ok(Some(Self { node_type, subtree }))
     }
 }
 
@@ -135,44 +241,37 @@ impl NodeBlock {
 ///
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let Self {
-            constructor,
-            path,
-            subtree,
-            props,
-            ..
-        } = self;
+        let Self { subtree, node_type } = self;
 
-        let mut const_props = TokenStream2::new();
-        let mut observable_props = TokenStream2::new();
+        let init_call = node_type.get_init_call();
+        let return_type = node_type.get_return_type();
 
-        for prop in &props.props {
-            if let Scope::Constant = prop.scope {
-                prop.to_tokens(&mut const_props, path)
-            } else {
-                prop.to_tokens(&mut observable_props, path)
+        // functional components can't have props
+
+        let mid_calls = match node_type {
+            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
+            _ => {
+                let (const_props, observable_props) =
+                    node_type.get_const_and_observable_props(&return_type);
+
+                quote! {
+                    #subtree
+
+                    #const_props
+
+                    let __node = __node.into_strong_node_type();
+
+                    #observable_props
+                }
             }
-        }
-
-        let mut path = path.to_token_stream();
-
-        if !path.to_string().ends_with("::") {
-            path.append_all(quote! {::});
-        }
+        };
         // assemble
         tokens.append_all(quote! {{
-
             use gxi::{VNode, VContainerWidget};
 
-            let mut __node = #path#constructor;
+            let mut __node = #init_call;
 
-            #subtree
-
-            #const_props
-
-            let __node = __node.into_strong_node_type();
-
-            #observable_props
+            #mid_calls
 
             __node
         }});
@@ -190,4 +289,66 @@ impl ToString for NodeBlock {
     }
 }
 
-//TODO: unit tests about serialize, token sub tree
+#[cfg(tests)]
+mod tests {
+    use super::NodeType;
+    use quote::quote;
+    use syn::parse::Parse;
+
+    struct NodeTypeParser(NodeType);
+
+    impl Parse for NodeTypeParser {
+        fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+            Ok(Self(NodeType::parse(&input)?.unwrap()))
+        }
+    }
+
+    #[test]
+    fn node_type() -> syn::Result<()> {
+        {
+            let node_type = syn::parse2::<NodeTypeParser>(quote! { Body }.into())?.0;
+            if let NodeType::Component {
+                constructor,
+                path,
+                args,
+                props,
+            } = &node_type
+            {
+                assert_eq!(constructor.to_string(), "new");
+                assert_eq!(path.to_string(), "Body");
+                assert_eq!(args.len(), 0);
+                assert_eq!(props.props.len(), 0);
+            } else {
+                panic!()
+            }
+            let return_type = node_type.get_return_type();
+            assert_eq!(return_type.to_string(), "Body");
+            assert_eq!(
+                node_type.get_init_call().to_string(),
+                quote! {Body::new()}.to_string()
+            );
+        }
+        {
+            let node_type = syn::parse2::<NodeTypeParser>(quote! { func(12, 12) }.into())?.0;
+            if let NodeType::FunctionalComponent {
+                constructor,
+                path,
+                args,
+            } = &node_type
+            {
+                assert_eq!(constructor.to_string(), "func");
+                assert_eq!(path.is_empty(), true);
+                assert_eq!(args.len(), 2);
+            } else {
+                panic!()
+            }
+            let return_type = node_type.get_return_type();
+            assert_eq!(return_type.to_string(), quote! {gxi::Comp}.to_string());
+            assert_eq!(
+                node_type.get_init_call().to_string(),
+                quote! {func(12, 12)}.to_string()
+            );
+        }
+        Ok(())
+    }
+}

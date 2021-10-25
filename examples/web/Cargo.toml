@@ -4,5 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-gxi = { version = "0.4.0", path = "../../", features = ["web"] }
+gxi = { version = "0.4.0", path = "../../", features = ["web", "async-web"] }
 console_error_panic_hook = "0.1.6"
+wasm-bindgen-futures = "0.4.28"
+reqwest = "0.11.5"

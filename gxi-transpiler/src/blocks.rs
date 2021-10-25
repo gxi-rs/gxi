@@ -17,7 +17,7 @@ impl syn::parse::Parse for Blocks {
                 break;
             }
 
-            let block = Block::parse(&input)?;
+            let block = Block::parse(input)?;
 
             this.blocks.push(block);
 
@@ -35,7 +35,7 @@ impl syn::parse::Parse for Blocks {
 impl ToTokens for Blocks {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         for block in &self.blocks {
-            if let Block::NodeBlock(_) = block {
+            if let Block::Node(_) = block {
                 tokens.append_all(quote! {
                     __node.push(
                         #block
