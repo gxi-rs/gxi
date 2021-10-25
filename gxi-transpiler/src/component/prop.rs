@@ -183,21 +183,21 @@ impl Scope {
 #[cfg(test)]
 mod expr_init_location {
 
-//    use crate::component::Scope;
-//    use quote::quote;
-//
-//    macro_rules! mp_match {
-//        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
-//        assert_eq!(
-//            Scope::$expect,
-//            Scope::find_prop_scope(
-//                &syn::Expr::$variant(syn::parse2(quote! {
-//                    $($expr)*
-//                })?)
-//            )?
-//        );
-//        };
-//    }
+    //    use crate::component::Scope;
+    //    use quote::quote;
+    //
+    //    macro_rules! mp_match {
+    //        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
+    //        assert_eq!(
+    //            Scope::$expect,
+    //            Scope::find_prop_scope(
+    //                &syn::Expr::$variant(syn::parse2(quote! {
+    //                    $($expr)*
+    //                })?)
+    //            )?
+    //        );
+    //        };
+    //    }
 
     #[test]
     fn array() -> syn::Result<()> {
