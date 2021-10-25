@@ -246,13 +246,13 @@ impl ToTokens for NodeBlock {
         let Self { subtree, node_type } = self;
 
         let init_call = node_type.get_init_call();
-        let return_type = node_type.get_return_type();
 
         // functional components can't have props
 
         let mid_calls = match node_type {
             NodeType::FunctionalComponent { .. } => TokenStream2::new(),
             _ => {
+                let return_type = node_type.get_return_type();
                 let (const_props, observable_props) =
                     node_type.get_const_and_observable_props(&return_type);
 
