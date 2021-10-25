@@ -53,7 +53,7 @@ impl NodeType {
 
     pub fn get_return_type(&self) -> TokenStream2 {
         match self {
-            NodeType::FunctionalComponent { .. } => quote! {gxi::Comp},
+            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
             NodeType::Element { .. } => quote! {gxi::Element},
             NodeType::Component { path, .. } => path.to_token_stream(),
         }
@@ -246,23 +246,32 @@ impl ToTokens for NodeBlock {
         let init_call = node_type.get_init_call();
         let return_type = node_type.get_return_type();
 
-        let (const_props, observable_props) =
-            node_type.get_const_and_observable_props(&return_type);
+        // functional components can't have props
 
+        let mid_calls = match node_type {
+            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
+            _ => {
+                let (const_props, observable_props) =
+                    node_type.get_const_and_observable_props(&return_type);
+
+                quote! {
+                    #subtree
+
+                    #const_props
+
+                    let __node = __node.into_strong_node_type();
+
+                    #observable_props
+                }
+            }
+        };
         // assemble
         tokens.append_all(quote! {{
-
             use gxi::{VNode, VContainerWidget};
 
             let mut __node = #init_call;
 
-            #subtree
-
-            #const_props
-
-            let __node = __node.into_strong_node_type();
-
-            #observable_props
+            #mid_calls
 
             __node
         }});
@@ -280,6 +289,7 @@ impl ToString for NodeBlock {
     }
 }
 
+#[cfg(tests)]
 mod tests {
     use super::NodeType;
     use quote::quote;
