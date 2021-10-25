@@ -113,7 +113,7 @@ pub enum Dependency {
 
 impl Parse for Dependency {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        if let Ok(_) = input.parse::<syn::Token!(ref)>() {
+        if input.parse::<syn::Token!(ref)>().is_ok() {
             Ok(Self::Ref(input.parse()?))
         } else {
             Ok(Self::Normal(input.parse()?))
@@ -132,11 +132,8 @@ impl Dependency {
 
 impl ToTokens for Dependency {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-        match self {
-            Dependency::Ref(name) => {
-                tokens.append_all(quote! {let #name = &mut *(*#name).borrow_mut();})
-            }
-            _ => (),
+        if let Dependency::Ref(name) = self {
+            tokens.append_all(quote! {let #name = &mut *(*#name).borrow_mut();})
         }
     }
 }
@@ -147,7 +144,7 @@ pub struct DependencyArray(Vec<Dependency>);
 impl Parse for DependencyArray {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut dependency_array = Vec::new();
-        let syn::group::Brackets { content, .. } = syn::group::parse_brackets(&input)?;
+        let syn::group::Brackets { content, .. } = syn::group::parse_brackets(input)?;
 
         while !content.is_empty() {
             dependency_array.push(content.parse()?);

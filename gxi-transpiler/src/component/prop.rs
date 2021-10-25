@@ -14,7 +14,7 @@ impl Parse for NodeProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut this = Self::default();
         // parse props
-        if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input) {
+        if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input) {
             while !content.is_empty() {
                 let prop: NodeProp = content.parse()?;
                 this.props.push(prop);
@@ -183,21 +183,21 @@ impl Scope {
 #[cfg(test)]
 mod expr_init_location {
 
-    use crate::component::Scope;
-    use quote::quote;
-
-    macro_rules! mp_match {
-        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
-        assert_eq!(
-            Scope::$expect,
-            Scope::find_prop_scope(
-                &syn::Expr::$variant(syn::parse2(quote! {
-                    $($expr)*
-                })?)
-            )?
-        );
-        };
-    }
+//    use crate::component::Scope;
+//    use quote::quote;
+//
+//    macro_rules! mp_match {
+//        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
+//        assert_eq!(
+//            Scope::$expect,
+//            Scope::find_prop_scope(
+//                &syn::Expr::$variant(syn::parse2(quote! {
+//                    $($expr)*
+//                })?)
+//            )?
+//        );
+//        };
+//    }
 
     #[test]
     fn array() -> syn::Result<()> {

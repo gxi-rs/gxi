@@ -17,7 +17,7 @@ impl syn::parse::Parse for Blocks {
                 break;
             }
 
-            let block = Block::parse(&input)?;
+            let block = Block::parse(input)?;
 
             this.blocks.push(block);
 

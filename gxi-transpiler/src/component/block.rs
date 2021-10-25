@@ -80,17 +80,14 @@ impl NodeType {
     pub fn get_props(&self) -> Option<&NodeProps> {
         match self {
             NodeType::FunctionalComponent { .. } => Default::default(),
-            NodeType::Element { props, .. } => Some(&props),
-            NodeType::Component { props, .. } => Some(&props),
+            NodeType::Element { props, .. } => Some(props),
+            NodeType::Component { props, .. } => Some(props),
         }
     }
 }
 
-fn starts_with_lower_case(string: &String) -> bool {
-    match string.chars().next().unwrap() {
-        'a'..='z' => true,
-        _ => false,
-    }
+fn starts_with_lower_case(string: &str) -> bool {
+    matches!(string.chars().next().unwrap(), 'a'..='z')
 }
 
 impl NodeType {
@@ -125,7 +122,7 @@ impl NodeType {
                     // if props then element else function
                     let mut props = NodeProps::default();
 
-                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input)
+                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
                     {
                         if content.peek(Token!(const)) || content.peek2(Token!(=)) {
                             // parse props
@@ -163,7 +160,7 @@ impl NodeType {
 
                     let mut args = Vec::<Arg>::default();
 
-                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(&input)
+                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
                     {
                         while !content.is_empty() {
                             args.push(content.parse()?);
@@ -215,14 +212,14 @@ pub struct NodeBlock {
 
 impl NodeBlock {
     pub fn parse(input: &ParseStream) -> syn::Result<Option<Self>> {
-        let node_type = if let Some(node_type) = NodeType::parse(&input)? {
+        let node_type = if let Some(node_type) = NodeType::parse(input)? {
             node_type
         } else {
             return Ok(None);
         };
         // parse children
         let subtree =
-            if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(&input) {
+            if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
                     content.parse::<Blocks>()?
                 } else {
@@ -232,7 +229,7 @@ impl NodeBlock {
                 Default::default()
             };
 
-        return Ok(Some(Self { node_type, subtree }));
+        Ok(Some(Self { node_type, subtree }))
     }
 }
 

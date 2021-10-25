@@ -16,7 +16,7 @@ impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         if let Some(comp) = NodeBlock::parse(&input)? {
             Ok(Self::NodeBlock(comp))
-        } else if let Some(ex) = ExecutionBlock::parse(&input)? {
+        } else if let Some(ex) = ExecutionBlock::parse(input)? {
             Ok(Self::ExecutionBlock(ex))
         } else {
             Err(syn::Error::new(input.span(), "didn't expect this here"))

@@ -13,12 +13,12 @@ pub struct CompParser {
 }
 
 fn get_pat_ident(pat: &syn::Pat) -> Option<String> {
-    return match pat {
+    match pat {
         syn::Pat::Ident(arg) => Some(arg.ident.to_string()),
         syn::Pat::Reference(ref_arg) => get_pat_ident(&*ref_arg.pat),
         syn::Pat::Wild(_) => None,
         _ => unreachable!(),
-    };
+    }
 }
 impl Parse for CompParser {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
