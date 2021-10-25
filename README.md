@@ -2,30 +2,34 @@
 
 ![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
 
-> :warning: The api is being actively refactored to reach a perfect balance between memory, runtime and compile time needs.
-> Internal docs may or may not be up to date.  
+> :warning: The api is being actively refactored to reach a perfect balance
+> between memory, runtime and compile time needs. Internal docs may or may not
+> be up to date.
 
-*Zero-Cost Cross-Platform Native Widget based Component System in Rust*
+_Zero-Cost Cross-Platform Native Widget based Component System in Rust_
 
 > This branch is a complete re-write of the project
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
-the [gxi transpiler](gxi-transpiler/README.md) transpiles a component tree into an n-binary tree order, without using
-any [virtual dom](https://reactjs.org/docs/faq-internals.html)
-or a [diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component system is platform-agnostic, which
-allow the system to produce platform dependent and independent components, merging them together for code reuse and
+the [gxi transpiler](gxi-transpiler/README.md) transpiles a component tree into
+an n-binary tree order, without using any
+[virtual dom](https://reactjs.org/docs/faq-internals.html) or a
+[diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component
+system is platform-agnostic, which allow the system to produce platform
+dependent and independent components, merging them together for code reuse and
 maintainability.
 
-At compile time the gxi-transpiler compares the tree to predefined optimised tree structures for widgets, components and
-top level nodes, generating highly performant render calls and async/sync state management.
+At compile time the gxi-transpiler compares the tree to predefined optimised
+tree structures for widgets, components and top level nodes, generating highly
+performant render calls and async/sync state management.
 
 ## Platforms
 
-+ [ ] Desktop (GTK) Windows, Mac and Linux
-+ [ ] Web `wasm32-unknown-unknown`
-+ [ ] Platform Independent (Web and GTK)
-+ [ ] Android
-+ [ ] Ios
+- [ ] Desktop (GTK) Windows, Mac and Linux
+- [ ] Web `wasm32-unknown-unknown`
+- [ ] Platform Independent (Web and GTK)
+- [ ] Android
+- [ ] Ios
 
 ## Examples
 
@@ -59,7 +63,8 @@ Code of conduct can be found at **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)**
 
 ## Contributing
 
-Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before contributing.
+Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before
+contributing.
 
 ## License & Copyright
 
@@ -69,5 +74,5 @@ Licensed under the **[MIT LICENSE](LICENSE)**
 
 ## Contributors
 
-+ [Aniket Prajapati](https://aniketprajapati.me)
+- [Aniket Prajapati](https://aniketprajapati.me)
   @[mail](mailto:contact@aniketprajapati.me)
