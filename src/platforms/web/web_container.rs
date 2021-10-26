@@ -7,6 +7,7 @@ pub struct WebContainer {
 }
 
 impl WebContainer {
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(from: &'static str) -> Self {
         Self {
             children: Default::default(),

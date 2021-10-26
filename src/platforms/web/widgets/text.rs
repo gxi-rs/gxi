@@ -28,12 +28,13 @@ impl std::ops::DerefMut for Text {
 }
 
 impl Text {
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str<T: AsRef<str>>(value: T) -> Self {
         Self {
             native_widget: {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
-                document.create_text_node(value.as_ref()).into()
+                document.create_text_node(value.as_ref())
             },
         }
     }
