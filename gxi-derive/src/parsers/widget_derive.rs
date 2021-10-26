@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use quote::{ToTokens, quote};
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 
 use crate::derive_vnode::derive_vnode;
