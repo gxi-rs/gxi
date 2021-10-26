@@ -1,14 +1,11 @@
-use app::*;
-use cat_fact::*;
-use counter::*;
-use gxi::*;
-use todo::*;
-
 mod app;
 mod cat_fact;
 mod counter;
-mod todo;
+
+pub use cat_fact::*;
+pub use counter::*;
 
 fn main() {
-    run::<App>();
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    gxi::run(app::app());
 }
