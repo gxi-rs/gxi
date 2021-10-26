@@ -1,6 +1,6 @@
-use gxi::{gxi, set_state, State, StrongNodeType};
+use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
-pub unsafe fn cat_fact() -> StrongNodeType {
+pub fn cat_fact() -> StrongNodeType {
     let cat_fact = State::new(String::new());
 
     let fetch_cat_fact = set_state!(
@@ -15,8 +15,12 @@ pub unsafe fn cat_fact() -> StrongNodeType {
 
     return gxi! {
         div [
-            button ( const on_click = fetch_cat_fact),
-            p ( inner_html = &cat_fact[..] ),
+            button ( const on_click = fetch_cat_fact ) [
+                Text ( value = "fetch cat memes!" )
+            ],
+            p [
+                Text ( value = &cat_fact[..])
+            ],
         ]
     };
 }

@@ -7,5 +7,5 @@ pub use counter::*;
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    gxi::run(unsafe { app::app() });
+    gxi::run(app::app());
 }
