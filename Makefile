@@ -13,7 +13,7 @@ desktop:
 	gxib -d examples/desktop desktop $(args)
 
 test:
-	cargo test $(args)
+	cargo test --workspace --lib $(args)
 
 release:
 	cargo release $(args) --workspace --exclude desktop --exclude tests --exclude web

@@ -1,28 +1,22 @@
 # GXI
 
-![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)
+[![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)](https://github.com/gxi-rs/gxi/actions)
 
-> :warning: The api is being actively refactored to reach a perfect balance between memory, runtime and compile time needs.
-> Internal docs may or may not be up to date.  
-
-*Zero-Cost Cross-Platform Native Widget based Component System in Rust*
-
-> This branch is a complete re-write of the project
+*Cross-Platform Native Widget based Component System in Rust*
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
-the [gxi transpiler](gxi-transpiler/README.md) transpiles a component tree into an n-binary tree order, without using
-any [virtual dom](https://reactjs.org/docs/faq-internals.html)
-or a [diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component system is platform-agnostic, which
-allow the system to produce platform dependent and independent components, merging them together for code reuse and
-maintainability.
-
-At compile time the gxi-transpiler compares the tree to predefined optimised tree structures for widgets, components and
-top level nodes, generating highly performant render calls and async/sync state management.
+the [gxi transpiler](gxi-transpiler/README.md) transpile a component tree into a
+stateful self-managed n-binary tree using observable sync/async state pattern, for
+maximum efficiency and lowest possible overhead, with close to no runtime cost.
+Inherently, eliminating the use of a [virtual dom](https://reactjs.org/docs/faq-internals.html)
+or a [diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component
+system is platform-agnostic, which allows the system to produce platform-dependent
+and independent components, merging them for code reuse and maintainability.
 
 ## Platforms
 
++ [X] Web `wasm32-unknown-unknown`
 + [ ] Desktop (GTK) Windows, Mac and Linux
-+ [ ] Web `wasm32-unknown-unknown`
 + [ ] Platform Independent (Web and GTK)
 + [ ] Android
 + [ ] Ios
@@ -30,26 +24,38 @@ top level nodes, generating highly performant render calls and async/sync state 
 ## Examples
 
 ```rust
-use gxi::*;
+use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
-#[derive(Component)]
-pub struct App {
-  node: ContainerNode,
-}
+pub fn cat_fact() -> StrongNodeType {
+    let cat_fact = State::new(String::new());
 
-impl Renderable for App {
-  fn render(node: &StrongNodeType) {
-    gxi! {
-      Body [ // top level node
-        h1 [ // native widget
-          "title"
-        ],
-        Counter::with_data(23) ( min = 24, max = 124 ) // user defined component
-      ]
-    }
-  }
+    let fetch_cat_fact = set_state!(
+        async || {
+            let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
+                .await
+                .unwrap();
+            *(*cat_fact).borrow_mut() = resp.text().await.unwrap();
+        },
+        [cat_fact]
+    );
+    
+    // pre fetch cat memes
+    fetch_cat_fact();
+
+    return gxi! {
+        div [
+            button ( on_click = move |_| fetch_cat_fact() ) [
+                Text ( value = "fetch cat memes!" )
+            ],
+            p [
+                Text ( value = &cat_fact[..])
+            ],
+        ]
+    };
 }
 ```
+
+![](./gxi-web-eg.gif)
 
 Full src [here](examples)
 
@@ -63,11 +69,11 @@ Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before contribu
 
 ## License & Copyright
 
-Copyright (C) 2020 Aniket Prajapati
+Copyright (C) 2021 Aniket Prajapati
 
 Licensed under the **[MIT LICENSE](LICENSE)**
 
 ## Contributors
 
 + [Aniket Prajapati](https://aniketprajapati.me)
-  @[mail](mailto:contact@aniketprajapati.me)
+  <[contact@aniketprajapati.me](mailto:contact@aniketprajapati.me)>

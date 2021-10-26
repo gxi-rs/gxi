@@ -2,6 +2,7 @@ pub use run::*;
 pub use top_level::*;
 pub use web_container::*;
 pub use web_container_wrapper::*;
+pub use widgets::*;
 
 #[cfg(feature = "async-web")]
 pub use wasm_bindgen_futures::*;
@@ -11,6 +12,7 @@ mod run;
 mod top_level;
 mod web_container;
 mod web_container_wrapper;
+mod widgets;
 
 /// Smallest element of the native widget system which can be added to other
 /// widgets but it itself may or may not have the ability to hold a child

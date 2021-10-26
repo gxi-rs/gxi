@@ -291,9 +291,10 @@ impl ToString for NodeBlock {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::NodeType;
-    use quote::{quote, ToTokens};
+    use quote::quote;
     use syn::parse::Parse;
 
     struct NodeTypeParser(NodeType);

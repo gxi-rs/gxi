@@ -1,9 +1,8 @@
-use gxi::{gxi, set_state, State, StrongNodeType};
+use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
 const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
-pub unsafe fn complex_counter() -> StrongNodeType {
-    let h1_value = "hello";
+pub fn complex_counter() -> StrongNodeType {
     let reduce_emoji = State::new(EMOTICONS[0]);
     let reduce_emoji_index = State::new(0 as usize);
 
@@ -17,12 +16,13 @@ pub unsafe fn complex_counter() -> StrongNodeType {
 
     // add this to gx
     return gxi! {
-        //TODO: pure component
         div [
-           h1 ( const inner_html = h1_value, const on_click = reduce_emoji_listener.clone() ),
+           h1 ( const on_click = reduce_emoji_listener.clone() ) [
+               Text ( value = "hello")
+           ],
            div ( const on_click = reduce_emoji_listener ) [
-            span ( inner_html = "reducer emoji :"),
-            span ( inner_html = &reduce_emoji_index.to_string()[..] )
+               Text ( value = "reducer emoji :"),
+               Text ( value = &reduce_emoji_index.to_string()[..] )
            ],
            counter(2, reduce_emoji.clone()),
            counter(20, reduce_emoji)
@@ -30,15 +30,21 @@ pub unsafe fn complex_counter() -> StrongNodeType {
     };
 }
 
-unsafe fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
+fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
     let counter = State::new(initial);
 
     return gxi! {
         div [
-            h1 ( inner_html = &counter.to_string()[..] ),
+            h1 [
+                Text ( value = &counter.to_string()[..] )
+            ],
             div [
-                button ( on_click = set_state!(*counter += 1, [ref counter]), inner_html = "+" ),
-                button ( on_click = set_state!(*counter -= 1, [ref counter]), inner_html = &reduce_emoji.to_string()[..] )
+                button ( on_click = set_state!(*counter += 1, [ref counter])) [
+                    Text( value = "+")
+                ],
+                button ( on_click = set_state!(*counter -= 1, [ref counter])) [
+                    Text( value = &reduce_emoji.to_string()[..] )
+                ]
             ]
         ]
     };

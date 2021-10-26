@@ -1,9 +1,7 @@
 use quote::quote;
 use syn::__private::TokenStream2;
 
-use crate::v_node_type::VNodeType;
-
-pub fn derive_vnode(name: &syn::Ident, v_node_type: VNodeType) -> TokenStream2 {
+pub fn derive_vnode(name: &TokenStream2, v_node_type: &TokenStream2) -> TokenStream2 {
     quote! {
         impl gxi::VNode for #name {
             fn new() -> Self {

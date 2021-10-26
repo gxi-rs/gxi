@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [ main, nightly ]
+    branches: [main, nightly]
   pull_request:
-    branches: [ main, nightly ]
+    branches: [main, nightly]
 
 env:
   CARGO_TERM_COLOR: always
@@ -32,48 +32,4 @@ jobs:
 
       - name: Run Macro tests
         run: |
-          cargo test
-
-      - name: Install gtk-3 deps
-        run: |
-          sudo apt-get install libgtk-3-dev
-
-      - name: Run desktop build
-        run: |
-          cd examples/desktop
-          cargo build
-
-  windows-tests-and-builds:
-    runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Cache cargo target
-        uses: actions/cache@v2
-        with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-
-      - name: Install Msys2 and deps
-        uses: msys2/setup-msys2@v2
-        with:
-          release: false  # no cache
-          msystem: MINGW64
-          install: >-
-            base-devel
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-gtk3
-            mingw-w64-x86_64-rust
-
-      - name: Run desktop build
-        run: |
-          cd examples/desktop
-          cargo build
+          make test

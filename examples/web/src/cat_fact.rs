@@ -1,10 +1,10 @@
-use gxi::{gxi, set_state, State, StrongNodeType};
+use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
-pub unsafe fn cat_fact() -> StrongNodeType {
+pub fn cat_fact() -> StrongNodeType {
     let cat_fact = State::new(String::new());
 
     let fetch_cat_fact = set_state!(
-        async |_| {
+        async || {
             let resp = reqwest::get("https://catfact.ninja/fact?max_length=140")
                 .await
                 .unwrap();
@@ -13,10 +13,16 @@ pub unsafe fn cat_fact() -> StrongNodeType {
         [cat_fact]
     );
 
+    fetch_cat_fact();
+
     return gxi! {
         div [
-            button ( const on_click = fetch_cat_fact),
-            p ( inner_html = &cat_fact[..] ),
+            button ( on_click = move |_| fetch_cat_fact() ) [
+                Text ( value = "fetch cat memes!" )
+            ],
+            p [
+                Text ( value = &cat_fact[..])
+            ],
         ]
     };
 }

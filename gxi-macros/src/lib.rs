@@ -15,13 +15,13 @@ mod set_state;
 ///     
 ///     *e.g*
 ///     
-///     ```rust
+///     ```ignore
 ///         set_state!(*counter+=1);
 ///     ```
 ///     
 ///     *is equal to*
 ///     
-///     ```rust
+///     ```ignore
 ///         set_state!(|_| {
 ///             *counter+=1;
 ///         }, [ref counter])
@@ -29,7 +29,7 @@ mod set_state;
 ///     
 ///     *or*
 ///
-///     ```rust
+///     ```ignore
 ///         set_state!(|_| {
 ///             *counter.as_ref().borrow_mut()+=1;
 ///         }, [counter])
@@ -42,7 +42,7 @@ mod set_state;
 /// closure expressions.
 ///
 /// *e.g*
-/// ```rust
+/// ```ignore
 /// pub fn app() -> StrongNodeType {
 ///     let counter = gxi::State::new(2);
 ///     
