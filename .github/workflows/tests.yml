@@ -14,17 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Cache cargo target
-        uses: actions/cache@v2
+      - uses: actions-rs/toolchain@v1
         with:
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
+          profile: minimal
+          toolchain: stable
+          override: true
+
+      - run: rustup component add clippy
 
       - name: Run linter
         run: |
