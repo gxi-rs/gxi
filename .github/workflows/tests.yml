@@ -22,10 +22,11 @@ jobs:
 
       - run: rustup component add clippy
 
-      - name: Run linter
-        run: |
-          cargo clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
 
-      - name: Run Macro tests
-        run: |
-          make test
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --workspace --lib
