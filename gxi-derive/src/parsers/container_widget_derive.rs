@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 
-use quote::quote;
+use quote::{ToTokens, quote};
 use syn::__private::TokenStream2;
 
 use crate::derive_vnode::derive_vnode;
@@ -8,9 +8,9 @@ use crate::v_node_type::VNodeType;
 
 pub fn parse_container_widget_derive(input: TokenStream) -> TokenStream2 {
     let input = syn::parse::<syn::DeriveInput>(input).unwrap();
-    let name = &input.ident;
+    let name = input.ident.to_token_stream();
 
-    let v_node_impl = derive_vnode(name, VNodeType::ContainerWidget);
+    let v_node_impl = derive_vnode(&name, &VNodeType::ContainerWidget.into_token_stream());
 
     quote! {
         impl gxi::VContainerWidget for #name {
