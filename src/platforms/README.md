@@ -1,6 +1,6 @@
 # Platforms
 
-To achieve a common api for all platforms. Each platform needs to export 
+To achieve a common api for all platforms. Each platform needs to export
 
 1. a `run` function
 
@@ -10,4 +10,4 @@ To achieve a common api for all platforms. Each platform needs to export
 
 2. `NativeWidget`
 3. `NativeContainerWidget`
-4. `Element` with `from_str(String, WeakNodeType) -> Self` 
+4. `Element` with `from_str(String, WeakNodeType) -> Self`

@@ -2,7 +2,7 @@ extern crate proc_macro;
 
 use derive_vnode::derive_vnode;
 use proc_macro::TokenStream;
-use quote::{ToTokens, quote};
+use quote::{quote, ToTokens};
 
 use crate::parsers::*;
 
@@ -18,7 +18,8 @@ pub fn gxi_vnode(attr: TokenStream, input: TokenStream) -> TokenStream {
     (quote! {
         #input
         #derive
-    }).into()
+    })
+    .into()
 }
 
 #[proc_macro_derive(Widget)]

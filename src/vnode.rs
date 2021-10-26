@@ -22,7 +22,6 @@ pub trait VWidget:
     fn push(&mut self, _member: StrongNodeType) {
         panic!("can't add child to this widget")
     }
-    
 }
 
 /// VNode referring to a native widget which can hold other widgets
