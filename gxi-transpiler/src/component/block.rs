@@ -291,6 +291,7 @@ impl ToString for NodeBlock {
     }
 }
 
+#[cfg(tests)]
 mod tests {
     use super::NodeType;
     use quote::{quote, ToTokens};
