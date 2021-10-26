@@ -15,10 +15,10 @@ pub fn gxi_vnode(attr: TokenStream, input: TokenStream) -> TokenStream {
     let input = syn::parse::<syn::ItemStruct>(input).unwrap();
     let name = input.ident.to_token_stream();
     let derive = derive_vnode(&name, &attr.into());
-    quote! {
+    (quote! {
         #input
         #derive
-    }.into()
+    }).into()
 }
 
 #[proc_macro_derive(Widget)]
