@@ -16,7 +16,7 @@ test:
 	cargo test --workspace --lib $(args)
 
 release:
-	cargo release $(args) --workspace --exclude desktop --exclude tests --exclude web
+	cargo release --workspace --sign --exclude example $(args) 
 
 clean:
 	cargo clean
