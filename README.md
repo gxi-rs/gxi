@@ -2,24 +2,26 @@
 
 [![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)](https://github.com/gxi-rs/gxi/actions)
 
-*Cross-Platform Native Widget based Component System in Rust*
+_Cross-Platform Native Widget based Component System in Rust_
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
 the [gxi transpiler](gxi-transpiler/README.md) transpile a component tree into a
-stateful self-managed n-binary tree using observable sync/async state pattern, for
-maximum efficiency and lowest possible overhead, with close to no runtime cost.
-Inherently, eliminating the use of a [virtual dom](https://reactjs.org/docs/faq-internals.html)
-or a [diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component
-system is platform-agnostic, which allows the system to produce platform-dependent
-and independent components, merging them for code reuse and maintainability.
+stateful self-managed n-binary tree using observable sync/async state pattern,
+for maximum efficiency and lowest possible overhead, with close to no runtime
+cost. Inherently, eliminating the use of a
+[virtual dom](https://reactjs.org/docs/faq-internals.html) or a
+[diffing algorithm](https://reactjs.org/docs/reconciliation.html). The component
+system is platform-agnostic, which allows the system to produce
+platform-dependent and independent components, merging them for code reuse and
+maintainability.
 
 ## Platforms
 
-+ [X] Web `wasm32-unknown-unknown`
-+ [ ] Desktop (GTK) Windows, Mac and Linux
-+ [ ] Platform Independent (Web and GTK)
-+ [ ] Android
-+ [ ] Ios
+- [x] Web `wasm32-unknown-unknown`
+- [ ] Desktop (GTK) Windows, Mac and Linux
+- [ ] Platform Independent (Web and GTK)
+- [ ] Android
+- [ ] Ios
 
 ## Examples
 
@@ -38,7 +40,7 @@ pub fn cat_fact() -> StrongNodeType {
         },
         [cat_fact]
     );
-    
+
     // pre fetch cat memes
     fetch_cat_fact();
 
@@ -65,7 +67,8 @@ Code of conduct can be found at **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)**
 
 ## Contributing
 
-Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before contributing.
+Make sure to read **[Contribution Guidelines](CONTRIBUTING.md)** before
+contributing.
 
 ## License & Copyright
 
@@ -75,5 +78,5 @@ Licensed under the **[MIT LICENSE](LICENSE)**
 
 ## Contributors
 
-+ [Aniket Prajapati](https://aniketprajapati.me)
+- [Aniket Prajapati](https://aniketprajapati.me)
   <[contact@aniketprajapati.me](mailto:contact@aniketprajapati.me)>

@@ -20,4 +20,3 @@ Cross-Platform Native Widget based Component System in Rust
 - [ ] Debug trait for nodes
 
 ### Completed ✓
-

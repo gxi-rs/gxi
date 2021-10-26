@@ -1,6 +1,6 @@
 # Gxi-Transpiler
 
-*transpiler for gxi-rs component system*
+_transpiler for gxi-rs component system_
 
 ## Aim
 
@@ -15,4 +15,3 @@
 
 1. [Component](./src/component/README.md)
 2. `//TODO`
-
