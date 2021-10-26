@@ -32,4 +32,4 @@ jobs:
 
       - name: Run Macro tests
         run: |
-          cargo test --workspace
+          cargo test --workspace --lib
