@@ -4,6 +4,8 @@ mod block;
 mod blocks;
 mod component;
 mod execution;
+mod conditional;
+mod scope;
 
 use quote::ToTokens;
 

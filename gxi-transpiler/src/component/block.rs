@@ -1,5 +1,6 @@
-use super::{NodeProps, Scope};
+use super::NodeProps;
 use crate::blocks::Blocks;
+use crate::scope::Scope;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::Token;

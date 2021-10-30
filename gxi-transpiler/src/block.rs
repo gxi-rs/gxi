@@ -1,13 +1,12 @@
 use quote::ToTokens;
 use syn::parse::Parse;
 
-use crate::{component::NodeBlock, execution::ExecutionBlock};
+use crate::{component::NodeBlock, conditional::ConditionalBlock, execution::ExecutionBlock};
 
 pub enum Block {
     Node(NodeBlock),
     Execution(ExecutionBlock),
-    #[allow(dead_code)]
-    Conditional,
+    Conditional(ConditionalBlock),
     #[allow(dead_code)]
     Iter,
 }
@@ -29,7 +28,7 @@ impl ToTokens for Block {
         match self {
             Block::Node(comp) => comp.to_tokens(tokens),
             Block::Execution(ex) => ex.to_tokens(tokens),
-            Block::Conditional => todo!(),
+            Block::Conditional(cond) => cond.to_tokens(tokens),
             Block::Iter => todo!(),
         }
     }
