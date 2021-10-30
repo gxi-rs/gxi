@@ -1,12 +1,12 @@
 use quote::ToTokens;
 use syn::parse::Parse;
 
-use crate::{component::NodeBlock, conditional::ConditionalBlock, execution::ExecutionBlock};
+use crate::{component::NodeBlock, conditional::MatchBlock, execution::ExecutionBlock};
 
 pub enum Block {
     Node(NodeBlock),
     Execution(ExecutionBlock),
-    Conditional(ConditionalBlock),
+    Conditional(MatchBlock),
     #[allow(dead_code)]
     Iter,
 }
