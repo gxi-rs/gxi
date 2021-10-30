@@ -46,7 +46,7 @@ impl Parse for NodeProp {
         let syn::ExprAssign { left, right, .. } = input.parse()?;
 
         if const_tt.is_err() {
-            scope = Scope::find_prop_scope(&right)?;
+            scope = Scope::find_expr_scope(&right)?;
         }
 
         Ok(Self { left, scope, right })
@@ -59,13 +59,11 @@ impl NodeProp {
         tokens: &mut quote::__private::TokenStream,
         return_type: &TokenStream2,
     ) {
-        let left = &self.left;
-        let right = &self.right;
+        let Self { left, right, scope } = self;
 
         tokens.append_all(match &self.scope {
-            Scope::Observable(name) => quote! {{
-                let __node = std::rc::Rc::downgrade(&__node);
-                #name.add_observer(Box::new(move |#name| {
+            Scope::Observable(name) => {
+                let scope = scope.to_token_stream(quote! {
                     use std::ops::DerefMut;
                     if let Some(__node) = __node.upgrade() {
                         let mut __node = __node.as_ref().borrow_mut();
@@ -76,11 +74,16 @@ impl NodeProp {
                     } else {
                         true
                     }
-                }));
-            }},
+                });
+                
+                quote! {{
+                    let __node = std::rc::Rc::downgrade(&__node);
+                    #scope  
+                }}
+            }
             Scope::Constant => quote! {
                 __node.#left(#right);
             },
-        })
+        });
     }
 }

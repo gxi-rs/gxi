@@ -1,11 +1,26 @@
-use quote::ToTokens;
+use quote::{ToTokens, quote};
 use syn::__private::TokenStream2;
+use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::Expr;
 
+#[derive(Debug)]
 pub enum Scope {
+    /// # Args
+    ///
+    /// observable ident
     Observable(TokenStream2),
     Constant,
+}
+
+impl PartialEq for Scope {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Observable(l0), Self::Observable(r0)) => l0.to_string() == r0.to_string(),
+            (Self::Constant, Self::Constant) => true,
+            _ => false,
+        }
+    }
 }
 
 impl Default for Scope {
@@ -20,7 +35,7 @@ impl Scope {
     pub fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
         let mut k = Scope::default();
         for x in iter {
-            let x_scope = Self::find_prop_scope(x)?;
+            let x_scope = Self::find_expr_scope(x)?;
             match (&x_scope, &k) {
                 (Scope::Observable(_), Scope::Observable(_)) => {
                     return Err(syn::Error::new(x.span(), MORE_THAN_ONE_ERR));
@@ -32,13 +47,14 @@ impl Scope {
         }
         Ok(k)
     }
-    pub fn find_prop_scope(expr: &syn::Expr) -> syn::Result<Self> {
+
+    pub fn find_expr_scope(expr: &syn::Expr) -> syn::Result<Self> {
         match expr {
             Expr::Array(syn::ExprArray { elems, .. }) => {
                 return Self::find_iter_scope(&mut elems.iter());
             }
             Expr::Binary(syn::ExprBinary { left, right, .. }) => {
-                match (Self::find_prop_scope(left)?, Self::find_prop_scope(right)?) {
+                match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
                     (Scope::Observable(_), Scope::Observable(_)) => {
                         Err(syn::Error::new(right.span(), MORE_THAN_ONE_ERR))
                     }
@@ -51,17 +67,17 @@ impl Scope {
                 Ok(Scope::Constant)
             }
             Expr::Call(syn::ExprCall { args, .. }) => Scope::find_iter_scope(&mut args.iter()),
-            Expr::Cast(syn::ExprCast { expr, .. }) => Scope::find_prop_scope(expr),
-            Expr::Field(syn::ExprField { base, .. }) => Self::find_prop_scope(base),
-            Expr::Index(syn::ExprIndex { expr, .. }) => Self::find_prop_scope(expr),
+            Expr::Cast(syn::ExprCast { expr, .. }) => Scope::find_expr_scope(expr),
+            Expr::Field(syn::ExprField { base, .. }) => Self::find_expr_scope(base),
+            Expr::Index(syn::ExprIndex { expr, .. }) => Self::find_expr_scope(expr),
             Expr::ForLoop(_) => todo!(),
             Expr::If(_) => todo!(),
             Expr::Loop(_) => todo!(),
             Expr::Match(_) => todo!(),
             Expr::MethodCall(syn::ExprMethodCall { receiver, .. }) => {
-                Self::find_prop_scope(receiver)
+                Self::find_expr_scope(receiver)
             }
-            Expr::Paren(syn::ExprParen { expr, .. }) => Self::find_prop_scope(expr),
+            Expr::Paren(syn::ExprParen { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Path(syn::ExprPath { path, .. }) => {
                 let segments = &path.segments;
                 // path of length 1 is an identifier
@@ -72,7 +88,7 @@ impl Scope {
                 }
             }
             Expr::Range(_) => todo!(),
-            Expr::Reference(syn::ExprReference { expr, .. }) => Self::find_prop_scope(expr),
+            Expr::Reference(syn::ExprReference { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Repeat(_) => todo!(),
             Expr::Try(_) => todo!(),
             Expr::TryBlock(_) => todo!(),
@@ -94,6 +110,28 @@ impl Scope {
             | Expr::AssignOp(_)
             | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
+        }
+    }
+}
+
+/// parses input to syn::Expr
+impl Parse for Scope {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Self::find_expr_scope(&input.parse()?)
+    }
+}
+
+impl Scope {
+    fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
+        match &self.scope {
+            Scope::Observable(name) => quote! {
+                #name.add_observer(Box::new(move |#name| {
+                    #body
+                }));
+            },
+            Scope::Constant => quote! {
+                #body
+            },
         }
     }
 }
