@@ -1,34 +1,25 @@
 use quote::ToTokens;
 use syn::{parse::Parse, Expr, Token};
 
-use crate::scope::Scope;
+use crate::{
+    optional_parse::{impl_parse_for_optional_parse, OptionalParse},
+    scope::Scope,
+};
 
-#[doc(include_str = "./README.md")]
 pub struct MatchBlock {
     scope: Scope,
     expr: Expr,
 }
 
-impl Parse for MatchBlock {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        if let Some(s) = Self::parse(input)? {
-            Ok(s)
-        } else {
-            Err(syn::Error::new(input.span(), "unexpected token"))
-        }
-    }
-}
-
-impl MatchBlock {
-    pub fn parse(input: syn::parse::ParseStream) -> syn::Result<Option<Self>> {
+impl OptionalParse for MatchBlock {
+    fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
         let mut scope = if let Ok(_) = input.parse::<Token!(const)>() {
             Some(Scope::Constant)
         } else {
             None
         };
-        
-        let expr = if input.peek(Token!(if)) {
 
+        let expr = if input.peek(Token!(if)) {
             let if_expr = input.parse::<syn::ExprIf>()?;
 
             if let None = scope {
@@ -47,7 +38,7 @@ impl MatchBlock {
         } else {
             return Ok(None);
         };
-        
+
         println!("asdf");
 
         Ok(Some(Self {
@@ -56,6 +47,8 @@ impl MatchBlock {
         }))
     }
 }
+
+impl_parse_for_optional_parse!(MatchBlock);
 
 impl ToTokens for MatchBlock {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
@@ -78,12 +71,12 @@ mod tests {
 
     #[test]
     fn conditional_block() -> syn::Result<()> {
-//        {
-//            let MatchBlock { expr, scope } =
-//                syn::parse2(quote! { if t == 3 { div [  ] }})?;
-//            assert_eq!(scope, Scope::Constant);
-//            assert_eq!(if let Expr::If(_) = expr { true } else { false }, true);
-//        }
+        //        {
+        //            let MatchBlock { expr, scope } =
+        //                syn::parse2(quote! { if t == 3 { div [  ] }})?;
+        //            assert_eq!(scope, Scope::Constant);
+        //            assert_eq!(if let Expr::If(_) = expr { true } else { false }, true);
+        //        }
         Ok(())
     }
 }

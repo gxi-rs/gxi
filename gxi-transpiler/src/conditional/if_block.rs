@@ -114,7 +114,7 @@ mod tests {
                 condition,
                 else_arm,
                 body,
-                if_token,
+                ..
             } = syn::parse2(quote! { if t == 3 { div }})?;
 
             assert_eq!(scope, Scope::Observable(quote! {t}));
@@ -123,6 +123,7 @@ mod tests {
                 quote! { t == 3 }.to_string()
             );
             assert_eq!(body.is_some(), true);
+            assert_eq!(else_arm.is_some(), false);
         }
         Ok(())
     }
