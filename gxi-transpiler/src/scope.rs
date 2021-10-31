@@ -122,8 +122,8 @@ impl Parse for Scope {
 }
 
 impl Scope {
-    fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
-        match &self.scope {
+    pub fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
+        match &self {
             Scope::Observable(name) => quote! {
                 #name.add_observer(Box::new(move |#name| {
                     #body

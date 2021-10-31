@@ -6,6 +6,7 @@ mod component;
 mod execution;
 mod conditional;
 mod scope;
+#[macro_use]
 mod optional_parse;
 
 use quote::ToTokens;

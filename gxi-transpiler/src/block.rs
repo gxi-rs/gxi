@@ -1,7 +1,7 @@
 use quote::ToTokens;
 use syn::parse::Parse;
 
-use crate::{component::NodeBlock, conditional::MatchBlock, execution::ExecutionBlock};
+use crate::{component::NodeBlock, conditional::MatchBlock, execution::ExecutionBlock, optional_parse::OptionalParse};
 
 pub enum Block {
     Node(NodeBlock),
@@ -13,7 +13,7 @@ pub enum Block {
 
 impl Parse for Block {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        if let Some(comp) = NodeBlock::parse(&input)? {
+        if let Some(comp) = NodeBlock::optional_parse(&input)? {
             Ok(Self::Node(comp))
         } else if let Some(ex) = ExecutionBlock::parse(input)? {
             Ok(Self::Execution(ex))

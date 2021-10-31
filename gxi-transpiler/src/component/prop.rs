@@ -63,7 +63,7 @@ impl NodeProp {
 
         tokens.append_all(match &self.scope {
             Scope::Observable(name) => {
-                let scope = scope.to_token_stream(quote! {
+                let scope = scope.to_token_stream(&quote! {
                     use std::ops::DerefMut;
                     if let Some(__node) = __node.upgrade() {
                         let mut __node = __node.as_ref().borrow_mut();

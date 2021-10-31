@@ -1,5 +1,6 @@
 use super::NodeProps;
 use crate::blocks::Blocks;
+use crate::optional_parse::{OptionalParse, impl_parse_for_optional_parse};
 use crate::scope::Scope;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -216,8 +217,8 @@ pub struct NodeBlock {
     pub subtree: Blocks,
 }
 
-impl NodeBlock {
-    pub fn parse(input: &ParseStream) -> syn::Result<Option<Self>> {
+impl OptionalParse for NodeBlock {
+    fn optional_parse(input: &ParseStream) -> syn::Result<Option<Self>> {
         let node_type = if let Some(node_type) = NodeType::parse(input)? {
             node_type
         } else {
@@ -238,6 +239,9 @@ impl NodeBlock {
         Ok(Some(Self { node_type, subtree }))
     }
 }
+
+impl_parse_for_optional_parse!(NodeBlock);
+
 
 /// Optimization Rules:
 /// 1. If a component consists of a serializable sub tree then serialize them to string
