@@ -32,7 +32,7 @@ pub trait VContainerWidget:
     fn get_children_mut(&mut self) -> &mut Vec<StrongNodeType>;
 
     fn push(&mut self, member: StrongNodeType) {
-        // do not add widget of ttop level container widget
+        // do not add widget of to top level container widget
         match member.as_ref().borrow_mut().deref() {
             VNodeType::Widget(w) => self.deref_mut().append(w.deref()),
             VNodeType::ContainerWidget(w) => self.deref_mut().append(w.deref()),
@@ -40,5 +40,57 @@ pub trait VContainerWidget:
         }
 
         self.get_children_mut().push(member);
+    }
+
+    /// replaces or pushes member tp the given index. if the  index is equal to the amount
+    /// of children, then the member is pushed. if no member is provided and push = false,
+    /// then the member is removed.
+    ///
+    /// WARN: if push = false and member = None , then if tree doesn't contain an element at the
+    /// location, then the next element might be removed
+    fn set_at_index(&mut self, member: Option<StrongNodeType>, index: usize, push: bool) {
+        let len = self.get_children().len();
+
+        if index >= len {
+            if let Some(member) = member {
+                self.push(member)
+            }
+        } else if index < len {
+            if let Some(member) = member {
+                {
+                    let children = self.get_children();
+                    let old_member = children[index].as_ref().borrow();
+                    let member_borrow = member.as_ref().borrow();
+
+                    if push {
+                        self.deref()
+                            .insert_before(
+                                member_borrow.get_native_widget(),
+                                Some(old_member.get_native_widget()),
+                            )
+                            .unwrap();
+                    } else {
+                        self.replace_child(
+                            member_borrow.get_native_widget(),
+                            old_member.get_native_widget(),
+                        )
+                        .unwrap();
+                    }
+                }
+                if push {
+                    self.get_children_mut().insert(index, member);
+                } else {
+                    self.get_children_mut()[index] = member;
+                }
+            } else {
+                if !push {
+                    self.remove_child(self.get_children()[index].borrow().get_native_widget())
+                        .unwrap();
+                    self.get_children_mut().remove(index);
+                }
+            }
+        } else {
+            unreachable!()
+        }
     }
 }
