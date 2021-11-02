@@ -3,6 +3,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use crate::block::Block;
 
 /// comma separated multiple blocks
+/// called by NodeBlock
 #[derive(Default)]
 pub struct Blocks {
     pub blocks: Vec<Block>,
@@ -34,16 +35,18 @@ impl syn::parse::Parse for Blocks {
 
 impl ToTokens for Blocks {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
-        for block in &self.blocks {
-            if let Block::Node(_) = block {
-                tokens.append_all(quote! {
+        for (index, block) in self.blocks.iter().enumerate() {
+            let block_tokens = block.to_token_stream(index);
+
+            tokens.append_all(if let Block::Node(_) = block {
+                quote! {
                     __node.push(
-                        #block
+                        #block_tokens
                     );
-                });
+                }
             } else {
-                block.to_tokens(tokens);
-            }
+                block_tokens
+            })
         }
     }
 }

@@ -1,10 +1,9 @@
 use quote::ToTokens;
+use syn::__private::TokenStream2;
 use syn::parse::Parse;
 
 use crate::{
-    component::NodeBlock,
-    conditional::{ConditionalBlock, MatchBlock},
-    execution::ExecutionBlock,
+    component::NodeBlock, conditional::ConditionalBlock, execution::ExecutionBlock,
     optional_parse::OptionalParse,
 };
 
@@ -25,17 +24,17 @@ impl Parse for Block {
         } else if let Some(cond) = ConditionalBlock::optional_parse(&input)? {
             Ok(Self::Conditional(cond))
         } else {
-            Err(syn::Error::new(input.span(), "didn't expect this here"))
+            Err(syn::Error::new(input.span(), "unexpected token"))
         }
     }
 }
 
-impl ToTokens for Block {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+impl Block {
+    pub fn to_token_stream(&self, index: usize) -> TokenStream2 {
         match self {
-            Block::Node(comp) => comp.to_tokens(tokens),
-            Block::Execution(ex) => ex.to_tokens(tokens),
-            Block::Conditional(cond) => cond.to_tokens(tokens),
+            Block::Node(comp) => comp.to_token_stream(),
+            Block::Execution(ex) => ex.to_token_stream(),
+            Block::Conditional(cond) => cond.to_token_stream(index),
             Block::Iter => todo!(),
         }
     }
