@@ -61,29 +61,11 @@ impl NodeProp {
     ) {
         let Self { left, right, scope } = self;
 
-        tokens.append_all(match &self.scope {
-            Scope::Observable(name) => {
-                let scope = scope.to_token_stream(&quote! {
-                    use std::ops::DerefMut;
-                    if let Some(__node) = __node.upgrade() {
-                        let mut __node = __node.as_ref().borrow_mut();
-                        let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
-
-                        __node.#left(#right);
-                        false
-                    } else {
-                        true
-                    }
-                });
-                
-                quote! {{
-                    let __node = std::rc::Rc::downgrade(&__node);
-                    #scope  
-                }}
-            }
-            Scope::Constant => quote! {
+        tokens.append_all(scope.to_token_stream(
+            &quote! {
                 __node.#left(#right);
             },
-        });
+            return_type,
+        ));
     }
 }

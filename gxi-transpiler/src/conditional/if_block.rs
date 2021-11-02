@@ -1,4 +1,5 @@
 use quote::{quote, ToTokens, TokenStreamExt};
+use syn::__private::TokenStream2;
 
 use crate::{
     component::NodeBlock,
@@ -9,8 +10,7 @@ use crate::{
 pub struct IfBlock {
     scope: Scope,
     if_token: syn::Token!(if),
-    // only 1 node block is allowed in body
-    body: Option<NodeBlock>,
+    body: NodeBlock,
     else_arm: Box<Option<ElseArm>>,
     condition: syn::Expr,
 }
@@ -33,7 +33,6 @@ impl OptionalParse for IfBlock {
         let (condition, scope) = {
             let is_const = input.parse::<syn::Token!(const)>().is_ok();
             let condition = input.parse::<syn::Expr>()?;
-
             // no need to check scope when const keyword is provided
             let scope = if is_const {
                 Scope::Constant
@@ -45,13 +44,9 @@ impl OptionalParse for IfBlock {
 
         // parse children
         let body = {
-            let syn::group::Braces { content, token } = syn::group::parse_braces(&input)?;
+            let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
 
-            if content.is_empty() {
-                None
-            } else {
-                Some(content.parse::<NodeBlock>()?)
-            }
+            content.parse::<NodeBlock>()?
         };
 
         // else arm
@@ -84,8 +79,8 @@ impl OptionalParse for ElseArm {
 
 impl_parse_for_optional_parse!(ElseArm);
 
-impl ToTokens for IfBlock {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+impl IfBlock {
+    pub fn to_token_stream(&self, index: usize) -> TokenStream2 {
         let Self {
             scope,
             if_token,
@@ -94,7 +89,16 @@ impl ToTokens for IfBlock {
             condition,
         } = self;
 
-        tokens.append_all(quote!())
+        println!("{}", body.to_token_stream().to_string());
+
+        scope.to_token_stream(
+            &quote! {
+                #if_token #condition {
+                    #body
+                }
+            },
+            &quote! {gxi::Element},
+        )
     }
 }
 
@@ -109,21 +113,17 @@ mod tests {
     #[test]
     fn conditional_if_block() -> syn::Result<()> {
         {
-            let IfBlock {
-                scope,
-                condition,
-                else_arm,
-                body,
-                ..
-            } = syn::parse2(quote! { if t == 3 { div }})?;
+            let condition_expr = quote! {t == 3 && 3 == 4 };
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
+            let if_block: IfBlock = syn::parse2(quote! { if #condition_expr { div }})?;
+
+            assert_eq!(if_block.scope, Scope::Observable(quote! {t}));
             assert_eq!(
-                condition.into_token_stream().to_string(),
-                quote! { t == 3 }.to_string()
+                if_block.condition.to_token_stream().to_string(),
+                condition_expr.to_string()
             );
-            assert_eq!(body.is_some(), true);
-            assert_eq!(else_arm.is_some(), false);
+            assert_eq!(if_block.else_arm.is_some(), false);
+            panic!(" asd f{}", if_block.to_token_stream(0).to_string());
         }
         Ok(())
     }

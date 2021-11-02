@@ -13,6 +13,8 @@ pub struct MatchBlock {
 
 impl OptionalParse for MatchBlock {
     fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
+        return Ok(None);
+
         let mut scope = if let Ok(_) = input.parse::<Token!(const)>() {
             Some(Scope::Constant)
         } else {
@@ -58,7 +60,7 @@ impl ToTokens for MatchBlock {
             Expr::If(if_expr) => {}
             _ => unreachable!("Internal Logic Error"),
         }
-        todo!()
+        panic!("fpp")
     }
 }
 

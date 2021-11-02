@@ -6,6 +6,7 @@ use crate::{
 };
 
 use super::MatchBlock;
+use syn::__private::TokenStream2;
 
 #[doc(include_str = "./README.md")]
 pub enum ConditionalBlock {
@@ -27,11 +28,11 @@ impl OptionalParse for ConditionalBlock {
 
 impl_parse_for_optional_parse!(ConditionalBlock);
 
-impl ToTokens for ConditionalBlock {
-    fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
+impl ConditionalBlock {
+    pub fn to_token_stream(&self, index: usize) -> TokenStream2 {
         match self {
-            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens),
-            ConditionalBlock::Match(match_block) => match_block.to_tokens(tokens),
+            ConditionalBlock::If(if_block) => if_block.to_token_stream(index),
+            ConditionalBlock::Match(match_block) => match_block.to_token_stream(),
         }
     }
 }
