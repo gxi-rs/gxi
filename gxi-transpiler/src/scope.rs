@@ -1,4 +1,4 @@
-use quote::{ToTokens, quote};
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
 use syn::spanned::Spanned;
@@ -93,7 +93,7 @@ impl Scope {
             Expr::Try(_) => todo!(),
             Expr::TryBlock(_) => todo!(),
             Expr::Tuple(_) => todo!(),
-            Expr::Unary(_) => todo!(),
+            Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(&expr),
             Expr::Unsafe(_) => todo!(),
             Expr::While(_) => todo!(),
             Expr::Assign(_)
@@ -122,13 +122,24 @@ impl Parse for Scope {
 }
 
 impl Scope {
-    pub fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
+    // WARN: should be a little less exact
+    pub fn to_token_stream(&self, body: &TokenStream2, return_type: &TokenStream2) -> TokenStream2 {
         match &self {
-            Scope::Observable(name) => quote! {
+            Scope::Observable(name) => quote! {{
+                let __node = std::rc::Rc::downgrade(&__node);
                 #name.add_observer(Box::new(move |#name| {
-                    #body
+                    use std::ops::DerefMut;
+                    if let Some(__node) = __node.upgrade() {
+                        let mut __node = __node.as_ref().borrow_mut();
+                        let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
+
+                        #body
+                        false
+                    } else {
+                        true
+                    }
                 }));
-            },
+            }},
             Scope::Constant => quote! {
                 #body
             },
