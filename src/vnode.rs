@@ -1,7 +1,7 @@
 use std::any::Any;
 use std::ops::{Deref, DerefMut};
 
-use crate::{NativeContainerExt, NativeContainerWidget, NativeWidget, StrongNodeType, VNodeType};
+use crate::{NativeContainerWidget, NativeWidget, StrongNodeType, VNodeType};
 
 /// Smallest node which can be added to other nodes but
 /// it itself may or may not have the ability to hold a child
@@ -34,9 +34,13 @@ pub trait VContainerWidget:
     fn push(&mut self, member: StrongNodeType) {
         // do not add widget of to top level container widget
         match member.as_ref().borrow_mut().deref() {
-            VNodeType::Widget(w) => self.deref_mut().append(w.deref()),
-            VNodeType::ContainerWidget(w) => self.deref_mut().append(w.deref()),
-            VNodeType::TopLevelContainerWidget(_) => {}
+            VNodeType::Widget(w) => {
+                self.append_child(w.deref()).unwrap();
+            }
+            VNodeType::ContainerWidget(w) => {
+                self.append_child(w.deref()).unwrap();
+            }
+            VNodeType::TopLevelContainerWidget(_) => (),
         }
 
         self.get_children_mut().push(member);

@@ -4,19 +4,9 @@ use wasm_bindgen::closure::Closure;
 use wasm_bindgen::convert::FromWasmAbi;
 use wasm_bindgen::JsCast;
 
-use crate::{generate_attr, generate_on_func, NativeContainerExt, NativeWidget};
+use crate::{generate_attr, generate_on_func, NativeWidget};
 
 pub struct WebContainerWrapper(pub web_sys::Element);
-
-impl NativeContainerExt for WebContainerWrapper {
-    fn append(&mut self, widget: &NativeWidget) {
-        self.0.append_child(widget).unwrap();
-    }
-
-    fn move_to_index(&mut self, _widget: &NativeWidget, _index: usize) {
-        todo!()
-    }
-}
 
 impl Default for WebContainerWrapper {
     fn default() -> Self {
