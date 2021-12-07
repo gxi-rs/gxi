@@ -32,6 +32,13 @@ impl Default for Scope {
 const MORE_THAN_ONE_ERR: &str = "can't have more than one observables in a single expression";
 
 impl Scope {
+    pub fn is_const(&self) -> bool {
+        if let Scope::Constant = self {
+            true
+        } else {
+            false
+        }
+    }
     pub fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
         let mut k = Scope::default();
         for x in iter {

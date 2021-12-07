@@ -262,11 +262,11 @@ impl ToTokens for NodeBlock {
                     node_type.get_const_and_observable_props(&return_type);
 
                 quote! {
-                    #subtree
-
                     #const_props
 
-                    let __node = __node.into_strong_node_type();
+                    #subtree
+
+                    // subtree handles conversion of __node to strong node type
 
                     #observable_props
                 }

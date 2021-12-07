@@ -1,4 +1,5 @@
 use proc_macro::TokenStream;
+use syn::__private::TokenStream2;
 
 mod block;
 mod blocks;
@@ -13,5 +14,7 @@ mod optional_parse;
 #[proc_macro]
 pub fn gxi(input: TokenStream) -> TokenStream {
     let block = syn::parse_macro_input!(input as block::Block);
-    block.to_token_stream(Default::default()).into()
+    let mut tokens = TokenStream2::new();
+    block.to_tokens(&mut tokens, 0);
+    tokens.into()
 }
