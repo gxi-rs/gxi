@@ -36,7 +36,7 @@ impl OptionalParse for IfBlock {
                         if !if_arm.scope.is_const() {
                             return Err(syn::Error::new(
                                 if_arm.if_token.span(),
-                                "consider adding const here",
+                                "chaining observables is unsupported. consider adding const here",
                             ));
                         }
                         depth += 1;
