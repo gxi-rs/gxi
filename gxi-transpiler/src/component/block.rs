@@ -1,6 +1,6 @@
 use super::NodeProps;
 use crate::blocks::Blocks;
-use crate::optional_parse::{OptionalParse, impl_parse_for_optional_parse};
+use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 use crate::scope::Scope;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -98,6 +98,9 @@ fn starts_with_lower_case(string: &str) -> bool {
 
 impl NodeType {
     fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
+        if input.is_empty() {
+            return Err(syn::Error::new(input.span(), "expected tokens"));
+        }
         #[allow(clippy::question_mark)]
         let mut path = if let Ok(path) = input.parse::<syn::Path>() {
             path
@@ -241,7 +244,6 @@ impl OptionalParse for NodeBlock {
 }
 
 impl_parse_for_optional_parse!(NodeBlock);
-
 
 /// Optimization Rules:
 /// 1. If a component consists of a serializable sub tree then serialize them to string
