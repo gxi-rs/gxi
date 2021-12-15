@@ -115,7 +115,7 @@ impl Scope {
             | Expr::Break(_)
             | Expr::Return(_)
             | Expr::AssignOp(_)
-            | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this here")),
+            | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this expression here")),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
         }
     }
