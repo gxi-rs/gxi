@@ -13,6 +13,8 @@ pub fn todo() -> StrongNodeType {
                 Text ( value = "hi" )
             } else if const *todos == "hello friend" {
                 Text ( value = "hi brother" )
+            } else {
+                Text ( value = "a" )
             },
             div [
                 Text ( value = "3rd element" )
