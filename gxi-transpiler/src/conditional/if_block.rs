@@ -13,7 +13,7 @@ use self::if_arm::IfArm;
 pub struct IfBlock {
     pub if_arm: IfArm,
     pub scope: Scope,
-    // min 1
+    // number of conditional arms
     pub depth: usize,
 }
 
@@ -25,32 +25,35 @@ impl OptionalParse for IfBlock {
             return Ok(None);
         };
 
-        let mut depth = 0usize;
+        // there is 1 if block
+        let mut depth = 1usize;
 
         {
             let mut if_arm_ = &if_arm;
             loop {
-                depth += 1;
                 match &*if_arm_.else_arm {
                     ElseArm::WithIfArm { if_arm, .. } => {
-                        if depth >= 1 {
-                            if !if_arm.scope.is_const() {
-                                return Err(syn::Error::new(
-                                    if_arm.if_token.span(),
-                                    "consider adding const here",
-                                ));
-                            }
+                        if !if_arm.scope.is_const() {
+                            return Err(syn::Error::new(
+                                if_arm.if_token.span(),
+                                "consider adding const here",
+                            ));
                         }
+                        depth += 1;
                         if_arm_ = &if_arm
                     }
-                    _ => {
+                    ElseArm::PureElseArm { .. } => {
                         depth += 1;
+                        break;
+                    }
+                    _ => {
                         break;
                     }
                 }
             }
         }
 
+        // NOTE: turn scope of first block to const
         let scope = if_arm.scope;
         if_arm.scope = Scope::Constant;
 
@@ -216,9 +219,10 @@ mod else_arm {
                 if let Some(if_arm) = IfArm::optional_parse(&input)? {
                     Ok(Self::WithIfArm { else_token, if_arm })
                 } else {
+                    let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
                     Ok(Self::PureElseArm {
                         else_token,
-                        body: input.parse()?,
+                        body: content.parse()?,
                     })
                 }
             } else {
@@ -325,24 +329,89 @@ fn body_to_tokens(
 mod tests {
     use quote::{quote, ToTokens};
 
-    use crate::scope::Scope;
-
-    use super::IfArm;
+    use crate::{
+        conditional::{
+            if_block::else_arm::{self, ElseArm},
+            IfBlock,
+        },
+        scope::Scope,
+    };
 
     #[test]
     fn conditional_if_block() -> syn::Result<()> {
+        let const_condition_expr = quote! { 3 == 4};
+        let condition_expr = quote! { t == 3 && #const_condition_expr };
         {
-            let condition_expr = quote! {t == 3 && 3 == 4 };
+            let expr = quote! { if #condition_expr { div } else { a } };
 
-            let if_block: IfArm = syn::parse2(quote! { if #condition_expr { div }})?;
+            let IfBlock {
+                depth,
+                if_arm,
+                scope,
+            } = syn::parse2(expr)?;
 
-            assert_eq!(if_block.scope, Scope::Observable(quote! {t}));
+            assert_eq!(scope, Scope::Observable(quote! {t}));
             assert_eq!(
-                if_block.condition.to_token_stream().to_string(),
+                if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
             );
-            assert_eq!(if_block.else_arm.is_some(), false);
-            //            panic!(" asd f{}", if_block.to_token_stream(0).to_string());
+            assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+            assert_eq!(depth, 2);
+        }
+        {
+            let expr = quote! { if #condition_expr { div } else if #const_condition_expr { a } };
+
+            let IfBlock {
+                depth,
+                if_arm,
+                scope,
+            } = syn::parse2(expr)?;
+
+            assert_eq!(scope, Scope::Observable(quote! {t}));
+            assert_eq!(
+                if_arm.condition.to_token_stream().to_string(),
+                condition_expr.to_string()
+            );
+            assert_eq!(depth, 2);
+
+            let else_arm = &*if_arm.else_arm;
+            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
+                assert_eq!(if_arm.scope, Scope::Constant);
+                assert_eq!(
+                    if_arm.condition.to_token_stream().to_string(),
+                    const_condition_expr.to_string()
+                );
+                assert_eq!(if_arm.else_arm.is_some(), false);
+            } else {
+                panic!("expected ElseArm::WithIfArm")
+            }
+        }
+        {
+            let expr = quote! { if #condition_expr { div } else if const #const_condition_expr { a } else { a } };
+
+            let IfBlock {
+                depth,
+                if_arm,
+                scope,
+            } = syn::parse2(expr)?;
+
+            assert_eq!(scope, Scope::Observable(quote! {t}));
+            assert_eq!(
+                if_arm.condition.to_token_stream().to_string(),
+                condition_expr.to_string()
+            );
+            let else_arm = &*if_arm.else_arm;
+            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
+                assert_eq!(if_arm.scope, Scope::Constant);
+                assert_eq!(
+                    if_arm.condition.to_token_stream().to_string(),
+                    const_condition_expr.to_string()
+                );
+                assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+            } else {
+                panic!("expected ElseArm::WithIfArm")
+            }
+            assert_eq!(depth, 3);
         }
         Ok(())
     }
