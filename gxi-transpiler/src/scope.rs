@@ -39,6 +39,8 @@ impl Scope {
             false
         }
     }
+
+    /// find scopes of punctuated expressions
     pub fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
         let mut k = Scope::default();
         for x in iter {
@@ -47,6 +49,7 @@ impl Scope {
                 (Scope::Observable(_), Scope::Observable(_)) => {
                     return Err(syn::Error::new(x.span(), MORE_THAN_ONE_ERR));
                 }
+                (_, Scope::Observable(_)) => {}
                 _ => {
                     k = x_scope;
                 }
@@ -115,7 +118,10 @@ impl Scope {
             | Expr::Break(_)
             | Expr::Return(_)
             | Expr::AssignOp(_)
-            | Expr::Yield(_) => Err(syn::Error::new(expr.span(), "didn't expect this expression here")),
+            | Expr::Yield(_) => Err(syn::Error::new(
+                expr.span(),
+                "didn't expect this expression here",
+            )),
             Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
         }
     }
@@ -154,39 +160,46 @@ impl Scope {
     }
 }
 
+//TODO: add more tests
 #[cfg(test)]
 mod expr_init_location {
 
-    //    use crate::component::Scope;
-    //    use quote::quote;
-    //
-    //    macro_rules! mp_match {
-    //        ($expect:ident, $variant:ident, $($expr:tt)* ) => {
-    //        assert_eq!(
-    //            Scope::$expect,
-    //            Scope::find_prop_scope(
-    //                &syn::Expr::$variant(syn::parse2(quote! {
-    //                    $($expr)*
-    //                })?)
-    //            )?
-    //        );
-    //        };
-    //    }
+    use super::Scope;
+    use quote::quote;
+    use syn::__private::TokenStream2;
+
+    const CONSTANT: bool = true;
+    const OBSERVABLE: bool = false;
+
+    fn match_const_scope(expr: TokenStream2, constant: bool) -> syn::Result<bool> {
+        if let Scope::Constant = Scope::find_expr_scope(&syn::parse2(expr)?)? {
+            Ok(constant)
+        } else {
+            Ok(!constant)
+        }
+    }
 
     #[test]
-    fn array() -> syn::Result<()> {
-        //mp_match!(Constant, Array, [1, 2]);
-        //mp_match!(PartialOpen, Array, [1, |_| println!("hello")]);
-        //mp_match!(Open, Array, [state.a, 3, Hello::hi()]);
+    fn scope_array() -> syn::Result<()> {
+        assert!(match_const_scope(quote! {[1, 2]}, CONSTANT)?);
+        assert!(match_const_scope(
+            quote! {[1, |_| println!("hello")]},
+            CONSTANT
+        )?);
+        assert!(match_const_scope(
+            quote! {[state.a, 3, Hello::hi()]},
+            OBSERVABLE
+        )?);
+
         Ok(())
     }
 
     #[test]
-    fn binary_op() -> syn::Result<()> {
-        //mp_match!(Constant, Binary, 2 == 3);
-        //mp_match!(Constant, Binary, 2 == "str");
-        //mp_match!(Open, Binary, 2 == state.a);
-        //mp_match!(PartialOpen, Binary, 2 == || {});
+    fn scope_binary_op() -> syn::Result<()> {
+        assert!(match_const_scope(quote!(2 == 3), CONSTANT)?);
+        assert!(match_const_scope(quote!(2 == "str"), CONSTANT)?);
+        assert!(match_const_scope(quote!(2 == state.a), OBSERVABLE)?);
+        assert!(match_const_scope(quote!(2 == || {}), CONSTANT)?);
         Ok(())
     }
 }
