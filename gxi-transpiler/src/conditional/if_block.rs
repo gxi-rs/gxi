@@ -70,9 +70,18 @@ impl OptionalParse for IfBlock {
 
 impl IfBlock {
     pub fn to_tokens(&self, tokens: &mut TokenStream2, node_index: usize) {
-        let if_arm_tokens =
+        let mut if_arm_tokens =
             self.if_arm
                 .to_token_stream(node_index, 1, self.depth, self.scope.is_const());
+
+        if !self.scope.is_const() {
+            if_arm_tokens = quote! {
+                use std::ops::{DerefMut, Deref};
+
+                let mut __if_counter = __if_counter.deref().borrow_mut();
+                #if_arm_tokens
+            };
+        }
 
         let mut main_body = self
             .scope
