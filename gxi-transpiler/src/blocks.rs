@@ -1,9 +1,8 @@
-use crate::{
-    block::Block,
-    conditional::ConditionalBlock,
-    scope::{self, Scope},
-};
+use std::ops::{Deref, DerefMut};
+
+use crate::{block::Block, conditional::ConditionalBlock, scope::Scope};
 use quote::{quote, ToTokens, TokenStreamExt};
+
 use syn::__private::TokenStream2;
 
 /// comma separated multiple blocks
@@ -49,21 +48,7 @@ impl ToTokens for Blocks {
             let __node = __node.into_strong_node_type();
         };
 
-        let mut consecutive_if_trees = TokenStream2::new();
-
-        fn flush_tree_buffer(
-            consecutive_if_trees: &mut TokenStream2,
-            token_buffer: &mut TokenStream2,
-        ) {
-            if !consecutive_if_trees.is_empty() {
-                token_buffer.append_all(quote! {
-                    {
-                        #consecutive_if_trees
-                    }
-                });
-                *consecutive_if_trees = TokenStream2::new();
-            }
-        }
+        let mut consecutive_buffer = ConsecutiveBuffers::new();
 
         for block in &self.blocks {
             let mut block_tokens = TokenStream2::new();
@@ -80,23 +65,34 @@ impl ToTokens for Blocks {
                                     tokens.append_all(quote! {#to_strong_node_type_tokens});
                                     node_is_strong = true;
                                 }
-                                consecutive_if_trees.append_all(block_tokens);
+
+                                consecutive_buffer.swap(tokens, ConsecutiveBufferType::IfTrees);
+                                consecutive_buffer.append_all(block_tokens);
                             }
                             _ => {
-                                flush_tree_buffer(&mut consecutive_if_trees, tokens);
-                                tokens.append_all(block_tokens);
+                                if node_is_strong {
+                                    consecutive_buffer
+                                        .swap(tokens, ConsecutiveBufferType::StrongNodes);
+                                }
+                                consecutive_buffer.append_all(block_tokens);
                             }
                         }
                     }
                     _ => todo!(),
                 },
-                Block::Node(_) => tokens.append_all(quote! {
-                    __node.push(
-                        #block_tokens
-                    );
-                }),
-                _ => tokens.append_all(quote! {#block_tokens}),
-            }
+                Block::Node(_) => {
+                    if node_is_strong {
+                        consecutive_buffer.swap(tokens, ConsecutiveBufferType::StrongNodes);
+                    }
+                    consecutive_buffer.append_all(quote! {
+                        __node.push(
+                            #block_tokens
+                        );
+                    });
+                }
+
+                _ => consecutive_buffer.append_all(block_tokens),
+            };
 
             match block {
                 Block::Execution(_) => (),
@@ -104,11 +100,88 @@ impl ToTokens for Blocks {
             }
         }
 
-        flush_tree_buffer(&mut consecutive_if_trees, tokens);
+        consecutive_buffer.flush(tokens);
 
         if !node_is_strong {
             tokens.append_all(to_strong_node_type_tokens);
         }
+    }
+}
+
+struct ConsecutiveBuffers {
+    buffer: TokenStream2,
+    buffer_type: ConsecutiveBufferType,
+}
+
+impl ConsecutiveBuffers {
+    fn new() -> Self {
+        Self {
+            buffer: TokenStream2::new(),
+            buffer_type: ConsecutiveBufferType::None,
+        }
+    }
+
+    fn swap(&mut self, target_buffer: &mut TokenStream2, to: ConsecutiveBufferType) {
+        if self.buffer_type != to {
+            self.flush(target_buffer);
+            self.buffer_type = to;
+        }
+    }
+
+    fn flush(&mut self, target_buffer: &mut TokenStream2) {
+        self.buffer_type.flush(&mut self.buffer, target_buffer);
+    }
+}
+
+#[derive(PartialEq)]
+enum ConsecutiveBufferType {
+    IfTrees,
+    StrongNodes,
+    None,
+}
+
+impl ConsecutiveBufferType {
+    fn flush(&self, consecutive_buffer: &mut TokenStream2, target_buffer: &mut TokenStream2) {
+        if consecutive_buffer.is_empty() {
+            return;
+        }
+
+        let foo = match &self {
+            Self::IfTrees => {
+                quote! {
+                    {
+                        #consecutive_buffer
+                    }
+                }
+            }
+            Self::StrongNodes => {
+                quote! {
+                    {
+                       let mut __node = __node.as_ref().borrow_mut();
+                       let __node =
+                           __node.deref_mut().as_mut().downcast_mut::<Text>().unwrap();
+                    }
+                }
+            }
+            _ => TokenStream2::new(),
+        };
+
+        target_buffer.append_all(foo);
+        *consecutive_buffer = TokenStream2::new();
+    }
+}
+
+impl Deref for ConsecutiveBuffers {
+    type Target = TokenStream2;
+
+    fn deref(&self) -> &Self::Target {
+        &self.buffer
+    }
+}
+
+impl DerefMut for ConsecutiveBuffers {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.buffer
     }
 }
 
