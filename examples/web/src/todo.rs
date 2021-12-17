@@ -10,11 +10,11 @@ pub fn todo() -> StrongNodeType {
                     todos.push_str(&data);
                 }, [ref todos]) ),
                 if *todos == "hello" {
-                    Text ( value = "hi" )
+                    div [ Text ( value = "hi" ) ]
                 } else if const *todos == "hello friend" {
-                    Text ( value = "hi brother" )
+                    div [ Text ( value = "hi brother" ) ]
                 } else {
-                    Text ( value = "a" )
+                    div [ Text ( value = "a" ) ]
                 }
     //            div [
     //                Text ( value = "3rd element" )

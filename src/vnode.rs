@@ -59,7 +59,7 @@ pub trait VContainerWidget:
             if let Some(member) = member {
                 self.push(member)
             }
-        } else if index < len {
+        } else {
             if let Some(member) = member {
                 {
                     let children = self.get_children();
@@ -93,8 +93,6 @@ pub trait VContainerWidget:
                     self.get_children_mut().remove(index);
                 }
             }
-        } else {
-            unreachable!()
         }
     }
 }
