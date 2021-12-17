@@ -1,5 +1,5 @@
 use quote::ToTokens;
-use syn::{parse::Parse, Expr, Token};
+use syn::{Expr, Token};
 
 use crate::{
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},

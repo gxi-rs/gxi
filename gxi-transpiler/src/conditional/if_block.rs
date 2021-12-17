@@ -340,10 +340,7 @@ mod tests {
     use quote::{quote, ToTokens};
 
     use crate::{
-        conditional::{
-            if_block::else_arm::{self, ElseArm},
-            IfBlock,
-        },
+        conditional::{if_block::else_arm::ElseArm, IfBlock},
         scope::Scope,
     };
 
