@@ -61,12 +61,13 @@ impl ToTokens for Blocks {
                         // make __node strong
                         match if_block.scope {
                             Scope::Observable(_) => {
+                                consecutive_buffer.swap(tokens, ConsecutiveBufferType::IfTrees);
+
                                 if !node_is_strong {
                                     tokens.append_all(quote! {#to_strong_node_type_tokens});
                                     node_is_strong = true;
                                 }
 
-                                consecutive_buffer.swap(tokens, ConsecutiveBufferType::IfTrees);
                                 consecutive_buffer.append_all(block_tokens);
                             }
                             _ => {
@@ -163,7 +164,7 @@ impl ConsecutiveBufferType {
                     }
                 }
             }
-            _ => TokenStream2::new(),
+            _ => quote! { #consecutive_buffer },
         };
 
         target_buffer.append_all(foo);
