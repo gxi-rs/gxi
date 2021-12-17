@@ -75,15 +75,14 @@ impl IfBlock {
                 .to_token_stream(node_index, 1, self.depth, self.scope.is_const());
 
         let mut main_body = self
-            .if_arm
             .scope
             .to_token_stream(&if_arm_tokens, &quote! {gxi::Element});
 
-        if let Scope::Observable(_) = self.if_arm.scope {
-            main_body = quote! {{
+        if let Scope::Observable(_) = self.scope {
+            main_body = quote! {
                 let __if_counter = State::new(0usize);
                 #main_body
-            }}
+            }
         }
 
         tokens.append_all(main_body);
