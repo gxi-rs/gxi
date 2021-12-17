@@ -1,4 +1,8 @@
-use crate::{block::Block, conditional::ConditionalBlock, scope::Scope};
+use crate::{
+    block::Block,
+    conditional::ConditionalBlock,
+    scope::{self, Scope},
+};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 
@@ -45,57 +49,53 @@ impl ToTokens for Blocks {
             let __node = __node.into_strong_node_type();
         };
 
-        let mut if_token_tree = TokenStream2::new();
+        let mut consecutive_if_trees = TokenStream2::new();
 
-        let mut strong_children = TokenStream2::new();
+        fn flush_tree_buffer(
+            consecutive_if_trees: &mut TokenStream2,
+            token_buffer: &mut TokenStream2,
+        ) {
+            if !consecutive_if_trees.is_empty() {
+                token_buffer.append_all(quote! {
+                    {
+                        #consecutive_if_trees
+                    }
+                });
+                *consecutive_if_trees = TokenStream2::new();
+            }
+        }
 
         for block in &self.blocks {
-            match block {
-                Block::Conditional(conditional_block) => {
-                    if let ConditionalBlock::If(if_block) = conditional_block {
-                        if let Scope::Observable(_) = if_block.scope {
-                            // append once
-                            if !node_is_strong {
-                                tokens.append_all(quote! {#to_strong_node_type_tokens});
-                                node_is_strong = true;
-                            }
-                        }
-                    }
-                }
-                _ => {
-                    if !if_token_tree.is_empty() {
-                        tokens.append_all(quote! {
-                            {
-                                #if_token_tree
-                            }
-                        });
-                        if_token_tree = TokenStream2::new();
-                    }
-                }
-            }
-
             let mut block_tokens = TokenStream2::new();
             block.to_tokens(&mut block_tokens, node_index);
 
+            // select and prepare buffer
             match block {
+                Block::Conditional(conditional_block) => match conditional_block {
+                    ConditionalBlock::If(if_block) => {
+                        // make __node strong
+                        match if_block.scope {
+                            Scope::Observable(_) => {
+                                if !node_is_strong {
+                                    tokens.append_all(quote! {#to_strong_node_type_tokens});
+                                    node_is_strong = true;
+                                }
+                                consecutive_if_trees.append_all(block_tokens);
+                            }
+                            _ => {
+                                flush_tree_buffer(&mut consecutive_if_trees, tokens);
+                                tokens.append_all(block_tokens);
+                            }
+                        }
+                    }
+                    _ => todo!(),
+                },
                 Block::Node(_) => tokens.append_all(quote! {
                     __node.push(
                         #block_tokens
                     );
                 }),
-                Block::Execution(_) => tokens.append_all(block_tokens),
-                // conditional
-                Block::Conditional(conditional_block) => match conditional_block {
-                    ConditionalBlock::If(if_block) => {
-                        if let Scope::Observable(_) = if_block.scope {
-                            if_token_tree.append_all(block_tokens)
-                        } else {
-                            tokens.append_all(block_tokens)
-                        }
-                    }
-                    ConditionalBlock::Match(_) => todo!(),
-                },
-                Block::Iter => todo!(),
+                _ => tokens.append_all(quote! {#block_tokens}),
             }
 
             match block {
@@ -104,6 +104,8 @@ impl ToTokens for Blocks {
             }
         }
 
+        flush_tree_buffer(&mut consecutive_if_trees, tokens);
+
         if !node_is_strong {
             tokens.append_all(to_strong_node_type_tokens);
         }
@@ -111,60 +113,110 @@ impl ToTokens for Blocks {
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::{blocks::Blocks, gxi};
+mod punctuated_blocks_to_tokens {
+    use crate::{blocks::Blocks, component::NodeBlock};
     use quote::{quote, ToTokens};
     use syn::__private::TokenStream2;
 
     #[test]
-    fn multi_if_block() -> syn::Result<()> {
-        let blocks: Blocks = syn::parse2(
-            quote! {
-                div,
-                if state {
+    fn chained_multi_if_blocks_without_trailing_else() -> syn::Result<()> {
+        let div_tokens: NodeBlock = syn::parse2(quote! {gxi})?;
+        let div_tokens = div_tokens.to_token_stream();
+
+        {
+            let blocks: Blocks = syn::parse2(quote! {
+                if state == 2 {
                     div
-                } else if const state2 {
+                } else if const state2 == 3 {
                     div
                 },
-                if state2 {
-                    div
-                },
-                if const k == 2 {
-                    div
-                },
-                if state3 {
-                    div
-                }
-            }
-            .into(),
-        )?;
+            })?;
 
-        let mut buff = TokenStream2::new();
-        blocks.to_tokens(&mut buff);
+            let mut blocks_buff = TokenStream2::new();
+            blocks.to_tokens(&mut blocks_buff);
 
-        let div_tokens: TokenStream2 = gxi(quote! {div}.into()).into();
-
-        assert_eq!(
-            buff.to_string(),
-            quote! {
-                let mut __node = gxi::Element::from_str("div");
-                __node.push(#div_tokens);
-                let __node = __node.to_strong_node_type();
-                {
+            assert_eq!(
+                blocks_buff.to_string(),
+                quote! {
+                    let __node = __node.to_strong_node_type();
                     {
+                        let __node = std::rc::Rc::downgrade(&__node);
                         let __if_counter = State::new();
-                        state.add_observer(Box::new(move |todos| {
+                        state.add_observer(Box::new(move |state| {
                             use std::ops::DerefMut;
-                            let Some(__node) = __node.upgrade() {
+                            if let Some(__node) = __node.upgrade() {
 
+                                let mut __node = __node.as_ref().borrow_mut();
+                                let mut __node = __node
+                                    .deref_mut()
+                                    .as_mut()
+                                    .downcast_mut::<gxi::Element>()
+                                    .unwrap();
+
+
+
+                                false
+                            } else {
+                                true
                             }
                         }));
                     }
+                    __node
                 }
-                __node
-            }
-            .to_string()
-        );
+                .to_string()
+            );
+        }
+        {
+            let blocks: Blocks = syn::parse2(quote! {
+                div,
+                if state == 2 {
+                    div
+                } else if const state2 == 3 {
+                    div
+                },
+                if state2 == 3 {
+                    div
+                } else {
+                    div
+                },
+                div
+            })?;
+
+            let mut blocks_buff = TokenStream2::new();
+            blocks.to_tokens(&mut blocks_buff);
+
+            assert_eq!(
+                blocks_buff.to_string(),
+                quote! {
+                    __node.push(#div_tokens);
+                    let __node = __node.to_strong_node_type();
+                    {
+                        let __node = std::rc::Rc::downgrade(&__node);
+                        let __if_counter = State::new();
+                        state.add_observer(Box::new(move |state| {
+                            use std::ops::DerefMut;
+                            if let Some(__node) = __node.upgrade() {
+
+                                let mut __node = __node.as_ref().borrow_mut();
+                                let mut __node = __node
+                                    .deref_mut()
+                                    .as_mut()
+                                    .downcast_mut::<gxi::Element>()
+                                    .unwrap();
+
+
+
+                                false
+                            } else {
+                                true
+                            }
+                        }));
+                    }
+                    __node
+                }
+                .to_string()
+            );
+        }
 
         Ok(())
     }
