@@ -19,9 +19,7 @@ macro_rules! impl_parse_for_optional_parse {
                 crate::optional_parse::unwrap_optional_parse(&input)
             }
         }
-
     };
 }
 
 pub(crate) use impl_parse_for_optional_parse;
-
