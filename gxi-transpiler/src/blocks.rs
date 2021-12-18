@@ -171,10 +171,12 @@ impl ConsecutiveBufferType {
             Self::StrongNodes => {
                 quote! {
                     {
+                        use std::ops::DerefMut;
                        let mut __node = __node.as_ref().borrow_mut();
                        let __node =
                            __node.deref_mut().as_mut().downcast_mut::<#parent_return_type>().unwrap();
 
+                       #consecutive_buffer
                     }
                 }
             }

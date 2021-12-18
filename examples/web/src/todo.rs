@@ -4,23 +4,23 @@ pub fn todo() -> StrongNodeType {
     let todos = State::new(String::new());
 
     return gxi! {
+        div [
+            input ( on_input = set_state!(|e| {
+                let data = e.data().unwrap_or(String::new());
+                todos.push_str(&data);
+            }, [ref todos]) ),
+            if *todos == "hello" {
+                div [ Text ( value = "hi" ) ]
+            } else if const *todos == "hello friend" {
+                div [ Text ( value = "hi brother" ) ]
+            } else {
+                div [ Text ( value = "a" ) ]
+            },
             div [
-                input ( on_input = set_state!(|e| {
-                    let data = e.data().unwrap_or(String::new());
-                    todos.push_str(&data);
-                }, [ref todos]) ),
-                if *todos == "hello" {
-                    div [ Text ( value = "hi" ) ]
-                } else if const *todos == "hello friend" {
-                    div [ Text ( value = "hi brother" ) ]
-                } else {
-                    div [ Text ( value = "a" ) ]
-                }
-    //            div [
-    //                Text ( value = "3rd element" )
-    //            ]
+                Text ( value = "3rd element" )
             ]
-        };
+        ]
+    };
 }
 //return {
 //    use gxi::{VContainerWidget, VNode};
