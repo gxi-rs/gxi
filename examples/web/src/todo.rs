@@ -9,16 +9,21 @@ pub fn todo() -> StrongNodeType {
                 let data = e.data().unwrap_or(String::new());
                 todos.push_str(&data);
             }, [ref todos]) ),
-            if *todos == "hello" {
+            if *todos == "a" {
                 div [ Text ( value = "hi" ) ]
-            } else if const *todos == "hello friend" {
+            } else if const *todos == "ab" {
                 div [ Text ( value = "hi brother" ) ]
+            } else if const *todos == "abcd"{
+                Text ( value = "z" )  
             } else {
-                div [ Text ( value = "a" ) ]
+                div [ Text ( value = "none" ) ]
             },
             div [
                 Text ( value = "3rd element" )
-            ]
+            ],
+            if *todos == "abc" {
+                Text ( value = "abcd" )
+            }
         ]
     };
 }
