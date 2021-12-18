@@ -65,8 +65,12 @@ impl Scope {
             }
             Expr::Binary(syn::ExprBinary { left, right, .. }) => {
                 match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
-                    (Scope::Observable(_), Scope::Observable(_)) => {
-                        Err(syn::Error::new(right.span(), MORE_THAN_ONE_ERR))
+                    (Scope::Observable(first), Scope::Observable(second)) => {
+                        if first.to_string() == second.to_string() {
+                            Ok(Scope::Observable(first))
+                        } else {
+                            Err(syn::Error::new(right.span(), MORE_THAN_ONE_ERR))
+                        }
                     }
                     (Scope::Observable(name), Scope::Constant) => Ok(Scope::Observable(name)),
                     (Scope::Constant, Scope::Observable(name)) => Ok(Scope::Observable(name)),
