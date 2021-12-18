@@ -101,12 +101,14 @@ impl IfBlock {
 impl_parse_for_optional_parse!(IfBlock);
 
 mod if_arm {
-    use crate::conditional::if_block::{body_to_tokens, else_arm::ElseArm};
+    use crate::{
+        component::NodeBlock,
+        conditional::if_block::{body_to_tokens, else_arm::ElseArm},
+    };
     use quote::quote;
     use syn::__private::TokenStream2;
 
     use crate::{
-        component::NodeBlock,
         optional_parse::{impl_parse_for_optional_parse, OptionalParse},
         scope::Scope,
     };
@@ -144,7 +146,7 @@ mod if_arm {
             let body = {
                 let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
 
-                content.parse::<NodeBlock>()?
+                content.parse()?
             };
 
             // else arm

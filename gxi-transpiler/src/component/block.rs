@@ -263,12 +263,13 @@ impl ToTokens for NodeBlock {
                 let (const_props, observable_props) =
                     node_type.get_const_and_observable_props(&return_type);
 
+                let mut subtree_tokens = TokenStream2::new();
+                subtree.to_tokens(&mut subtree_tokens, &return_type);
+
                 quote! {
                     #const_props
 
-                    #subtree
-
-                    // subtree handles conversion of __node to strong node type
+                    #subtree_tokens
 
                     #observable_props
                 }
