@@ -204,16 +204,22 @@ impl<'a> DerefMut for ConsecutiveBuffers<'a> {
 
 #[cfg(test)]
 mod punctuated_blocks_to_tokens {
-    use crate::{blocks::Blocks, component::NodeBlock, conditional::IfBlock};
+    use crate::{blocks::Blocks, conditional::IfBlock};
     use quote::{quote, ToTokens};
     use syn::__private::TokenStream2;
 
     #[test]
     fn chained_multi_if_blocks_without_trailing_else() -> syn::Result<()> {
-        let div_tokens: NodeBlock = syn::parse2(quote! {div})?;
-        let div_tokens = div_tokens.to_token_stream();
-
         let return_type = quote! {gxi::Element};
+
+        let div_tokens = quote! {
+            __node.push({
+               use gxi::{VNode, VContainerWidget};
+               let mut __node = gxi::Element::from_str("div");
+               let __node = __node.into_strong_node_type();
+               __node
+           });
+        };
 
         {
             let if_block = quote! {
@@ -285,8 +291,8 @@ mod punctuated_blocks_to_tokens {
 
                 let mut tokens = TokenStream2::new();
 
-                first_if_block.to_tokens(&mut tokens, 0);
-                second_if_block.to_tokens(&mut tokens, 1);
+                first_if_block.to_tokens(&mut tokens, 1);
+                second_if_block.to_tokens(&mut tokens, 2);
 
                 quote! {
                     #div_tokens
@@ -295,14 +301,17 @@ mod punctuated_blocks_to_tokens {
                         #tokens
                     }
                     {
-
-                    }
-                    {
-
+                        use std::ops::DerefMut;
+                        let mut __node = __node.as_ref().borrow_mut();
+                        let __node =
+                            __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
+                        #div_tokens
                     }
                 }
             };
 
+            println!("{}", blocks.to_string());
+            println!("{}", expected.to_string());
             assert_eq!(blocks.to_string(), expected.to_string());
         }
 
