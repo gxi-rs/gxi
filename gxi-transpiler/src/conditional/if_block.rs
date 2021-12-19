@@ -313,6 +313,7 @@ fn body_to_tokens(
             __node.push(#body);
         }
     } else {
+        // no trailing else arm
         let body = if body.is_empty() {
             quote! {
                 None
@@ -323,17 +324,15 @@ fn body_to_tokens(
             }
         };
         quote! {
-                    if *__if_counter != #branch_index {
-                        __node.set_at_index(
-                            #body,
-                            #node_index,
-        //WARN:                    *__if_counter == 0 || *__if_counter == #depth  MIGHT NOT WORK IN SOME
-        // EDGE CASES
-                            *__if_counter == 0
-                        );
-                        *__if_counter = #branch_index;
-                    }
-                }
+            if *__if_counter != #branch_index {
+                __node.set_at_index(
+                    #body,
+                    #node_index,
+                    *__if_counter == 0 || *__if_counter == (#depth + 1)
+                );
+                *__if_counter = #branch_index;
+            }
+        }
     }
 }
 

@@ -3,12 +3,15 @@ use gxi::{gxi, set_state, State, StrongNodeType, Text};
 pub fn todo() -> StrongNodeType {
     let todos = State::new(String::new());
 
+    let state2 = State::new(String::new());
+
     return gxi! {
         div [
             input ( on_input = set_state!(|e| {
                 let data = e.data().unwrap_or(String::new());
                 todos.push_str(&data);
-            }, [ref todos]) ),
+                state2.push_str(&data);
+            }, [ref todos,ref state2]) ),
             if *todos == "a" {
                 div [ Text ( value = "hi" ) ]
             } else if const *todos == "ab" {
@@ -16,14 +19,27 @@ pub fn todo() -> StrongNodeType {
             } else if const *todos == "abcd"{
                 Text ( value = "z" )  
             } else {
-                div [ Text ( value = "none" ) ]
+                div [
+                    Text ( value = "none" ),
+                    if *state2 == "abcde" || *state2 == "abcdefg" {
+                        div [
+                            Text ( value = "zzzzzzzzzz" )
+                        ]
+                    }
+                ]
             },
             div [
                 Text ( value = "3rd element" )
             ],
             if *todos == "abc" {
                 Text ( value = "abcd" )
-            }
+            },
+            div [
+                Text ( value = "4th element" )
+            ],
+            div [
+                Text ( value = "5th element" )
+            ],
         ]
     };
 }
