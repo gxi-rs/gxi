@@ -13,8 +13,6 @@ use self::if_arm::IfArm;
 pub struct IfBlock {
     pub if_arm: IfArm,
     pub scope: Scope,
-    // number of conditional arms
-    pub depth: usize,
 }
 
 impl OptionalParse for IfBlock {
@@ -24,9 +22,6 @@ impl OptionalParse for IfBlock {
         } else {
             return Ok(None);
         };
-
-        // there is 1 if block
-        let mut depth = 1usize;
 
         {
             let mut if_arm_ = &if_arm;
@@ -39,12 +34,7 @@ impl OptionalParse for IfBlock {
                                 "chaining observables is unsupported. consider adding const here",
                             ));
                         }
-                        depth += 1;
                         if_arm_ = &if_arm
-                    }
-                    ElseArm::PureElseArm { .. } => {
-                        depth += 1;
-                        break;
                     }
                     _ => {
                         break;
@@ -57,11 +47,7 @@ impl OptionalParse for IfBlock {
         let scope = if_arm.scope;
         if_arm.scope = Scope::Constant;
 
-        Ok(Some(Self {
-            if_arm,
-            depth,
-            scope,
-        }))
+        Ok(Some(Self { if_arm, scope }))
     }
 }
 // __index_offset = index of first if statement
@@ -75,9 +61,9 @@ impl IfBlock {
         node_index: usize,
         parent_return_type: &TokenStream2,
     ) {
-        let mut if_arm_tokens =
-            self.if_arm
-                .to_token_stream(node_index, 1, self.depth, self.scope.is_const());
+        let mut if_arm_tokens = self
+            .if_arm
+            .to_token_stream(node_index, 1, self.scope.is_const());
 
         if !self.scope.is_const() {
             if_arm_tokens = quote! {
@@ -87,7 +73,9 @@ impl IfBlock {
             };
         }
 
-        let mut main_body = self.scope.to_token_stream(&if_arm_tokens, parent_return_type);
+        let mut main_body = self
+            .scope
+            .to_token_stream(&if_arm_tokens, parent_return_type);
 
         if let Scope::Observable(_) = self.scope {
             main_body = quote! {
@@ -171,7 +159,6 @@ mod if_arm {
             &self,
             node_index: usize,
             branch_index: usize,
-            depth: usize,
             constant_scope: bool,
         ) -> TokenStream2 {
             let Self {
@@ -182,16 +169,9 @@ mod if_arm {
                 ..
             } = self;
 
-            let body = body_to_tokens(
-                &quote! {#body},
-                branch_index,
-                node_index,
-                depth,
-                constant_scope,
-            );
+            let body = body_to_tokens(&quote! {#body}, branch_index, node_index, constant_scope);
 
-            let else_arm =
-                else_arm.to_token_stream(node_index, branch_index + 1, depth, constant_scope);
+            let else_arm = else_arm.to_token_stream(node_index, branch_index + 1, constant_scope);
 
             quote! {
                 #if_token #condition {
@@ -248,26 +228,20 @@ mod else_arm {
             &self,
             node_index: usize,
             branch_index: usize,
-            depth: usize,
             constant_scope: bool,
         ) -> TokenStream2 {
             match self {
                 ElseArm::WithIfArm { else_token, if_arm } => {
                     let if_tokens =
-                        if_arm.to_token_stream(node_index, branch_index, depth, constant_scope);
+                        if_arm.to_token_stream(node_index, branch_index, constant_scope);
                     quote! { #else_token #if_tokens }
                 }
                 ElseArm::PureElseArm {
                     else_token,
                     body: block,
                 } => {
-                    let body = body_to_tokens(
-                        &quote! {#block},
-                        branch_index,
-                        node_index,
-                        depth,
-                        constant_scope,
-                    );
+                    let body =
+                        body_to_tokens(&quote! {#block}, branch_index, node_index, constant_scope);
                     quote! {
                         #else_token #body
                     }
@@ -280,7 +254,6 @@ mod else_arm {
                             &TokenStream2::new(),
                             branch_index,
                             node_index,
-                            depth,
                             constant_scope,
                         );
                         quote! {
@@ -307,7 +280,6 @@ fn body_to_tokens(
     body: &TokenStream2,
     branch_index: usize,
     node_index: usize,
-    depth: usize,
     constant_scope: bool,
 ) -> TokenStream2 {
     if constant_scope {
@@ -353,11 +325,7 @@ mod tests {
         {
             let expr = quote! { if #condition_expr { div } else { a } };
 
-            let IfBlock {
-                depth,
-                if_arm,
-                scope,
-            } = syn::parse2(expr)?;
+            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
             assert_eq!(scope, Scope::Observable(quote! {t}));
             assert_eq!(
@@ -365,23 +333,17 @@ mod tests {
                 condition_expr.to_string()
             );
             assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
-            assert_eq!(depth, 2);
         }
         {
             let expr = quote! { if #condition_expr { div } else if #const_condition_expr { a } };
 
-            let IfBlock {
-                depth,
-                if_arm,
-                scope,
-            } = syn::parse2(expr)?;
+            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
             assert_eq!(scope, Scope::Observable(quote! {t}));
             assert_eq!(
                 if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
             );
-            assert_eq!(depth, 2);
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
@@ -398,11 +360,7 @@ mod tests {
         {
             let expr = quote! { if #condition_expr { div } else if const #const_condition_expr { a } else { a } };
 
-            let IfBlock {
-                depth,
-                if_arm,
-                scope,
-            } = syn::parse2(expr)?;
+            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
             assert_eq!(scope, Scope::Observable(quote! {t}));
             assert_eq!(
@@ -420,7 +378,6 @@ mod tests {
             } else {
                 panic!("expected ElseArm::WithIfArm")
             }
-            assert_eq!(depth, 3);
         }
         Ok(())
     }
