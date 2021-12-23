@@ -83,7 +83,6 @@ impl IfBlock {
             if_arm_tokens = quote! {
                 use std::ops::{DerefMut, Deref};
 
-                let mut __if_counter = __if_counter.deref().borrow_mut();
                 #if_arm_tokens
             };
         }
@@ -92,7 +91,7 @@ impl IfBlock {
 
         if let Scope::Observable(_) = self.scope {
             main_body = quote! {
-                let __if_counter = State::new(0usize);
+                let mut __if_counter = 0usize;
                 #main_body
             }
         }
@@ -327,12 +326,12 @@ fn body_to_tokens(
             }
         };
         quote! {
-            if *__if_counter != #branch_index {
+            if __if_counter != #branch_index {
                 __node.set_at_index(
                     #body,
                     #node_index
                 );
-                *__if_counter = #branch_index;
+                __if_counter = #branch_index;
             }
         }
     }
