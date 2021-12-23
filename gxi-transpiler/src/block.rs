@@ -30,7 +30,12 @@ impl Parse for Block {
 }
 
 impl Block {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_index: usize, parent_return_type: &TokenStream2) {
+    pub fn to_tokens(
+        &self,
+        tokens: &mut TokenStream2,
+        node_index: usize,
+        parent_return_type: &TokenStream2,
+    ) {
         match self {
             Block::Node(comp) => comp.to_tokens(tokens),
             Block::Execution(ex) => ex.to_tokens(tokens),
