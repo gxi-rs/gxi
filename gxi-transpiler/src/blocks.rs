@@ -92,7 +92,7 @@ impl Blocks {
                     }
                     consecutive_buffer.append_all(quote! {
                         __node.push(
-                            #block_tokens
+                           Some(#block_tokens)
                         );
                     });
                 }
