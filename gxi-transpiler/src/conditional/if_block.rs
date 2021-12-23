@@ -265,14 +265,6 @@ mod else_arm {
                 }
             }
         }
-
-        pub fn is_some(&self) -> bool {
-            if let Self::None = self {
-                false
-            } else {
-                true
-            }
-        }
     }
 }
 
@@ -352,7 +344,7 @@ mod tests {
                     if_arm.condition.to_token_stream().to_string(),
                     const_condition_expr.to_string()
                 );
-                assert_eq!(if_arm.else_arm.is_some(), false);
+                assert!(matches!(*if_arm.else_arm, ElseArm::None));
             } else {
                 panic!("expected ElseArm::WithIfArm")
             }

@@ -1,5 +1,3 @@
-use std::ops::{Deref, DerefMut};
-
 use crate::{block::Block, conditional::ConditionalBlock, scope::Scope};
 use quote::{quote, TokenStreamExt};
 
