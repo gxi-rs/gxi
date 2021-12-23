@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::borrow::Borrow;
 use std::ops::{Deref, DerefMut};
 
 use crate::{NativeContainerWidget, NativeWidget, StrongNodeType, VNodeType};
@@ -52,21 +53,32 @@ pub trait VContainerWidget:
         match (&self.get_children()[index], new_member) {
             (Some(old_member), Some(new_member)) => {
                 self.replace_child(
-                    old_member.as_ref().borrow().get_native_widget(),
                     new_member.as_ref().borrow().get_native_widget(),
+                    old_member.as_ref().borrow().get_native_widget(),
                 )
                 .unwrap();
                 self.get_children_mut()[index] = Some(new_member);
             }
-            (None, Some(_member)) => {
-                todo!()
-                // find nearst member
-                //self.deref()
-                //    .insert_before(
-                //        member_borrow.get_native_widget(),
-                //        Some(old_member.get_native_widget()),
-                //    )
-                //    .unwrap();
+            (None, Some(new_member)) => {
+                self.get_children_mut()[index] = Some(new_member.clone());
+                let new_member_widget = new_member.as_ref().borrow();
+                let new_member_widget = new_member_widget.deref().get_native_widget();
+
+                let children = self.get_children();
+
+                for i in (index + 1)..children.len() {
+                    if let Some(next_member) = &children[i] {
+                        self.deref()
+                            .insert_before(
+                                new_member_widget,
+                                Some(next_member.as_ref().borrow().get_native_widget()),
+                            )
+                            .unwrap();
+                        return;
+                    }
+                }
+
+                self.append_child(new_member_widget).unwrap();
             }
             (Some(old_member), None) => {
                 self.remove_child(old_member.as_ref().borrow().get_native_widget())
