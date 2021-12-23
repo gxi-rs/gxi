@@ -69,7 +69,12 @@ impl OptionalParse for IfBlock {
 // __index_offset+=1;
 
 impl IfBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_index: usize) {
+    pub fn to_tokens(
+        &self,
+        tokens: &mut TokenStream2,
+        node_index: usize,
+        parent_return_type: &TokenStream2,
+    ) {
         let mut if_arm_tokens =
             self.if_arm
                 .to_token_stream(node_index, 1, self.depth, self.scope.is_const());
@@ -83,9 +88,7 @@ impl IfBlock {
             };
         }
 
-        let mut main_body = self
-            .scope
-            .to_token_stream(&if_arm_tokens, &quote! {gxi::Element});
+        let mut main_body = self.scope.to_token_stream(&if_arm_tokens, parent_return_type);
 
         if let Scope::Observable(_) = self.scope {
             main_body = quote! {
@@ -310,7 +313,7 @@ fn body_to_tokens(
 ) -> TokenStream2 {
     if constant_scope {
         quote! {
-            __node.push(#body);
+            __node.push(Some(#body));
         }
     } else {
         // no trailing else arm
@@ -327,8 +330,7 @@ fn body_to_tokens(
             if *__if_counter != #branch_index {
                 __node.set_at_index(
                     #body,
-                    #node_index,
-                    *__if_counter == 0 || *__if_counter == (#depth + 1)
+                    #node_index
                 );
                 *__if_counter = #branch_index;
             }

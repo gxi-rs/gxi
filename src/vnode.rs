@@ -1,5 +1,4 @@
 use std::any::Any;
-use std::borrow::Borrow;
 use std::ops::{Deref, DerefMut};
 
 use crate::{NativeContainerWidget, NativeWidget, StrongNodeType, VNodeType};
@@ -50,17 +49,18 @@ pub trait VContainerWidget:
     }
 
     fn set_at_index(&mut self, new_member: Option<StrongNodeType>, index: usize) {
-        match (&self.get_children()[index], new_member) {
+        let old_member = self.get_children()[index].clone();
+        self.get_children_mut()[index] = new_member.clone();
+
+        match (old_member, new_member) {
             (Some(old_member), Some(new_member)) => {
                 self.replace_child(
                     new_member.as_ref().borrow().get_native_widget(),
                     old_member.as_ref().borrow().get_native_widget(),
                 )
                 .unwrap();
-                self.get_children_mut()[index] = Some(new_member);
             }
             (None, Some(new_member)) => {
-                self.get_children_mut()[index] = Some(new_member.clone());
                 let new_member_widget = new_member.as_ref().borrow();
                 let new_member_widget = new_member_widget.deref().get_native_widget();
 
@@ -83,7 +83,6 @@ pub trait VContainerWidget:
             (Some(old_member), None) => {
                 self.remove_child(old_member.as_ref().borrow().get_native_widget())
                     .unwrap();
-                self.get_children_mut()[index] = Some(old_member.clone());
             }
             (None, None) => {}
         }
