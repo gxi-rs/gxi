@@ -21,4 +21,4 @@ match <keyword> expr {
 **optional `<keyword>`**
 
 - `const`
-   marks expression as constant i.e not observable.
+  marks expression as constant i.e not observable.
