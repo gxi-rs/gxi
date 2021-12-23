@@ -15,8 +15,9 @@ macro_rules! generate_on_func {
 macro_rules! generate_attr {
     ($name:ident) => {
         #[allow(non_snake_case)]
-        pub fn $name(&self, value: &str) {
-            self.set_attribute(stringify!($name), value).unwrap();
+        pub fn $name<T: AsRef<str>>(&self, value: T) {
+            self.set_attribute(stringify!($name), value.as_ref())
+                .unwrap();
         }
     };
 }

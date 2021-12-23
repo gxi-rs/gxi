@@ -36,7 +36,7 @@ fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
     return gxi! {
         div [
             h1 [
-                Text ( value = &counter.to_string()[..] )
+                Text ( value = counter.to_string() )
             ],
             div [
                 button ( on_click = set_state!(*counter += 1, [ref counter])) [

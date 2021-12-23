@@ -1,5 +1,7 @@
-use super::{NodeProps, Scope};
+use super::NodeProps;
 use crate::blocks::Blocks;
+use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
+use crate::scope::Scope;
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::Token;
@@ -96,6 +98,9 @@ fn starts_with_lower_case(string: &str) -> bool {
 
 impl NodeType {
     fn parse(input: ParseStream) -> syn::Result<Option<Self>> {
+        if input.is_empty() {
+            return Err(syn::Error::new(input.span(), "expected tokens"));
+        }
         #[allow(clippy::question_mark)]
         let mut path = if let Ok(path) = input.parse::<syn::Path>() {
             path
@@ -215,8 +220,8 @@ pub struct NodeBlock {
     pub subtree: Blocks,
 }
 
-impl NodeBlock {
-    pub fn parse(input: &ParseStream) -> syn::Result<Option<Self>> {
+impl OptionalParse for NodeBlock {
+    fn optional_parse(input: &ParseStream) -> syn::Result<Option<Self>> {
         let node_type = if let Some(node_type) = NodeType::parse(input)? {
             node_type
         } else {
@@ -238,6 +243,8 @@ impl NodeBlock {
     }
 }
 
+impl_parse_for_optional_parse!(NodeBlock);
+
 /// Optimization Rules:
 /// 1. If a component consists of a serializable sub tree then serialize them to string
 ///
@@ -256,12 +263,13 @@ impl ToTokens for NodeBlock {
                 let (const_props, observable_props) =
                     node_type.get_const_and_observable_props(&return_type);
 
-                quote! {
-                    #subtree
+                let mut subtree_tokens = TokenStream2::new();
+                subtree.to_tokens(&mut subtree_tokens, &return_type);
 
+                quote! {
                     #const_props
 
-                    let __node = __node.into_strong_node_type();
+                    #subtree_tokens
 
                     #observable_props
                 }

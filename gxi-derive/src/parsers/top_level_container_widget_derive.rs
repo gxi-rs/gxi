@@ -17,10 +17,10 @@ pub fn parse_top_level_container_widget_derive(input: TokenStream) -> TokenStrea
 
     quote! {
         impl gxi::VContainerWidget for #name {
-            fn get_children(&self) -> &Vec<gxi::StrongNodeType> {
+            fn get_children(&self) -> &Vec<Option<gxi::StrongNodeType>> {
                 &self.children
             }
-            fn get_children_mut(&mut self) -> &mut Vec<gxi::StrongNodeType> {
+            fn get_children_mut(&mut self) -> &mut Vec<Option<gxi::StrongNodeType>> {
                 &mut self.children
             }
         }

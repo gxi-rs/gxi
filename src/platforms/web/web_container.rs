@@ -2,7 +2,7 @@ use crate::{self as gxi, StrongNodeType, WebContainerWrapper};
 
 #[derive(Default, crate::ContainerWidget)]
 pub struct WebContainer {
-    children: Vec<StrongNodeType>,
+    children: Vec<Option<StrongNodeType>>,
     native_widget: WebContainerWrapper,
 }
 

@@ -1,16 +1,13 @@
 [package]
 name = "gxi-transpiler"
-version = "0.4.0"
+version = "0.6.0"
 edition = "2018"
 license = "MIT"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 description = "transpiles component tree to gxi component system"
 repository = "https://github.com/gxi-rs/gxi.git"
 homepage = "https://gxi-rs.com/"
-keywords = [
-    "gxi-rs",
-    "gxi-macro"
-]
+keywords = ["gxi-rs", "gxi-macro"]
 
 [lib]
 proc-macro = true

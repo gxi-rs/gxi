@@ -4,7 +4,7 @@ use std::{
     rc::{Rc, Weak},
 };
 
-use crate::{VContainerWidget, VNode, VWidget};
+use crate::{NativeWidget, VContainerWidget, VNode, VWidget};
 
 pub type StrongNodeType = Rc<RefCell<VNodeType>>;
 pub type WeakNodeType = Weak<RefCell<VNodeType>>;
@@ -36,6 +36,16 @@ impl DerefMut for VNodeType {
             VNodeType::Widget(node) => node.deref_mut().as_mut(),
             VNodeType::ContainerWidget(node) => node.deref_mut().as_mut(),
             VNodeType::TopLevelContainerWidget(node) => node.deref_mut().as_mut(),
+        }
+    }
+}
+
+impl VNodeType {
+    pub fn get_native_widget(&self) -> &NativeWidget {
+        match self {
+            VNodeType::Widget(w) => w.deref(),
+            VNodeType::ContainerWidget(w) => w.deref(),
+            VNodeType::TopLevelContainerWidget(w) => w.deref(),
         }
     }
 }
