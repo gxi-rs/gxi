@@ -104,7 +104,7 @@ impl Blocks {
 #[cfg(test)]
 mod punctuated_blocks_to_tokens {
     use crate::{blocks::Blocks, conditional::IfBlock};
-    use quote::{quote, ToTokens};
+    use quote::quote;
     use syn::__private::TokenStream2;
 
     #[test]
@@ -112,12 +112,12 @@ mod punctuated_blocks_to_tokens {
         let return_type = quote! {gxi::Element};
 
         let div_tokens = quote! {
-            __node.push({
+            __node.push(Some({
                use gxi::{VNode, VContainerWidget};
                let mut __node = gxi::Element::from_str("div");
                let __node = __node.into_strong_node_type();
                __node
-           });
+           }));
         };
 
         {
@@ -141,9 +141,10 @@ mod punctuated_blocks_to_tokens {
                 let if_block: IfBlock = syn::parse2(if_block)?;
 
                 let mut tokens = TokenStream2::new();
-                if_block.to_tokens(&mut tokens, 0);
+                if_block.to_tokens(&mut tokens, 0, &return_type);
 
                 quote! {
+                    __node.push(None);
                     let __node = __node.into_strong_node_type();
                     {
                         #tokens
@@ -190,27 +191,21 @@ mod punctuated_blocks_to_tokens {
 
                 let mut tokens = TokenStream2::new();
 
-                first_if_block.to_tokens(&mut tokens, 1);
-                second_if_block.to_tokens(&mut tokens, 2);
+                first_if_block.to_tokens(&mut tokens, 1, &return_type);
+                second_if_block.to_tokens(&mut tokens, 2, &return_type);
 
                 quote! {
+                    #div_tokens
+                    __node.push(None);
+                    __node.push(None);
                     #div_tokens
                     let __node = __node.into_strong_node_type();
                     {
                         #tokens
                     }
-                    {
-                        use std::ops::DerefMut;
-                        let mut __node = __node.as_ref().borrow_mut();
-                        let __node =
-                            __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
-                        #div_tokens
-                    }
                 }
             };
 
-            println!("{}", blocks.to_string());
-            println!("{}", expected.to_string());
             assert_eq!(blocks.to_string(), expected.to_string());
         }
 
