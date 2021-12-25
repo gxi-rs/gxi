@@ -3,6 +3,7 @@ use syn::__private::TokenStream2;
 use syn::spanned::Spanned;
 
 use crate::{
+    block::Block,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     scope::Scope,
 };
@@ -92,7 +93,7 @@ impl_parse_for_optional_parse!(IfBlock);
 
 mod if_arm {
     use crate::{
-        component::NodeBlock,
+        block::Block,
         conditional::if_block::{body_to_tokens, else_arm::ElseArm},
     };
     use quote::quote;
@@ -106,7 +107,7 @@ mod if_arm {
     pub struct IfArm {
         pub scope: Scope,
         pub if_token: syn::Token!(if),
-        pub body: NodeBlock,
+        pub body: Box<Block>,
         pub else_arm: Box<ElseArm>,
         pub condition: syn::Expr,
     }
@@ -169,7 +170,7 @@ mod if_arm {
                 ..
             } = self;
 
-            let body = body_to_tokens(&quote! {#body}, branch_index, node_index, constant_scope);
+            let body = body_to_tokens(Some(&*body), branch_index, node_index, constant_scope);
 
             let else_arm = else_arm.to_token_stream(node_index, branch_index + 1, constant_scope);
 
@@ -183,6 +184,7 @@ mod if_arm {
 }
 
 mod else_arm {
+    use crate::block::Block;
     use crate::component::NodeBlock;
     use crate::optional_parse::OptionalParse;
     use quote::quote;
@@ -200,7 +202,7 @@ mod else_arm {
         },
         PureElseArm {
             else_token: syn::Token!(else),
-            body: NodeBlock,
+            body: Block,
         },
         None,
     }
@@ -236,12 +238,9 @@ mod else_arm {
                         if_arm.to_token_stream(node_index, branch_index, constant_scope);
                     quote! { #else_token #if_tokens }
                 }
-                ElseArm::PureElseArm {
-                    else_token,
-                    body: block,
-                } => {
+                ElseArm::PureElseArm { else_token, body } => {
                     let body =
-                        body_to_tokens(&quote! {#block}, branch_index, node_index, constant_scope);
+                        body_to_tokens(Some(&*body), branch_index, node_index, constant_scope);
                     quote! {
                         #else_token #body
                     }
@@ -250,12 +249,7 @@ mod else_arm {
                     if constant_scope {
                         TokenStream2::new()
                     } else {
-                        let body = body_to_tokens(
-                            &TokenStream2::new(),
-                            branch_index,
-                            node_index,
-                            constant_scope,
-                        );
+                        let body = body_to_tokens(None, branch_index, node_index, constant_scope);
                         quote! {
                             else {
                                 #body
@@ -269,26 +263,12 @@ mod else_arm {
 }
 
 fn body_to_tokens(
-    body: &TokenStream2,
+    body: Option<&Block>,
     branch_index: usize,
     node_index: usize,
     constant_scope: bool,
 ) -> TokenStream2 {
-    if constant_scope {
-        quote! {
-            __node.push(Some(#body));
-        }
-    } else {
-        // no trailing else arm
-        let body = if body.is_empty() {
-            quote! {
-                None
-            }
-        } else {
-            quote! {
-                Some(#body)
-            }
-        };
+    let a = move |body: &TokenStream2| -> TokenStream2 {
         quote! {
             if __if_counter != #branch_index {
                 __node.set_at_index(
@@ -298,6 +278,30 @@ fn body_to_tokens(
                 __if_counter = #branch_index;
             }
         }
+    };
+
+    match body {
+        Some(Block::Node(body)) => {
+            if constant_scope {
+                quote! {
+                    __node.push(Some(#body));
+                }
+            } else {
+                a(&quote! {Some(#body)})
+            }
+        }
+        Some(Block::Execution(ex)) => {
+            quote! {#ex}
+        }
+        Some(Block::Conditional(_conditional)) => {
+            quote! {}
+        }
+        Some(Block::Iter) => {
+            todo!()
+        }
+        None => a(&quote! {
+            None
+        }),
     }
 }
 
