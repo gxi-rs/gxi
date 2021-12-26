@@ -31,15 +31,13 @@ impl OptionalParse for IfBlock {
         {
             let mut if_arm_ = &if_arm;
             loop {
-                match &*if_arm_.else_arm {
-                    ElseArm::WithIfArm { if_arm, .. } => {
-                        if let Scope::Observable(ovservables) = &if_arm.scope {
-                            for x in ovservables {
-                                scoped_variables.insert(x.to_string(), x.clone());
-                            }
-                        }
-                        if_arm_ = &if_arm
+                if let Scope::Observable(ovservables) = &if_arm.scope {
+                    for x in ovservables {
+                        scoped_variables.insert(x.to_string(), x.clone());
                     }
+                }
+                match &*if_arm_.else_arm {
+                    ElseArm::WithIfArm { if_arm, .. } => if_arm_ = &if_arm,
                     _ => {
                         break;
                     }

@@ -39,9 +39,9 @@ pub fn todo() -> StrongNodeType {
                 Text ( value = "4th element" )
             ],
             if *todos == "abcdefgh" {
-                if const *state3.borrow() == "abcdefgh" {
+//                if *state3.borrow() == "abcdefgh" {
                     Text ( value = "*_*")
-                }
+//                }
             },
             if *todos == "abcdefghi" {
                 Text ( value = "yay" )
