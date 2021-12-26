@@ -4,6 +4,7 @@ pub fn todo() -> StrongNodeType {
     let todos = State::new(String::new());
 
     let state2 = State::new(String::new());
+    let state3 = State::new(String::new());
 
     return gxi! {
         div [
@@ -38,7 +39,9 @@ pub fn todo() -> StrongNodeType {
                 Text ( value = "4th element" )
             ],
             if *todos == "abcdefgh" {
-                Text ( value = "*_*")
+                if const *state3.borrow() == "abcdefgh" {
+                    Text ( value = "*_*")
+                }
             },
             if *todos == "abcdefghi" {
                 Text ( value = "yay" )

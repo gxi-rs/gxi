@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
@@ -9,14 +11,21 @@ pub enum Scope {
     /// # Args
     ///
     /// observable ident
-    Observable(TokenStream2),
+    Observable(Vec<TokenStream2>),
     Constant,
 }
 
 impl PartialEq for Scope {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Observable(l0), Self::Observable(r0)) => l0.to_string() == r0.to_string(),
+            (Self::Observable(v1), Self::Observable(v2)) => {
+                for i in 0..v1.len() {
+                    if v1[i].to_string() != v2[i].to_string() {
+                        return false;
+                    }
+                }
+                return true;
+            }
             (Self::Constant, Self::Constant) => true,
             _ => false,
         }
@@ -66,11 +75,17 @@ impl Scope {
             Expr::Binary(syn::ExprBinary { left, right, .. }) => {
                 match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
                     (Scope::Observable(first), Scope::Observable(second)) => {
-                        if first.to_string() == second.to_string() {
-                            Ok(Scope::Observable(first))
-                        } else {
-                            Err(syn::Error::new(right.span(), MORE_THAN_ONE_ERR))
+                        // merge unique observables
+                        let mut set = HashMap::with_capacity(first.len().max(second.len()));
+                        // insert all values
+                        for x in first {
+                            set.insert(x.to_string(), x);
                         }
+                        for x in second {
+                            set.insert(x.to_string(), x);
+                        }
+
+                        Ok(Scope::Observable(set.into_values().collect()))
                     }
                     (Scope::Observable(name), Scope::Constant) => Ok(Scope::Observable(name)),
                     (Scope::Constant, Scope::Observable(name)) => Ok(Scope::Observable(name)),
@@ -96,7 +111,7 @@ impl Scope {
                 let segments = &path.segments;
                 // path of length 1 is an identifier
                 if segments.len() == 1 {
-                    Ok(Self::Observable(segments[0].to_token_stream()))
+                    Ok(Self::Observable(vec![segments[0].to_token_stream()]))
                 } else {
                     Ok(Self::Constant)
                 }
@@ -142,21 +157,28 @@ impl Scope {
     // WARN: should be a little less exact
     pub fn to_token_stream(&self, body: &TokenStream2, return_type: &TokenStream2) -> TokenStream2 {
         match &self {
-            Scope::Observable(name) => quote! {{
-                let __node = std::rc::Rc::downgrade(&__node);
-                #name.add_observer(Box::new(move |#name| {
-                    use std::ops::DerefMut;
-                    if let Some(__node) = __node.upgrade() {
-                        let mut __node = __node.as_ref().borrow_mut();
-                        let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
+            Scope::Observable(observables) => {
+                if observables.len() > 1 {
+                    println!("{:?}", observables);
+                    unreachable!("more than one observables are not supported yet")
+                }
+                let name = &observables[0];
+                quote! {{
+                    let __node = std::rc::Rc::downgrade(&__node);
+                    #name.add_observer(Box::new(move |#name| {
+                        use std::ops::DerefMut;
+                        if let Some(__node) = __node.upgrade() {
+                            let mut __node = __node.as_ref().borrow_mut();
+                            let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
 
-                        #body
-                        false
-                    } else {
-                        true
-                    }
-                }));
-            }},
+                            #body
+                            false
+                        } else {
+                            true
+                        }
+                    }));
+                }}
+            }
             Scope::Constant => quote! {
                 #body
             },

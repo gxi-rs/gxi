@@ -8,7 +8,7 @@ use syn::__private::TokenStream2;
 /// __node is converted to StrongNode at the end
 #[derive(Default)]
 pub struct Blocks {
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<Block>
 }
 
 impl syn::parse::Parse for Blocks {

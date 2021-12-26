@@ -1,9 +1,11 @@
+use std::collections::HashMap;
+
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
-use syn::spanned::Spanned;
 
 use crate::{
     block::Block,
+    conditional::ConditionalBlock,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     scope::Scope,
 };
@@ -24,16 +26,17 @@ impl OptionalParse for IfBlock {
             return Ok(None);
         };
 
+        let mut scoped_variables = HashMap::new();
+
         {
             let mut if_arm_ = &if_arm;
             loop {
                 match &*if_arm_.else_arm {
                     ElseArm::WithIfArm { if_arm, .. } => {
-                        if !if_arm.scope.is_const() {
-                            return Err(syn::Error::new(
-                                if_arm.if_token.span(),
-                                "chaining observables is unsupported. consider adding const here",
-                            ));
+                        if let Scope::Observable(ovservables) = &if_arm.scope {
+                            for x in ovservables {
+                                scoped_variables.insert(x.to_string(), x.clone());
+                            }
                         }
                         if_arm_ = &if_arm
                     }
@@ -44,11 +47,14 @@ impl OptionalParse for IfBlock {
             }
         }
 
-        // NOTE: turn scope of first block to const
-        let scope = if_arm.scope;
-        if_arm.scope = Scope::Constant;
-
-        Ok(Some(Self { if_arm, scope }))
+        Ok(Some(Self {
+            if_arm,
+            scope: if scoped_variables.is_empty() {
+                Scope::Constant
+            } else {
+                Scope::Observable(scoped_variables.into_values().collect())
+            },
+        }))
     }
 }
 // __index_offset = index of first if statement
@@ -62,9 +68,9 @@ impl IfBlock {
         node_index: usize,
         parent_return_type: &TokenStream2,
     ) {
-        let mut if_arm_tokens = self
-            .if_arm
-            .to_token_stream(node_index, 1, self.scope.is_const());
+        let mut if_arm_tokens =
+            self.if_arm
+                .to_token_stream(node_index, 1, parent_return_type, self.scope.is_const());
 
         if !self.scope.is_const() {
             if_arm_tokens = quote! {
@@ -160,6 +166,7 @@ mod if_arm {
             &self,
             node_index: usize,
             branch_index: usize,
+            parent_return_type: &TokenStream2,
             constant_scope: bool,
         ) -> TokenStream2 {
             let Self {
@@ -170,9 +177,20 @@ mod if_arm {
                 ..
             } = self;
 
-            let body = body_to_tokens(Some(&*body), branch_index, node_index, constant_scope);
+            let body = body_to_tokens(
+                Some(&*body),
+                branch_index,
+                node_index,
+                parent_return_type,
+                constant_scope,
+            );
 
-            let else_arm = else_arm.to_token_stream(node_index, branch_index + 1, constant_scope);
+            let else_arm = else_arm.to_token_stream(
+                node_index,
+                branch_index + 1,
+                parent_return_type,
+                constant_scope,
+            );
 
             quote! {
                 #if_token #condition {
@@ -185,7 +203,6 @@ mod if_arm {
 
 mod else_arm {
     use crate::block::Block;
-    use crate::component::NodeBlock;
     use crate::optional_parse::OptionalParse;
     use quote::quote;
     use syn::__private::TokenStream2;
@@ -230,17 +247,27 @@ mod else_arm {
             &self,
             node_index: usize,
             branch_index: usize,
+            parent_return_type: &TokenStream2,
             constant_scope: bool,
         ) -> TokenStream2 {
             match self {
                 ElseArm::WithIfArm { else_token, if_arm } => {
-                    let if_tokens =
-                        if_arm.to_token_stream(node_index, branch_index, constant_scope);
+                    let if_tokens = if_arm.to_token_stream(
+                        node_index,
+                        branch_index,
+                        parent_return_type,
+                        constant_scope,
+                    );
                     quote! { #else_token #if_tokens }
                 }
                 ElseArm::PureElseArm { else_token, body } => {
-                    let body =
-                        body_to_tokens(Some(&*body), branch_index, node_index, constant_scope);
+                    let body = body_to_tokens(
+                        Some(&*body),
+                        branch_index,
+                        node_index,
+                        parent_return_type,
+                        constant_scope,
+                    );
                     quote! {
                         #else_token #body
                     }
@@ -249,7 +276,13 @@ mod else_arm {
                     if constant_scope {
                         TokenStream2::new()
                     } else {
-                        let body = body_to_tokens(None, branch_index, node_index, constant_scope);
+                        let body = body_to_tokens(
+                            None,
+                            branch_index,
+                            node_index,
+                            parent_return_type,
+                            constant_scope,
+                        );
                         quote! {
                             else {
                                 #body
@@ -266,15 +299,23 @@ fn body_to_tokens(
     body: Option<&Block>,
     branch_index: usize,
     node_index: usize,
+    parent_return_type: &TokenStream2,
     constant_scope: bool,
 ) -> TokenStream2 {
-    let a = move |body: &TokenStream2| -> TokenStream2 {
-        quote! {
-            if __if_counter != #branch_index {
+    let a = move |body: TokenStream2, default: bool| -> TokenStream2 {
+        let body = if default {
+            quote! {
                 __node.set_at_index(
                     #body,
                     #node_index
                 );
+            }
+        } else {
+            body
+        };
+        quote! {
+            if __if_counter != #branch_index {
+                #body
                 __if_counter = #branch_index;
             }
         }
@@ -287,21 +328,32 @@ fn body_to_tokens(
                     __node.push(Some(#body));
                 }
             } else {
-                a(&quote! {Some(#body)})
+                a(quote! {Some(#body)}, true)
             }
         }
         Some(Block::Execution(ex)) => {
             quote! {#ex}
         }
-        Some(Block::Conditional(_conditional)) => {
-            quote! {}
+        Some(Block::Conditional(ConditionalBlock::If(if_block))) => a(
+            {
+                let mut tokens = TokenStream2::new();
+                if_block.to_tokens(&mut tokens, node_index, parent_return_type);
+                quote! {{#tokens}}
+            },
+            false,
+        ),
+        Some(Block::Conditional(ConditionalBlock::Match(_))) => {
+            todo!()
         }
         Some(Block::Iter) => {
             todo!()
         }
-        None => a(&quote! {
-            None
-        }),
+        None => a(
+            quote! {
+                None
+            },
+            true,
+        ),
     }
 }
 
@@ -323,7 +375,7 @@ mod tests {
 
             let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
+            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
             assert_eq!(
                 if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
@@ -335,7 +387,7 @@ mod tests {
 
             let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
+            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
             assert_eq!(
                 if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
@@ -358,7 +410,7 @@ mod tests {
 
             let IfBlock { if_arm, scope } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
+            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
             assert_eq!(
                 if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
