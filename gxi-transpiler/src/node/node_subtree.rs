@@ -68,7 +68,12 @@ impl NodeSubTree {
             match block {
                 NodeSubBlock::Conditional(conditional_block) => match conditional_block {
                     ConditionalBlock::If(if_block) => {
-                        tokens.append_all(quote! {__node.push(None);});
+                        for _ in 0..if_block.max_node_height {
+                            tokens.append_all(quote! {__node.push(None);});
+                        }
+                        // incremented after
+                        node_index += if_block.max_node_height - 1;
+
                         // make __node strong
                         match if_block.scope {
                             Scope::Observable(_) => {
