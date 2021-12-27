@@ -1,12 +1,12 @@
+use std::ops::{Deref, DerefMut};
+
 use syn::parse::Parse;
 
-pub struct SubTree<B: Parse> {
-    pub blocks: Vec<B>,
-}
+pub struct SubTree<B: Parse>(pub Vec<B>);
 
 impl<B: Parse> Default for SubTree<B> {
     fn default() -> Self {
-        Self { blocks: Default::default() }
+        Self(Default::default())
     }
 }
 
@@ -21,7 +21,7 @@ impl<B: Parse> syn::parse::Parse for SubTree<B> {
 
             let block = B::parse(input)?;
 
-            this.blocks.push(block);
+            this.push(block);
 
             if input.is_empty() {
                 break;
@@ -31,5 +31,19 @@ impl<B: Parse> syn::parse::Parse for SubTree<B> {
         }
 
         Ok(this)
+    }
+}
+
+impl<B: Parse> Deref for SubTree<B> {
+    type Target = Vec<B>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<B: Parse> DerefMut for SubTree<B> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }

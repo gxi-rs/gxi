@@ -60,7 +60,7 @@ impl NodeSubTree {
 
         let mut if_buffer = TokenStream2::new();
 
-        for block in &self.blocks {
+        for block in self.iter() {
             let mut block_tokens = TokenStream2::new();
             block.to_tokens(&mut block_tokens, node_index, parent_return_type);
 

@@ -1,4 +1,4 @@
-use super::ConditionalBlock;
+use super::{ConditionalBlock, IfBlock};
 use crate::{
     execution::ExecutionBlock, node::NodeBlock, optional_parse::OptionalParse, sub_tree::SubTree,
 };
@@ -25,19 +25,31 @@ impl Parse for IfSubBlock {
     }
 }
 
-impl ToTokens for IfSubBlock {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        todo!()
+pub type IfSubTree = SubTree<IfSubBlock>;
+
+
+impl IfSubBlock {
+    pub fn to_tokens(
+        &self,
+        tokens: &mut TokenStream2,
+        node_index: usize,
+        parent_return_type: &TokenStream2,
+    ) {
+        match self {
+            Self::Node(node) => tokens.append_all(quote! {
+                __node.push(Some(#node));
+            }),
+            Self::Execution(ex) => ex.to_tokens(tokens),
+            Self::Conditional(cond) => cond.to_tokens(tokens, node_index, parent_return_type),
+        }
     }
 }
-
-pub type IfSubTree = SubTree<IfSubBlock>;
 
 impl ToTokens for IfSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let mut token_buff = TokenStream2::new();
 
-        for block in self.blocks {
+        for block in self.iter() {
             block.to_tokens(&mut token_buff);
         }
 

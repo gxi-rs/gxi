@@ -11,9 +11,13 @@ use else_arm::ElseArm;
 
 use self::if_arm::IfArm;
 
+use super::{ConditionalBlock, IfSubBlock};
+
 pub struct IfBlock {
     pub if_arm: IfArm,
     pub scope: Scope,
+    // max possible height of nested subtree
+    max_pre_allocations: usize,
 }
 
 impl OptionalParse for IfBlock {
@@ -25,6 +29,7 @@ impl OptionalParse for IfBlock {
         };
 
         let mut scoped_variables = HashMap::new();
+        let mut max_pre_allocations = 0usize;
 
         {
             let mut if_arm_ = &if_arm;
@@ -34,6 +39,27 @@ impl OptionalParse for IfBlock {
                         scoped_variables.insert(x.to_string(), x.clone());
                     }
                 }
+
+                // calculate max_pre_allocations
+
+                for block in if_arm.sub_tree.iter() {
+                    match block {
+                        IfSubBlock::Node(_) => {
+                            max_pre_allocations += 1;
+                        }
+                        IfSubBlock::Conditional(cond) => match &cond {
+                            ConditionalBlock::If(if_block) => {
+                                max_pre_allocations =
+                                    max_pre_allocations.max(if_block.max_pre_allocations);
+                            }
+                            ConditionalBlock::Match(_) => {
+                                todo!("[if_subtree] match expressions not yet implemented")
+                            }
+                        },
+                        IfSubBlock::Execution(_) => (),
+                    }
+                }
+
                 match &*if_arm_.else_arm {
                     ElseArm::WithIfArm { if_arm, .. } => if_arm_ = &if_arm,
                     _ => {
@@ -50,6 +76,7 @@ impl OptionalParse for IfBlock {
             } else {
                 Scope::Observable(scoped_variables.into_values().collect())
             },
+            max_pre_allocations,
         }))
     }
 }
@@ -274,6 +301,12 @@ mod tests {
         conditional::{if_block::else_arm::ElseArm, IfBlock},
         scope::Scope,
     };
+
+    #[test]
+    fn max_pre_allocations() -> syn::Result<()> {
+         
+        Ok()
+    }
 
     #[test]
     fn conditional_if_block() -> syn::Result<()> {
