@@ -33,7 +33,8 @@ pub fn todo() -> StrongNodeType {
                 Text ( value = "3rd element" )
             ],
             if *todos == "abc" {
-                Text ( value = "abcd" )
+                Text ( value = "abcd" ),
+                Text ( value = "_foo") 
             },
             div [
                 Text ( value = "4th element" )
