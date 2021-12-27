@@ -1,41 +1,55 @@
-use crate::{block::Block, conditional::ConditionalBlock, scope::Scope};
-use quote::{quote, TokenStreamExt};
-
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
+use syn::parse::Parse;
 
-/// comma separated multiple blocks
-/// Blocks can't exist independently they need a __node (impl Node) to operate on
-/// __node is converted to StrongNode at the end
-#[derive(Default)]
-pub struct Blocks {
-    pub blocks: Vec<Block>
+use crate::{
+    conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock,
+    optional_parse::OptionalParse, scope::Scope, sub_tree::SubTree,
+};
+
+pub enum NodeSubBlock {
+    Node(NodeBlock),
+    Execution(ExecutionBlock),
+    Conditional(ConditionalBlock),
+    #[allow(dead_code)]
+    Iter,
 }
 
-impl syn::parse::Parse for Blocks {
+impl Parse for NodeSubBlock {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let mut this = Self::default();
-
-        loop {
-            if input.is_empty() {
-                break;
-            }
-
-            let block = Block::parse(input)?;
-
-            this.blocks.push(block);
-
-            if input.is_empty() {
-                break;
-            } else {
-                input.parse::<syn::token::Comma>()?;
-            }
+        if let Some(comp) = NodeBlock::optional_parse(&input)? {
+            Ok(Self::Node(comp))
+        } else if let Some(ex) = ExecutionBlock::optional_parse(&input)? {
+            Ok(Self::Execution(ex))
+        } else if let Some(cond) = ConditionalBlock::optional_parse(&input)? {
+            Ok(Self::Conditional(cond))
+        } else {
+            Err(syn::Error::new(input.span(), "unexpected token"))
         }
-
-        Ok(this)
     }
 }
 
-impl Blocks {
+impl NodeSubBlock {
+    pub fn to_tokens(
+        &self,
+        tokens: &mut TokenStream2,
+        node_index: usize,
+        parent_return_type: &TokenStream2,
+    ) {
+        match self {
+            NodeSubBlock::Node(comp) => comp.to_tokens(tokens),
+            NodeSubBlock::Execution(ex) => ex.to_tokens(tokens),
+            NodeSubBlock::Conditional(cond) => {
+                cond.to_tokens(tokens, node_index, parent_return_type)
+            }
+            NodeSubBlock::Iter => todo!(),
+        }
+    }
+}
+
+pub type NodeSubTree = SubTree<NodeSubBlock>;
+
+impl NodeSubTree {
     pub fn to_tokens(
         &self,
         tokens: &mut quote::__private::TokenStream,
@@ -52,7 +66,7 @@ impl Blocks {
 
             // select and prepare buffer
             match block {
-                Block::Conditional(conditional_block) => match conditional_block {
+                NodeSubBlock::Conditional(conditional_block) => match conditional_block {
                     ConditionalBlock::If(if_block) => {
                         tokens.append_all(quote! {__node.push(None);});
                         // make __node strong
@@ -67,7 +81,7 @@ impl Blocks {
                     }
                     _ => todo!(),
                 },
-                Block::Node(_) => {
+                NodeSubBlock::Node(_) => {
                     tokens.append_all(quote! {
                         __node.push(
                            Some(#block_tokens)
@@ -79,7 +93,7 @@ impl Blocks {
             };
 
             match block {
-                Block::Execution(_) => (),
+                NodeSubBlock::Execution(_) => (),
                 _ => node_index += 1,
             }
         }
@@ -101,7 +115,7 @@ impl Blocks {
 
 #[cfg(test)]
 mod punctuated_blocks_to_tokens {
-    use crate::{blocks::Blocks, conditional::IfBlock};
+    use crate::{conditional::IfBlock, node::NodeSubTree};
     use quote::quote;
     use syn::__private::TokenStream2;
 
@@ -128,7 +142,7 @@ mod punctuated_blocks_to_tokens {
             };
 
             let blocks = {
-                let blocks: Blocks = syn::parse2(quote! (#if_block))?;
+                let blocks: NodeSubTree = syn::parse2(quote! (#if_block))?;
 
                 let mut blocks_buff = TokenStream2::new();
                 blocks.to_tokens(&mut blocks_buff, &return_type);
@@ -171,7 +185,7 @@ mod punctuated_blocks_to_tokens {
             };
 
             let blocks = {
-                let blocks: Blocks = syn::parse2(quote! {
+                let blocks: NodeSubTree = syn::parse2(quote! {
                     div,
                     #first_if_block,
                     #second_if_block,

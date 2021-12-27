@@ -4,8 +4,6 @@ use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
-    block::Block,
-    conditional::ConditionalBlock,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     scope::Scope,
 };
@@ -96,10 +94,7 @@ impl IfBlock {
 impl_parse_for_optional_parse!(IfBlock);
 
 mod if_arm {
-    use crate::{
-        block::Block,
-        conditional::if_block::{body_to_tokens, else_arm::ElseArm},
-    };
+    use crate::conditional::{if_block::else_arm::ElseArm, IfSubTree};
     use quote::quote;
     use syn::__private::TokenStream2;
 
@@ -111,7 +106,7 @@ mod if_arm {
     pub struct IfArm {
         pub scope: Scope,
         pub if_token: syn::Token!(if),
-        pub body: Box<Block>,
+        pub sub_tree: IfSubTree,
         pub else_arm: Box<ElseArm>,
         pub condition: syn::Expr,
     }
@@ -150,7 +145,7 @@ mod if_arm {
             Ok(Some(Self {
                 scope,
                 if_token,
-                body,
+                sub_tree: body,
                 else_arm,
                 condition,
             }))
@@ -169,19 +164,11 @@ mod if_arm {
         ) -> TokenStream2 {
             let Self {
                 if_token,
-                body,
+                sub_tree,
                 else_arm,
                 condition,
                 ..
             } = self;
-
-            let body = body_to_tokens(
-                Some(&*body),
-                branch_index,
-                node_index,
-                parent_return_type,
-                constant_scope,
-            );
 
             let else_arm = else_arm.to_token_stream(
                 node_index,
@@ -192,7 +179,7 @@ mod if_arm {
 
             quote! {
                 #if_token #condition {
-                    #body
+                    #sub_tree
                 } #else_arm
             }
         }
@@ -200,14 +187,12 @@ mod if_arm {
 }
 
 mod else_arm {
-    use crate::block::Block;
+    use super::if_arm::IfArm;
+    use crate::conditional::{IfSubBlock, IfSubTree};
     use crate::optional_parse::OptionalParse;
     use quote::quote;
     use syn::__private::TokenStream2;
     use syn::parse::Parse;
-
-    use super::body_to_tokens;
-    use super::if_arm::IfArm;
 
     // NOTE: can't exist independently
     pub enum ElseArm {
@@ -217,7 +202,7 @@ mod else_arm {
         },
         PureElseArm {
             else_token: syn::Token!(else),
-            body: Block,
+            body: IfSubTree,
         },
         None,
     }
@@ -259,13 +244,6 @@ mod else_arm {
                     quote! { #else_token #if_tokens }
                 }
                 ElseArm::PureElseArm { else_token, body } => {
-                    let body = body_to_tokens(
-                        Some(&*body),
-                        branch_index,
-                        node_index,
-                        parent_return_type,
-                        constant_scope,
-                    );
                     quote! {
                         #else_token #body
                     }
@@ -274,84 +252,17 @@ mod else_arm {
                     if constant_scope {
                         TokenStream2::new()
                     } else {
-                        let body = body_to_tokens(
-                            None,
-                            branch_index,
-                            node_index,
-                            parent_return_type,
-                            constant_scope,
-                        );
-                        quote! {
-                            else {
-                                #body
-                            }
-                        }
+                        todo!()
+                        //                        let body = IfSubBlock::NoneNodeBlock;
+                        //                        quote! {
+                        //                            else {
+                        //                                #body
+                        //                            }
+                        //                        }
                     }
                 }
             }
         }
-    }
-}
-
-fn body_to_tokens(
-    body: Option<&Block>,
-    branch_index: usize,
-    node_index: usize,
-    parent_return_type: &TokenStream2,
-    constant_scope: bool,
-) -> TokenStream2 {
-    let a = move |body: TokenStream2, default: bool| -> TokenStream2 {
-        let body = if default {
-            quote! {
-                __node.set_at_index(
-                    #body,
-                    #node_index
-                );
-            }
-        } else {
-            body
-        };
-        quote! {
-            if __if_counter != #branch_index {
-                #body
-                __if_counter = #branch_index;
-            }
-        }
-    };
-
-    match body {
-        Some(Block::Node(body)) => {
-            if constant_scope {
-                quote! {
-                    __node.push(Some(#body));
-                }
-            } else {
-                a(quote! {Some(#body)}, true)
-            }
-        }
-        Some(Block::Execution(ex)) => {
-            quote! {#ex}
-        }
-        Some(Block::Conditional(ConditionalBlock::If(if_block))) => a(
-            {
-                let mut tokens = TokenStream2::new();
-                if_block.to_tokens(&mut tokens, node_index, parent_return_type);
-                quote! {{#tokens}}
-            },
-            false,
-        ),
-        Some(Block::Conditional(ConditionalBlock::Match(_))) => {
-            todo!()
-        }
-        Some(Block::Iter) => {
-            todo!()
-        }
-        None => a(
-            quote! {
-                None
-            },
-            true,
-        ),
     }
 }
 

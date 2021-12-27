@@ -1,5 +1,4 @@
-use super::NodeProps;
-use crate::blocks::Blocks;
+use super::{NodeProps, NodeSubTree};
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 use crate::scope::Scope;
 use quote::ToTokens;
@@ -217,7 +216,7 @@ impl NodeType {
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
     pub node_type: NodeType,
-    pub subtree: Blocks,
+    pub subtree: NodeSubTree,
 }
 
 impl OptionalParse for NodeBlock {
@@ -231,7 +230,7 @@ impl OptionalParse for NodeBlock {
         let subtree =
             if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
-                    content.parse::<Blocks>()?
+                    content.parse::<NodeSubTree>()?
                 } else {
                     Default::default()
                 }
