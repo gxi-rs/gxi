@@ -259,7 +259,10 @@ mod else_arm {
         fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
             if let Ok(else_token) = input.parse::<syn::Token!(else)>() {
                 if let Some(if_arm) = IfArm::optional_parse(&input)? {
-                    Ok(Self::WithIfArm { else_token, if_arm: Box::from(if_arm) })
+                    Ok(Self::WithIfArm {
+                        else_token,
+                        if_arm: Box::from(if_arm),
+                    })
                 } else {
                     let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
                     Ok(Self::PureArm {
