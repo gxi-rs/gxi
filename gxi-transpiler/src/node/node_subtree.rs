@@ -121,11 +121,12 @@ impl NodeSubTree {
 #[cfg(test)]
 mod punctuated_blocks_to_tokens {
     use crate::{conditional::IfBlock, node::NodeSubTree};
+    use anyhow::ensure;
     use quote::quote;
     use syn::__private::TokenStream2;
 
     #[test]
-    fn chained_multi_if_blocks_without_trailing_else() -> syn::Result<()> {
+    fn chained_multi_if_blocks_without_trailing_else() -> anyhow::Result<()> {
         let return_type = quote! {gxi::Element};
 
         let div_tokens = quote! {
@@ -169,7 +170,7 @@ mod punctuated_blocks_to_tokens {
                 }
             };
 
-            assert_eq!(blocks.to_string(), expected.to_string());
+            ensure!(blocks.to_string() == expected.to_string());
         }
 
         {
@@ -223,7 +224,7 @@ mod punctuated_blocks_to_tokens {
                 }
             };
 
-            assert_eq!(blocks.to_string(), expected.to_string());
+            ensure!(blocks.to_string() == expected.to_string());
         }
 
         Ok(())

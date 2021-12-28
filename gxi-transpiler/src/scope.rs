@@ -187,13 +187,14 @@ impl Scope {
 mod expr_init_location {
 
     use super::Scope;
+    use anyhow::ensure;
     use quote::quote;
     use syn::__private::TokenStream2;
 
     const CONSTANT: bool = true;
     const OBSERVABLE: bool = false;
 
-    fn match_const_scope(expr: TokenStream2, constant: bool) -> syn::Result<bool> {
+    fn match_const_scope(expr: TokenStream2, constant: bool) -> anyhow::Result<bool> {
         if let Scope::Constant = Scope::find_expr_scope(&syn::parse2(expr)?)? {
             Ok(constant)
         } else {
@@ -202,13 +203,13 @@ mod expr_init_location {
     }
 
     #[test]
-    fn scope_array() -> syn::Result<()> {
-        assert!(match_const_scope(quote! {[1, 2]}, CONSTANT)?);
-        assert!(match_const_scope(
+    fn scope_array() -> anyhow::Result<()> {
+        ensure!(match_const_scope(quote! {[1, 2]}, CONSTANT)?);
+        ensure!(match_const_scope(
             quote! {[1, |_| println!("hello")]},
             CONSTANT
         )?);
-        assert!(match_const_scope(
+        ensure!(match_const_scope(
             quote! {[state.a, 3, Hello::hi()]},
             OBSERVABLE
         )?);
@@ -217,11 +218,11 @@ mod expr_init_location {
     }
 
     #[test]
-    fn scope_binary_op() -> syn::Result<()> {
-        assert!(match_const_scope(quote!(2 == 3), CONSTANT)?);
-        assert!(match_const_scope(quote!(2 == "str"), CONSTANT)?);
-        assert!(match_const_scope(quote!(2 == state.a), OBSERVABLE)?);
-        assert!(match_const_scope(quote!(2 == || {}), CONSTANT)?);
+    fn scope_binary_op() -> anyhow::Result<()> {
+        ensure!(match_const_scope(quote!(2 == 3), CONSTANT)?);
+        ensure!(match_const_scope(quote!(2 == "str"), CONSTANT)?);
+        ensure!(match_const_scope(quote!(2 == state.a), OBSERVABLE)?);
+        ensure!(match_const_scope(quote!(2 == || {}), CONSTANT)?);
         Ok(())
     }
 }

@@ -350,13 +350,15 @@ mod tests {
         scope::Scope,
     };
 
+    use anyhow::{bail, ensure};
+
     #[test]
     fn max_pre_allocations() -> syn::Result<()> {
         Ok(())
     }
 
     #[test]
-    fn conditional_if_block() -> syn::Result<()> {
+    fn conditional_if_block() -> anyhow::Result<()> {
         let const_condition_expr = quote! { 3 == 4};
         let condition_expr = quote! { t == 3 && #const_condition_expr };
         {
@@ -368,13 +370,10 @@ mod tests {
                 max_node_height,
             } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
-            assert!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
-            assert_eq!(max_node_height, 1);
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
+            ensure!(max_node_height == 1);
         }
         {
             let expr = quote! { if #condition_expr { div } else if #const_condition_expr { a } };
@@ -385,23 +384,20 @@ mod tests {
                 max_node_height,
             } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
-            assert_eq!(max_node_height, 1);
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(max_node_height == 1);
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                assert_eq!(if_arm.scope, Scope::Constant);
-                assert_eq!(
-                    if_arm.condition.to_token_stream().to_string(),
-                    const_condition_expr.to_string()
+                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(
+                    if_arm.condition.to_token_stream().to_string()
+                        == const_condition_expr.to_string()
                 );
-                assert!(matches!(*if_arm.else_arm, ElseArm::None));
+                ensure!(matches!(*if_arm.else_arm, ElseArm::None));
             } else {
-                panic!("expected ElseArm::WithIfArm")
+                bail!("expected ElseArm::WithIfArm")
             }
         }
         {
@@ -413,23 +409,20 @@ mod tests {
                 max_node_height,
             } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(vec![quote! {t}]));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
-            assert_eq!(max_node_height, 1);
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(max_node_height == 1);
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                assert_eq!(if_arm.scope, Scope::Constant);
-                assert_eq!(
-                    if_arm.condition.to_token_stream().to_string(),
-                    const_condition_expr.to_string()
+                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(
+                    if_arm.condition.to_token_stream().to_string()
+                        == const_condition_expr.to_string()
                 );
-                assert!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
+                ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
             } else {
-                panic!("expected ElseArm::WithIfArm")
+                bail!("expected ElseArm::WithIfArm")
             }
         }
         Ok(())
