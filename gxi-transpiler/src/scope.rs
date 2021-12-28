@@ -24,7 +24,7 @@ impl PartialEq for Scope {
                         return false;
                     }
                 }
-                return true;
+                true
             }
             (Self::Constant, Self::Constant) => true,
             _ => false,
@@ -42,11 +42,7 @@ const MORE_THAN_ONE_ERR: &str = "can't have more than one observables in a singl
 
 impl Scope {
     pub fn is_const(&self) -> bool {
-        if let Scope::Constant = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, Scope::Constant)
     }
 
     /// find scopes of punctuated expressions
@@ -122,7 +118,7 @@ impl Scope {
             Expr::Try(_) => todo!(),
             Expr::TryBlock(_) => todo!(),
             Expr::Tuple(_) => todo!(),
-            Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(&expr),
+            Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Unsafe(_) => todo!(),
             Expr::While(_) => todo!(),
             Expr::Assign(_)

@@ -22,7 +22,7 @@ pub struct IfBlock {
 
 impl OptionalParse for IfBlock {
     fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
-        let mut if_arm = if let Some(if_arm) = IfArm::optional_parse(input)? {
+        let if_arm = if let Some(if_arm) = IfArm::optional_parse(input)? {
             if_arm
         } else {
             return Ok(None);
@@ -64,7 +64,7 @@ impl OptionalParse for IfBlock {
                 max_node_height = max_node_height.max(max_arm_node_height);
 
                 match &*if_arm_.else_arm {
-                    ElseArm::WithIfArm { if_arm, .. } => if_arm_ = &if_arm,
+                    ElseArm::WithIfArm { if_arm, .. } => if_arm_ = if_arm,
                     _ => {
                         break;
                     }
@@ -168,7 +168,7 @@ mod if_arm {
 
             // parse children
             let body = {
-                let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
+                let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
 
                 content.parse()?
             };
@@ -246,9 +246,9 @@ mod else_arm {
     pub enum ElseArm {
         WithIfArm {
             else_token: syn::Token!(else),
-            if_arm: IfArm,
+            if_arm: Box<IfArm>,
         },
-        PureElseArm {
+        PureArm {
             else_token: syn::Token!(else),
             body: IfSubTree,
         },
@@ -259,10 +259,10 @@ mod else_arm {
         fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
             if let Ok(else_token) = input.parse::<syn::Token!(else)>() {
                 if let Some(if_arm) = IfArm::optional_parse(&input)? {
-                    Ok(Self::WithIfArm { else_token, if_arm })
+                    Ok(Self::WithIfArm { else_token, if_arm: Box::from(if_arm) })
                 } else {
-                    let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
-                    Ok(Self::PureElseArm {
+                    let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
+                    Ok(Self::PureArm {
                         else_token,
                         body: content.parse()?,
                     })
@@ -293,7 +293,7 @@ mod else_arm {
                     );
                     quote! { #else_token #if_tokens }
                 }
-                ElseArm::PureElseArm { else_token, body } => {
+                ElseArm::PureArm { else_token, body } => {
                     let body = {
                         let mut tokens = TokenStream2::new();
                         body.to_tokens(
@@ -370,7 +370,7 @@ mod tests {
                 if_arm.condition.to_token_stream().to_string(),
                 condition_expr.to_string()
             );
-            assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+            assert!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
             assert_eq!(max_node_height, 1);
         }
         {
@@ -424,7 +424,7 @@ mod tests {
                     if_arm.condition.to_token_stream().to_string(),
                     const_condition_expr.to_string()
                 );
-                assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+                assert!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
             } else {
                 panic!("expected ElseArm::WithIfArm")
             }

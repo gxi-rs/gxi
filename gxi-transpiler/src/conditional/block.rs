@@ -8,20 +8,18 @@ use crate::{
 use super::MatchBlock;
 use syn::__private::TokenStream2;
 
-#[doc(include_str = "./README.md")]
+#[doc = include_str!("./README.md")]
 pub enum ConditionalBlock {
-    If(IfBlock),
+    If(Box<IfBlock>),
     Match(MatchBlock),
 }
 
 impl OptionalParse for ConditionalBlock {
     fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
         Ok(if let Some(p) = IfBlock::optional_parse(input)? {
-            Some(Self::If(p))
-        } else if let Some(p) = MatchBlock::optional_parse(input)? {
-            Some(Self::Match(p))
+            Some(Self::If(Box::new(p)))
         } else {
-            None
+            MatchBlock::optional_parse(input)?.map(Self::Match)
         })
     }
 }

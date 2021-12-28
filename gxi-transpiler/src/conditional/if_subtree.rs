@@ -45,7 +45,7 @@ impl IfSubBlock {
             }
             Self::Execution(ex) => ex.to_tokens(tokens),
             Self::Conditional(ConditionalBlock::If(if_block)) => {
-                if_block.to_tokens(tokens, node_index.clone(), parent_return_type);
+                if_block.to_tokens(tokens, *node_index, parent_return_type);
                 *node_index += if_block.max_node_height;
             }
             Self::Conditional(ConditionalBlock::Match(_)) => {
@@ -74,7 +74,7 @@ impl IfSubTree {
     ) {
         let mut token_buff = TokenStream2::new();
 
-        let base_node_index = node_index.clone();
+        let base_node_index = node_index;
 
         for block in self.iter() {
             block.to_tokens(
@@ -85,7 +85,8 @@ impl IfSubTree {
             );
         }
 
-        for _ in node_index..(base_node_index + max_node_height) {
+        let range = node_index..(base_node_index + max_node_height);
+        for _ in range {
             IfSubBlock::NoneBlock.to_tokens(
                 &mut token_buff,
                 &mut node_index,
