@@ -36,8 +36,8 @@ impl OptionalParse for IfBlock {
             loop {
                 let mut max_arm_node_height = 0usize;
 
-                if let Scope::Observable(ovservables) = &if_arm.scope {
-                    for x in ovservables {
+                if let Scope::Observable(observables) = &if_arm.scope {
+                    for x in observables {
                         scoped_variables.insert(x.to_string(), x.clone());
                     }
                 }
