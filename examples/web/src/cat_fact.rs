@@ -15,7 +15,7 @@ pub fn cat_fact() -> StrongNodeType {
 
     fetch_cat_fact();
 
-    return gxi! {
+    gxi! {
         div [
             button ( on_click = move |_| fetch_cat_fact() ) [
                 Text ( value = "fetch cat memes!" )
@@ -24,5 +24,5 @@ pub fn cat_fact() -> StrongNodeType {
                 Text ( value = &cat_fact[..])
             ],
         ]
-    };
+    }
 }
