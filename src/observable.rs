@@ -19,14 +19,16 @@ impl<V> Deref for Observable<V> {
     }
 }
 
-impl<V> Observable<V> {
-    pub fn new(value: V) -> Self {
+impl<V> From<V> for Observable<V> {
+    fn from(v: V) -> Self {
         Self {
             observers: Default::default(),
-            value: RefCell::new(value),
+            value: RefCell::new(v),
         }
     }
+}
 
+impl<V> Observable<V> {
     /// add observer which is called when value under Observable changes
     pub fn add_observer(&self, observer: Observer<V>) {
         self.observers.borrow_mut().push(observer);
@@ -62,8 +64,16 @@ impl<V> Observable<V> {
     }
 }
 
-impl<V> From<V> for Observable<V> {
-    fn from(v: V) -> Self {
-        Self::new(v)
+#[cfg(test)]
+mod tests {
+    use super::Observable;
+    #[test]
+    fn observer_remove() {
+        let obs = Observable::from(20);
+        obs.add_observer(Box::new(|_| true));
+        obs.add_observer(Box::new(|_| false));
+        obs.add_observer(Box::new(|_| true));
+        obs.notify();
+        assert_eq!(obs.observers.borrow_mut().len(), 1);
     }
 }

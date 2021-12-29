@@ -1,7 +1,7 @@
 use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
 pub fn cat_fact() -> StrongNodeType {
-    let cat_fact = State::new(String::new());
+    let cat_fact = State::from(String::new());
 
     let fetch_cat_fact = set_state!(
         async || {

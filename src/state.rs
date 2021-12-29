@@ -12,12 +12,14 @@ pub struct State<V>(Rc<Observable<V>>);
 pub struct WeakState<V>(Weak<Observable<V>>);
 
 impl<V> State<V> {
-    pub fn new(v: V) -> Self {
-        Self(Rc::new(Observable::new(v)))
-    }
-
     pub fn downgrade(&self) -> WeakState<V> {
         WeakState(Rc::downgrade(&self.0))
+    }
+}
+
+impl<V> From<V> for State<V> {
+    fn from(v: V) -> Self {
+        Self(Rc::new(Observable::from(v)))
     }
 }
 

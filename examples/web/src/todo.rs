@@ -1,8 +1,8 @@
 use gxi::{gxi, set_state, State, StrongNodeType, Text};
 
 pub fn todo() -> StrongNodeType {
-    let todos = State::new(String::new());
-    let state2 = State::new(String::new());
+    let todos = State::from(String::new());
+    let state2 = State::from(String::new());
 
     gxi! {
         div [

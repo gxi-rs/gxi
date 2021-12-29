@@ -3,8 +3,8 @@ use gxi::{gxi, set_state, State, StrongNodeType, Text};
 const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
 pub fn complex_counter() -> StrongNodeType {
-    let reduce_emoji = State::new(EMOTICONS[0]);
-    let reduce_emoji_index = State::new(0 as usize);
+    let reduce_emoji = State::from(EMOTICONS[0]);
+    let reduce_emoji_index = State::from(0 as usize);
 
     let reduce_emoji_listener = set_state! {|_| {
         if *reduce_emoji_index == EMOTICONS.len() {
@@ -31,7 +31,7 @@ pub fn complex_counter() -> StrongNodeType {
 }
 
 fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
-    let counter = State::new(initial);
+    let counter = State::from(initial);
 
     gxi! {
         div [
