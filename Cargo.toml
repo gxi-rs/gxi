@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2018"
 description = "Zero-Cost Cross-Platform Native Widget based Component System in Rust"
