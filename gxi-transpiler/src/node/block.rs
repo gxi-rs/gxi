@@ -1,5 +1,4 @@
-use super::NodeProps;
-use crate::blocks::Blocks;
+use super::{NodeProps, NodeSubTree};
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 use crate::scope::Scope;
 use quote::ToTokens;
@@ -49,7 +48,7 @@ impl NodeType {
                 };
                 quote! { #path#constructor(#(#args),*) }
             }
-            NodeType::Element { name, .. } => quote! { gxi::Element::from_str(#name) },
+            NodeType::Element { name, .. } => quote! { gxi::Element::from(#name) },
         }
     }
 
@@ -217,7 +216,7 @@ impl NodeType {
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
     pub node_type: NodeType,
-    pub subtree: Blocks,
+    pub subtree: NodeSubTree,
 }
 
 impl OptionalParse for NodeBlock {
@@ -231,7 +230,7 @@ impl OptionalParse for NodeBlock {
         let subtree =
             if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
-                    content.parse::<Blocks>()?
+                    content.parse::<NodeSubTree>()?
                 } else {
                     Default::default()
                 }
@@ -302,6 +301,7 @@ impl ToString for NodeBlock {
 #[cfg(test)]
 mod tests {
     use super::NodeType;
+    use anyhow::{bail, ensure};
     use quote::quote;
     use syn::parse::Parse;
 
@@ -314,7 +314,7 @@ mod tests {
     }
 
     #[test]
-    fn node_type() -> syn::Result<()> {
+    fn node_type() -> anyhow::Result<()> {
         {
             let node_type = syn::parse2::<NodeTypeParser>(quote! { Body }.into())?.0;
             if let NodeType::Component {
@@ -324,19 +324,16 @@ mod tests {
                 props,
             } = &node_type
             {
-                assert_eq!(constructor.to_string(), "new");
-                assert_eq!(path.to_string(), "Body");
-                assert_eq!(args.len(), 0);
-                assert_eq!(props.props.len(), 0);
+                ensure!(constructor.to_string() == "new");
+                ensure!(path.to_string() == "Body");
+                ensure!(args.len() == 0);
+                ensure!(props.props.len() == 0);
             } else {
-                panic!()
+                bail!("wrong node type")
             }
             let return_type = node_type.get_return_type();
-            assert_eq!(return_type.to_string(), "Body");
-            assert_eq!(
-                node_type.get_init_call().to_string(),
-                quote! {Body::new()}.to_string()
-            );
+            ensure!(return_type.to_string() == "Body");
+            ensure!(node_type.get_init_call().to_string() == quote! {Body::new()}.to_string());
         }
         {
             let node_type = syn::parse2::<NodeTypeParser>(quote! { func(12, 12) }.into())?.0;
@@ -346,16 +343,13 @@ mod tests {
                 args,
             } = &node_type
             {
-                assert_eq!(constructor.to_string(), "func");
-                assert_eq!(path.is_empty(), true);
-                assert_eq!(args.len(), 2);
+                ensure!(constructor.to_string() == "func");
+                ensure!(path.is_empty() == true);
+                ensure!(args.len() == 2);
             } else {
-                panic!()
+                bail!("wrong node type")
             }
-            assert_eq!(
-                node_type.get_init_call().to_string(),
-                quote! {func(12, 12)}.to_string()
-            );
+            ensure!(node_type.get_init_call().to_string() == quote! {func(12, 12)}.to_string());
         }
         {
             let node_type =
@@ -367,18 +361,18 @@ mod tests {
                 constructor,
             } = &node_type
             {
-                assert_eq!(constructor.to_string(), "with_name");
-                assert_eq!(path.to_string(), quote! {Comp}.to_string());
-                assert_eq!(props.props.is_empty(), true);
-                assert_eq!(args.len(), 1);
+                ensure!(constructor.to_string() == "with_name");
+                ensure!(path.to_string() == quote! {Comp}.to_string());
+                ensure!(props.props.is_empty() == true);
+                ensure!(args.len() == 1);
             } else {
-                panic!()
+                bail!("wrong node type")
             }
             let return_type = node_type.get_return_type();
-            assert_eq!(return_type.to_string(), quote! {Comp}.to_string());
-            assert_eq!(
-                node_type.get_init_call().to_string(),
-                quote! {Comp::with_name("hey")}.to_string()
+            ensure!(return_type.to_string() == quote! {Comp}.to_string());
+            ensure!(
+                node_type.get_init_call().to_string()
+                    == quote! {Comp::with_name("hey")}.to_string()
             );
         }
         Ok(())

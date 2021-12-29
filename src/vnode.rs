@@ -36,9 +36,11 @@ pub trait VContainerWidget:
         if let Some(member) = &member {
             match member.as_ref().borrow_mut().deref() {
                 VNodeType::Widget(w) => {
+                    #[cfg(feature = "web")]
                     self.append_child(w.deref()).unwrap();
                 }
                 VNodeType::ContainerWidget(w) => {
+                    #[cfg(feature = "web")]
                     self.append_child(w.deref()).unwrap();
                 }
                 VNodeType::TopLevelContainerWidget(_) => (),
@@ -54,6 +56,7 @@ pub trait VContainerWidget:
 
         match (old_member, new_member) {
             (Some(old_member), Some(new_member)) => {
+                #[cfg(feature = "web")]
                 self.replace_child(
                     new_member.as_ref().borrow().get_native_widget(),
                     old_member.as_ref().borrow().get_native_widget(),
@@ -68,6 +71,7 @@ pub trait VContainerWidget:
 
                 for i in (index + 1)..children.len() {
                     if let Some(next_member) = &children[i] {
+                        #[cfg(feature = "web")]
                         self.deref()
                             .insert_before(
                                 new_member_widget,
@@ -78,9 +82,11 @@ pub trait VContainerWidget:
                     }
                 }
 
+                #[cfg(feature = "web")]
                 self.append_child(new_member_widget).unwrap();
             }
             (Some(old_member), None) => {
+                #[cfg(feature = "web")]
                 self.remove_child(old_member.as_ref().borrow().get_native_widget())
                     .unwrap();
             }

@@ -15,7 +15,7 @@ pub fn complex_counter() -> StrongNodeType {
     }, [ref reduce_emoji, ref reduce_emoji_index]};
 
     // add this to gx
-    return gxi! {
+    gxi! {
         div [
            h1 ( const on_click = reduce_emoji_listener.clone() ) [
                Text ( value = "hello")
@@ -27,13 +27,13 @@ pub fn complex_counter() -> StrongNodeType {
            counter(2, reduce_emoji.clone()),
            counter(20, reduce_emoji)
         ]
-    };
+    }
 }
 
 fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
     let counter = State::new(initial);
 
-    return gxi! {
+    gxi! {
         div [
             h1 [
                 Text ( value = counter.to_string() )
@@ -47,5 +47,5 @@ fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
                 ]
             ]
         ]
-    };
+    }
 }

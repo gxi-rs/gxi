@@ -1,6 +1,7 @@
+use std::collections::HashMap;
+
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
-use syn::spanned::Spanned;
 
 use crate::{
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
@@ -10,32 +11,60 @@ use else_arm::ElseArm;
 
 use self::if_arm::IfArm;
 
+use super::{ConditionalBlock, IfSubBlock};
+
 pub struct IfBlock {
     pub if_arm: IfArm,
     pub scope: Scope,
+    // max possible height of vertical nodes in the nested subtree
+    pub max_node_height: usize,
 }
 
 impl OptionalParse for IfBlock {
     fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
-        let mut if_arm = if let Some(if_arm) = IfArm::optional_parse(input)? {
+        let if_arm = if let Some(if_arm) = IfArm::optional_parse(input)? {
             if_arm
         } else {
             return Ok(None);
         };
 
+        let mut scoped_variables = HashMap::new();
+        let mut max_node_height = 0usize;
+
         {
             let mut if_arm_ = &if_arm;
             loop {
-                match &*if_arm_.else_arm {
-                    ElseArm::WithIfArm { if_arm, .. } => {
-                        if !if_arm.scope.is_const() {
-                            return Err(syn::Error::new(
-                                if_arm.if_token.span(),
-                                "chaining observables is unsupported. consider adding const here",
-                            ));
-                        }
-                        if_arm_ = &if_arm
+                let mut max_arm_node_height = 0usize;
+
+                if let Scope::Observable(observables) = &if_arm.scope {
+                    for x in observables {
+                        scoped_variables.insert(x.to_string(), x.clone());
                     }
+                }
+
+                // calculate max_pre_allocations
+                for block in if_arm.sub_tree.iter() {
+                    match block {
+                        IfSubBlock::Node(_) => {
+                            max_arm_node_height += 1;
+                        }
+                        IfSubBlock::Conditional(cond) => match &cond {
+                            ConditionalBlock::If(if_block) => {
+                                max_arm_node_height += if_block.max_node_height;
+                            }
+                            ConditionalBlock::Match(_) => {
+                                todo!("[if_subtree] match expressions not yet implemented")
+                            }
+                        },
+                        IfSubBlock::Execution(_) => (),
+                        IfSubBlock::NoneBlock => unreachable!(),
+                    }
+                }
+
+                max_node_height = max_node_height.max(max_arm_node_height);
+
+                match &*if_arm_.else_arm {
+                    ElseArm::WithIfArm { if_arm, .. } => if_arm_ = if_arm,
                     _ => {
                         break;
                     }
@@ -43,11 +72,15 @@ impl OptionalParse for IfBlock {
             }
         }
 
-        // NOTE: turn scope of first block to const
-        let scope = if_arm.scope;
-        if_arm.scope = Scope::Constant;
-
-        Ok(Some(Self { if_arm, scope }))
+        Ok(Some(Self {
+            if_arm,
+            scope: if scoped_variables.is_empty() {
+                Scope::Constant
+            } else {
+                Scope::Observable(scoped_variables.into_values().collect())
+            },
+            max_node_height,
+        }))
     }
 }
 // __index_offset = index of first if statement
@@ -61,9 +94,13 @@ impl IfBlock {
         node_index: usize,
         parent_return_type: &TokenStream2,
     ) {
-        let mut if_arm_tokens = self
-            .if_arm
-            .to_token_stream(node_index, 1, self.scope.is_const());
+        let mut if_arm_tokens = self.if_arm.to_token_stream(
+            1,
+            node_index,
+            self.max_node_height,
+            parent_return_type,
+            self.scope.is_const(),
+        );
 
         if !self.scope.is_const() {
             if_arm_tokens = quote! {
@@ -91,10 +128,7 @@ impl IfBlock {
 impl_parse_for_optional_parse!(IfBlock);
 
 mod if_arm {
-    use crate::{
-        component::NodeBlock,
-        conditional::if_block::{body_to_tokens, else_arm::ElseArm},
-    };
+    use crate::conditional::{if_block::else_arm::ElseArm, IfSubTree};
     use quote::quote;
     use syn::__private::TokenStream2;
 
@@ -106,7 +140,7 @@ mod if_arm {
     pub struct IfArm {
         pub scope: Scope,
         pub if_token: syn::Token!(if),
-        pub body: NodeBlock,
+        pub sub_tree: IfSubTree,
         pub else_arm: Box<ElseArm>,
         pub condition: syn::Expr,
     }
@@ -134,7 +168,7 @@ mod if_arm {
 
             // parse children
             let body = {
-                let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
+                let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
 
                 content.parse()?
             };
@@ -145,7 +179,7 @@ mod if_arm {
             Ok(Some(Self {
                 scope,
                 if_token,
-                body,
+                sub_tree: body,
                 else_arm,
                 condition,
             }))
@@ -157,25 +191,43 @@ mod if_arm {
     impl IfArm {
         pub fn to_token_stream(
             &self,
-            node_index: usize,
             branch_index: usize,
+            node_index: usize,
+            max_node_height: usize,
+            parent_return_type: &TokenStream2,
             constant_scope: bool,
         ) -> TokenStream2 {
             let Self {
                 if_token,
-                body,
+                sub_tree,
                 else_arm,
                 condition,
                 ..
             } = self;
 
-            let body = body_to_tokens(&quote! {#body}, branch_index, node_index, constant_scope);
+            let else_arm = else_arm.to_token_stream(
+                branch_index + 1,
+                node_index,
+                max_node_height,
+                parent_return_type,
+                constant_scope,
+            );
 
-            let else_arm = else_arm.to_token_stream(node_index, branch_index + 1, constant_scope);
+            let sub_tree = {
+                let mut tokens = TokenStream2::new();
+                sub_tree.to_tokens(
+                    &mut tokens,
+                    branch_index,
+                    node_index,
+                    max_node_height,
+                    parent_return_type,
+                );
+                tokens
+            };
 
             quote! {
                 #if_token #condition {
-                    #body
+                    #sub_tree
                 } #else_arm
             }
         }
@@ -183,24 +235,22 @@ mod if_arm {
 }
 
 mod else_arm {
-    use crate::component::NodeBlock;
+    use super::if_arm::IfArm;
+    use crate::conditional::{IfSubBlock, IfSubTree};
     use crate::optional_parse::OptionalParse;
     use quote::quote;
     use syn::__private::TokenStream2;
     use syn::parse::Parse;
 
-    use super::body_to_tokens;
-    use super::if_arm::IfArm;
-
     // NOTE: can't exist independently
     pub enum ElseArm {
         WithIfArm {
             else_token: syn::Token!(else),
-            if_arm: IfArm,
+            if_arm: Box<IfArm>,
         },
-        PureElseArm {
+        PureArm {
             else_token: syn::Token!(else),
-            body: NodeBlock,
+            body: IfSubTree,
         },
         None,
     }
@@ -209,10 +259,13 @@ mod else_arm {
         fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
             if let Ok(else_token) = input.parse::<syn::Token!(else)>() {
                 if let Some(if_arm) = IfArm::optional_parse(&input)? {
-                    Ok(Self::WithIfArm { else_token, if_arm })
+                    Ok(Self::WithIfArm {
+                        else_token,
+                        if_arm: Box::from(if_arm),
+                    })
                 } else {
-                    let syn::group::Braces { content, .. } = syn::group::parse_braces(&input)?;
-                    Ok(Self::PureElseArm {
+                    let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
+                    Ok(Self::PureArm {
                         else_token,
                         body: content.parse()?,
                     })
@@ -226,22 +279,35 @@ mod else_arm {
     impl ElseArm {
         pub fn to_token_stream(
             &self,
-            node_index: usize,
             branch_index: usize,
+            node_index: usize,
+            max_node_height: usize,
+            parent_return_type: &TokenStream2,
             constant_scope: bool,
         ) -> TokenStream2 {
             match self {
                 ElseArm::WithIfArm { else_token, if_arm } => {
-                    let if_tokens =
-                        if_arm.to_token_stream(node_index, branch_index, constant_scope);
+                    let if_tokens = if_arm.to_token_stream(
+                        branch_index,
+                        node_index,
+                        max_node_height,
+                        parent_return_type,
+                        constant_scope,
+                    );
                     quote! { #else_token #if_tokens }
                 }
-                ElseArm::PureElseArm {
-                    else_token,
-                    body: block,
-                } => {
-                    let body =
-                        body_to_tokens(&quote! {#block}, branch_index, node_index, constant_scope);
+                ElseArm::PureArm { else_token, body } => {
+                    let body = {
+                        let mut tokens = TokenStream2::new();
+                        body.to_tokens(
+                            &mut tokens,
+                            branch_index,
+                            node_index,
+                            max_node_height,
+                            parent_return_type,
+                        );
+                        tokens
+                    };
                     quote! {
                         #else_token #body
                     }
@@ -250,12 +316,19 @@ mod else_arm {
                     if constant_scope {
                         TokenStream2::new()
                     } else {
-                        let body = body_to_tokens(
-                            &TokenStream2::new(),
-                            branch_index,
-                            node_index,
-                            constant_scope,
-                        );
+                        let mut body = IfSubTree::default();
+                        body.push(IfSubBlock::NoneBlock);
+                        let body = {
+                            let mut tokens = TokenStream2::new();
+                            body.to_tokens(
+                                &mut tokens,
+                                branch_index,
+                                node_index,
+                                max_node_height,
+                                parent_return_type,
+                            );
+                            tokens
+                        };
                         quote! {
                             else {
                                 #body
@@ -263,39 +336,6 @@ mod else_arm {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-fn body_to_tokens(
-    body: &TokenStream2,
-    branch_index: usize,
-    node_index: usize,
-    constant_scope: bool,
-) -> TokenStream2 {
-    if constant_scope {
-        quote! {
-            __node.push(Some(#body));
-        }
-    } else {
-        // no trailing else arm
-        let body = if body.is_empty() {
-            quote! {
-                None
-            }
-        } else {
-            quote! {
-                Some(#body)
-            }
-        };
-        quote! {
-            if __if_counter != #branch_index {
-                __node.set_at_index(
-                    #body,
-                    #node_index
-                );
-                __if_counter = #branch_index;
             }
         }
     }
@@ -310,65 +350,79 @@ mod tests {
         scope::Scope,
     };
 
+    use anyhow::{bail, ensure};
+
     #[test]
-    fn conditional_if_block() -> syn::Result<()> {
+    fn max_pre_allocations() -> syn::Result<()> {
+        Ok(())
+    }
+
+    #[test]
+    fn conditional_if_block() -> anyhow::Result<()> {
         let const_condition_expr = quote! { 3 == 4};
         let condition_expr = quote! { t == 3 && #const_condition_expr };
         {
             let expr = quote! { if #condition_expr { div } else { a } };
 
-            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
+            let IfBlock {
+                if_arm,
+                scope,
+                max_node_height,
+            } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
-            assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
+            ensure!(max_node_height == 1);
         }
         {
             let expr = quote! { if #condition_expr { div } else if #const_condition_expr { a } };
 
-            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
+            let IfBlock {
+                if_arm,
+                scope,
+                max_node_height,
+            } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(max_node_height == 1);
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                assert_eq!(if_arm.scope, Scope::Constant);
-                assert_eq!(
-                    if_arm.condition.to_token_stream().to_string(),
-                    const_condition_expr.to_string()
+                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(
+                    if_arm.condition.to_token_stream().to_string()
+                        == const_condition_expr.to_string()
                 );
-                assert!(matches!(*if_arm.else_arm, ElseArm::None));
+                ensure!(matches!(*if_arm.else_arm, ElseArm::None));
             } else {
-                panic!("expected ElseArm::WithIfArm")
+                bail!("expected ElseArm::WithIfArm")
             }
         }
         {
             let expr = quote! { if #condition_expr { div } else if const #const_condition_expr { a } else { a } };
 
-            let IfBlock { if_arm, scope } = syn::parse2(expr)?;
+            let IfBlock {
+                if_arm,
+                scope,
+                max_node_height,
+            } = syn::parse2(expr)?;
 
-            assert_eq!(scope, Scope::Observable(quote! {t}));
-            assert_eq!(
-                if_arm.condition.to_token_stream().to_string(),
-                condition_expr.to_string()
-            );
+            ensure!(scope == Scope::Observable(vec![quote! {t}]));
+            ensure!(if_arm.condition.to_token_stream().to_string() == condition_expr.to_string());
+            ensure!(max_node_height == 1);
+
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                assert_eq!(if_arm.scope, Scope::Constant);
-                assert_eq!(
-                    if_arm.condition.to_token_stream().to_string(),
-                    const_condition_expr.to_string()
+                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(
+                    if_arm.condition.to_token_stream().to_string()
+                        == const_condition_expr.to_string()
                 );
-                assert!(matches!(*if_arm.else_arm, ElseArm::PureElseArm { .. }));
+                ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
             } else {
-                panic!("expected ElseArm::WithIfArm")
+                bail!("expected ElseArm::WithIfArm")
             }
         }
         Ok(())

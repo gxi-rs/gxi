@@ -1,6 +1,6 @@
 [package]
 name = "gxi-transpiler"
-version = "0.6.0"
+version = "0.6.1"
 edition = "2018"
 license = "MIT"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
@@ -20,3 +20,6 @@ default = []
 [dependencies]
 syn = { version = "1.0.73", features = ["full"] }
 quote = "1.0.9"
+
+[dev-dependencies]
+anyhow = "1.0.52"
