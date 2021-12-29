@@ -57,7 +57,7 @@ mod tests {
     use super::Observers;
     #[test]
     fn observer_remove() {
-        let obs = Observers::default();
+        let mut obs = Observers::default();
         obs.add_observer(Box::new(|_| true));
         obs.add_observer(Box::new(|_| false));
         obs.add_observer(Box::new(|_| true));
