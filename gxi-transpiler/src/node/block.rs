@@ -48,7 +48,7 @@ impl NodeType {
                 };
                 quote! { #path#constructor(#(#args),*) }
             }
-            NodeType::Element { name, .. } => quote! { gxi::Element::from_str(#name) },
+            NodeType::Element { name, .. } => quote! { gxi::Element::from(#name) },
         }
     }
 

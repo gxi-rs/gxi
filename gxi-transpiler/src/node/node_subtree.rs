@@ -132,7 +132,7 @@ mod punctuated_blocks_to_tokens {
         let div_tokens = quote! {
             __node.push(Some({
                use gxi::{VNode, VContainerWidget};
-               let mut __node = gxi::Element::from_str("div");
+               let mut __node = gxi::Element::from("div");
                let __node = __node.into_strong_node_type();
                __node
            }));

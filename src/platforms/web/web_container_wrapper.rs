@@ -14,11 +14,12 @@ impl Default for WebContainerWrapper {
     }
 }
 
-impl From<&str> for WebContainerWrapper {
-    fn from(name: &str) -> Self {
+impl<T: AsRef<str>> From<T> for WebContainerWrapper {
+    fn from(name: T) -> Self {
         Self({
             let window = web_sys::window().unwrap();
             let document = window.document().unwrap();
+            let name = name.as_ref();
             if name.starts_with("#") {
                 document.get_element_by_id(name).unwrap()
             } else {
@@ -48,8 +49,8 @@ impl WebContainerWrapper {
     /// # Safety
     ///
     /// may cause undefined behaviour.
-    pub unsafe fn inner_html(&self, str: &str) {
-        self.0.set_inner_html(str)
+    pub unsafe fn inner_html<T: AsRef<str>>(&self, html: T) {
+        self.0.set_inner_html(html.as_ref())
     }
 
     //**************************************** HTML Attributes ****************************************

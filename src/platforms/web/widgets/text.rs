@@ -7,7 +7,7 @@ pub struct Text {
 
 impl Default for Text {
     fn default() -> Self {
-        Self::from_str("")
+        Self::from("")
     }
 }
 
@@ -26,10 +26,8 @@ impl std::ops::DerefMut for Text {
         panic!("cannot borrow text node as mut")
     }
 }
-
-impl Text {
-    #[allow(clippy::should_implement_trait)]
-    pub fn from_str<T: AsRef<str>>(value: T) -> Self {
+impl<T: AsRef<str>> From<T> for Text {
+    fn from(value: T) -> Self {
         Self {
             native_widget: {
                 let window = web_sys::window().unwrap();
@@ -38,7 +36,8 @@ impl Text {
             },
         }
     }
-
+}
+impl Text {
     pub fn value<T: AsRef<str>>(&mut self, value: T) {
         self.native_widget.set_text_content(Some(value.as_ref()));
     }
