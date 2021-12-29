@@ -19,7 +19,11 @@ impl From<&str> for WebContainerWrapper {
         Self({
             let window = web_sys::window().unwrap();
             let document = window.document().unwrap();
-            document.create_element(name).unwrap()
+            if name.starts_with("#") {
+                document.get_element_by_id(name).unwrap()
+            } else {
+                document.create_element(name).unwrap()
+            }
         })
     }
 }
