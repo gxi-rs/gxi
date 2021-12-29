@@ -20,6 +20,7 @@ desktop:
 
 test:
 	cargo test --workspace --lib $(args)
+	cd examples/web && cargo check
 
 release:
 	cargo release --workspace --sign --exclude example $(args) 
