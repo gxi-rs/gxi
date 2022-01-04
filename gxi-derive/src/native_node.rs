@@ -7,7 +7,7 @@ pub enum NativeNode {
 }
 
 impl NativeNode {
-    pub fn impl_deref(&self, name: &TokenStream2) {
+    pub fn impl_deref(&self, name: &TokenStream2) -> TokenStream2 {
         let target = match self {
             Self::Container => quote!(gxi::NativeContainer),
             Self::Widget => quote!(gxi::NativeWidget),
@@ -27,6 +27,6 @@ impl NativeNode {
                      &mut self.native_widget
                  }
              }
-        };
+        }
     }
 }

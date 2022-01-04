@@ -4,7 +4,7 @@ use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 
 use super::VNodeDefault;
-use crate::node::Node;
+use crate::{native_node::NativeNode, node::Node};
 
 pub struct ContainerVNode;
 
@@ -13,11 +13,13 @@ impl ContainerVNode {
         let input = syn::parse::<syn::DeriveInput>(input).unwrap();
         let name = input.ident.to_token_stream();
 
-        let v_node_default = VNodeDefault::derive(&name, &Node::Leaf.to_token_stream());
+        let v_node_default = VNodeDefault::derive(&name, &node.to_token_stream());
+        let native_node_deref = NativeNode::Container.impl_deref(&name);
 
         quote! {
-            impl gxi::VContainerWidget for #name {}
+            impl gxi::VContainer for #name {}
             #v_node_default
+            #native_node_deref
         }
     }
 }

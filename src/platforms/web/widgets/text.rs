@@ -1,6 +1,6 @@
-use crate::{self as gxi, gxi_vnode};
+use crate::{self as gxi, gxi_derive::gxi_vnode};
 
-#[gxi_vnode(Widget)]
+#[gxi_vnode(Leaf)]
 pub struct Text {
     native_widget: web_sys::Text,
 }
@@ -11,7 +11,7 @@ impl Default for Text {
     }
 }
 
-impl gxi::VWidget for Text {}
+impl gxi::VLeaf for Text {}
 
 impl std::ops::Deref for Text {
     type Target = gxi::NativeWidget;
@@ -26,6 +26,7 @@ impl std::ops::DerefMut for Text {
         panic!("cannot borrow text node as mut")
     }
 }
+
 impl<T: AsRef<str>> From<T> for Text {
     fn from(value: T) -> Self {
         Self {
@@ -37,6 +38,7 @@ impl<T: AsRef<str>> From<T> for Text {
         }
     }
 }
+
 impl Text {
     pub fn value<T: AsRef<str>>(&mut self, value: T) {
         self.native_widget.set_text_content(Some(value.as_ref()));

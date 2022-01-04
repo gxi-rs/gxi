@@ -6,15 +6,15 @@ use wasm_bindgen::JsCast;
 
 use crate::{generate_attr, generate_on_func};
 
-pub struct WebContainerWrapper(pub web_sys::Element);
+pub struct WebElement(pub web_sys::Element);
 
-impl Default for WebContainerWrapper {
+impl Default for WebElement {
     fn default() -> Self {
         "div".into()
     }
 }
 
-impl<T: AsRef<str>> From<T> for WebContainerWrapper {
+impl<T: AsRef<str>> From<T> for WebElement {
     fn from(name: T) -> Self {
         Self({
             let window = web_sys::window().unwrap();
@@ -29,7 +29,7 @@ impl<T: AsRef<str>> From<T> for WebContainerWrapper {
     }
 }
 
-impl Deref for WebContainerWrapper {
+impl Deref for WebElement {
     type Target = web_sys::Element;
 
     fn deref(&self) -> &Self::Target {
@@ -37,7 +37,7 @@ impl Deref for WebContainerWrapper {
     }
 }
 
-impl DerefMut for WebContainerWrapper {
+impl DerefMut for WebElement {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -45,7 +45,7 @@ impl DerefMut for WebContainerWrapper {
 
 // add extra calls
 
-impl WebContainerWrapper {
+impl WebElement {
     /// # Safety
     ///
     /// may cause undefined behaviour.

@@ -1,7 +1,7 @@
 pub use run::*;
 pub use top_level::*;
 pub use web_container::*;
-pub use web_container_wrapper::*;
+pub use web_element::*;
 pub use widgets::*;
 
 #[cfg(feature = "async-web")]
@@ -11,7 +11,7 @@ mod gen_macros;
 mod run;
 mod top_level;
 mod web_container;
-mod web_container_wrapper;
+mod web_element;
 mod widgets;
 
 /// Smallest element of the native widget system which can be added to other
@@ -19,7 +19,7 @@ mod widgets;
 pub type NativeWidget = web_sys::Node;
 
 /// An element of the native widget system which can hold a child
-pub type NativeContainerWidget = WebContainerWrapper;
+pub type NativeContainer = WebElement;
 
 /// An
 pub type Element = WebContainer;
