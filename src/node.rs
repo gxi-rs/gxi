@@ -1,13 +1,12 @@
 use std::{
-    cell::RefCell,
     ops::{Deref, DerefMut},
     rc::{Rc, Weak},
 };
 
 use crate::{NativeWidget, VContainer, VLeaf, VNode};
 
-pub type StrongNodeType = Rc<RefCell<Node>>;
-pub type WeakNodeType = Weak<RefCell<Node>>;
+pub type StrongNode = Rc<Node>;
+pub type WeakNode = Weak<Node>;
 
 pub enum Node {
     /// widget which cannot contain other nodes
@@ -16,12 +15,6 @@ pub enum Node {
     Container(Box<dyn VContainer>),
     /// widget which can hold other widgets but can't be added to other nodes
     TopLevelContainer(Box<dyn VContainer>),
-}
-
-impl Into<StrongNodeType> for Node {
-    fn into(self) -> StrongNodeType {
-        Rc::new(RefCell::new(self))
-    }
 }
 
 impl Deref for Node {
