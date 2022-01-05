@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut};
+use std::{ops::{Deref, DerefMut}, any::Any};
 
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::convert::FromWasmAbi;
@@ -6,7 +6,7 @@ use wasm_bindgen::JsCast;
 
 use crate::{generate_attr, generate_on_func};
 
-pub struct WebElement(pub web_sys::Element);
+pub struct WebElement(pub web_sys::Element, pub  Vec<Box<dyn Any>>);
 
 impl Default for WebElement {
     fn default() -> Self {
@@ -16,16 +16,19 @@ impl Default for WebElement {
 
 impl<T: AsRef<str>> From<T> for WebElement {
     fn from(name: T) -> Self {
-        Self({
-            let window = web_sys::window().unwrap();
-            let document = window.document().unwrap();
-            let name = name.as_ref();
-            if name.starts_with("#") {
-                document.get_element_by_id(name).unwrap()
-            } else {
-                document.create_element(name).unwrap()
-            }
-        })
+        Self(
+            {
+                let window = web_sys::window().unwrap();
+                let document = window.document().unwrap();
+                let name = name.as_ref();
+                if name.starts_with("#") {
+                    document.get_element_by_id(name).unwrap()
+                } else {
+                    document.create_element(name).unwrap()
+                }
+            },
+            Vec::new(),
+        )
     }
 }
 
@@ -46,6 +49,9 @@ impl DerefMut for WebElement {
 // add extra calls
 
 impl WebElement {
+    pub fn new(ele: web_sys::Element) -> Self {
+        Self(ele, Vec::new())
+    }
     /// # Safety
     ///
     /// may cause undefined behaviour.
@@ -201,12 +207,12 @@ impl WebElement {
     //*************************************** Event Handlers ***************************************
 
     // Assigns the closure f to the the given event
-    pub fn on<T: 'static + FromWasmAbi, F: FnMut(T) + 'static>(&self, event: &str, f: F) {
+    pub fn on<T: 'static + FromWasmAbi, F: FnMut(T) + 'static>(&mut self, event: &str, f: F) {
         let closure = Closure::wrap(Box::new(f) as Box<dyn FnMut(_)>);
         self.0
             .add_event_listener_with_callback(event, closure.as_ref().unchecked_ref())
             .unwrap();
-        closure.forget();
+        self.1.push(Box::from(closure));
     }
 
     generate_on_func!(on_abort "abort");

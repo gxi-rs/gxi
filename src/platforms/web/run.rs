@@ -1,6 +1,4 @@
-use crate::StrongNodeType;
-
-pub fn run(_node: StrongNodeType) {
+pub fn run() {
     todo!()
     //std::mem::forget(node);
 }
