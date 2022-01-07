@@ -1,46 +1,41 @@
-use std::any::Any;
 use std::ops::{Deref, DerefMut};
 
 use crate::{NativeContainer, NativeWidget, Node};
 
 /// Smallest node which can be added to other nodes but
 /// it itself may or may not have the ability to hold a child
-pub trait VNode: AsRef<dyn Any> + AsMut<dyn Any> + 'static {
+pub trait VNode {
     /// create a new instance of the node
     /// > TopLevelNode doesn't require a parent yet it needs to implement this function
     /// > to maintain a common interface for the gxi compiler
     fn new() -> Self
     where
         Self: Sized;
-    fn into_node(self) -> Node;
+
+    fn as_node(&self) -> Node;
 }
 
 /// VNode referring to a native widget. It itself can't hold other widgets
-pub trait VLeaf:
-    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeWidget> + DerefMut
-{
-}
+pub trait VLeaf: VNode + Deref<Target = NativeWidget> + DerefMut {}
 
 /// VNode referring to a native widget which can hold other widgets
-pub trait VContainer:
-    VNode + AsRef<dyn VNode> + AsMut<dyn VNode> + Deref<Target = NativeContainer> + DerefMut
-{
-    fn push(&mut self, member: &Node) {
+pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
+    fn push(&self, member: &Node, native_widget: &NativeWidget) {
         // do not add widget of to top level container widget
         match member {
-            Node::Leaf(w) => {
+            Node::Leaf => {
                 #[cfg(feature = "web")]
-                self.append_child(w.deref()).unwrap();
+                self.append_child(native_widget).unwrap();
             }
-            Node::Container(w) => {
+            Node::Container => {
                 #[cfg(feature = "web")]
-                self.append_child(w.deref()).unwrap();
+                self.append_child(native_widget).unwrap();
             }
-            Node::TopLevelContainer(_) => (),
+            Node::TopLevelContainer => (),
         }
     }
 
-    fn set_at_index(&mut self, _new_member: &Node, _index: usize, _replace: bool) {
+    fn set_at_index(&self, _new_member: &Node, _index: usize, _replace: bool) {
         todo!()
         //        if replace {
         //            self.replace_child(
