@@ -11,34 +11,39 @@ impl VNodeDefault {
                     Self::default()
                 }
 
-                fn into_node(self) -> gxi::Node {
-                    gxi::Node::#node(Box::from(self))
+                fn as_node(&self) -> gxi::Node {
+                    gxi::Node::#node
                 }
             }
 
-            impl AsRef<dyn gxi::VNode> for #name {
-                fn as_ref(&self) -> &dyn gxi::VNode {
-                    self
-                }
-            }
+            //impl AsRef<dyn std::any::Any> for #name {
+            //    fn as_ref(&self) -> &dyn std::any::Any {
+            //        self
+            //    }
+            //}
+            //impl AsRef<dyn #trait_tok> for #name {
+            //    fn as_ref(&self) -> &dyn #trait_tok {
+            //        self
+            //    }
+            //}
 
-            impl AsMut<dyn gxi::VNode> for #name {
-                fn as_mut(&mut self) -> &mut dyn gxi::VNode {
-                    self
-                }
-            }
+            //impl AsMut<dyn #trait_tok> for #name {
+            //    fn as_mut(&mut self) -> &mut dyn #trait_tok {
+            //        self
+            //    }
+            //}
 
-            impl AsRef<dyn std::any::Any> for #name {
-                fn as_ref(&self) -> &dyn std::any::Any {
-                    self
-                }
-            }
+            //impl AsRef<dyn std::any::Any> for #name {
+            //    fn as_ref(&self) -> &dyn std::any::Any {
+            //        self
+            //    }
+            //}
 
-            impl AsMut<dyn std::any::Any> for #name {
-                fn as_mut(&mut self) -> &mut dyn std::any::Any {
-                    self
-                }
-            }
+            //impl AsMut<dyn std::any::Any> for #name {
+            //    fn as_mut(&mut self) -> &mut dyn std::any::Any {
+            //        self
+            //    }
+            //}
         }
     }
 }
