@@ -1,4 +1,8 @@
-use std::{ops::{Deref, DerefMut}, any::Any};
+use std::{
+    any::Any,
+    cell::RefCell,
+    ops::{Deref, DerefMut},
+};
 
 use wasm_bindgen::closure::Closure;
 use wasm_bindgen::convert::FromWasmAbi;
@@ -6,7 +10,7 @@ use wasm_bindgen::JsCast;
 
 use crate::{generate_attr, generate_on_func};
 
-pub struct WebElement(pub web_sys::Element, pub  Vec<Box<dyn Any>>);
+pub struct WebElement(pub web_sys::Element, pub RefCell<Vec<Box<dyn Any>>>);
 
 impl Default for WebElement {
     fn default() -> Self {
@@ -27,7 +31,7 @@ impl<T: AsRef<str>> From<T> for WebElement {
                     document.create_element(name).unwrap()
                 }
             },
-            Vec::new(),
+            Default::default(),
         )
     }
 }
@@ -50,7 +54,7 @@ impl DerefMut for WebElement {
 
 impl WebElement {
     pub fn new(ele: web_sys::Element) -> Self {
-        Self(ele, Vec::new())
+        Self(ele, Default::default())
     }
     /// # Safety
     ///
@@ -207,12 +211,12 @@ impl WebElement {
     //*************************************** Event Handlers ***************************************
 
     // Assigns the closure f to the the given event
-    pub fn on<T: 'static + FromWasmAbi, F: FnMut(T) + 'static>(&mut self, event: &str, f: F) {
+    pub fn on<T: 'static + FromWasmAbi, F: FnMut(T) + 'static>(&self, event: &str, f: F) {
         let closure = Closure::wrap(Box::new(f) as Box<dyn FnMut(_)>);
         self.0
             .add_event_listener_with_callback(event, closure.as_ref().unchecked_ref())
             .unwrap();
-        self.1.push(Box::from(closure));
+        self.1.borrow_mut().push(Box::from(closure));
     }
 
     generate_on_func!(on_abort "abort");

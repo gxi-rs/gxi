@@ -1,13 +1,18 @@
 # Platforms
 
-To achieve a common api for all platforms. Each platform needs to export
+To achieve a stable standard api for all platforms. Each platform needs to export
+certain modules, which include.
 
-1. a `run` function
+//TODO:
 
-```rust
-    pub fn run<C: crate::VNode + crate::Renderable + 'static>() {}
-```
+- `run()` function
 
-2. `NativeWidget`
-3. `NativeContainerWidget`
-4. `Element` with `from_str(String, WeakNodeType) -> Self`
+- `NativeWidget`
+  Smallest element of the native widget system which can be added to other
+  widgets but it itself may or may not have the ability to hold a child
+
+- `NativeContainer`
+  An element of the native widget system which can hold a child
+
+- `Element`
+  default method of constructing a node, needs to have `&self` fields.
