@@ -133,7 +133,7 @@ impl Dependency {
 impl ToTokens for Dependency {
     fn to_tokens(&self, tokens: &mut quote::__private::TokenStream) {
         if let Dependency::Ref(name) = self {
-            tokens.append_all(quote! {let #name = &mut *(*#name).borrow_mut();})
+            tokens.append_all(quote! {let #name = &mut *(**#name).borrow_mut();})
         }
     }
 }
