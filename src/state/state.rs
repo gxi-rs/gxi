@@ -31,14 +31,12 @@ impl<V> Deref for State<V> {
     }
 }
 
-impl<V> Drop for State<V> {
-    fn drop(&mut self) {
-        (*self).notify();
-    }
-}
-
 impl<V> WeakState<V> {
-    pub fn upgrade(&self) -> State<V> {
-        State(self.0.upgrade().unwrap())
+    pub fn upgrade(&self) -> Option<State<V>> {
+        if let Some(v) = self.0.upgrade() {
+            Some(State(v))
+        } else {
+            None
+        }
     }
 }

@@ -4,7 +4,7 @@ use crate::{Observer, Observers};
 
 pub struct Observable<V> {
     value: RefCell<V>,
-    observers: RefCell<Observers<V>>,
+    observers: RefCell<Observers<RefCell<V>>>,
 }
 
 impl<V> Deref for Observable<V> {
@@ -26,13 +26,12 @@ impl<V> From<V> for Observable<V> {
 
 impl<V> Observable<V> {
     /// add observer which is called when value under Observable changes
-    pub fn add_observer(&self, observer: Observer<V>) {
+    pub fn add_observer(&self, observer: Observer<RefCell<V>>) {
         self.observers.borrow_mut().push(observer);
     }
 
     /// notifies all observers that the value has changed
     pub fn notify(&self) {
-        self.observers.borrow_mut().notify(&*self.value.borrow());
+        self.observers.borrow_mut().notify(&self.value);
     }
 }
-
