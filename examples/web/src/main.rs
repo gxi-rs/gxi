@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use gxi::{set_state, Body, ContextNode, State, VContainer, VNode, WeakState};
+use gxi::{set_state, Body, ConstContextNode, State, VContainer, VNode, WeakState};
 
 //mod app;
 //mod cat_fact;
@@ -13,16 +13,16 @@ use gxi::{set_state, Body, ContextNode, State, VContainer, VNode, WeakState};
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    app().manage_mem();
+    app().leak();
     //gxi::run(app());
 }
 
-fn app() -> ContextNode {
+fn app() -> ConstContextNode {
     let state = State::from(2i32);
     let state2 = State::from(2i32);
 
     {
-        let mut __ctx = ContextNode::default();
+        let mut __ctx = ConstContextNode::default();
         // rule of thumb __node can only be owned by parent context
         {
             let mut __node = Body::new();

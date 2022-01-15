@@ -309,14 +309,14 @@ mod tests {
 
     impl Parse for NodeTypeParser {
         fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-            Ok(Self(NodeType::parse(&input)?.unwrap()))
+            Ok(Self(NodeType::parse(input)?.unwrap()))
         }
     }
 
     #[test]
     fn node_type() -> anyhow::Result<()> {
         {
-            let node_type = syn::parse2::<NodeTypeParser>(quote! { Body }.into())?.0;
+            let node_type = syn::parse2::<NodeTypeParser>(quote! { Body })?.0;
             if let NodeType::Component {
                 constructor,
                 path,
@@ -336,7 +336,7 @@ mod tests {
             ensure!(node_type.get_init_call().to_string() == quote! {Body::new()}.to_string());
         }
         {
-            let node_type = syn::parse2::<NodeTypeParser>(quote! { func(12, 12) }.into())?.0;
+            let node_type = syn::parse2::<NodeTypeParser>(quote! { func(12, 12) })?.0;
             if let NodeType::FunctionalComponent {
                 constructor,
                 path,
@@ -353,7 +353,7 @@ mod tests {
         }
         {
             let node_type =
-                syn::parse2::<NodeTypeParser>(quote! { Comp::with_name("hey") }.into())?.0;
+                syn::parse2::<NodeTypeParser>(quote! { Comp::with_name("hey") })?.0;
             if let NodeType::Component {
                 args,
                 props,

@@ -23,15 +23,15 @@ pub fn gxi_vnode(attr: TokenStream, input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(LeafNode)]
 pub fn gxi_leaf_node_derive(input: TokenStream) -> TokenStream {
-    Node::Leaf.parse_derive(input).into()
+    Node::Leaf.parse_derive(input)
 }
 
 #[proc_macro_derive(TopLevelContainerNode)]
 pub fn gxi_top_level_container_node_derive(input: TokenStream) -> TokenStream {
-    Node::TopLevelContainer.parse_derive(input).into()
+    Node::TopLevelContainer.parse_derive(input)
 }
 
 #[proc_macro_derive(ContainerNode)]
 pub fn gxi_container_node_derive(input: TokenStream) -> TokenStream {
-    Node::Container.parse_derive(input).into()
+    Node::Container.parse_derive(input)
 }

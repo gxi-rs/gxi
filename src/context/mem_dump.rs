@@ -2,6 +2,7 @@ use std::any::Any;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+/// holds an arbitrary amount of memory in a memory pool
 #[derive(Default)]
 pub struct MemDump(Vec<Box<dyn Any>>);
 
@@ -20,7 +21,8 @@ impl DerefMut for MemDump {
 }
 
 impl MemDump {
-    pub fn manage(self) {
+    /// consumes self and leaks memory pool
+    pub fn leak(self) {
         if self.is_empty() {
             drop(self)
         } else {

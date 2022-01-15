@@ -25,7 +25,7 @@ impl<T: AsRef<str>> From<T> for WebElement {
                 let window = web_sys::window().unwrap();
                 let document = window.document().unwrap();
                 let name = name.as_ref();
-                if name.starts_with("#") {
+                if name.starts_with('#') {
                     document.get_element_by_id(name).unwrap()
                 } else {
                     document.create_element(name).unwrap()

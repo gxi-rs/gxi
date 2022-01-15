@@ -33,10 +33,6 @@ impl<V> Deref for State<V> {
 
 impl<V> WeakState<V> {
     pub fn upgrade(&self) -> Option<State<V>> {
-        if let Some(v) = self.0.upgrade() {
-            Some(State(v))
-        } else {
-            None
-        }
+        self.0.upgrade().map(|v| State(v))
     }
 }
