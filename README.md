@@ -8,7 +8,7 @@
     <a href="https://github.com/gxi-rs/gxi/actions">
         <img src="https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg" alt="Tests">
     </a>
-    <a href="https://github.com/gxi-rs/gxi/actions">
+    <a href="https://crates.io/crates/gxi">
         <img src="https://img.shields.io/crates/v/gxi" alt="Crates.io" >
     </a>
 </p>
