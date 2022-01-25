@@ -352,8 +352,7 @@ mod tests {
             ensure!(node_type.get_init_call().to_string() == quote! {func(12, 12)}.to_string());
         }
         {
-            let node_type =
-                syn::parse2::<NodeTypeParser>(quote! { Comp::with_name("hey") })?.0;
+            let node_type = syn::parse2::<NodeTypeParser>(quote! { Comp::with_name("hey") })?.0;
             if let NodeType::Component {
                 args,
                 props,

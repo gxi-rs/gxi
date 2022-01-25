@@ -1,6 +1,8 @@
 use std::rc::Rc;
 
-use gxi::{set_state, Body, ConstContextNode, State, VContainer, VNode, WeakState};
+use gxi::{
+    set_state, Body, ConstContextNode, IndexedContextNode, State, VContainer, VNode, WeakState,
+};
 
 //mod app;
 //mod cat_fact;
@@ -69,7 +71,6 @@ fn app() -> ConstContextNode {
 
                 // conditional block
                 {
-                    let mut __if_index = 0;
                     let __parent = Rc::downgrade(&__parent);
 
                     let __multi_observer = State::from(());
@@ -78,30 +79,32 @@ fn app() -> ConstContextNode {
                     add_multi_observer(&state2, __multi_observer.downgrade());
 
                     let state = state.clone();
-                    let state2 = state2.clone();
+                    let _state2 = state2.clone();
 
-                    __multi_observer.add_observer(Box::new(move |_| {
-                        if let Some(__parent) = __parent.upgrade() {
-                            if *(**state).borrow() == 3 {
-                                if __if_index != 1 {
-                                    {
-                                        let mut __node = gxi::Element::from("button");
-
-                                        __node.on_click(set_state!(*state += 1, [ref state]));
-
-                                        __parent.push(&__node.as_node(), &*__node);
+                    {
+                        let mut __ctx = IndexedContextNode::default();
+                        __multi_observer.add_observer(Box::new(move |_| {
+                            if let Some(__parent) = __parent.upgrade() {
+                                if *((**state).borrow()) == 3 {
+                                    if __ctx.check_index(1) {
+                                        __ctx.set_value(Box::from({
+                                            let mut __node = gxi::Element::from("button");
+                                            __node.on_click(set_state!(*state += 1, [ref state]));
+                                            __parent.push(&__node.as_node(), &*__node);
+                                            __node
+                                        }));
                                     }
-                                    __if_index = 1;
+                                } else {
+                                    __ctx.reset();
                                 }
+                                false
                             } else {
+                                true
                             }
-                            false
-                        } else {
-                            true
-                        }
-                    }));
+                        }));
+                    }
 
-                    __ctx.push(Box::new(__multi_observer));
+                    __ctx.push(Box::new(__multi_observer))
                 }
 
                 __ctx.push(Box::new(__parent));
