@@ -1,26 +1,18 @@
 use std::any::Any;
 
-pub struct IndexedContextNode {
+#[derive(Default)]
+pub struct IndexedContext {
     pub index: usize,
-    pub value: Box<dyn Any>,
+    pub value: Option<Box<dyn Any>>,
 }
 
-impl Default for IndexedContextNode {
-    fn default() -> Self {
-        Self {
-            index: Default::default(),
-            value: Box::from(()),
-        }
-    }
-}
-
-impl IndexedContextNode {
+impl IndexedContext {
     /// if current index is not equal to provided index
     /// then mutates current index and returns true
     /// drops indexed value
     pub fn check_index(&mut self, index: usize) -> bool {
         if self.index != index {
-            self.value = Box::from(());
+            self.value = None;
             self.index = index;
             true
         } else {
@@ -29,11 +21,10 @@ impl IndexedContextNode {
     }
 
     pub fn set_value(&mut self, value: Box<dyn Any>) {
-        self.value = value;
+        self.value = Some(value);
     }
 
-    /// sets index to 0
-    /// sets value to ()
+    /// sets *self to default
     pub fn reset(&mut self) {
         *self = Self::default();
     }

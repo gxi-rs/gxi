@@ -3,7 +3,7 @@ use crate::MemDump;
 /// A RefCell wrapper around MemDump
 /// Used for nodes which live throughout the
 /// lifetime of the component
-pub type ConstContextNode = MemDump;
+pub type ConstContext = MemDump;
 //
 //#[derive(Default)]
 //pub struct ConstContextNode(MemDump);

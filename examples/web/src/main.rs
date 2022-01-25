@@ -1,7 +1,8 @@
 use std::rc::Rc;
 
 use gxi::{
-    set_state, Body, ConstContextNode, IndexedContextNode, State, VContainer, VNode, WeakState,
+    set_state, Body, ConstContext, IndexedContext, State, VContainer, VNode, VNodeContext,
+    VNodeShell, WeakState,
 };
 
 //mod app;
@@ -15,105 +16,104 @@ use gxi::{
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    app().leak();
+    std::mem::forget(app());
     //gxi::run(app());
 }
 
-fn app() -> ConstContextNode {
+fn app() -> VNodeContext {
     let state = State::from(2i32);
     let state2 = State::from(2i32);
 
-    {
-        let mut __ctx = ConstContextNode::default();
-        // rule of thumb __node can only be owned by parent context
+    let mut __ctx = ConstContext::default();
+    let shell = VNodeShell::Rc({
+        let mut __node = Body::new();
+
+        let mut __parent = Rc::new(__node);
+
         {
-            let mut __node = Body::new();
+            let mut __node = gxi::Element::from("div");
+            // props
+            // push
+            __parent.push(&__node.as_node(), &*__node);
+            // if observable props, convert to StrongNode
+            let __node = Rc::new(__node);
+            // observable props
             {
-                let mut __parent = Rc::new(__node);
-
-                {
-                    let mut __node = gxi::Element::from("div");
-                    // props
-                    // push
-                    __parent.push(&__node.as_node(), &*__node);
-                    // if observable props, convert to StrongNode
-                    let __node = Rc::new(__node);
-                    // observable props
-                    {
-                        let __node = Rc::downgrade(&__node);
-                        state.add_observer(Box::new(move |state| {
-                            if let Some(__node) = __node.upgrade() {
-                                unsafe {
-                                    __node.inner_html(state.borrow().to_string());
-                                }
-                                false
-                            } else {
-                                true
-                            }
-                        }));
+                let __node = Rc::downgrade(&__node);
+                state.add_observer(Box::new(move |state| {
+                    if let Some(__node) = __node.upgrade() {
+                        unsafe {
+                            __node.inner_html(state.borrow().to_string());
+                        }
+                        false
+                    } else {
+                        true
                     }
-                    // lifetime of this __node ends here
-                    // in order to make state observable work
-                    // this __node either needs to be forgotten or needs to be put
-                    // into someone with higher lifetime
-                    __ctx.push(Box::new(__node));
-                }
-
-                {
-                    let mut __node = gxi::Element::from("button");
-
-                    __node.on_click(set_state!(*state += 1, [ref state]));
-
-                    __parent.push(&__node.as_node(), &*__node);
-
-                    __ctx.push(Box::new(__node));
-                }
-
-                // conditional block
-                {
-                    let __parent = Rc::downgrade(&__parent);
-
-                    let __multi_observer = State::from(());
-
-                    add_multi_observer(&state, __multi_observer.downgrade());
-                    add_multi_observer(&state2, __multi_observer.downgrade());
-
-                    let state = state.clone();
-                    let _state2 = state2.clone();
-
-                    {
-                        let mut __ctx = IndexedContextNode::default();
-                        __multi_observer.add_observer(Box::new(move |_| {
-                            if let Some(__parent) = __parent.upgrade() {
-                                if *((**state).borrow()) == 3 {
-                                    if __ctx.check_index(1) {
-                                        __ctx.set_value(Box::from({
-                                            let mut __node = gxi::Element::from("button");
-                                            __node.on_click(set_state!(*state += 1, [ref state]));
-                                            __parent.push(&__node.as_node(), &*__node);
-                                            __node
-                                        }));
-                                    }
-                                } else {
-                                    __ctx.reset();
-                                }
-                                false
-                            } else {
-                                true
-                            }
-                        }));
-                    }
-
-                    __ctx.push(Box::new(__multi_observer))
-                }
-
-                __ctx.push(Box::new(__parent));
+                }));
             }
-        };
+            // lifetime of this __node ends here
+            // in order to make state observable work
+            // this __node either needs to be forgotten or needs to be put
+            // into someone with higher lifetime
+            __ctx.push(Box::new(__node));
+        }
+
+        {
+            let mut __node = gxi::Element::from("button");
+
+            __node.on_click(set_state!(*state += 1, [ref state]));
+
+            __parent.push(&__node.as_node(), &*__node);
+
+            __ctx.push(Box::new(__node));
+        }
+
+        // conditional block
+        {
+            let __parent = Rc::downgrade(&__parent);
+
+            let __multi_observer = State::from(());
+
+            add_multi_observer(&state, __multi_observer.downgrade());
+            add_multi_observer(&state2, __multi_observer.downgrade());
+
+            let state = state.clone();
+            let _state2 = state2.clone();
+
+            {
+                let mut __ctx = IndexedContext::default();
+                __multi_observer.add_observer(Box::new(move |_| {
+                    if let Some(__parent) = __parent.upgrade() {
+                        if *((**state).borrow()) == 3 {
+                            if __ctx.check_index(1) {
+                                __ctx.set_value(Box::from({
+                                    let mut __node = gxi::Element::from("button");
+                                    __node.on_click(set_state!(*state += 1, [ref state]));
+                                    __parent.push(&__node.as_node(), &*__node);
+                                    __node
+                                }));
+                            }
+                        } else {
+                            __ctx.reset();
+                        }
+                        false
+                    } else {
+                        true
+                    }
+                }));
+            }
+
+            __ctx.push(Box::new(__multi_observer))
+        }
+
+        // notify
         state.notify();
         state2.notify();
-        __ctx
-    }
+        // return
+        __parent
+    });
+
+    VNodeContext::from(shell, Some(Box::from(__ctx)))
 }
 
 fn add_multi_observer<V>(state: &State<V>, multi_observer: WeakState<()>) {
