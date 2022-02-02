@@ -1,7 +1,7 @@
 <h1 align="center">GXI</h1>
 
 <p align="center">
-    <i>Cross-Platform Native Widget based Component System in Rust</i>
+    <i>A Declarative Cross-Platform Native UI-Framework</i>
 </p>
 
 <p align="center">
