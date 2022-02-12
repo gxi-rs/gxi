@@ -110,9 +110,7 @@ impl IfBlock {
             };
         }
 
-        let mut main_body = self
-            .scope
-            .to_token_stream(&if_arm_tokens, parent_return_type);
+        let mut main_body = self.scope.to_token_stream(&if_arm_tokens);
 
         if let Scope::Observable(_) = self.scope {
             main_body = quote! {

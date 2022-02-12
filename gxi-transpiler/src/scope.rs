@@ -147,8 +147,7 @@ impl Parse for Scope {
 }
 
 impl Scope {
-    // WARN: should be a little less exact
-    pub fn to_token_stream(&self, body: &TokenStream2, return_type: &TokenStream2) -> TokenStream2 {
+    pub fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
         match &self {
             Scope::Observable(observables) => {
                 if observables.len() > 1 {
@@ -157,19 +156,16 @@ impl Scope {
                 }
                 let name = &observables[0];
                 quote! {{
-                                    let __node = std::rc::Rc::downgrade(&__node);
-                                    #name.add_observer(Box::new(move |#name| {
-                                        if let Some(__node) = __node.upgrade() {
-                //                            let mut __node = __node.as_ref().borrow_mut();
-                //                            let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
-
-                                            #body
-                                            false
-                                        } else {
-                                            true
-                                        }
-                                    }));
-                                }}
+                    let __node = std::rc::Rc::downgrade(&__node);
+                    #name.add_observer(Box::new(move |#name| {
+                        if let Some(__node) = __node.upgrade() {
+                            #body
+                            false
+                        } else {
+                            true
+                        }
+                    }));
+                }}
             }
             Scope::Constant => quote! {
                 #body

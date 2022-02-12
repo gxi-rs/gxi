@@ -81,21 +81,14 @@ impl Parse for NodeProp {
     }
 }
 
-impl NodeProp {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut quote::__private::TokenStream,
-        return_type: &TokenStream2,
-    ) {
+impl ToTokens for NodeProp {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         let Self {
             left, right, scope, ..
         } = self;
 
-        tokens.append_all(scope.to_token_stream(
-            &quote! {
-                __node.#left(#right);
-            },
-            return_type,
-        ));
+        tokens.append_all(scope.to_token_stream(&quote! {
+            __node.#left(#right);
+        }));
     }
 }

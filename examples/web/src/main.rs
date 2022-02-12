@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
 use gxi::{
-    gxi, set_state, Body, ConstContext, IndexedContext, State, Text, VContainer, VNode,
-    VNodeContext, VNodeShell, WeakState,
+    gxi, set_state, Body, ConstContext, State, Text, VContainer, VNode, VNodeContext, VNodeShell,
+    WeakState,
 };
 
 //mod app;
@@ -22,7 +22,7 @@ fn main() {
 
 fn app() -> VNodeContext {
     let state = State::from(2i32);
-    let state2 = State::from(2i32);
+    //let state2 = State::from(2i32);
 
     gxi! {
         Body [ //context

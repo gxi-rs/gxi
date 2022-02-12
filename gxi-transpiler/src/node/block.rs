@@ -62,19 +62,16 @@ impl NodeType {
         }
     }
 
-    pub fn get_const_and_observable_props(
-        &self,
-        return_type: &TokenStream2,
-    ) -> (TokenStream2, TokenStream2) {
+    pub fn get_const_and_observable_props(&self) -> (TokenStream2, TokenStream2) {
         let mut const_props = TokenStream2::new();
         let mut observable_props = TokenStream2::new();
 
         if let Some(props) = self.get_props() {
             for prop in props.iter() {
                 if let Scope::Constant = prop.scope {
-                    prop.to_tokens(&mut const_props, return_type);
+                    prop.to_tokens(&mut const_props);
                 } else {
-                    prop.to_tokens(&mut observable_props, return_type);
+                    prop.to_tokens(&mut observable_props);
                 }
             }
         }
@@ -259,8 +256,8 @@ impl OptionalParse for NodeBlock {
 
         if !requires_rc {
             for sub_node in sub_tree.iter() {
-                match sub_node {
-                    NodeSubBlock::Conditional(cond) => match cond {
+                if let NodeSubBlock::Conditional(cond) = sub_node {
+                    match cond {
                         crate::conditional::ConditionalBlock::If(if_block) => {
                             if !if_block.scope.is_const() {
                                 requires_rc = true;
@@ -269,8 +266,7 @@ impl OptionalParse for NodeBlock {
                             }
                         }
                         crate::conditional::ConditionalBlock::Match(_) => todo!(),
-                    },
-                    _ => (),
+                    }
                 }
             }
         }
@@ -307,8 +303,7 @@ impl ToTokens for NodeBlock {
             }
             _ => {
                 let return_type = node_type.get_return_type();
-                let (const_props, observable_props) =
-                    node_type.get_const_and_observable_props(&return_type);
+                let (const_props, observable_props) = node_type.get_const_and_observable_props();
 
                 let mut subtree_tokens = TokenStream2::new();
                 subtree.to_tokens(&mut subtree_tokens, &return_type);

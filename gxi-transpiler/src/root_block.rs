@@ -24,7 +24,7 @@ impl ToTokens for RootBlock {
 
             for sub_node in node.sub_tree.iter() {
                 if let NodeSubBlock::Node(sub_node) = sub_node {
-                    node_q.push_back(&sub_node);
+                    node_q.push_back(sub_node);
                 }
             }
         }
@@ -56,9 +56,4 @@ impl Parse for RootBlock {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         Ok(Self(NodeBlock::parse(input)?))
     }
-}
-
-#[cfg(test)]
-mod tests {
-    pub fn foo() {}
 }
