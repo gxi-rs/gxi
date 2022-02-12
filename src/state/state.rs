@@ -36,3 +36,14 @@ impl<V> WeakState<V> {
         self.0.upgrade().map(|v| State(v))
     }
 }
+
+pub fn add_multi_observer<V>(state: &State<V>, multi_observer: WeakState<()>) {
+    state.add_observer(Box::new(move |_| {
+        if let Some(multi_observer) = multi_observer.upgrade() {
+            multi_observer.notify();
+            false
+        } else {
+            true
+        }
+    }));
+}
