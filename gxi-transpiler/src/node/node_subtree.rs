@@ -86,12 +86,16 @@ impl NodeSubTree {
                     }
                     _ => todo!(),
                 },
-                NodeSubBlock::Node(_) => {
+                NodeSubBlock::Node(node) => {
                     tokens.append_all(quote! {
-                        __node.push(
-                           Some(#block_tokens)
-                        );
+                        #block_tokens
+                        __node.push(&__child.as_node(), &*__child);
                     });
+                    if node.requires_context {
+                        tokens.append_all(quote! {
+                            __ctx.push(Box::new(__child));
+                        });
+                    }
                 }
 
                 _ => tokens.append_all(block_tokens),
@@ -112,7 +116,6 @@ impl NodeSubTree {
         }
 
         tokens.append_all(quote! {
-            let __node = __node.into_strong_node_type();
             #if_buffer
         })
     }

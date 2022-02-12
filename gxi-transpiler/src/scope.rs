@@ -8,9 +8,6 @@ use syn::Expr;
 
 #[derive(Debug)]
 pub enum Scope {
-    /// # Args
-    ///
-    /// observable ident
     Observable(Vec<TokenStream2>),
     Constant,
 }
@@ -162,10 +159,9 @@ impl Scope {
                 quote! {{
                     let __node = std::rc::Rc::downgrade(&__node);
                     #name.add_observer(Box::new(move |#name| {
-                        use std::ops::DerefMut;
                         if let Some(__node) = __node.upgrade() {
-                            let mut __node = __node.as_ref().borrow_mut();
-                            let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
+//                            let mut __node = __node.as_ref().borrow_mut();
+//                            let __node = __node.deref_mut().as_mut().downcast_mut::<#return_type>().unwrap();
 
                             #body
                             false

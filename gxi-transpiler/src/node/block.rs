@@ -1,4 +1,4 @@
-use super::{NodeProps, NodeSubTree};
+use super::{NodeProps, NodeSubBlock, NodeSubTree};
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 use crate::scope::Scope;
 use quote::ToTokens;
@@ -68,25 +68,24 @@ impl NodeType {
     ) -> (TokenStream2, TokenStream2) {
         let mut const_props = TokenStream2::new();
         let mut observable_props = TokenStream2::new();
-        let props = self.get_props();
 
-        for prop in &props.props {
-            if let Scope::Constant = prop.scope {
-                prop.to_tokens(&mut const_props, return_type);
-            } else {
-                prop.to_tokens(&mut observable_props, return_type);
+        if let Some(props) = self.get_props() {
+            for prop in props.iter() {
+                if let Scope::Constant = prop.scope {
+                    prop.to_tokens(&mut const_props, return_type);
+                } else {
+                    prop.to_tokens(&mut observable_props, return_type);
+                }
             }
         }
 
         (const_props, observable_props)
     }
 
-    pub fn get_props(&self) -> &NodeProps {
+    pub fn get_props(&self) -> Option<&NodeProps> {
         match self {
-            NodeType::FunctionalComponent { .. } => {
-                unreachable!("Internal Error: functional component's can't have props.")
-            }
-            NodeType::Element { props, .. } | NodeType::Component { props, .. } => props,
+            NodeType::FunctionalComponent { .. } => None,
+            NodeType::Element { props, .. } | NodeType::Component { props, .. } => Some(props),
         }
     }
 }
@@ -100,7 +99,7 @@ impl NodeType {
         if input.is_empty() {
             return Err(syn::Error::new(input.span(), "expected tokens"));
         }
-        #[allow(clippy::question_mark)]
+
         let mut path = if let Ok(path) = input.parse::<syn::Path>() {
             path
         } else {
@@ -137,7 +136,7 @@ impl NodeType {
                             // parse props
                             // WARN: code duplication
                             while !content.is_empty() {
-                                props.props.push(content.parse()?);
+                                props.push(content.parse()?);
                                 if !content.is_empty() {
                                     content.parse::<syn::token::Comma>()?;
                                 }
@@ -216,7 +215,11 @@ impl NodeType {
 #[doc = include_str ! ("./README.md")]
 pub struct NodeBlock {
     pub node_type: NodeType,
-    pub subtree: NodeSubTree,
+    pub sub_tree: NodeSubTree,
+    // requires context if requires_rc, or if prop requires node to have an extended lifetime
+    pub requires_context: bool,
+    // if node has observable props or subtree has non const conditional block
+    pub requires_rc: bool,
 }
 
 impl OptionalParse for NodeBlock {
@@ -227,7 +230,7 @@ impl OptionalParse for NodeBlock {
             return Ok(None);
         };
         // parse children
-        let subtree =
+        let sub_tree =
             if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
                     content.parse::<NodeSubTree>()?
@@ -238,7 +241,46 @@ impl OptionalParse for NodeBlock {
                 Default::default()
             };
 
-        Ok(Some(Self { node_type, subtree }))
+        // if node requires_rc it also requires_context
+        let mut requires_context = false;
+        let mut requires_rc = false;
+
+        if let Some(props) = node_type.get_props() {
+            for prop in props.iter() {
+                if !prop.scope.is_const() {
+                    requires_rc = true;
+                    requires_context = true;
+                    break;
+                } else if prop.requires_context {
+                    requires_context = true;
+                }
+            }
+        }
+
+        if !requires_rc {
+            for sub_node in sub_tree.iter() {
+                match sub_node {
+                    NodeSubBlock::Conditional(cond) => match cond {
+                        crate::conditional::ConditionalBlock::If(if_block) => {
+                            if !if_block.scope.is_const() {
+                                requires_rc = true;
+                                requires_context = true;
+                                break;
+                            }
+                        }
+                        crate::conditional::ConditionalBlock::Match(_) => todo!(),
+                    },
+                    _ => (),
+                }
+            }
+        }
+
+        Ok(Some(Self {
+            node_type,
+            sub_tree,
+            requires_context,
+            requires_rc,
+        }))
     }
 }
 
@@ -249,14 +291,20 @@ impl_parse_for_optional_parse!(NodeBlock);
 ///
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let Self { subtree, node_type } = self;
+        let Self {
+            sub_tree: subtree,
+            node_type,
+            requires_rc,
+            ..
+        } = self;
 
         let init_call = node_type.get_init_call();
 
-        // functional components can't have props
-
         let mid_calls = match node_type {
-            NodeType::FunctionalComponent { .. } => TokenStream2::new(),
+            // functional components can't have props
+            NodeType::FunctionalComponent { .. } => {
+                todo!("functional component not implemented");
+            }
             _ => {
                 let return_type = node_type.get_return_type();
                 let (const_props, observable_props) =
@@ -274,16 +322,41 @@ impl ToTokens for NodeBlock {
                 }
             }
         };
+
+        let rc_token = if *requires_rc {
+            quote! {
+                let __node = Rc::new(__node);
+            }
+        } else {
+            TokenStream2::new()
+        };
+
         // assemble
-        tokens.append_all(quote! {{
-            use gxi::{VNode, VContainerWidget};
+        tokens.append_all(quote! {
+            let __child = {
+                //use gxi::{VNode, VContainerWidget};
 
-            let mut __node = #init_call;
+                let mut __node = #init_call;
+                #rc_token
 
-            #mid_calls
+                #mid_calls
 
-            __node
-        }});
+                __node
+            };
+        });
+    }
+
+    fn to_token_stream(&self) -> TokenStream2 {
+        let mut tokens = TokenStream2::new();
+        self.to_tokens(&mut tokens);
+        tokens
+    }
+
+    fn into_token_stream(self) -> TokenStream2
+    where
+        Self: Sized,
+    {
+        self.to_token_stream()
     }
 }
 
@@ -327,7 +400,7 @@ mod tests {
                 ensure!(constructor.to_string() == "new");
                 ensure!(path.to_string() == "Body");
                 ensure!(args.len() == 0);
-                ensure!(props.props.len() == 0);
+                ensure!(props.len() == 0);
             } else {
                 bail!("wrong node type")
             }
@@ -362,7 +435,7 @@ mod tests {
             {
                 ensure!(constructor.to_string() == "with_name");
                 ensure!(path.to_string() == quote! {Comp}.to_string());
-                ensure!(props.props.is_empty() == true);
+                ensure!(props.is_empty() == true);
                 ensure!(args.len() == 1);
             } else {
                 bail!("wrong node type")

@@ -26,7 +26,8 @@ impl<V> From<V> for Observable<V> {
 
 impl<V> Observable<V> {
     /// add observer which is called when value under Observable changes
-    pub fn add_observer(&self, observer: Observer<RefCell<V>>) {
+    pub fn add_observer(&self, mut observer: Observer<RefCell<V>>) {
+        (*observer)(&self.value);
         self.observers.borrow_mut().push(observer);
     }
 

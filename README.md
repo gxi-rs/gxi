@@ -1,8 +1,19 @@
-# GXI
+<h1 align="center">GXI</h1>
 
-[![Tests](https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg)](https://github.com/gxi-rs/gxi/actions)
+<p align="center">
+    <i>A Declarative Cross-Platform Native UI-Framework</i>
+</p>
 
-_Cross-Platform Native Widget based Component System in Rust_
+<p align="center">
+    <a href="https://github.com/gxi-rs/gxi/actions">
+        <img src="https://github.com/gxi-rs/gxi/actions/workflows/tests.yml/badge.svg" alt="Tests">
+    </a>
+    <a href="https://crates.io/crates/gxi">
+        <img src="https://img.shields.io/crates/v/gxi" alt="Crates.io" >
+    </a>
+</p>
+
+> ⚠️ Early Stage
 
 Using [proc-macros](https://doc.rust-lang.org/reference/procedural-macros.html),
 the [gxi transpiler](gxi-transpiler/README.md) transpile a component tree into a

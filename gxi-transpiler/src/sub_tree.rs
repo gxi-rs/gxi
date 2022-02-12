@@ -2,6 +2,7 @@ use std::ops::{Deref, DerefMut};
 
 use syn::parse::Parse;
 
+/// Comma separated Tokens
 pub struct SubTree<B: Parse>(pub Vec<B>);
 
 impl<B: Parse> Default for SubTree<B> {

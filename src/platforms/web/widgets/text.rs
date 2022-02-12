@@ -40,7 +40,7 @@ impl<T: AsRef<str>> From<T> for Text {
 }
 
 impl Text {
-    pub fn value<T: AsRef<str>>(&mut self, value: T) {
+    pub fn value<T: AsRef<str>>(&self, value: T) {
         self.native_widget.set_text_content(Some(value.as_ref()));
     }
 }

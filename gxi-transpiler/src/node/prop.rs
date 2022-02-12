@@ -1,14 +1,14 @@
+use std::ops::{Deref, DerefMut};
+
 use crate::scope::Scope;
-use quote::{quote, TokenStreamExt};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Token;
 
 /// list of comma separated props inside parenthesis
 #[derive(Default)]
-pub struct NodeProps {
-    pub props: Vec<NodeProp>,
-}
+pub struct NodeProps(pub Vec<NodeProp>);
 
 impl Parse for NodeProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
@@ -17,7 +17,7 @@ impl Parse for NodeProps {
         if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input) {
             while !content.is_empty() {
                 let prop: NodeProp = content.parse()?;
-                this.props.push(prop);
+                this.push(prop);
                 if !content.is_empty() {
                     content.parse::<syn::token::Comma>()?;
                 }
@@ -28,10 +28,25 @@ impl Parse for NodeProps {
     }
 }
 
+impl Deref for NodeProps {
+    type Target = Vec<NodeProp>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for NodeProps {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
     pub scope: Scope,
+    pub requires_context: bool,
 }
 
 impl Parse for NodeProp {
@@ -41,6 +56,8 @@ impl Parse for NodeProp {
 
         // TODO: add to doc, const
 
+        let mut requires_context = false;
+
         let const_tt = input.parse::<Token!(const)>();
 
         let syn::ExprAssign { left, right, .. } = input.parse()?;
@@ -49,7 +66,18 @@ impl Parse for NodeProp {
             scope = Scope::find_expr_scope(&right)?;
         }
 
-        Ok(Self { left, scope, right })
+        // TODO: add to doc, prop starting with on requires_context
+        #[cfg(feature = "web")]
+        if left.to_token_stream().to_string().starts_with("on") {
+            requires_context = true;
+        }
+
+        Ok(Self {
+            left,
+            scope,
+            right,
+            requires_context,
+        })
     }
 }
 
@@ -59,7 +87,9 @@ impl NodeProp {
         tokens: &mut quote::__private::TokenStream,
         return_type: &TokenStream2,
     ) {
-        let Self { left, right, scope } = self;
+        let Self {
+            left, right, scope, ..
+        } = self;
 
         tokens.append_all(scope.to_token_stream(
             &quote! {
