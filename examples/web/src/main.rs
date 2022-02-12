@@ -29,7 +29,7 @@ fn app() -> VNodeContext {
             Text ( value = state.borrow().to_string() ), // text
             br,
             button ( on_click = set_state!( *state+=1, [ref state] ) ) [
-                Text ( value = "increment" ) 
+                Text ( value = "increment" )
             ],
     //        if *state == 3 {
     //            button ( on_click = set_state!( state+=1 ) )

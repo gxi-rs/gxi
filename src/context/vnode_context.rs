@@ -1,4 +1,4 @@
-use std::{rc::Rc, any::Any};
+use std::{any::Any, rc::Rc};
 
 use crate::VNode;
 
