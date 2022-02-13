@@ -159,6 +159,7 @@ impl Scope {
                     let __node = std::rc::Rc::downgrade(&__node);
                     #name.add_observer(Box::new(move |#name| {
                         if let Some(__node) = __node.upgrade() {
+                            let #name = #name.borrow();
                             #body
                             false
                         } else {

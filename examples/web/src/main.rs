@@ -1,20 +1,17 @@
-use std::rc::Rc;
-
 use gxi::{gxi, set_state, Body, State, Text, VNodeContext};
 
 //mod app;
 //mod cat_fact;
-//mod counter;
+mod counter;
 //mod todo;
 //
 //pub use cat_fact::*;
-//pub use counter::*;
+pub use counter::*;
 //pub use todo::*;
 
 fn main() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
     std::mem::forget(app());
-    //gxi::run(app());
 }
 
 fn app() -> VNodeContext<Body> {
@@ -23,11 +20,12 @@ fn app() -> VNodeContext<Body> {
 
     gxi! {
         Body [ //context
-            Text ( value = state.borrow().to_string() ), // text
+            Text ( value = state.to_string() ), // text
             br,
             button ( on_click = set_state!( *state+=1, [ref state] ) ) [
                 Text ( value = "increment" )
             ],
+            complex_counter(),
     //        if *state == 3 {
     //            button ( on_click = set_state!( state+=1 ) )
     //        },

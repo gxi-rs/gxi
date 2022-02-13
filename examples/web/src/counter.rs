@@ -1,8 +1,8 @@
-use gxi::{gxi, set_state, State, StrongNodeType, Text};
+use gxi::{gxi, set_state, State, Text, VNodeContext};
 
 const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
 
-pub fn complex_counter() -> StrongNodeType {
+pub fn complex_counter() -> VNodeContext<gxi::Element> {
     let reduce_emoji = State::from(EMOTICONS[0]);
     let reduce_emoji_index = State::from(0 as usize);
 
@@ -30,7 +30,7 @@ pub fn complex_counter() -> StrongNodeType {
     }
 }
 
-fn counter(initial: i32, reduce_emoji: State<&'static str>) -> StrongNodeType {
+fn counter(initial: i32, reduce_emoji: State<&'static str>) -> VNodeContext<gxi::Element> {
     let counter = State::from(initial);
 
     gxi! {

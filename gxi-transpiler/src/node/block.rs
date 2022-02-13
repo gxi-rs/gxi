@@ -298,9 +298,9 @@ impl ToTokens for NodeBlock {
 
         let mid_calls = match node_type {
             // functional components can't have props
-            NodeType::FunctionalComponent { .. } => {
-                todo!("functional component not implemented");
-            }
+            NodeType::FunctionalComponent { .. } => quote! {
+                __ctx.absorb(__node)
+            },
             _ => {
                 let return_type = node_type.get_return_type();
                 let (const_props, observable_props) = node_type.get_const_and_observable_props();
@@ -314,13 +314,15 @@ impl ToTokens for NodeBlock {
                     #subtree_tokens
 
                     #observable_props
+
+                    __node
                 }
             }
         };
 
         let rc_token = if *requires_rc {
             quote! {
-                let __node = Rc::new(__node);
+                let __node = std::rc::Rc::new(__node);
             }
         } else {
             TokenStream2::new()
@@ -336,7 +338,6 @@ impl ToTokens for NodeBlock {
 
                 #mid_calls
 
-                __node
             };
         });
     }
