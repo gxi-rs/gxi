@@ -1,21 +1,19 @@
-use std::{any::Any, rc::Rc};
-
-use crate::VNode;
+use std::any::Any;
 
 /// returned by components
 /// holds VNode
-pub struct VNodeContext {
-    pub vnode: VNodeShell,
+pub struct VNodeContext<T> {
+    pub vnode: VNodeShell<T>,
     pub ctx: Option<Box<dyn Any>>,
 }
 
-pub enum VNodeShell {
-    Default(Box<dyn VNode>),
-    Rc(Rc<dyn VNode>),
+pub enum VNodeShell<T> {
+    Default(T),
+    Rc(T),
 }
 
-impl VNodeContext {
-    pub fn from(vnode: VNodeShell, ctx: Option<Box<dyn Any>>) -> Self {
+impl<T> VNodeContext<T> {
+    pub fn from(vnode: VNodeShell<T>, ctx: Option<Box<dyn Any>>) -> Self {
         Self { vnode, ctx }
     }
 }

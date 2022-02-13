@@ -31,7 +31,7 @@ impl ToTokens for RootBlock {
 
         let ctx_tokens = if requires_context {
             tokens.append_all(quote! {
-                let mut __ctx = ConstContext::default();
+                let mut __ctx = gxi::ConstContext::default();
             });
             quote!(__ctx)
         } else {
@@ -43,11 +43,11 @@ impl ToTokens for RootBlock {
         let vnode_shell_tokens = if self.0.requires_rc {
             quote!(Rc(__child))
         } else {
-            quote!(Default(Box::from(__child)))
+            quote!(Default(__child))
         };
 
         tokens.append_all(quote! {
-            VNodeContext::from(VNodeShell::#vnode_shell_tokens,Some(Box::from(#ctx_tokens)))
+            gxi::VNodeContext::from(gxi::VNodeShell::#vnode_shell_tokens, Some(Box::from(#ctx_tokens)))
         });
     }
 }

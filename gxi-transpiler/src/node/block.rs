@@ -329,7 +329,7 @@ impl ToTokens for NodeBlock {
         // assemble
         tokens.append_all(quote! {
             let __child = {
-                //use gxi::{VNode, VContainerWidget};
+                use gxi::{VNode, VContainer, VLeaf};
 
                 let mut __node = #init_call;
                 #rc_token
