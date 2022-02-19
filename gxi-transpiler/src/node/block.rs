@@ -1,4 +1,6 @@
 use super::{NodeProps, NodeSubBlock, NodeSubTree};
+use crate::conditional::ConditionalBlock;
+use crate::lifetime;
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 use crate::scope::Scope;
 use quote::ToTokens;
@@ -84,6 +86,28 @@ impl NodeType {
             NodeType::FunctionalComponent { .. } => None,
             NodeType::Element { props, .. } | NodeType::Component { props, .. } => Some(props),
         }
+    }
+}
+
+impl From<&NodeType> for lifetime::LifeTime {
+    fn from(node_type: &NodeType) -> Self {
+        if let NodeType::FunctionalComponent { .. } = node_type {
+            return lifetime::LifeTime::Context(lifetime::Context::Absorb);
+        }
+
+        let mut lifetime = lifetime::LifeTime::Simple;
+
+        if let Some(props) = node_type.get_props() {
+            for prop in props.iter() {
+                if !prop.scope.is_const() {
+                    return lifetime::LifeTime::Rc(Some(lifetime::Context::Push));
+                } else if prop.requires_context {
+                    lifetime = lifetime::LifeTime::Context(lifetime::Context::Push);
+                }
+            }
+        }
+
+        lifetime
     }
 }
 
@@ -213,10 +237,7 @@ impl NodeType {
 pub struct NodeBlock {
     pub node_type: NodeType,
     pub sub_tree: NodeSubTree,
-    // requires context if requires_rc, or if prop requires node to have an extended lifetime
-    pub requires_context: bool,
-    // if node has observable props or subtree has non const conditional block
-    pub requires_rc: bool,
+    pub lifetime: lifetime::LifeTime,
 }
 
 impl OptionalParse for NodeBlock {
@@ -238,34 +259,14 @@ impl OptionalParse for NodeBlock {
                 Default::default()
             };
 
-        // if node requires_rc it also requires_context
-        let mut requires_context = false;
-        let mut requires_rc = false;
+        let mut lifetime = lifetime::LifeTime::from(&node_type);
 
-        if let Some(props) = node_type.get_props() {
-            for prop in props.iter() {
-                if !prop.scope.is_const() {
-                    requires_rc = true;
-                    requires_context = true;
-                    break;
-                } else if prop.requires_context {
-                    requires_context = true;
-                }
-            }
-        }
-
-        if !requires_rc {
+        if let lifetime::LifeTime::Context(_) = lifetime {
             for sub_node in sub_tree.iter() {
-                if let NodeSubBlock::Conditional(cond) = sub_node {
-                    match cond {
-                        crate::conditional::ConditionalBlock::If(if_block) => {
-                            if !if_block.scope.is_const() {
-                                requires_rc = true;
-                                requires_context = true;
-                                break;
-                            }
-                        }
-                        crate::conditional::ConditionalBlock::Match(_) => todo!(),
+                if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
+                    if !if_block.scope.is_const() {
+                        lifetime = lifetime::LifeTime::Rc(lifetime.get_context());
+                        break;
                     }
                 }
             }
@@ -274,8 +275,7 @@ impl OptionalParse for NodeBlock {
         Ok(Some(Self {
             node_type,
             sub_tree,
-            requires_context,
-            requires_rc,
+            lifetime,
         }))
     }
 }
@@ -290,17 +290,14 @@ impl ToTokens for NodeBlock {
         let Self {
             sub_tree: subtree,
             node_type,
-            requires_rc,
-            ..
+            lifetime,
         } = self;
 
         let init_call = node_type.get_init_call();
 
         let mid_calls = match node_type {
             // functional components can't have props
-            NodeType::FunctionalComponent { .. } => quote! {
-                __ctx.absorb(__node)
-            },
+            NodeType::FunctionalComponent { .. } => quote! {},
             _ => {
                 let return_type = node_type.get_return_type();
                 let (const_props, observable_props) = node_type.get_const_and_observable_props();
@@ -314,19 +311,17 @@ impl ToTokens for NodeBlock {
                     #subtree_tokens
 
                     #observable_props
-
-                    __node
                 }
             }
         };
 
-        let rc_token = if *requires_rc {
-            quote! {
+        let mut rc_token = TokenStream2::new();
+
+        if let lifetime::LifeTime::Rc(_) = lifetime {
+            rc_token = quote! {
                 let __node = std::rc::Rc::new(__node);
             }
-        } else {
-            TokenStream2::new()
-        };
+        }
 
         // assemble
         tokens.append_all(quote! {
@@ -338,6 +333,7 @@ impl ToTokens for NodeBlock {
 
                 #mid_calls
 
+                __node
             };
         });
     }

@@ -1,6 +1,6 @@
-use gxi::{gxi, set_state, State, StrongNodeType, Text};
+use gxi::{gxi, set_state, State, Text, VNodeContext};
 
-pub fn cat_fact() -> StrongNodeType {
+pub fn cat_fact() -> VNodeContext<gxi::Element> {
     let cat_fact = State::from(String::new());
 
     let fetch_cat_fact = set_state!(

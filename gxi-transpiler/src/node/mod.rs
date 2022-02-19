@@ -1,7 +1,7 @@
 mod block;
-mod node_subtree;
 mod prop;
+mod subtree;
 
 pub use block::*;
-pub use node_subtree::*;
 pub use prop::*;
+pub use subtree::*;

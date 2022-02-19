@@ -91,11 +91,7 @@ impl NodeSubTree {
                         #block_tokens
                         __node.push(&__child.as_node(), &*__child);
                     });
-                    if node.requires_context {
-                        tokens.append_all(quote! {
-                            __ctx.push(Box::new(__child));
-                        });
-                    }
+                    node.lifetime.to_tokens(tokens)
                 }
 
                 _ => tokens.append_all(block_tokens),

@@ -17,7 +17,7 @@ impl ToTokens for RootBlock {
         let mut node_q = VecDeque::from([&self.0]);
 
         while let Some(node) = node_q.pop_front() {
-            if node.requires_context {
+            if node.lifetime.requires_context() {
                 requires_context = true;
                 break;
             }
@@ -40,7 +40,7 @@ impl ToTokens for RootBlock {
 
         self.0.to_tokens(tokens);
 
-        let vnode_shell_tokens = if self.0.requires_rc {
+        let vnode_shell_tokens = if self.0.lifetime.requires_context() {
             quote!(Rc(__child))
         } else {
             quote!(Default(__child))

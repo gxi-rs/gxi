@@ -10,6 +10,7 @@ mod scope;
 mod sub_tree;
 #[macro_use]
 mod optional_parse;
+mod lifetime;
 
 #[doc = include_str!("../README.md")]
 #[proc_macro]
