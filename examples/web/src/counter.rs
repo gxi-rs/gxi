@@ -1,10 +1,10 @@
 use gxi::{gxi, set_state, State, Text, VNodeContext};
 
-const EMOTICONS: [&'static str; 3] = ["-", "🙃", "|"];
+const EMOTICONS: [&str; 3] = ["-", "🙃", "|"];
 
 pub fn complex_counter() -> VNodeContext<gxi::Element> {
     let reduce_emoji = State::from(EMOTICONS[0]);
-    let reduce_emoji_index = State::from(0 as usize);
+    let reduce_emoji_index = State::from(0usize);
 
     let reduce_emoji_listener = set_state! {|_| {
         if *reduce_emoji_index == EMOTICONS.len() {
