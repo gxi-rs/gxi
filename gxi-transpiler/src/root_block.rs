@@ -29,8 +29,12 @@ impl ToTokens for RootBlock {
             }
         }
 
+        let mut head_tokens = quote! {
+            use gxi::{VNode, VContainer, VLeaf};
+        };
+
         let (ctx_tokens, ctx_type) = if requires_context {
-            tokens.append_all(quote! {
+            head_tokens.append_all(quote! {
                 let mut __ctx = gxi::ConstContext::default();
             });
             (quote!(,Box::from(__ctx)), quote!(WithCtx))
@@ -38,17 +42,19 @@ impl ToTokens for RootBlock {
             (quote!(), quote!(NoCtx))
         };
 
-        self.0.to_tokens(tokens);
-
         let vnode_shell_tokens = if self.0.lifetime.requires_context() {
             quote!(Rc(__child))
         } else {
             quote!(Default(__child))
         };
 
-        tokens.append_all(quote! {
+        let sub_tree = &self.0;
+
+        tokens.append_all(quote! {{
+            #head_tokens
+            #sub_tree
             gxi::VNodeContext::#ctx_type(gxi::VNodeShell::#vnode_shell_tokens #ctx_tokens)
-        });
+        }});
     }
 }
 

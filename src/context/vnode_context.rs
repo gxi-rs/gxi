@@ -28,8 +28,8 @@ impl<T> Deref for VNodeContext<T> {
 
     fn deref(&self) -> &Self::Target {
         match self {
-            VNodeContext::NoCtx(i) => &i,
-            VNodeContext::WithCtx(i, _) => &i,
+            VNodeContext::NoCtx(i) => i,
+            VNodeContext::WithCtx(i, _) => i,
         }
     }
 }

@@ -324,18 +324,22 @@ impl ToTokens for NodeBlock {
         }
 
         // assemble
-        tokens.append_all(quote! {
-            let __child = {
-                use gxi::{VNode, VContainer, VLeaf};
+        if rc_token.is_empty() && mid_calls.is_empty() {
+            tokens.append_all(quote! {
+                let __child = #init_call;
+            })
+        } else {
+            tokens.append_all(quote! {
+                let __child = {
+                    let mut __node = #init_call;
+                    #rc_token
 
-                let mut __node = #init_call;
-                #rc_token
+                    #mid_calls
 
-                #mid_calls
-
-                __node
-            };
-        });
+                    __node
+                };
+            });
+        }
     }
 
     fn to_token_stream(&self) -> TokenStream2 {

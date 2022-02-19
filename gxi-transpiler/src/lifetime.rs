@@ -24,10 +24,7 @@ impl LifeTime {
     }
 
     pub fn requires_context(&self) -> bool {
-        match self {
-            LifeTime::Rc(Some(_)) | LifeTime::Context(_) => true,
-            _ => false,
-        }
+        matches!(self, LifeTime::Rc(Some(_)) | LifeTime::Context(_))
     }
 }
 
