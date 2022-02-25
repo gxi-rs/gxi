@@ -1,9 +1,7 @@
 mod block;
-mod if_block;
-mod if_subtree;
+mod iff;
 mod match_block;
 
 pub use block::*;
-pub use if_block::*;
-pub use if_subtree::*;
+pub use iff::*;
 pub use match_block::*;

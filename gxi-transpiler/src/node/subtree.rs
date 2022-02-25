@@ -33,14 +33,14 @@ impl NodeSubBlock {
     pub fn to_tokens(
         &self,
         tokens: &mut TokenStream2,
-        node_index: usize,
+        node_blocks: usize,
         parent_return_type: &TokenStream2,
     ) {
         match self {
             NodeSubBlock::Node(comp) => comp.to_tokens(tokens),
             NodeSubBlock::Execution(ex) => ex.to_tokens(tokens),
             NodeSubBlock::Conditional(cond) => {
-                cond.to_tokens(tokens, node_index, parent_return_type)
+                cond.to_tokens(tokens, node_blocks, parent_return_type)
             }
             NodeSubBlock::Iter => todo!(),
         }
@@ -55,64 +55,38 @@ impl NodeSubTree {
         tokens: &mut quote::__private::TokenStream,
         parent_return_type: &TokenStream2,
     ) {
-        // expected index of node in tree
-        let mut node_index = 0usize;
-
-        let mut if_buffer = TokenStream2::new();
+        // number of node blocks
+        let mut node_blocks = 0usize;
+        let mut has_conditional_blocks = false;
+        let mut token_buff = TokenStream2::new();
 
         for block in self.iter() {
             let mut block_tokens = TokenStream2::new();
-            block.to_tokens(&mut block_tokens, node_index, parent_return_type);
+            block.to_tokens(&mut block_tokens, node_blocks, parent_return_type);
 
-            // select and prepare buffer
             match block {
-                NodeSubBlock::Conditional(conditional_block) => match conditional_block {
-                    ConditionalBlock::If(if_block) => {
-                        for _ in 0..if_block.max_node_height {
-                            tokens.append_all(quote! {__node.push(None);});
-                        }
-                        // incremented after
-                        node_index += if_block.max_node_height - 1;
-
-                        // make __node strong
-                        match if_block.scope {
-                            Scope::Observable(_) => {
-                                if_buffer.append_all(block_tokens);
-                            }
-                            _ => {
-                                tokens.append_all(block_tokens);
-                            }
-                        }
-                    }
-                    _ => todo!(),
-                },
+                NodeSubBlock::Conditional(_) => has_conditional_blocks = true,
                 NodeSubBlock::Node(node) => {
-                    tokens.append_all(quote! {
-                        #block_tokens
+                    node_blocks += 1;
+                    block_tokens.append_all(quote! {
                         __node.push(&__child.as_node(), &*__child);
                     });
-                    node.lifetime.to_tokens(tokens)
+                    node.lifetime.to_tokens(&mut block_tokens);
                 }
-
-                _ => tokens.append_all(block_tokens),
+                _ => (),
             };
 
-            match block {
-                NodeSubBlock::Execution(_) => (),
-                _ => node_index += 1,
-            }
+            token_buff.append_all(block_tokens);
         }
 
-        if !if_buffer.is_empty() {
-            if_buffer = quote! {
-                {
-                    #if_buffer
-                }
-            }
+        if has_conditional_blocks {
+            tokens.append_all(quote! {
+                let mut __extra_nodes_counter = 0usize;
+            });
         }
 
         tokens.append_all(quote! {
-            #if_buffer
+            #token_buff
         })
     }
 }

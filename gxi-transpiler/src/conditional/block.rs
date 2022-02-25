@@ -1,3 +1,36 @@
+//! # Conditional Block
+//! 
+//! ## Index 
+//! 
+//! The primary problem with conditional blocks is node indexing.
+//! To overcome this problem the concept of relative indexing can be
+//! used.
+//!
+//! Each conditional block can produce n number of nodes, which can only
+//! be added to parent using `set_at_index` method. The number of nodes 
+//! produced by any conditional block are added to global `extra_nodes_counter`.
+//!
+//!
+//! `Resultant Index` = `extra_nodes_counter` + `number of nodes prior to conditional block`
+//!
+//! ```rust
+//! {
+//!     let extra_nodes_counter = 0;
+//!     // 2 nodes prior
+//!     if true { // index 3 - 3
+//!         extra_nodes_counter+=1;
+//!         let index = 2 + extra_nodes_counter;
+//!     }
+//!     // 3 nodes in between
+//!     if false { // index range 6 - 7
+//!         
+//!     }
+//!     // 5 nodes in between
+//!     if true { // index range 11 - 13
+//!
+//!     }
+//! }
+//! ```
 use quote::ToTokens;
 
 use crate::{
@@ -30,12 +63,12 @@ impl ConditionalBlock {
     pub fn to_tokens(
         &self,
         tokens: &mut TokenStream2,
-        node_index: usize,
+        node_blocks: usize,
         parent_return_type: &TokenStream2,
     ) {
         match self {
             ConditionalBlock::If(if_block) => {
-                if_block.to_tokens(tokens, node_index, parent_return_type)
+                if_block.to_tokens(tokens, node_blocks, parent_return_type)
             }
             ConditionalBlock::Match(match_block) => match_block.to_tokens(tokens),
         }

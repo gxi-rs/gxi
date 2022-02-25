@@ -1,6 +1,6 @@
-use super::ConditionalBlock;
 use crate::{
-    execution::ExecutionBlock, node::NodeBlock, optional_parse::OptionalParse, sub_tree::SubTree,
+    conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock,
+    optional_parse::OptionalParse, sub_tree::SubTree,
 };
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{__private::TokenStream2, parse::Parse};
