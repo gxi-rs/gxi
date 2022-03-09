@@ -2,6 +2,7 @@ use proc_macro::TokenStream;
 use quote::ToTokens;
 use root_block::RootBlock;
 
+mod observer_builder;
 mod conditional;
 mod execution;
 mod node;

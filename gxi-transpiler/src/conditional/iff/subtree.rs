@@ -38,9 +38,21 @@ impl IfSubBlock {
     ) {
         match self {
             Self::Node(node) => {
+                let ctx_tokens = if node.lifetime.requires_context() {
+                    quote! {
+                        __ctx.set_value(Box::from(__child));
+                    }
+                } else {
+                    TokenStream2::new()
+                };
+
                 tokens.append_all(quote! {
-                    __node.set_at_index(Some(#node), #node_index);
+                    #node
+
+                    __node.set_at_index(&*__child, #node_index);
+                    #ctx_tokens
                 });
+
                 *node_index += 1;
             }
             Self::Execution(ex) => ex.to_tokens(tokens),
@@ -54,7 +66,7 @@ impl IfSubBlock {
             Self::NoneBlock => {
                 for _ in 0..max_node_height {
                     tokens.append_all(quote! {
-                        __node.set_at_index(None, #node_index);
+//                        __node.set_at_index(None, #node_index);
                     });
                     *node_index += 1;
                 }
@@ -96,9 +108,8 @@ impl IfSubTree {
         }
 
         tokens.append_all(quote! {
-            if __if_counter != #branch_index {
+            if __ctx.check_index(#branch_index) {
                 #token_buff
-                __if_counter = #branch_index;
             }
         });
     }

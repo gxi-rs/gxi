@@ -87,8 +87,13 @@ impl ToTokens for NodeProp {
             left, right, scope, ..
         } = self;
 
-        tokens.append_all(scope.to_token_stream(&quote! {
-            __node.#left(#right);
-        }));
+        tokens.append_all(
+            scope.to_token_stream(&crate::observer_builder::ObserverBuilder {
+                pre_add_observer_tokens: &TokenStream2::new(),
+                add_observer_body_tokens: &quote! {
+                    __node.#left(#right);
+                },
+            }),
+        )
     }
 }

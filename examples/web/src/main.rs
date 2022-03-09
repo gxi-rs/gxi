@@ -12,6 +12,9 @@ fn main() {
     std::mem::forget(app::app());
 }
 
+/*
+use gxi::*;
+
 fn foo() -> VNodeContext {
     let state = State::from(2i32);
     let state2 = State::from(2i32);
@@ -66,7 +69,7 @@ fn foo() -> VNodeContext {
 
             let __multi_observer = State::from(());
 
-            add_multi_observer(&state, __multi_observer.downgrade());
+            add_multi_observer(&state, std::rc::Rc::downgrade(&__multi_observer));
             add_multi_observer(&state2, __multi_observer.downgrade());
 
             let state = state.clone();
@@ -108,3 +111,5 @@ fn foo() -> VNodeContext {
 
     VNodeContext::from(VNodeShell::Rc(__child), Some(Box::from(__ctx)))
 }
+
+*/

@@ -35,7 +35,7 @@ pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
         }
     }
 
-    fn set_at_index(&self, _new_member: &Node, _index: usize, _replace: bool) {
+    fn set_at_index(&self, _new_member: &Node, _index: usize) {
         todo!()
         //        if replace {
         //            self.replace_child(

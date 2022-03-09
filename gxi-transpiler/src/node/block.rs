@@ -261,13 +261,11 @@ impl OptionalParse for NodeBlock {
 
         let mut lifetime = lifetime::LifeTime::from(&node_type);
 
-        if let lifetime::LifeTime::Context(_) = lifetime {
-            for sub_node in sub_tree.iter() {
-                if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
-                    if !if_block.scope.is_const() {
-                        lifetime = lifetime::LifeTime::Rc(lifetime.get_context());
-                        break;
-                    }
+        for sub_node in sub_tree.iter() {
+            if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
+                if !if_block.scope.is_const() {
+                    lifetime = lifetime::LifeTime::Rc(lifetime.get_context());
+                    break;
                 }
             }
         }

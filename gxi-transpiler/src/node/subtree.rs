@@ -65,7 +65,10 @@ impl NodeSubTree {
             block.to_tokens(&mut block_tokens, node_blocks, parent_return_type);
 
             match block {
-                NodeSubBlock::Conditional(_) => has_conditional_blocks = true,
+                NodeSubBlock::Conditional(_) => {
+                    has_conditional_blocks = true;
+
+                }
                 NodeSubBlock::Node(node) => {
                     node_blocks += 1;
                     block_tokens.append_all(quote! {

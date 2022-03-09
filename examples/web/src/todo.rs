@@ -1,6 +1,6 @@
-use gxi::{gxi, set_state, State, StrongNodeType, Text};
+use gxi::{gxi, set_state, State, Text, VNodeContext};
 
-pub fn todo() -> StrongNodeType {
+pub fn todo() -> VNodeContext<gxi::Element> {
     let todos = State::from(String::new());
     let state2 = State::from(String::new());
 
@@ -13,9 +13,9 @@ pub fn todo() -> StrongNodeType {
             }, [ref todos,ref state2]) ),
             if *todos == "a" {
                 div [ Text ( value = "hi" ) ]
-            } else if const *todos == "ab" {
+            } else if *todos == "ab" {
                 div [ Text ( value = "hi brother" ) ]
-            } else if const *todos == "abcd"{
+            } else if *todos == "abcd"{
                 Text ( value = "z" )
             } else {
                 div [

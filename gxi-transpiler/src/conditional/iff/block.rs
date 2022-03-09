@@ -5,6 +5,7 @@ use syn::__private::TokenStream2;
 
 use crate::{
     conditional::ConditionalBlock,
+    observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     scope::Scope,
 };
@@ -108,16 +109,12 @@ impl IfBlock {
             };
         }
 
-        let mut main_body = self.scope.to_token_stream(&if_arm_tokens);
-
-        if let Scope::Observable(_) = self.scope {
-            main_body = quote! {
-                let mut __if_counter = 0usize;
-                #main_body
-            }
-        }
-
-        tokens.append_all(main_body);
+        tokens.append_all(self.scope.to_token_stream(&ObserverBuilder {
+            pre_add_observer_tokens: &quote! {
+                let mut __ctx = gxi::IndexedContext::default();
+            },
+            add_observer_body_tokens: &if_arm_tokens,
+        }))
     }
 }
 

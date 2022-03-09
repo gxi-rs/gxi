@@ -6,6 +6,8 @@ use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::Expr;
 
+use crate::observer_builder::ObserverBuilder;
+
 #[derive(Debug)]
 pub enum Scope {
     Observable(Vec<TokenStream2>),
@@ -147,30 +149,10 @@ impl Parse for Scope {
 }
 
 impl Scope {
-    pub fn to_token_stream(&self, body: &TokenStream2) -> TokenStream2 {
+    pub fn to_token_stream(&self, observer_builder: &ObserverBuilder) -> TokenStream2 {
         match &self {
-            Scope::Observable(observables) => {
-                if observables.len() > 1 {
-                    println!("{:?}", observables);
-                    unreachable!("more than one observables are not supported yet")
-                }
-                let name = &observables[0];
-                quote! {{
-                    let __node = std::rc::Rc::downgrade(&__node);
-                    #name.add_observer(Box::new(move |#name| {
-                        if let Some(__node) = __node.upgrade() {
-                            let #name = #name.borrow();
-                            #body
-                            false
-                        } else {
-                            true
-                        }
-                    }));
-                }}
-            }
-            Scope::Constant => quote! {
-                #body
-            },
+            Scope::Observable(observables) => observer_builder.to_token_stream(&observables),
+            Scope::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
         }
     }
 }

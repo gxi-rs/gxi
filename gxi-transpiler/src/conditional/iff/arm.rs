@@ -1,4 +1,4 @@
-use quote::quote;
+use quote::{quote, TokenStreamExt};
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::{
@@ -26,14 +26,9 @@ impl OptionalParse for IfArm {
 
         // get scope
         let (condition, scope) = {
-            let is_const = input.parse::<syn::Token!(const)>().is_ok();
             let condition = input.parse::<syn::Expr>()?;
             // no need to check scope when const keyword is provided
-            let scope = if is_const {
-                Scope::Constant
-            } else {
-                Scope::find_expr_scope(&condition)?
-            };
+            let scope = Scope::find_expr_scope(&condition)?;
             (condition, scope)
         };
 
@@ -73,7 +68,7 @@ impl IfArm {
             sub_tree,
             else_arm,
             condition,
-            ..
+            scope,
         } = self;
 
         let else_arm = else_arm.to_token_stream(
@@ -96,8 +91,17 @@ impl IfArm {
             tokens
         };
 
+        let mut scoped_variables_borrow = TokenStream2::new();
+        if let Scope::Observable(observables) = scope {
+            for observable in observables {
+                scoped_variables_borrow.append_all(quote! {
+                    let #observable = (**#observable).borrow();
+                });
+            }
+        }
+
         quote! {
-            #if_token #condition {
+            #if_token { #scoped_variables_borrow #condition } {
                 #sub_tree
             } #else_arm
         }
