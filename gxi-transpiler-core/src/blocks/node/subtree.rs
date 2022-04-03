@@ -96,7 +96,7 @@ impl NodeSubTree {
 
 #[cfg(test)]
 mod punctuated_blocks_to_tokens {
-    use crate::{conditional::IfBlock, node::NodeSubTree};
+    use crate::blocks::{conditional::IfBlock, node::NodeSubTree};
     use anyhow::ensure;
     use quote::quote;
     use syn::__private::TokenStream2;
