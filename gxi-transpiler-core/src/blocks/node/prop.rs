@@ -56,6 +56,7 @@ impl Parse for NodeProp {
 
         // TODO: add to doc, const
 
+        #[allow(unused_mut)]
         let mut requires_context = false;
 
         let const_tt = input.parse::<Token!(const)>();

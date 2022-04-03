@@ -4,7 +4,7 @@ use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
-    conditional::ConditionalBlock,
+    blocks::ConditionalBlock,
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     scope::Scope,

@@ -3,9 +3,9 @@ use std::collections::VecDeque;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::Parse;
 
-use crate::node::{NodeBlock, NodeSubBlock};
+use crate::blocks::{NodeBlock, NodeSubBlock};
 
-/// the first block of gxi! macro
+/// The root block of the gxi macro is a [`NodeBlock`][struct@NodeBlock].
 pub struct RootBlock {
     pub root_node_block: NodeBlock,
     pub component_requires_context: bool,

@@ -7,7 +7,7 @@ pub struct ObserverBuilder<'a> {
 }
 
 impl<'a> ObserverBuilder<'a> {
-    pub fn to_token_stream(&self, observables: &'a Vec<TokenStream2>) -> TokenStream2 {
+    pub fn to_token_stream(&self, observables: &'a [TokenStream2]) -> TokenStream2 {
         let ObserverBuilder {
             pre_add_observer_tokens,
             add_observer_body_tokens: add_observer_body,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use quote::{quote, ToTokens};
+use quote::ToTokens;
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
 use syn::spanned::Spanned;
@@ -151,7 +151,7 @@ impl Parse for Scope {
 impl Scope {
     pub fn to_token_stream(&self, observer_builder: &ObserverBuilder) -> TokenStream2 {
         match &self {
-            Scope::Observable(observables) => observer_builder.to_token_stream(&observables),
+            Scope::Observable(observables) => observer_builder.to_token_stream(observables),
             Scope::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
         }
     }

@@ -1,6 +1,7 @@
 use crate::{
-    conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock,
-    optional_parse::OptionalParse, sub_tree::SubTree,
+    blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
+    optional_parse::OptionalParse,
+    sub_tree::SubTree,
 };
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::{__private::TokenStream2, parse::Parse};
@@ -66,8 +67,8 @@ impl IfSubBlock {
             Self::NoneBlock => {
                 for _ in 0..max_node_height {
                     tokens.append_all(quote! {
-//                        __node.set_at_index(None, #node_index);
-                    });
+                    //                        __node.set_at_index(None, #node_index);
+                                        });
                     *node_index += 1;
                 }
             }

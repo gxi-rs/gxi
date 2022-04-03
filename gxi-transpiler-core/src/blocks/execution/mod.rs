@@ -2,6 +2,8 @@ use quote::{quote, ToTokens, TokenStreamExt};
 
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
 
+/// # ExecutionBlock
+///
 pub struct ExecutionBlock(syn::Block);
 
 impl OptionalParse for ExecutionBlock {

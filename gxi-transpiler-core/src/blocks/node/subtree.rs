@@ -3,8 +3,9 @@ use syn::__private::TokenStream2;
 use syn::parse::Parse;
 
 use crate::{
-    conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock,
-    optional_parse::OptionalParse, scope::Scope, sub_tree::SubTree,
+    blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
+    optional_parse::OptionalParse,
+    sub_tree::SubTree,
 };
 
 pub enum NodeSubBlock {
@@ -67,7 +68,6 @@ impl NodeSubTree {
             match block {
                 NodeSubBlock::Conditional(_) => {
                     has_conditional_blocks = true;
-
                 }
                 NodeSubBlock::Node(node) => {
                     node_blocks += 1;
