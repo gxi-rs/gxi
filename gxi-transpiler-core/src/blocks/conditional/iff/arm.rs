@@ -1,4 +1,4 @@
-use quote::{quote, TokenStreamExt};
+use quote::quote;
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::{
@@ -8,6 +8,13 @@ use crate::{
 
 use super::subtree::{IfSubBlock, IfSubTree};
 
+/// ## Syntax
+///
+/// ```rust
+/// if <keyword> expr {
+///
+/// } ...arms
+/// ```
 pub struct IfArm {
     pub scope: Scope,
     pub if_token: syn::Token!(if),
@@ -93,11 +100,7 @@ impl IfArm {
 
         let mut scoped_variables_borrow = TokenStream2::new();
         if let Scope::Observable(observables) = scope {
-            for observable in observables {
-                scoped_variables_borrow.append_all(quote! {
-                    let #observable = (**#observable).borrow();
-                });
-            }
+            scoped_variables_borrow = observables.borrowed_token_stream();
         }
 
         quote! {

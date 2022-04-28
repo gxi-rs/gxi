@@ -8,13 +8,6 @@ use syn::__private::TokenStream2;
 ///  
 /// ## Syntax
 ///
-/// _if expr_
-///
-/// ```rust
-/// if <keyword> expr {
-///
-/// } ...arms
-/// ```
 ///
 /// _match expr_
 ///

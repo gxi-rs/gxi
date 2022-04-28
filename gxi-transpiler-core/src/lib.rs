@@ -15,9 +15,11 @@ mod sub_tree;
 mod optional_parse;
 mod blocks;
 mod lifetime;
+mod observables;
 
 pub use blocks::*;
 pub use lifetime::*;
+pub use observables::*;
 pub use observer_builder::*;
 pub use optional_parse::*;
 pub use scope::*;

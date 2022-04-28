@@ -6,11 +6,12 @@ use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::Expr;
 
+use crate::observables::Observables;
 use crate::observer_builder::ObserverBuilder;
 
 #[derive(Debug)]
 pub enum Scope {
-    Observable(Vec<TokenStream2>),
+    Observable(Observables),
     Constant,
 }
 
@@ -37,8 +38,6 @@ impl Default for Scope {
     }
 }
 
-const MORE_THAN_ONE_ERR: &str = "can't have more than one observables in a single expression";
-
 impl Scope {
     pub fn is_const(&self) -> bool {
         matches!(self, Scope::Constant)
@@ -46,20 +45,19 @@ impl Scope {
 
     /// find scopes of punctuated expressions
     pub fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
-        let mut k = Scope::default();
+        let mut observables = Observables::default();
+
         for x in iter {
-            let x_scope = Self::find_expr_scope(x)?;
-            match (&x_scope, &k) {
-                (Scope::Observable(_), Scope::Observable(_)) => {
-                    return Err(syn::Error::new(x.span(), MORE_THAN_ONE_ERR));
-                }
-                (_, Scope::Observable(_)) => {}
-                _ => {
-                    k = x_scope;
-                }
-            }
+            if let Scope::Observable(mut expr_observables) = Self::find_expr_scope(x)? {
+                observables.append(&mut expr_observables);
+            };
         }
-        Ok(k)
+
+        Ok(if observables.is_empty() {
+            Scope::Constant
+        } else {
+            Scope::Observable(observables)
+        })
     }
 
     pub fn find_expr_scope(expr: &syn::Expr) -> syn::Result<Self> {
@@ -68,19 +66,24 @@ impl Scope {
                 return Self::find_iter_scope(&mut elems.iter());
             }
             Expr::Binary(syn::ExprBinary { left, right, .. }) => {
+                // binary expressions may have repeated variable names
+                // filter them
                 match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
                     (Scope::Observable(first), Scope::Observable(second)) => {
                         // merge unique observables
-                        let mut set = HashMap::with_capacity(first.len().max(second.len()));
+                        let mut set = HashMap::<String, TokenStream2>::with_capacity(
+                            first.len().max(second.len()),
+                        );
                         // insert all values
-                        for x in first {
-                            set.insert(x.to_string(), x);
-                        }
-                        for x in second {
+                        for x in first.0 {
                             set.insert(x.to_string(), x);
                         }
 
-                        Ok(Scope::Observable(set.into_values().collect()))
+                        for x in second.0 {
+                            set.insert(x.to_string(), x);
+                        }
+
+                        Ok(Scope::Observable(Observables(set.into_values().collect())))
                     }
                     (Scope::Observable(name), Scope::Constant) => Ok(Scope::Observable(name)),
                     (Scope::Constant, Scope::Observable(name)) => Ok(Scope::Observable(name)),
@@ -106,7 +109,9 @@ impl Scope {
                 let segments = &path.segments;
                 // path of length 1 is an identifier
                 if segments.len() == 1 {
-                    Ok(Self::Observable(vec![segments[0].to_token_stream()]))
+                    Ok(Self::Observable(Observables(vec![
+                        segments[0].to_token_stream()
+                    ])))
                 } else {
                     Ok(Self::Constant)
                 }
@@ -136,7 +141,7 @@ impl Scope {
                 expr.span(),
                 "didn't expect this expression here",
             )),
-            Expr::Verbatim(_) | Expr::__TestExhaustive(_) => unreachable!(),
+            _ => unreachable!(),
         }
     }
 }
@@ -152,6 +157,7 @@ impl Scope {
     pub fn to_token_stream(&self, observer_builder: &ObserverBuilder) -> TokenStream2 {
         match &self {
             Scope::Observable(observables) => observer_builder.to_token_stream(observables),
+            // with a constant scope only body is required
             Scope::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
         }
     }

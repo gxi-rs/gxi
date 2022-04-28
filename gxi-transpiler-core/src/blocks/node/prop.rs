@@ -94,6 +94,7 @@ impl ToTokens for NodeProp {
                 add_observer_body_tokens: &quote! {
                     __node.#left(#right);
                 },
+                borrow: true
             }),
         )
     }
