@@ -1,5 +1,8 @@
 args:=
 
+expand_web_example:
+	cd examples/web && cargo expand | bat -l rust
+
 docker:
 	docker run \
 		-p 8080:8080 \
