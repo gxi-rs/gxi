@@ -1,6 +1,7 @@
 use std::ops::{Deref, DerefMut};
 
 use crate::scope::Scope;
+use crate::ObserverBuilder;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
@@ -88,14 +89,12 @@ impl ToTokens for NodeProp {
             left, right, scope, ..
         } = self;
 
-        tokens.append_all(
-            scope.to_token_stream(&crate::observer_builder::ObserverBuilder {
-                pre_add_observer_tokens: &TokenStream2::new(),
-                add_observer_body_tokens: &quote! {
-                    __node.#left(#right);
-                },
-                borrow: true
-            }),
-        )
+        tokens.append_all(scope.to_token_stream(&ObserverBuilder {
+            pre_add_observer_tokens: &TokenStream2::new(),
+            add_observer_body_tokens: &quote! {
+                __node.#left(#right);
+            },
+            borrow: true,
+        }))
     }
 }
