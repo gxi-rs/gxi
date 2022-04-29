@@ -1,9 +1,10 @@
+use std::collections::HashSet;
 use std::ops::{Deref, DerefMut};
 
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Observables(pub Vec<TokenStream2>);
 
 impl Observables {
@@ -36,6 +37,13 @@ impl Observables {
 
         scoped_variables_borrow
     }
+
+    /// removes duplicate observables
+    pub fn remove_duplicates(&mut self) {
+        let mut set = HashSet::with_capacity(self.len());
+
+        self.0.retain(|v| set.insert(v.to_string()))
+    }
 }
 
 impl Deref for Observables {
@@ -49,5 +57,28 @@ impl Deref for Observables {
 impl DerefMut for Observables {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+impl PartialEq for Observables {
+    //NOTE: both should have no duplicates
+    fn eq(&self, other: &Self) -> bool {
+        if self.len() != other.len() {
+            return false;
+        }
+
+        let mut set = HashSet::with_capacity(self.len());
+
+        for ele in &self.0 {
+            set.insert(ele.to_string());
+        }
+
+        for ele in &other.0 {
+            if set.get(&ele.to_string()).is_none() {
+                return false;
+            }
+        }
+
+        true
     }
 }

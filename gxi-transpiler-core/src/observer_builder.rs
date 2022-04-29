@@ -19,6 +19,10 @@ impl<'a> ObserverBuilder<'a> {
     ///
     /// ## Args
     /// * `observables` - a non empty array of identifiers whose value has to observed
+    ///
+    /// ## Note
+    /// duplicate observables are not taken into account. Duplicate Observables should
+    /// be romoved at parse stage
     pub fn to_token_stream(&self, observables: &'a Observables) -> TokenStream2 {
         let ObserverBuilder {
             pre_add_observer_tokens,
@@ -84,11 +88,13 @@ mod tests {
 
     #[test]
     fn test() {
+        // WARN: write tests
         let builder = ObserverBuilder {
             pre_add_observer_tokens: &quote! {},
             add_observer_body_tokens: &quote! {},
             borrow: false,
         }
-        .to_token_stream(&Observables(vec![quote! {hello}]));
+        .to_token_stream(&Observables(vec![quote! {hello, hi}]));
     }
+
 }

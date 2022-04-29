@@ -22,7 +22,7 @@ desktop:
 	gxib -d examples/desktop desktop $(args)
 
 test:
-	cargo test --workspace --lib $(args)
+	RUST_BACKTRACE=full RUST_LIB_BACKTRACE=0 cargo test --workspace --lib $(args)
 	cd examples/web && cargo check
 
 release:

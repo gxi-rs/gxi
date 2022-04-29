@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use quote::ToTokens;
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
@@ -9,7 +7,7 @@ use syn::Expr;
 use crate::observables::Observables;
 use crate::observer_builder::ObserverBuilder;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Scope {
     Observable(Observables),
     Constant,
@@ -56,6 +54,7 @@ impl Scope {
         Ok(if observables.is_empty() {
             Scope::Constant
         } else {
+            observables.remove_duplicates();
             Scope::Observable(observables)
         })
     }
@@ -69,21 +68,11 @@ impl Scope {
                 // binary expressions may have repeated variable names
                 // filter them
                 match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
-                    (Scope::Observable(first), Scope::Observable(second)) => {
-                        // merge unique observables
-                        let mut set = HashMap::<String, TokenStream2>::with_capacity(
-                            first.len().max(second.len()),
-                        );
-                        // insert all values
-                        for x in first.0 {
-                            set.insert(x.to_string(), x);
-                        }
-
-                        for x in second.0 {
-                            set.insert(x.to_string(), x);
-                        }
-
-                        Ok(Scope::Observable(Observables(set.into_values().collect())))
+                    (Scope::Observable(mut first), Scope::Observable(mut second)) => {
+                        // remove duplicaes
+                        first.append(&mut second);
+                        first.remove_duplicates();
+                        Ok(Scope::Observable(first))
                     }
                     (Scope::Observable(name), Scope::Constant) => Ok(Scope::Observable(name)),
                     (Scope::Constant, Scope::Observable(name)) => Ok(Scope::Observable(name)),
@@ -125,22 +114,22 @@ impl Scope {
             Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Unsafe(_) => todo!(),
             Expr::While(_) => todo!(),
-            Expr::Assign(_)
-            | Expr::Async(_)
+             Expr::Async(_)
             | Expr::Await(_)
             | Expr::Box(_)
             | Expr::Continue(_)
-            | Expr::Group(_)
             | Expr::Let(_)
             | Expr::Struct(_)
             | Expr::Type(_)
             | Expr::Break(_)
             | Expr::Return(_)
-            | Expr::AssignOp(_)
             | Expr::Yield(_) => Err(syn::Error::new(
                 expr.span(),
-                "didn't expect this expression here",
+                "[gxi] didn't expect this expression here",
             )),
+            Expr::Assign(_) => { panic!("a") }
+            Expr::AssignOp(_) => { panic!("ass") }
+            Expr::Group(_) => { panic!("group")  }
             _ => unreachable!(),
         }
     }
