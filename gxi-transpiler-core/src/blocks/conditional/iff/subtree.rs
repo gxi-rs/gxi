@@ -50,7 +50,7 @@ impl IfSubBlock {
                 tokens.append_all(quote! {
                     #node
 
-                    __node.set_at_index(&*__child, #node_index);
+                    __node.set_at_index(&__child.as_node(), #node_index);
                     #ctx_tokens
                 });
 
