@@ -3,8 +3,8 @@ args:=
 expand_web_example:
 	cd examples/web && cargo expand | bat -l rust
 
-docker:
-	docker run \
+container:
+	podman run \
 		-p 8080:8080 \
        	-v $(shell pwd):/app \
        	-it ghcr.io/gxi-rs/gxib:latest
