@@ -17,6 +17,7 @@ pub struct NodeBlock {
     /// A node block can be of 3 different [`NodeTypes`](NodeType).
     pub node_type: NodeType,
     /// Child elements of the tree, a contained in `Square Brackets`
+    ///
     /// ```rust
     /// #NodeType [
     ///     ...NodeSubTree
@@ -151,22 +152,93 @@ impl ToTokens for NodeBlock {
 
 type Arg = syn::Expr;
 
+/// A node block can be of 3 different [`NodeTypes`](NodeType).
+/// Each with it's distinct syntax.
 pub enum NodeType {
-    /// name(args..)(props..)
-    FunctionalComponent {
-        args: Vec<Arg>,
-        path: TokenStream2,
-        constructor: TokenStream2,
-    },
-    /// gxi::Element
-    /// name(props..)
-    Element { name: String, props: NodeProps },
-    /// Name::constructor(args..)(props..)
+    /// # Syntax
+    ///
+    /// ```
+    /// $path::$constructor($args?..)($props?..)
+    /// ```
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// mycrate::Head::new(20, 30)(size = "big")
+    /// ```
+    ///
+    /// - `$path`        = `mycrate::Head`
+    /// - `$constructor` = `new`
+    /// - `$args`        = `20, 30`
+    /// - `$props`       = `size = big`
     Component {
-        args: Vec<Arg>,
-        props: NodeProps,
+        /// path preceding the constructor.
+        /// At least 1 path component is required
         path: TokenStream2,
+        /// associated function responsible to create the component
         constructor: TokenStream2,
+        /// *optional*
+        ///
+        /// punctated(,) list of values inside parenthesis passed
+        /// to constructor function, as it is.
+        args: Vec<Arg>,
+        /// *optional*
+        props: NodeProps,
+    },
+    /// # Syntax
+    ///
+    /// ```
+    /// $path?::$constructor($args?..)
+    /// ```
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// gxi! {
+    ///     hello::world(20, 32)
+    /// }
+    /// ```
+    ///
+    /// - `$path`           = `hello`
+    /// - `$constructor`    = `world`
+    /// - `$args`           = `20, 32`
+    FunctionalComponent {
+        /// *optional*
+        ///
+        /// path preceding the constructor
+        path: TokenStream2,
+        /// name of the functional component
+        constructor: TokenStream2,
+        /// *optional*
+        ///
+        /// punctated(,) list of values inside parenthesis passed
+        /// to constructor function, as it is.
+        args: Vec<Arg>,
+    },
+    /// # Syntax
+    ///
+    /// ```
+    /// $name($props?..)
+    /// ```
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// gxi! {
+    ///     h1(value = 20, game="web dev")
+    /// }
+    /// ```
+    ///
+    /// - `$name`  = `h1`
+    /// - `$props` = `value = 20, game = "web dev"`
+    ///
+    /// > Note: If the props parenthesis is empty and no path precedes `$name`
+    /// > then it is considered as [`NodeType::FunctionalComponent`]
+    Element {
+        /// `gxi::Element("$name")`
+        name: String,
+        /// *optional*
+        props: NodeProps,
     },
 }
 
@@ -328,7 +400,6 @@ impl NodeType {
                     // otherwise function
 
                     let mut args = Vec::<Arg>::default();
-
                     if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
                     {
                         while !content.is_empty() {
