@@ -1,175 +1,38 @@
-use super::{NodeProps, NodeSubBlock, NodeSubTree};
-use crate::blocks::ConditionalBlock;
-use crate::lifetime;
-use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
-use crate::scope::Scope;
+use crate::{
+    blocks::{ConditionalBlock, NodeProps, NodeSubBlock, NodeSubTree},
+    lifetime::{Context, LifeTime},
+    optional_parse::{impl_parse_for_optional_parse, OptionalParse},
+    scope::Scope,
+};
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
 use syn::Token;
 use syn::__private::TokenStream2;
 use syn::parse::ParseStream;
 
-//
-/// //TODO: rename this to node
-///
-/// # Component
-///
-/// ## Syntax
-///
-/// ```rust
-/// Name::constructor(..args) (..props) [
-/// ..children
-/// ]
-/// ```
-///
-/// ### Name (required)
-///
-/// `$name` represents the name of the component. It should be a valid
-/// [rust path](https://doc.rust-lang.org/reference/paths.html#paths-in-types).
-///
-/// **If**
-///
-/// `$name` has 0 path segments, no
-/// [`$constructor`](#constructor--default--newparent-) and starts with a lowercase
-/// character then it is a `gxi::Element` constructed using the
-/// `from_str(String, StrongNodeType)` associated function.
-///
-/// _e.g_ `gxi::NativeElement::from_str($name, parent).into_vnode_type()`
-///
-/// **else**
-///
-/// `$name::$constructor(parent).into_vnode_type()`
-///
-/// ### Constructor ( default = new(parent) )
-///
-/// `$constructor` should be a lower-cased associated function of the component
-/// which returns `Self` and takes parent as the last argument
-///
-/// ### args ( optional )
-///
-/// comma separated arguments passed to
-/// [`$constructor`](#constructor--default--newparent-)
-///
-/// ### props
-///
-/// comma separated functions called on the component instance.
-///
-/// _e.g_
-///
-/// ```rust
-/// Comp::with_id("11") ( name = "aniket" )
-/// ```
-///
-/// should be transpiled to
-///
-/// ```rust
-/// Comp::with_id("11", parent)
-/// .name("aniket")
-/// .into_vnode_type()
-/// ```
-///
-/// **feature = "web"**
-///
-/// On enabling feature `web`, if `$prop.name` doesn't start with `on` or `set` then
-/// function `set(String,String)` is invoked with args
-/// `set($prop.name, $prop.value)`
-///
-/// ```rust
-/// h1 ( title = "header one", set_name = "aniket" )
-/// ```
-///
-/// ~
-///
-/// ```rust
-/// gxi::NativeElement::from_str("h1", parent)
-/// .set("title", "header_one")
-/// .set_name("aniket")
-/// .into_vnode_type();
-/// ```
-///
-/// **right-hand values**
-///
-/// **if**
-///
-/// values on the right side of the assignment operator are static or independent of
-/// the environment then they shall be called in the `init()` closure of the
-/// `init_member()` closure call.
-///
-/// _eg_
-///
-/// ```rust
-/// h1 ( title = "header one", set_name = "aniket" , on_click = |event| {}, value = state.name )
-/// ```
-///
-/// ~
-///
-/// ```rust
-/// let (node, is_new) = init_member(node, InitType::Child, |parent| {
-///     gxi::NativeElement::from_str("h1", parent)
-///         .set("title", "header one")
-///         .set_name("aniket")
-///         .into_vnode_type()
-/// }).unwrap();
-/// ```
-///
-/// **else if**
-///
-/// value expression is of type `closure` then it should be assigned once after
-/// `initialisation` by checking the `is_new` flag.
-///
-/// ```rust
-/// let node_borrow = node.borrow_mut();
-/// if is_new {
-///     node_borrow
-///         .on_click(|event| {
-///
-///         });
-/// }
-/// ```
-///
-/// #### Closures
-///
-/// due to the limiting powers of macros, and to adhere to lifetime rules, closure
-/// syntax is a little different from rust-lang spec.
-///
-/// //TODO: mpsc spec
-///
-/// ```rust
-/// |$args| -> $msg { $body }
-/// ```
-///
-/// here `$msg` is any enum variant which needs to passed to the update function
-/// in-order to update state. Note: any state update out of update function can't be
-/// recognized due to various limitations, therefore one should not update state
-/// from the closure.
-///
-/// **else**
-///
-/// other values which depend on the environment shall not be checked, updating them
-/// on each render call.
-///
-/// ```rust
-/// node_borrow
-///     .value(state.name);
-/// ```
-///
-/// ### Children
-///
-/// 0. Other Components
-///
-/// _recursive_
-///
-/// ```rust
-/// Comp [
-///
-/// ]
-/// ```
-///
-/// > TODO
+/// **NodeBlock** contructs a node by parsing different
+/// [`NodeType Syntax Definations`](NodeType) and [`its' subtree`](NodeSubTree).
+/// Based on the 2 factors the final [`LifeTime`] is calculated.
 pub struct NodeBlock {
+    /// A node block can be of 3 different [`NodeTypes`](NodeType).
     pub node_type: NodeType,
+    /// Child elements of the tree, a contained in `Square Brackets`
+    /// ```rust
+    /// #NodeType [
+    ///     ...NodeSubTree
+    /// ]
+    /// ```
     pub sub_tree: NodeSubTree,
-    pub lifetime: lifetime::LifeTime,
+    /// LifeTime of the node depending on the [`NodeType`](NodeType)
+    /// and [`NodeSubTree`]
+    ///
+    /// ## Effects of NodeSubTree
+    /// If any [`NodeSubBlock`](NodeSubBlock) in the first depth of the tree is
+    ///
+    /// 1. [`ConditionalBlock`]
+    ///     with [`Scope::Observable`] then the lifetime is escalated to
+    ///     [`LifeTime::Rc`](LifeTime::Rc)
+    pub lifetime: LifeTime,
 }
 
 impl OptionalParse for NodeBlock {
@@ -191,12 +54,12 @@ impl OptionalParse for NodeBlock {
                 Default::default()
             };
 
-        let mut lifetime = lifetime::LifeTime::from(&node_type);
+        let mut lifetime = LifeTime::from(&node_type);
 
         for sub_node in sub_tree.iter() {
             if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
                 if !if_block.scope.is_const() {
-                    lifetime = lifetime::LifeTime::Rc(lifetime.get_context());
+                    lifetime = LifeTime::Rc(lifetime.get_context());
                     break;
                 }
             }
@@ -247,7 +110,7 @@ impl ToTokens for NodeBlock {
 
         let mut rc_token = TokenStream2::new();
 
-        if let lifetime::LifeTime::Rc(_) = lifetime {
+        if let LifeTime::Rc(_) = lifetime {
             rc_token = quote! {
                 let __node = std::rc::Rc::new(__node);
             }
@@ -366,20 +229,20 @@ impl NodeType {
     }
 }
 
-impl From<&NodeType> for lifetime::LifeTime {
+impl From<&NodeType> for LifeTime {
     fn from(node_type: &NodeType) -> Self {
         if let NodeType::FunctionalComponent { .. } = node_type {
-            return lifetime::LifeTime::Context(lifetime::Context::Absorb);
+            return LifeTime::Context(Context::Absorb);
         }
 
-        let mut lifetime = lifetime::LifeTime::Simple;
+        let mut lifetime = LifeTime::Simple;
 
         if let Some(props) = node_type.get_props() {
             for prop in props.iter() {
                 if !prop.scope.is_const() {
-                    return lifetime::LifeTime::Rc(Some(lifetime::Context::Push));
+                    return LifeTime::Rc(Some(Context::Push));
                 } else if prop.requires_context {
-                    lifetime = lifetime::LifeTime::Context(lifetime::Context::Push);
+                    lifetime = LifeTime::Context(Context::Push);
                 }
             }
         }

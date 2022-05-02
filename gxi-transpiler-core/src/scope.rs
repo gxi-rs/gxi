@@ -153,6 +153,7 @@ impl Scope {
 }
 
 //TODO: add more tests
+//FIX: add any number of expressions
 #[cfg(test)]
 mod expr_init_location {
 

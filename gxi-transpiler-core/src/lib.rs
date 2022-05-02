@@ -8,19 +8,13 @@
 //! ## Syntax
 //!
 //! Refer to [`RootBlock`](struct@RootBlock)
-mod observer_builder;
-mod scope;
-mod sub_tree;
+pub mod observer_builder;
+pub mod scope;
+pub mod sub_tree;
 #[macro_use]
-mod optional_parse;
-mod blocks;
-mod lifetime;
-mod observables;
+pub mod optional_parse;
+pub mod blocks;
+pub mod lifetime;
+pub mod observables;
 
-pub use blocks::*;
-pub use lifetime::*;
-pub use observables::*;
-pub use observer_builder::*;
-pub use optional_parse::*;
-pub use scope::*;
-pub use sub_tree::*;
+pub use crate::blocks::RootBlock;

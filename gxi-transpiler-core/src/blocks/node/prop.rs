@@ -1,7 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::scope::Scope;
-use crate::ObserverBuilder;
+use crate::{observer_builder::ObserverBuilder, scope::Scope};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};

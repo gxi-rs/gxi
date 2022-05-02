@@ -81,9 +81,7 @@ impl<'a> ObserverBuilder<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::Observables;
-
-    use super::ObserverBuilder;
+    use super::{ObserverBuilder, Observables};
     use quote::quote;
 
     #[test]

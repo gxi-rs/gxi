@@ -5,7 +5,9 @@ use syn::parse::Parse;
 
 use crate::blocks::{NodeBlock, NodeSubBlock};
 
-/// The root block of the gxi macro is a [`NodeBlock`][struct@NodeBlock].
+
+/// As the name suggests, root block is the first block of the gxi macro.
+/// The root block inherently is a single [`NodeBlock`]
 pub struct RootBlock {
     pub root_node_block: NodeBlock,
     pub component_requires_context: bool,

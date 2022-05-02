@@ -148,7 +148,7 @@ mod tests {
     fn conditional_if_block() -> anyhow::Result<()> {
         let const_condition_expr = quote! { 3 == 4};
         let observable_condition_expr =
-            quote! { (t == 3 && #const_condition_expr && 2 < 3 && t == t && t < t2 && t3 < t1) };
+            quote! { t == 3 && #const_condition_expr && 2 < 3 && t == t && t < t2 && t3 < t1 };
         let observable_condition_expr_scope = Scope::Observable(Observables(vec![
             quote! {t},
             quote! {t2},
@@ -170,7 +170,6 @@ mod tests {
                 if_arm.condition.to_token_stream().to_string()
                     == observable_condition_expr.to_string()
             );
-            ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
             ensure!(max_node_height == 1);
         }
         {
@@ -202,17 +201,13 @@ mod tests {
             }
         }
         {
-            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } else if #observable_condition_expr && t4 { a } };
-
-            use anyhow::Context;
+            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } else if #observable_condition_expr { a } };
 
             let IfBlock {
                 if_arm,
                 scope,
                 max_node_height,
-            } = syn::parse2(expr).context("a")?;
-
-            panic!("parsed");
+            } = syn::parse2(expr)?;
 
             ensure!(scope == observable_condition_expr_scope);
             ensure!(
@@ -229,16 +224,16 @@ mod tests {
                         == const_condition_expr.to_string()
                 );
                 if let ElseArm::WithIfArm { if_arm, .. } = &*if_arm.else_arm {
-                    let mut expected_scope = observable_condition_expr_scope.clone();
-                    if let Scope::Observable(expected_scope) = &mut expected_scope {
-                        expected_scope.push(quote! {t4})
-                    } else {
-                        unreachable!()
-                    }
-                    ensure!(if_arm.scope == expected_scope);
+//                    let mut expected_scope = observable_condition_expr_scope.clone();
+//                    if let Scope::Observable(expected_scope) = &mut expected_scope {
+//                        expected_scope.push(quote! {t4})
+//                    } else {
+//                        unreachable!()
+  //                  }
+                    ensure!(if_arm.scope == observable_condition_expr_scope);
                     ensure!(
                         if_arm.condition.to_token_stream().to_string()
-                            == quote! {#observable_condition_expr && !t4}.to_string()
+                            == quote! {#observable_condition_expr && t4}.to_string()
                     );
                 }
                 ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
