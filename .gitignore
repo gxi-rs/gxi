@@ -1,8 +1,4 @@
 .idea
 .vscode
 target
-*.lock
-*/target
-*/*.lock
-*/*/target
-*/*/*.lock
+session.vim
