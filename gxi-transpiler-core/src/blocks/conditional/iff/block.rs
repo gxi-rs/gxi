@@ -2,11 +2,11 @@ use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
-    blocks::ConditionalBlock,
+    blocks::conditional::ConditionalBlock,
     observables::Observables,
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    scope::Scope,
+    state::State,
 };
 
 use super::{
@@ -23,7 +23,7 @@ pub struct IfBlock {
     /// changes its value.
     /// Obviously, optimizations are put in place to prevent unnecessary re renders.
     /// Note: The ObserverBuilder will not borrow the RefCell value.
-    pub scope: Scope,
+    pub state: State,
     /// max possible height of vertical nodes in the nested subtree
     pub max_node_height: usize,
 }
@@ -45,7 +45,7 @@ impl OptionalParse for IfBlock {
             loop {
                 let mut max_arm_node_height = 0usize;
 
-                if let Scope::Observable(observables) = &if_arm.scope {
+                if let State::Observable(observables) = &if_arm.scope {
                     scoped_variables.append(&mut observables.clone());
                 }
 
@@ -84,10 +84,10 @@ impl OptionalParse for IfBlock {
 
         Ok(Some(Self {
             if_arm,
-            scope: if scoped_variables.is_empty() {
-                Scope::Constant
+            state: if scoped_variables.is_empty() {
+                State::Constant
             } else {
-                Scope::Observable(scoped_variables)
+                State::Observable(scoped_variables)
             },
             max_node_height,
         }))
@@ -106,10 +106,10 @@ impl IfBlock {
             node_blocks,
             self.max_node_height,
             parent_return_type,
-            self.scope.is_const(),
+            self.state.is_const(),
         );
 
-        if !self.scope.is_const() {
+        if !self.state.is_const() {
             if_arm_tokens = quote! {
                 use std::ops::{DerefMut, Deref};
 
@@ -117,7 +117,7 @@ impl IfBlock {
             };
         }
 
-        tokens.append_all(self.scope.to_token_stream(&ObserverBuilder {
+        tokens.append_all(self.state.to_token_stream(&ObserverBuilder {
             pre_add_observer_tokens: &quote! {
                 let mut __ctx = gxi::IndexedContext::default();
             },
@@ -135,7 +135,7 @@ mod tests {
 
     use super::{super::arm::ElseArm, IfBlock};
     use crate::observables::Observables;
-    use crate::scope::Scope;
+    use crate::state::State;
 
     use anyhow::{bail, ensure};
 
@@ -149,7 +149,7 @@ mod tests {
         let const_condition_expr = quote! { 3 == 4};
         let observable_condition_expr =
             quote! { t == 3 && #const_condition_expr && 2 < 3 && t == t && t < t2 && t3 < t1 };
-        let observable_condition_expr_scope = Scope::Observable(Observables(vec![
+        let observable_condition_expr_scope = State::Observable(Observables(vec![
             quote! {t},
             quote! {t2},
             quote! {t3},
@@ -161,7 +161,7 @@ mod tests {
 
             let IfBlock {
                 if_arm,
-                scope,
+                state: scope,
                 max_node_height,
             } = syn::parse2(expr)?;
 
@@ -177,7 +177,7 @@ mod tests {
 
             let IfBlock {
                 if_arm,
-                scope,
+                state: scope,
                 max_node_height,
             } = syn::parse2(expr)?;
 
@@ -190,7 +190,7 @@ mod tests {
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(if_arm.scope == State::Constant);
                 ensure!(
                     if_arm.condition.to_token_stream().to_string()
                         == const_condition_expr.to_string()
@@ -205,7 +205,7 @@ mod tests {
 
             let IfBlock {
                 if_arm,
-                scope,
+                state: scope,
                 max_node_height,
             } = syn::parse2(expr)?;
 
@@ -218,18 +218,18 @@ mod tests {
 
             let else_arm = &*if_arm.else_arm;
             if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                ensure!(if_arm.scope == Scope::Constant);
+                ensure!(if_arm.scope == State::Constant);
                 ensure!(
                     if_arm.condition.to_token_stream().to_string()
                         == const_condition_expr.to_string()
                 );
                 if let ElseArm::WithIfArm { if_arm, .. } = &*if_arm.else_arm {
-//                    let mut expected_scope = observable_condition_expr_scope.clone();
-//                    if let Scope::Observable(expected_scope) = &mut expected_scope {
-//                        expected_scope.push(quote! {t4})
-//                    } else {
-//                        unreachable!()
-  //                  }
+                    //                    let mut expected_scope = observable_condition_expr_scope.clone();
+                    //                    if let Scope::Observable(expected_scope) = &mut expected_scope {
+                    //                        expected_scope.push(quote! {t4})
+                    //                    } else {
+                    //                        unreachable!()
+                    //                  }
                     ensure!(if_arm.scope == observable_condition_expr_scope);
                     ensure!(
                         if_arm.condition.to_token_stream().to_string()

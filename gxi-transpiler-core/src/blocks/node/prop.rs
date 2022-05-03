@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::{observer_builder::ObserverBuilder, scope::Scope};
+use crate::{observer_builder::ObserverBuilder, state::State};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
@@ -68,16 +68,14 @@ impl DerefMut for NodeProps {
 pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
-    pub scope: Scope,
+    pub scope: State,
     pub requires_context: bool,
 }
 
 impl Parse for NodeProp {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         // check for * used to mark sccope to be OPen
-        let mut scope = Scope::default();
-
-        // TODO: add to doc, const
+        let mut scope = State::default();
 
         #[allow(unused_mut)]
         let mut requires_context = false;
@@ -87,10 +85,9 @@ impl Parse for NodeProp {
         let syn::ExprAssign { left, right, .. } = input.parse()?;
 
         if const_tt.is_err() {
-            scope = Scope::find_expr_scope(&right)?;
+            scope = State::find_expr_scope(&right)?;
         }
 
-        // TODO: add to doc, prop starting with on requires_context
         #[cfg(feature = "web")]
         if left.to_token_stream().to_string().starts_with("on") {
             requires_context = true;

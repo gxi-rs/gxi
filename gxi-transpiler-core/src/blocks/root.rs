@@ -3,14 +3,49 @@ use std::collections::VecDeque;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::Parse;
 
-use crate::blocks::{NodeBlock, NodeSubBlock};
+use crate::blocks::node::{NodeBlock, NodeSubBlock};
+use crate::lifetime::{LifeTime, ContextAction};
 
+use super::node::NodeWrapper;
 
 /// As the name suggests, root block is the first block of the gxi macro.
 /// The root block inherently is a single [`NodeBlock`]
 pub struct RootBlock {
     pub root_node_block: NodeBlock,
-    pub component_requires_context: bool,
+    /// highest lifetime of the whole tree
+    pub tree_life_time: LifeTime,
+}
+
+impl Parse for RootBlock {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        let root_node_block = NodeBlock::parse(input)?;
+
+        // traverse the tree and check if it requires_context
+        let tree_life_time = {
+            let mut node_q = VecDeque::from([&root_node_block]);
+
+            loop {
+                if let Some(node) = node_q.pop_front() {
+                    if let LifeTime::Context(_) = node.lifetime {
+                        break LifeTime::Context(ContextAction::Push);
+                    }
+
+                    for sub_node in node.sub_tree.iter() {
+                        if let NodeSubBlock::Node(sub_node) = sub_node {
+                            node_q.push_back(sub_node);
+                        }
+                    }
+                } else {
+                    break LifeTime::Constant;
+                }
+            }
+        };
+
+        Ok(Self {
+            root_node_block,
+            tree_life_time,
+        })
+    }
 }
 
 impl ToTokens for RootBlock {
@@ -20,7 +55,7 @@ impl ToTokens for RootBlock {
             use gxi::{VNode, VContainer, VLeaf};
         };
 
-        let (ctx_tokens, ctx_type) = if self.component_requires_context {
+        let (ctx_tokens, ctx_type) = if let LifeTime::Context(_) = self.tree_life_time {
             head_tokens.append_all(quote! {
                 let mut __ctx = gxi::ConstContext::default();
             });
@@ -29,7 +64,7 @@ impl ToTokens for RootBlock {
             (quote!(), quote!(NoCtx))
         };
 
-        let vnode_shell_tokens = if self.root_node_block.lifetime.requires_context() {
+        let vnode_shell_tokens = if let NodeWrapper::Rc = self.root_node_block.wrapper {
             quote!(Rc(__child))
         } else {
             quote!(Default(__child))
@@ -45,38 +80,6 @@ impl ToTokens for RootBlock {
     }
 }
 
-impl Parse for RootBlock {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
-        let root_node_block = NodeBlock::parse(input)?;
-
-        // traverse the tree and check if it requires_context
-        let component_requires_context = {
-            let mut node_q = VecDeque::from([&root_node_block]);
-
-            loop {
-                if let Some(node) = node_q.pop_front() {
-                    if node.lifetime.requires_context() {
-                        break true;
-                    }
-
-                    for sub_node in node.sub_tree.iter() {
-                        if let NodeSubBlock::Node(sub_node) = sub_node {
-                            node_q.push_back(sub_node);
-                        }
-                    }
-                } else {
-                    break false;
-                }
-            }
-        };
-
-        Ok(Self {
-            root_node_block,
-            component_requires_context,
-        })
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::RootBlock;
@@ -85,14 +88,14 @@ mod tests {
 
     #[test]
     fn parser_test() -> anyhow::Result<()> {
-        ensure!(
-            syn::parse2::<RootBlock>(quote! {
-                h1 [
-                   h1 ( state = state_variable )
-                ]
-            })?
-            .component_requires_context
-        );
+//        ensure!(
+//            syn::parse2::<RootBlock>(quote! {
+//                h1 [
+//                   h1 ( state = state_variable )
+//                ]
+//            })?
+//            .component_requires_context
+//        );
 
         Ok(())
     }

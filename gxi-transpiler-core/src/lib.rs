@@ -9,7 +9,7 @@
 //!
 //! Refer to [`RootBlock`](struct@RootBlock)
 pub mod observer_builder;
-pub mod scope;
+pub mod state;
 pub mod sub_tree;
 #[macro_use]
 pub mod optional_parse;

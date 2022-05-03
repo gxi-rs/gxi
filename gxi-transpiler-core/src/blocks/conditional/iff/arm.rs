@@ -3,7 +3,7 @@ use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::{
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    scope::Scope,
+    state::State,
 };
 
 use super::subtree::{IfSubBlock, IfSubTree};
@@ -16,7 +16,7 @@ use super::subtree::{IfSubBlock, IfSubTree};
 /// } ...arms
 /// ```
 pub struct IfArm {
-    pub scope: Scope,
+    pub scope: State,
     pub if_token: syn::Token!(if),
     pub sub_tree: IfSubTree,
     pub else_arm: Box<ElseArm>,
@@ -35,7 +35,7 @@ impl OptionalParse for IfArm {
         let (condition, scope) = {
             let condition = input.parse::<syn::Expr>()?;
             // no need to check scope when const keyword is provided
-            let scope = Scope::find_expr_scope(&condition)?;
+            let scope = State::find_expr_scope(&condition)?;
             (condition, scope)
         };
 
@@ -99,7 +99,7 @@ impl IfArm {
         };
 
         let mut scoped_variables_borrow = TokenStream2::new();
-        if let Scope::Observable(observables) = scope {
+        if let State::Observable(observables) = scope {
             scoped_variables_borrow = observables.borrowed_token_stream();
         }
 

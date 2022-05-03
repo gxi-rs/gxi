@@ -7,13 +7,14 @@ use syn::Expr;
 use crate::observables::Observables;
 use crate::observer_builder::ObserverBuilder;
 
+/// State of a expr
 #[derive(Debug, Clone)]
-pub enum Scope {
+pub enum State {
     Observable(Observables),
     Constant,
 }
 
-impl PartialEq for Scope {
+impl PartialEq for State {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
             (Self::Observable(v1), Self::Observable(v2)) => {
@@ -30,15 +31,15 @@ impl PartialEq for Scope {
     }
 }
 
-impl Default for Scope {
+impl Default for State {
     fn default() -> Self {
         Self::Constant
     }
 }
 
-impl Scope {
+impl State {
     pub fn is_const(&self) -> bool {
-        matches!(self, Scope::Constant)
+        matches!(self, State::Constant)
     }
 
     /// find scopes of punctuated expressions
@@ -46,16 +47,16 @@ impl Scope {
         let mut observables = Observables::default();
 
         for x in iter {
-            if let Scope::Observable(mut expr_observables) = Self::find_expr_scope(x)? {
+            if let State::Observable(mut expr_observables) = Self::find_expr_scope(x)? {
                 observables.append(&mut expr_observables);
             };
         }
 
         Ok(if observables.is_empty() {
-            Scope::Constant
+            State::Constant
         } else {
             observables.remove_duplicates();
-            Scope::Observable(observables)
+            State::Observable(observables)
         })
     }
 
@@ -68,22 +69,22 @@ impl Scope {
                 // binary expressions may have repeated variable names
                 // filter them
                 match (Self::find_expr_scope(left)?, Self::find_expr_scope(right)?) {
-                    (Scope::Observable(mut first), Scope::Observable(mut second)) => {
+                    (State::Observable(mut first), State::Observable(mut second)) => {
                         // remove duplicaes
                         first.append(&mut second);
                         first.remove_duplicates();
-                        Ok(Scope::Observable(first))
+                        Ok(State::Observable(first))
                     }
-                    (Scope::Observable(name), Scope::Constant) => Ok(Scope::Observable(name)),
-                    (Scope::Constant, Scope::Observable(name)) => Ok(Scope::Observable(name)),
-                    (Scope::Constant, Scope::Constant) => Ok(Scope::Constant),
+                    (State::Observable(name), State::Constant) => Ok(State::Observable(name)),
+                    (State::Constant, State::Observable(name)) => Ok(State::Observable(name)),
+                    (State::Constant, State::Constant) => Ok(State::Constant),
                 }
             }
             Expr::Block(_) | Expr::Macro(_) | Expr::Lit(_) | Expr::Closure(_) => {
-                Ok(Scope::Constant)
+                Ok(State::Constant)
             }
-            Expr::Call(syn::ExprCall { args, .. }) => Scope::find_iter_scope(&mut args.iter()),
-            Expr::Cast(syn::ExprCast { expr, .. }) => Scope::find_expr_scope(expr),
+            Expr::Call(syn::ExprCall { args, .. }) => State::find_iter_scope(&mut args.iter()),
+            Expr::Cast(syn::ExprCast { expr, .. }) => State::find_expr_scope(expr),
             Expr::Field(syn::ExprField { base, .. }) => Self::find_expr_scope(base),
             Expr::Index(syn::ExprIndex { expr, .. }) => Self::find_expr_scope(expr),
             Expr::ForLoop(_) => todo!(),
@@ -136,18 +137,18 @@ impl Scope {
 }
 
 /// parses input to syn::Expr
-impl Parse for Scope {
+impl Parse for State {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         Self::find_expr_scope(&input.parse()?)
     }
 }
 
-impl Scope {
+impl State {
     pub fn to_token_stream(&self, observer_builder: &ObserverBuilder) -> TokenStream2 {
         match &self {
-            Scope::Observable(observables) => observer_builder.to_token_stream(observables),
+            State::Observable(observables) => observer_builder.to_token_stream(observables),
             // with a constant scope only body is required
-            Scope::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
+            State::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
         }
     }
 }
@@ -157,7 +158,7 @@ impl Scope {
 #[cfg(test)]
 mod expr_init_location {
 
-    use super::Scope;
+    use super::State;
     use anyhow::ensure;
     use quote::quote;
     use syn::__private::TokenStream2;
@@ -166,7 +167,7 @@ mod expr_init_location {
     const OBSERVABLE: bool = false;
 
     fn match_const_scope(expr: TokenStream2, constant: bool) -> anyhow::Result<bool> {
-        if let Scope::Constant = Scope::find_expr_scope(&syn::parse2(expr)?)? {
+        if let State::Constant = State::find_expr_scope(&syn::parse2(expr)?)? {
             Ok(constant)
         } else {
             Ok(!constant)

@@ -1,8 +1,12 @@
+use super::wrapper::NodeWrapper;
 use crate::{
-    blocks::{ConditionalBlock, NodeProps, NodeSubBlock, NodeSubTree},
+    blocks::{
+        conditional::ConditionalBlock,
+        node::{NodeProps, NodeSubBlock, NodeSubTree},
+    },
     lifetime::{ContextAction, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    scope::Scope,
+    state::State,
 };
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -31,9 +35,10 @@ pub struct NodeBlock {
     /// If any [`NodeSubBlock`](NodeSubBlock) in the first depth of the tree is
     ///
     /// 1. [`ConditionalBlock`]
-    ///     with [`Scope::Observable`] then the lifetime is escalated to
-    ///     [`LifeTime::Rc`](LifeTime::Rc)
+    ///     with [`State::Observable`] then the lifetime is escalated to
+    ///      [`LifeTime::Rc`](LifeTime::Rc)
     pub lifetime: LifeTime,
+    pub wrapper: NodeWrapper,
 }
 
 impl OptionalParse for NodeBlock {
@@ -55,12 +60,16 @@ impl OptionalParse for NodeBlock {
                 Default::default()
             };
 
+        let mut wrapper = NodeWrapper::None;
         let mut lifetime = LifeTime::from(&node_type);
 
+        // set wrapper = NodeWrapper::Rc and LifeTime = Context
+        // is ConditionalBlock is found with State::Observable
         for sub_node in sub_tree.iter() {
             if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
-                if !if_block.scope.is_const() {
-                    lifetime = LifeTime::Rc(lifetime.get_context());
+                if if_block.state == State::Constant {
+                    wrapper = NodeWrapper::Rc;
+                    lifetime = LifeTime::Context(ContextAction::Push);
                     break;
                 }
             }
@@ -70,6 +79,7 @@ impl OptionalParse for NodeBlock {
             node_type,
             sub_tree,
             lifetime,
+            wrapper,
         }))
     }
 }
@@ -85,6 +95,7 @@ impl ToTokens for NodeBlock {
             sub_tree: subtree,
             node_type,
             lifetime,
+            wrapper,
         } = self;
 
         let init_call = node_type.get_init_call();
@@ -109,13 +120,7 @@ impl ToTokens for NodeBlock {
             }
         };
 
-        let mut rc_token = TokenStream2::new();
-
-        if let LifeTime::Rc(_) = lifetime {
-            rc_token = quote! {
-                let __node = std::rc::Rc::new(__node);
-            }
-        }
+        let mut rc_token = wrapper.to_token_stream();
 
         // assemble
         if rc_token.is_empty() && mid_calls.is_empty() {
@@ -282,7 +287,7 @@ impl NodeType {
 
         if let Some(props) = self.get_props() {
             for prop in props.iter() {
-                if let Scope::Constant = prop.scope {
+                if let State::Constant = prop.scope {
                     prop.to_tokens(&mut const_props);
                 } else {
                     prop.to_tokens(&mut observable_props);
@@ -307,7 +312,7 @@ impl From<&NodeType> for LifeTime {
             return LifeTime::Context(ContextAction::Absorb);
         }
 
-        let mut lifetime = LifeTime::Simple;
+        let mut lifetime = LifeTime::Constant;
 
         if let Some(props) = node_type.get_props() {
             for prop in props.iter() {
