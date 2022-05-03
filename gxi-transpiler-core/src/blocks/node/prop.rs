@@ -6,7 +6,7 @@ use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Token;
 
-/// list of comma separated props inside parenthesis
+/// punctated(,) list of [`NodeProp(s)`](NodeProp) inside parenthesis.
 #[derive(Default)]
 pub struct NodeProps(pub Vec<NodeProp>);
 
@@ -42,6 +42,29 @@ impl DerefMut for NodeProps {
     }
 }
 
+/// # Syntax
+/// 
+/// ```
+/// const? $left = $right
+/// ```
+///
+/// # Example
+/// 
+/// ```rust
+/// name = "gxi-rs"
+/// ```
+/// 
+/// - `$left` = `name`
+/// - `$right` = `"gxi-rs"`
+///
+/// # Scope
+/// 
+/// - If `const` is present, `scope` = [`Scope::Constant`]
+/// otherwise [`scope`](Scope) is set according to `$right`.
+///
+/// - In `featrue = web`. If `$left` starts with `on` then
+///   [`LifeTime`] is set to 
+///
 pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
