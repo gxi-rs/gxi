@@ -99,13 +99,11 @@ impl IfBlock {
         &self,
         tokens: &mut TokenStream2,
         node_blocks: usize,
-        parent_return_type: &TokenStream2,
     ) {
         let mut if_arm_tokens = self.if_arm.to_token_stream(
             1,
             node_blocks,
             self.max_node_height,
-            parent_return_type,
             self.state.is_const(),
         );
 

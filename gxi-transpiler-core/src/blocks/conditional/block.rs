@@ -70,16 +70,9 @@ impl OptionalParse for ConditionalBlock {
 impl_parse_for_optional_parse!(ConditionalBlock);
 
 impl ConditionalBlock {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut TokenStream2,
-        node_blocks: usize,
-        parent_return_type: &TokenStream2,
-    ) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_blocks: usize) {
         match self {
-            ConditionalBlock::If(if_block) => {
-                if_block.to_tokens(tokens, node_blocks, parent_return_type)
-            }
+            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens, node_blocks),
             ConditionalBlock::Match(match_block) => match_block.to_tokens(tokens),
         }
     }

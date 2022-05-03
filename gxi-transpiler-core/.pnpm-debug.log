@@ -1,0 +1,14 @@
+{
+  "0 debug pnpm:scope": {
+    "selected": 1
+  },
+  "1 error pnpm": {
+    "code": "ERR_PNPM_NO_IMPORTER_MANIFEST",
+    "err": {
+      "name": "Error",
+      "message": "No package.json found",
+      "code": "ERR_PNPM_NO_IMPORTER_MANIFEST",
+      "stack": "Error: No package.json found\n    at Object.handler [as default] (/home/aniket/.node/corepack/pnpm/6.11.0/dist/pnpm.cjs:116106:17)\n    at async /home/aniket/.node/corepack/pnpm/6.11.0/dist/pnpm.cjs:125614:20\n    at async run (/home/aniket/.node/corepack/pnpm/6.11.0/dist/pnpm.cjs:125589:34)\n    at async runPnpm (/home/aniket/.node/corepack/pnpm/6.11.0/dist/pnpm.cjs:125799:5)\n    at async /home/aniket/.node/corepack/pnpm/6.11.0/dist/pnpm.cjs:125791:7"
+    }
+  }
+}

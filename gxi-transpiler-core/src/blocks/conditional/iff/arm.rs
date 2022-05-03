@@ -67,7 +67,6 @@ impl IfArm {
         branch_index: usize,
         node_blocks: usize,
         max_node_height: usize,
-        parent_return_type: &TokenStream2,
         constant_scope: bool,
     ) -> TokenStream2 {
         let Self {
@@ -82,7 +81,6 @@ impl IfArm {
             branch_index + 1,
             node_blocks,
             max_node_height,
-            parent_return_type,
             constant_scope,
         );
 
@@ -93,7 +91,6 @@ impl IfArm {
                 branch_index,
                 node_blocks,
                 max_node_height,
-                parent_return_type,
             );
             tokens
         };
@@ -151,7 +148,6 @@ impl ElseArm {
         branch_index: usize,
         node_index: usize,
         max_node_height: usize,
-        parent_return_type: &TokenStream2,
         constant_scope: bool,
     ) -> TokenStream2 {
         match self {
@@ -160,7 +156,6 @@ impl ElseArm {
                     branch_index,
                     node_index,
                     max_node_height,
-                    parent_return_type,
                     constant_scope,
                 );
                 quote! { #else_token #if_tokens }
@@ -173,7 +168,6 @@ impl ElseArm {
                         branch_index,
                         node_index,
                         max_node_height,
-                        parent_return_type,
                     );
                     tokens
                 };
@@ -194,7 +188,6 @@ impl ElseArm {
                             branch_index,
                             node_index,
                             max_node_height,
-                            parent_return_type,
                         );
                         tokens
                     };

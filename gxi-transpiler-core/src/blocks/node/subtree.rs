@@ -8,6 +8,7 @@ use crate::{
     sub_tree::SubTree,
 };
 
+/// TODO:
 pub enum NodeSubBlock {
     Node(NodeBlock),
     Execution(ExecutionBlock),
@@ -31,31 +32,20 @@ impl Parse for NodeSubBlock {
 }
 
 impl NodeSubBlock {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut TokenStream2,
-        node_blocks: usize,
-        parent_return_type: &TokenStream2,
-    ) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_blocks: usize) {
         match self {
             NodeSubBlock::Node(comp) => comp.to_tokens(tokens),
             NodeSubBlock::Execution(ex) => ex.to_tokens(tokens),
-            NodeSubBlock::Conditional(cond) => {
-                cond.to_tokens(tokens, node_blocks, parent_return_type)
-            }
+            NodeSubBlock::Conditional(cond) => cond.to_tokens(tokens, node_blocks),
             NodeSubBlock::Iter => todo!(),
         }
     }
 }
-
+///
 pub type NodeSubTree = SubTree<NodeSubBlock>;
 
-impl NodeSubTree {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut quote::__private::TokenStream,
-        parent_return_type: &TokenStream2,
-    ) {
+impl ToTokens for NodeSubTree {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         // number of node blocks
         let mut node_blocks = 0usize;
         let mut has_conditional_blocks = false;
@@ -63,7 +53,7 @@ impl NodeSubTree {
 
         for block in self.iter() {
             let mut block_tokens = TokenStream2::new();
-            block.to_tokens(&mut block_tokens, node_blocks, parent_return_type);
+            block.to_tokens(&mut block_tokens, node_blocks);
 
             match block {
                 NodeSubBlock::Conditional(_) => {
@@ -127,7 +117,7 @@ mod punctuated_blocks_to_tokens {
                 let blocks: NodeSubTree = syn::parse2(quote! (#if_block))?;
 
                 let mut blocks_buff = TokenStream2::new();
-                blocks.to_tokens(&mut blocks_buff, &return_type);
+                blocks.to_tokens(&mut blocks_buff);
                 blocks_buff
             };
 
@@ -135,7 +125,7 @@ mod punctuated_blocks_to_tokens {
                 let if_block: IfBlock = syn::parse2(if_block)?;
 
                 let mut tokens = TokenStream2::new();
-                if_block.to_tokens(&mut tokens, 0, &return_type);
+                if_block.to_tokens(&mut tokens, 0);
 
                 quote! {
                     __node.push(None);
@@ -175,7 +165,7 @@ mod punctuated_blocks_to_tokens {
                 })?;
 
                 let mut blocks_buff = TokenStream2::new();
-                blocks.to_tokens(&mut blocks_buff, &return_type);
+                blocks.to_tokens(&mut blocks_buff);
                 blocks_buff
             };
 
@@ -185,8 +175,8 @@ mod punctuated_blocks_to_tokens {
 
                 let mut tokens = TokenStream2::new();
 
-                first_if_block.to_tokens(&mut tokens, 1, &return_type);
-                second_if_block.to_tokens(&mut tokens, 2, &return_type);
+                first_if_block.to_tokens(&mut tokens, 1);
+                second_if_block.to_tokens(&mut tokens, 2);
 
                 quote! {
                     #div_tokens

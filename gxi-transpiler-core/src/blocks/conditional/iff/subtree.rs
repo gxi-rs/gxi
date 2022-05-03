@@ -35,7 +35,6 @@ impl IfSubBlock {
         tokens: &mut TokenStream2,
         node_index: &mut usize,
         max_node_height: usize,
-        parent_return_type: &TokenStream2,
     ) {
         match self {
             Self::Node(node) => {
@@ -58,7 +57,7 @@ impl IfSubBlock {
             }
             Self::Execution(ex) => ex.to_tokens(tokens),
             Self::Conditional(ConditionalBlock::If(if_block)) => {
-                if_block.to_tokens(tokens, *node_index, parent_return_type);
+                if_block.to_tokens(tokens, *node_index);
                 *node_index += if_block.max_node_height;
             }
             Self::Conditional(ConditionalBlock::Match(_)) => {
@@ -83,7 +82,6 @@ impl IfSubTree {
         branch_index: usize,
         mut node_index: usize,
         max_node_height: usize,
-        parent_return_type: &TokenStream2,
     ) {
         let mut token_buff = TokenStream2::new();
 
@@ -94,7 +92,6 @@ impl IfSubTree {
                 &mut token_buff,
                 &mut node_index,
                 max_node_height,
-                parent_return_type,
             );
         }
 
@@ -104,7 +101,6 @@ impl IfSubTree {
                 &mut token_buff,
                 &mut node_index,
                 max_node_height,
-                parent_return_type,
             )
         }
 

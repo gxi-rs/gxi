@@ -13,6 +13,7 @@ use super::node::NodeWrapper;
 pub struct RootBlock {
     pub root_node_block: NodeBlock,
     /// highest lifetime of the whole tree
+    /// gxi::VNodeContext is created accordingly.
     pub tree_life_time: LifeTime,
 }
 
