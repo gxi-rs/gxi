@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::lifetime::{ContextAction, LifeTime};
+use crate::lifetime::{ConstantContextAction, LifeTime};
 use crate::{observer_builder::ObserverBuilder, state::State};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -91,7 +91,7 @@ impl Parse for NodeProp {
 
         #[cfg(feature = "web")]
         if left.to_token_stream().to_string().starts_with("on") {
-            lifetime = LifeTime::Context(ContextAction::Push);
+            lifetime = LifeTime::Context(Default::default());
         }
 
         Ok(Self {

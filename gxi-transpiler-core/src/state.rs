@@ -38,6 +38,10 @@ impl Default for State {
 }
 
 impl State {
+    pub fn is_const(&self) -> bool {
+        matches!(self, State::Constant)
+    }
+
     /// find scopes of punctuated expressions
     pub fn find_iter_scope(iter: &mut syn::punctuated::Iter<syn::Expr>) -> syn::Result<Self> {
         let mut observables = Observables::default();
@@ -56,6 +60,7 @@ impl State {
         })
     }
 
+    /// FIX: take token steam or vec of Expr
     pub fn find_expr_scope(expr: &syn::Expr) -> syn::Result<Self> {
         match expr {
             Expr::Array(syn::ExprArray { elems, .. }) => {
@@ -111,7 +116,7 @@ impl State {
             Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Unsafe(_) => todo!(),
             Expr::While(_) => todo!(),
-            Expr::Async(_)
+             Expr::Async(_)
             | Expr::Await(_)
             | Expr::Box(_)
             | Expr::Continue(_)
@@ -124,15 +129,9 @@ impl State {
                 expr.span(),
                 "[gxi] didn't expect this expression here",
             )),
-            Expr::Assign(_) => {
-                panic!("a")
-            }
-            Expr::AssignOp(_) => {
-                panic!("ass")
-            }
-            Expr::Group(_) => {
-                panic!("group")
-            }
+            Expr::Assign(_) => { panic!("a") }
+            Expr::AssignOp(_) => { panic!("ass") }
+            Expr::Group(_) => { panic!("group")  }
             _ => unreachable!(),
         }
     }

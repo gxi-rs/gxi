@@ -4,7 +4,7 @@ use crate::{
         conditional::ConditionalBlock,
         node::{NodeProps, NodeSubBlock, NodeSubTree},
     },
-    lifetime::{ContextAction, LifeTime},
+    lifetime::{ConstantContextAction, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::State,
 };
@@ -69,7 +69,7 @@ impl OptionalParse for NodeBlock {
             if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
                 if if_block.state == State::Constant {
                     wrapper = NodeWrapper::Rc;
-                    lifetime = LifeTime::Context(ContextAction::Push);
+                    lifetime = LifeTime::Context(Default::default());
                     break;
                 }
             }
@@ -309,13 +309,13 @@ impl NodeType {
 impl From<&NodeType> for LifeTime {
     fn from(node_type: &NodeType) -> Self {
         if let NodeType::FunctionalComponent { .. } = node_type {
-            return LifeTime::Context(ContextAction::Absorb);
+            return LifeTime::Context(ConstantContextAction::Absorb);
         }
 
         if let Some(props) = node_type.get_props() {
             for prop in props.iter() {
                 if let LifeTime::Context(_) = prop.lifetime {
-                    return LifeTime::Context(ContextAction::Push);
+                    return LifeTime::Context(ConstantContextAction::Push);
                 }
             }
         }

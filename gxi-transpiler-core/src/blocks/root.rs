@@ -4,7 +4,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::Parse;
 
 use crate::blocks::node::{NodeBlock, NodeSubBlock};
-use crate::lifetime::{LifeTime, ContextAction};
+use crate::lifetime::{LifeTime, ConstantContextAction};
 
 use super::node::NodeWrapper;
 
@@ -28,7 +28,7 @@ impl Parse for RootBlock {
             loop {
                 if let Some(node) = node_q.pop_front() {
                     if let LifeTime::Context(_) = node.lifetime {
-                        break LifeTime::Context(ContextAction::Push);
+                        break LifeTime::Context(Default::default());
                     }
 
                     for sub_node in node.sub_tree.iter() {

@@ -11,16 +11,15 @@ use super::subtree::{IfSubBlock, IfSubTree};
 /// ## Syntax
 ///
 /// ```rust
-/// if <keyword> expr {
-///
-/// } ...arms
+/// if $condition {
+///     $subtree?
+/// }
 /// ```
 pub struct IfArm {
-    pub scope: State,
     pub if_token: syn::Token!(if),
-    pub sub_tree: IfSubTree,
-    pub else_arm: Box<ElseArm>,
     pub condition: syn::Expr,
+    pub sub_tree: IfSubTree,
+    pub state: State,
 }
 
 impl OptionalParse for IfArm {
@@ -32,29 +31,25 @@ impl OptionalParse for IfArm {
         };
 
         // get scope
-        let (condition, scope) = {
+        let (condition, state) = {
             let condition = input.parse::<syn::Expr>()?;
             // no need to check scope when const keyword is provided
-            let scope = State::find_expr_scope(&condition)?;
-            (condition, scope)
+            let state = State::find_expr_scope(&condition)?;
+            (condition, state)
         };
 
         // parse children
-        let body = {
+        let sub_tree = {
             let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
 
             content.parse()?
         };
 
-        // else arm
-        let else_arm = input.parse::<ElseArm>()?.into();
-
         Ok(Some(Self {
-            scope,
             if_token,
-            sub_tree: body,
-            else_arm,
             condition,
+            sub_tree,
+            state,
         }))
     }
 }
@@ -62,36 +57,17 @@ impl OptionalParse for IfArm {
 impl_parse_for_optional_parse!(IfArm);
 
 impl IfArm {
-    pub fn to_token_stream(
-        &self,
-        branch_index: usize,
-        node_blocks: usize,
-        max_node_height: usize,
-        constant_scope: bool,
-    ) -> TokenStream2 {
+    pub fn to_token_stream(&self, arm_index: usize) -> TokenStream2 {
         let Self {
             if_token,
             sub_tree,
-            else_arm,
             condition,
-            scope,
+            state: scope,
         } = self;
-
-        let else_arm = else_arm.to_token_stream(
-            branch_index + 1,
-            node_blocks,
-            max_node_height,
-            constant_scope,
-        );
 
         let sub_tree = {
             let mut tokens = TokenStream2::new();
-            sub_tree.to_tokens(
-                &mut tokens,
-                branch_index,
-                node_blocks,
-                max_node_height,
-            );
+            sub_tree.to_tokens(&mut tokens, arm_index);
             tokens
         };
 
@@ -103,7 +79,7 @@ impl IfArm {
         quote! {
             #if_token { #scoped_variables_borrow #condition } {
                 #sub_tree
-            } #else_arm
+            }
         }
     }
 }
@@ -143,32 +119,16 @@ impl Parse for ElseArm {
 }
 
 impl ElseArm {
-    pub fn to_token_stream(
-        &self,
-        branch_index: usize,
-        node_index: usize,
-        max_node_height: usize,
-        constant_scope: bool,
-    ) -> TokenStream2 {
+    pub fn to_token_stream(&self, branch_index: usize, constant_scope: bool) -> TokenStream2 {
         match self {
             ElseArm::WithIfArm { else_token, if_arm } => {
-                let if_tokens = if_arm.to_token_stream(
-                    branch_index,
-                    node_index,
-                    max_node_height,
-                    constant_scope,
-                );
+                let if_tokens = if_arm.to_token_stream(branch_index);
                 quote! { #else_token #if_tokens }
             }
             ElseArm::PureArm { else_token, body } => {
                 let body = {
                     let mut tokens = TokenStream2::new();
-                    body.to_tokens(
-                        &mut tokens,
-                        branch_index,
-                        node_index,
-                        max_node_height,
-                    );
+                    body.to_tokens(&mut tokens, branch_index);
                     tokens
                 };
                 quote! {
@@ -183,12 +143,7 @@ impl ElseArm {
                     body.push(IfSubBlock::NoneBlock);
                     let body = {
                         let mut tokens = TokenStream2::new();
-                        body.to_tokens(
-                            &mut tokens,
-                            branch_index,
-                            node_index,
-                            max_node_height,
-                        );
+                        body.to_tokens(&mut tokens, branch_index);
                         tokens
                     };
                     quote! {

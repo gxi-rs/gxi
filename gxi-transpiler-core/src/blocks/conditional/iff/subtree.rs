@@ -1,5 +1,6 @@
 use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
+    lifetime::{ContextType, LifeTime},
     optional_parse::OptionalParse,
     sub_tree::SubTree,
 };
@@ -30,15 +31,11 @@ impl Parse for IfSubBlock {
 pub type IfSubTree = SubTree<IfSubBlock>;
 
 impl IfSubBlock {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut TokenStream2,
-        node_index: &mut usize,
-        max_node_height: usize,
-    ) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_index: usize) {
+        // TODO:
         match self {
             Self::Node(node) => {
-                let ctx_tokens = if node.lifetime.requires_context() {
+                let ctx_tokens = if let LifeTime::Context(context) = node.lifetime {
                     quote! {
                         __ctx.set_value(Box::from(__child));
                     }
@@ -52,56 +49,34 @@ impl IfSubBlock {
                     __node.set_at_index(&__child.as_node(), #node_index);
                     #ctx_tokens
                 });
-
-                *node_index += 1;
             }
             Self::Execution(ex) => ex.to_tokens(tokens),
             Self::Conditional(ConditionalBlock::If(if_block)) => {
-                if_block.to_tokens(tokens, *node_index);
-                *node_index += if_block.max_node_height;
+                todo!()
             }
             Self::Conditional(ConditionalBlock::Match(_)) => {
                 todo!("match block not yet implemented")
             }
             Self::NoneBlock => {
-                for _ in 0..max_node_height {
-                    tokens.append_all(quote! {
-                    //                        __node.set_at_index(None, #node_index);
-                                        });
-                    *node_index += 1;
-                }
+                todo!()
             }
         }
     }
 }
 
 impl IfSubTree {
-    pub fn to_tokens(
-        &self,
-        tokens: &mut TokenStream2,
-        branch_index: usize,
-        mut node_index: usize,
-        max_node_height: usize,
-    ) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, branch_index: usize) {
         let mut token_buff = TokenStream2::new();
 
         let base_node_index = node_index;
 
         for block in self.iter() {
-            block.to_tokens(
-                &mut token_buff,
-                &mut node_index,
-                max_node_height,
-            );
+            block.to_tokens(&mut token_buff);
         }
 
         let range = node_index..(base_node_index + max_node_height);
         for _ in range {
-            IfSubBlock::NoneBlock.to_tokens(
-                &mut token_buff,
-                &mut node_index,
-                max_node_height,
-            )
+            IfSubBlock::NoneBlock.to_tokens(&mut token_buff, &mut node_index, max_node_height)
         }
 
         tokens.append_all(quote! {
