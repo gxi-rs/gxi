@@ -4,7 +4,7 @@ use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::Parse;
 
 use crate::blocks::node::{NodeBlock, NodeSubBlock};
-use crate::lifetime::{LifeTime, ConstantContextAction};
+use crate::lifetime::{ConstantContextAction, LifeTime};
 
 use super::node::NodeWrapper;
 
@@ -89,14 +89,14 @@ mod tests {
 
     #[test]
     fn parser_test() -> anyhow::Result<()> {
-//        ensure!(
-//            syn::parse2::<RootBlock>(quote! {
-//                h1 [
-//                   h1 ( state = state_variable )
-//                ]
-//            })?
-//            .component_requires_context
-//        );
+        //        ensure!(
+        //            syn::parse2::<RootBlock>(quote! {
+        //                h1 [
+        //                   h1 ( state = state_variable )
+        //                ]
+        //            })?
+        //            .component_requires_context
+        //        );
 
         Ok(())
     }

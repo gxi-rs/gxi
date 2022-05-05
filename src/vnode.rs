@@ -20,7 +20,6 @@ pub trait VLeaf: VNode + Deref<Target = NativeWidget> + DerefMut {}
 
 /// VNode referring to a native widget which can hold other widgets
 pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
-
     #[allow(unused_variables)]
     fn push(&self, member: &Node, native_widget: &NativeWidget) {
         // do not add widget of to top level container widget

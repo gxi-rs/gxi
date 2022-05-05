@@ -81,7 +81,7 @@ impl<'a> ObserverBuilder<'a> {
 
 #[cfg(test)]
 mod tests {
-    use super::{ObserverBuilder, Observables};
+    use super::{Observables, ObserverBuilder};
     use quote::quote;
 
     #[test]
@@ -94,5 +94,4 @@ mod tests {
         }
         .to_token_stream(&Observables(vec![quote! {hello, hi}]));
     }
-
 }

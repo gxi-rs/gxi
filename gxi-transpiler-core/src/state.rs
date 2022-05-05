@@ -116,7 +116,7 @@ impl State {
             Expr::Unary(syn::ExprUnary { expr, .. }) => Self::find_expr_scope(expr),
             Expr::Unsafe(_) => todo!(),
             Expr::While(_) => todo!(),
-             Expr::Async(_)
+            Expr::Async(_)
             | Expr::Await(_)
             | Expr::Box(_)
             | Expr::Continue(_)
@@ -129,9 +129,15 @@ impl State {
                 expr.span(),
                 "[gxi] didn't expect this expression here",
             )),
-            Expr::Assign(_) => { panic!("a") }
-            Expr::AssignOp(_) => { panic!("ass") }
-            Expr::Group(_) => { panic!("group")  }
+            Expr::Assign(_) => {
+                panic!("a")
+            }
+            Expr::AssignOp(_) => {
+                panic!("ass")
+            }
+            Expr::Group(_) => {
+                panic!("group")
+            }
             _ => unreachable!(),
         }
     }
