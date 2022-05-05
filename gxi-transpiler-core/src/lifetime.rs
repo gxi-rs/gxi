@@ -1,14 +1,25 @@
 use quote::{quote, ToTokens, TokenStreamExt};
 
-/// refer to [`gxi::VNodeContext`]
 pub enum LifeTime {
     Context(ContextAction),
     Constant,
 }
 
+impl Default for LifeTime {
+    fn default() -> Self {
+        Self::Constant
+    }
+}
+
 pub enum ContextAction {
     Push,
     Absorb,
+}
+
+impl Default for ContextAction {
+    fn default() -> Self {
+        Self::Push
+    }
 }
 
 impl ToTokens for ContextAction {

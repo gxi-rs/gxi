@@ -312,19 +312,15 @@ impl From<&NodeType> for LifeTime {
             return LifeTime::Context(ContextAction::Absorb);
         }
 
-        let mut lifetime = LifeTime::Constant;
-
         if let Some(props) = node_type.get_props() {
             for prop in props.iter() {
-                if !prop.scope.is_const() {
-                    return LifeTime::Rc(Some(ContextAction::Push));
-                } else if prop.requires_context {
-                    lifetime = LifeTime::Context(ContextAction::Push);
+                if let LifeTime::Context(_) = prop.lifetime {
+                    return LifeTime::Context(ContextAction::Push);
                 }
             }
         }
 
-        lifetime
+        return LifeTime::Constant;
     }
 }
 

@@ -1,5 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
+use crate::lifetime::{ContextAction, LifeTime};
 use crate::{observer_builder::ObserverBuilder, state::State};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -43,33 +44,33 @@ impl DerefMut for NodeProps {
 }
 
 /// # Syntax
-/// 
+///
 /// ```
 /// const? $left = $right
 /// ```
 ///
 /// # Example
-/// 
+///
 /// ```rust
 /// name = "gxi-rs"
 /// ```
-/// 
+///
 /// - `$left` = `name`
 /// - `$right` = `"gxi-rs"`
 ///
 /// # Scope
-/// 
+///
 /// - If `const` is present, `scope` = [`Scope::Constant`]
 /// otherwise [`scope`](Scope) is set according to `$right`.
 ///
 /// - In `featrue = web`. If `$left` starts with `on` then
-///   [`LifeTime`] is set to 
+///   [`LifeTime`] is set to
 ///
 pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
     pub scope: State,
-    pub requires_context: bool,
+    pub lifetime: LifeTime,
 }
 
 impl Parse for NodeProp {
@@ -78,7 +79,7 @@ impl Parse for NodeProp {
         let mut scope = State::default();
 
         #[allow(unused_mut)]
-        let mut requires_context = false;
+        let mut lifetime = LifeTime::Constant;
 
         let const_tt = input.parse::<Token!(const)>();
 
@@ -90,14 +91,14 @@ impl Parse for NodeProp {
 
         #[cfg(feature = "web")]
         if left.to_token_stream().to_string().starts_with("on") {
-            requires_context = true;
+            lifetime = LifeTime::Context(ContextAction::Push);
         }
 
         Ok(Self {
             left,
             scope,
             right,
-            requires_context,
+            lifetime,
         })
     }
 }
