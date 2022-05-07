@@ -22,9 +22,9 @@ impl OptionalParse for ConditionalBlock {
 impl_parse_for_optional_parse!(ConditionalBlock);
 
 impl ConditionalBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_blocks: usize) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2) {
         match self {
-            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens, node_blocks),
+            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens),
             ConditionalBlock::Match(match_block) => match_block.to_tokens(tokens),
         }
     }

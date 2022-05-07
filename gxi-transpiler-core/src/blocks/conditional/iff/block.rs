@@ -29,6 +29,7 @@ pub struct IfBlock {
     pub lifetime: LifeTime,
     /// state of the whole tree (conditions + subtrees)
     pub state: State,
+
 }
 
 impl OptionalParse for IfBlock {

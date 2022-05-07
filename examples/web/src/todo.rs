@@ -10,7 +10,9 @@ pub fn todo() -> VNodeContext<gxi::Element> {
         let __child = {
             let mut __node = gxi::Element::from("div");
             let __node = std::rc::Rc::new(__node);
-            let mut __extra_nodes_counter = 0usize;
+
+            let mut index_buff = [0; 10];
+
             let __child = {
                 let mut __node = gxi::Element::from("input");
                 __node.on_input({
@@ -34,11 +36,14 @@ pub fn todo() -> VNodeContext<gxi::Element> {
             };
             __node.push(&__child.as_node(), &*__child);
             __ctx.push(Box::new(__child));
+
             {
                 let __node = std::rc::Rc::downgrade(&__node);
                 let mut __ctx = gxi::IndexedContext::default();
                 todos.add_observer(Box::new(move |todos| {
                     if let Some(__node) = __node.upgrade() {
+                        let constant_nodes_prior = 1;
+
                         use std::ops::{Deref, DerefMut};
                         if {
                             let todos = todos.borrow();
@@ -139,6 +144,7 @@ pub fn todo() -> VNodeContext<gxi::Element> {
                     }
                 }));
             }
+
             let __child = {
                 let mut __node = gxi::Element::from("div");
                 let __child = {
