@@ -1,12 +1,13 @@
-use super::wrapper::NodeWrapper;
+use super::{wrapper::NodeWrapper, NodeSubBlock};
 use crate::{
     blocks::{
         conditional::ConditionalBlock,
-        node::{NodeProps, NodeSubBlock, NodeSubTree},
+        node::{NodeProps, NodeSubTree},
     },
     lifetime::{ConstantContextAction, ContextType, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::State,
+    sub_tree::SubTree,
 };
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -52,7 +53,7 @@ impl OptionalParse for NodeBlock {
         let sub_tree =
             if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
                 if !content.is_empty() {
-                    content.parse::<NodeSubTree>()?
+                    NodeSubTree::parse(&content)?
                 } else {
                     Default::default()
                 }

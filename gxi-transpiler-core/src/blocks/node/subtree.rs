@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
@@ -61,16 +63,19 @@ impl NodeSubBlock {
 /// let mut __index_buff = vec[0usize; $number_of_variable_size_blocks]
 /// ```
 ///
-pub type NodeSubTree = SubTree<NodeSubBlock>;
+#[derive(Default)]
+pub struct NodeSubTree(pub Vec<NodeSubBlock>);
+
+impl SubTree<NodeSubBlock> for NodeSubTree {}
 
 impl ToTokens for NodeSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let mut enumerator_state = SubTreeEnumeratorState::default();
         let mut token_buff = TokenStream2::new();
 
-        for block in self.iter() {
+        for block in self.0.iter() {
             let mut block_tokens = TokenStream2::new();
-            block.to_tokens(&mut block_tokens, node_blocks);
+            block.to_tokens(&mut block_tokens, &enumerator_state);
 
             match block {
                 NodeSubBlock::Conditional(_) | NodeSubBlock::Iter => {
@@ -99,6 +104,20 @@ impl ToTokens for NodeSubTree {
         tokens.append_all(quote! {
             #token_buff
         })
+    }
+}
+
+impl Deref for NodeSubTree {
+    type Target = Vec<NodeSubBlock>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl DerefMut for NodeSubTree {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 

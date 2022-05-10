@@ -1,12 +1,13 @@
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::{
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::State,
+    sub_tree::SubTree,
 };
 
-use super::subtree::{IfSubBlock, IfSubTree};
+use super::subtree::IfSubTree;
 
 /// ## Syntax
 ///
@@ -42,7 +43,7 @@ impl OptionalParse for IfArm {
         let sub_tree = {
             let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
 
-            content.parse()?
+            IfSubTree::parse(&content)?
         };
 
         Ok(Some(Self {
@@ -65,12 +66,6 @@ impl IfArm {
             state: scope,
         } = self;
 
-        let sub_tree = {
-            let mut tokens = TokenStream2::new();
-            sub_tree.to_tokens(&mut tokens, arm_index);
-            tokens
-        };
-
         let mut scoped_variables_borrow = TokenStream2::new();
         if let State::Observable(observables) = scope {
             scoped_variables_borrow = observables.borrowed_token_stream();
@@ -78,7 +73,9 @@ impl IfArm {
 
         quote! {
             #if_token { #scoped_variables_borrow #condition } {
-                #sub_tree
+                if __ctx.check_index(#arm_index) {
+                    #sub_tree
+                }
             }
         }
     }
@@ -109,7 +106,7 @@ impl Parse for ElseArm {
                 let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
                 Ok(Self::PureArm {
                     else_token,
-                    body: content.parse()?,
+                    body: IfSubTree::parse(&content)?,
                 })
             }
         } else {
@@ -119,16 +116,17 @@ impl Parse for ElseArm {
 }
 
 impl ElseArm {
-    pub fn to_token_stream(&self, branch_index: usize, constant_scope: bool) -> TokenStream2 {
+    pub fn to_token_stream(&self, arm_index: usize, constant_scope: bool) -> TokenStream2 {
         match self {
             ElseArm::WithIfArm { else_token, if_arm } => {
-                let if_tokens = if_arm.to_token_stream(branch_index);
+                let if_tokens = if_arm.to_token_stream(arm_index);
                 quote! { #else_token #if_tokens }
             }
             ElseArm::PureArm { else_token, body } => {
                 let body = {
                     let mut tokens = TokenStream2::new();
-                    body.to_tokens(&mut tokens, branch_index);
+                    //WARN: arm index breaking change
+                    body.to_tokens(&mut tokens);
                     tokens
                 };
                 quote! {
@@ -140,10 +138,9 @@ impl ElseArm {
                     TokenStream2::new()
                 } else {
                     let mut body = IfSubTree::default();
-                    body.push(IfSubBlock::NoneBlock);
                     let body = {
                         let mut tokens = TokenStream2::new();
-                        body.to_tokens(&mut tokens, branch_index);
+                        body.to_tokens(&mut tokens);
                         tokens
                     };
                     quote! {

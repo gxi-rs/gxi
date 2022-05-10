@@ -5,7 +5,8 @@ use crate::{
     lifetime::{ContextType, LifeTime},
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    state::State, sub_tree::SubTreeEnumeratorState,
+    state::State,
+    sub_tree::SubTreeEnumeratorState,
 };
 
 use super::arm::{ElseArm, IfArm};
@@ -29,7 +30,6 @@ pub struct IfBlock {
     pub lifetime: LifeTime,
     /// state of the whole tree (conditions + subtrees)
     pub state: State,
-
 }
 
 impl OptionalParse for IfBlock {
@@ -50,7 +50,7 @@ impl OptionalParse for IfBlock {
             while !reached_else_without_if_arm {
                 let else_arm = input.parse::<ElseArm>()?;
 
-                if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
+                if let ElseArm::WithIfArm { if_arm, .. } = &else_arm {
                     observable_state_found = if_arm.state.is_const()
                 } else {
                     reached_else_without_if_arm = true;
@@ -79,12 +79,13 @@ impl OptionalParse for IfBlock {
 impl_parse_for_optional_parse!(IfBlock);
 
 /// TODO: tokenization rule
+/// TODO: continue here
 impl IfBlock {
     pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
         let constant_state = self.state.is_const();
 
         let if_block_tokens = {
-            let tokens = TokenStream2::new();
+            let mut tokens = TokenStream2::new();
 
             if !self.if_arm.state.is_const() {
                 tokens.append_all(quote! {
