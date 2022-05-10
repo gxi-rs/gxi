@@ -5,7 +5,7 @@ use crate::{
     lifetime::{ContextType, LifeTime},
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    state::State,
+    state::State, sub_tree::SubTreeEnumeratorState,
 };
 
 use super::arm::{ElseArm, IfArm};
@@ -79,8 +79,8 @@ impl OptionalParse for IfBlock {
 impl_parse_for_optional_parse!(IfBlock);
 
 /// TODO: tokenization rule
-impl ToTokens for IfBlock {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
+impl IfBlock {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
         let constant_state = self.state.is_const();
 
         let if_block_tokens = {

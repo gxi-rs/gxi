@@ -5,6 +5,12 @@ use syn::parse::Parse;
 /// Comma separated Tokens
 pub struct SubTree<B: Parse>(pub Vec<B>);
 
+#[derive(Default)]
+pub struct SubTreeEnumeratorState {
+    pub indexes_occupied: usize,
+    pub variable_size_blocks: usize,
+}
+
 impl<B: Parse> Default for SubTree<B> {
     fn default() -> Self {
         Self(Default::default())

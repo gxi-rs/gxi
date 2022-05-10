@@ -4,8 +4,9 @@ use syn::parse::Parse;
 
 use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
+    lifetime::ConstantContextAction,
     optional_parse::OptionalParse,
-    sub_tree::SubTree,
+    sub_tree::{SubTree, SubTreeEnumeratorState},
 };
 
 /// TODO:
@@ -32,23 +33,39 @@ impl Parse for NodeSubBlock {
 }
 
 impl NodeSubBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, node_blocks: usize) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
         match self {
             NodeSubBlock::Node(comp) => comp.to_tokens(tokens),
             NodeSubBlock::Execution(ex) => ex.to_tokens(tokens),
-            NodeSubBlock::Conditional(cond) => cond.to_tokens(tokens, node_blocks),
+            NodeSubBlock::Conditional(cond) => cond.to_tokens(tokens, enumerator_state),
             NodeSubBlock::Iter => todo!(),
         }
     }
 }
+
+/// [`SubTree`] of [`NodeSubBlocks`](NodeSubBlock).
+///
+/// # ToTokens
+///
+/// ## Index Buff
+///
+/// if subtree has variable sized blocks then **__index_buff** is
+/// used to track variable indexes occupied by it at any given time.
+///
+/// *e.g*
+/// ```rust
+/// __index_buff[$variable_size_block_position] = indexes_occupied
+/// ```
+///
+/// ```rust
+/// let mut __index_buff = vec[0usize; $number_of_variable_size_blocks]
+/// ```
 ///
 pub type NodeSubTree = SubTree<NodeSubBlock>;
 
 impl ToTokens for NodeSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        // number of node blocks
-        let mut node_blocks = 0usize;
-        let mut has_conditional_blocks = false;
+        let mut enumerator_state = SubTreeEnumeratorState::default();
         let mut token_buff = TokenStream2::new();
 
         for block in self.iter() {
@@ -56,15 +73,15 @@ impl ToTokens for NodeSubTree {
             block.to_tokens(&mut block_tokens, node_blocks);
 
             match block {
-                NodeSubBlock::Conditional(_) => {
-                    has_conditional_blocks = true;
+                NodeSubBlock::Conditional(_) | NodeSubBlock::Iter => {
+                    enumerator_state.variable_size_blocks += 1;
                 }
                 NodeSubBlock::Node(node) => {
-                    node_blocks += 1;
+                    enumerator_state.indexes_occupied += 1;
                     block_tokens.append_all(quote! {
                         __node.push(&__child.as_node(), &*__child);
                     });
-                    node.lifetime.to_tokens(&mut block_tokens);
+                    ConstantContextAction::Push.to_tokens(&mut block_tokens);
                 }
                 _ => (),
             };
@@ -72,9 +89,10 @@ impl ToTokens for NodeSubTree {
             token_buff.append_all(block_tokens);
         }
 
-        if has_conditional_blocks {
+        if enumerator_state.variable_size_blocks > 0 {
+            let number_of_variable_size_blocks = enumerator_state.variable_size_blocks;
             tokens.append_all(quote! {
-                let mut __extra_nodes_counter = 0usize;
+                let mut __index_buff = vec[0usize; #number_of_variable_size_blocks];
             });
         }
 

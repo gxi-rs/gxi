@@ -2,6 +2,7 @@ use quote::ToTokens;
 
 use super::{IfBlock, MatchBlock};
 use crate::optional_parse::{impl_parse_for_optional_parse, OptionalParse};
+use crate::sub_tree::SubTreeEnumeratorState;
 use syn::__private::TokenStream2;
 
 pub enum ConditionalBlock {
@@ -22,9 +23,9 @@ impl OptionalParse for ConditionalBlock {
 impl_parse_for_optional_parse!(ConditionalBlock);
 
 impl ConditionalBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
         match self {
-            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens),
+            ConditionalBlock::If(if_block) => if_block.to_tokens(tokens, enumerator_state),
             ConditionalBlock::Match(match_block) => match_block.to_tokens(tokens),
         }
     }
