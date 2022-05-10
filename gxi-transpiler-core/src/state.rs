@@ -125,19 +125,13 @@ impl State {
             | Expr::Type(_)
             | Expr::Break(_)
             | Expr::Return(_)
+            | Expr::Assign(_)
+            | Expr::AssignOp(_)
+            | Expr::Group(_)
             | Expr::Yield(_) => Err(syn::Error::new(
                 expr.span(),
                 "[gxi] didn't expect this expression here",
             )),
-            Expr::Assign(_) => {
-                panic!("a")
-            }
-            Expr::AssignOp(_) => {
-                panic!("ass")
-            }
-            Expr::Group(_) => {
-                panic!("group")
-            }
             _ => unreachable!(),
         }
     }
