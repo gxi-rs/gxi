@@ -4,7 +4,7 @@ use crate::{
         conditional::ConditionalBlock,
         node::{NodeProps, NodeSubBlock, NodeSubTree},
     },
-    lifetime::{ConstantContextAction, LifeTime},
+    lifetime::{ConstantContextAction, ContextType, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::State,
 };
@@ -309,13 +309,13 @@ impl NodeType {
 impl From<&NodeType> for LifeTime {
     fn from(node_type: &NodeType) -> Self {
         if let NodeType::FunctionalComponent { .. } = node_type {
-            return LifeTime::Context(ConstantContextAction::Absorb);
+            return LifeTime::Context(ContextType::Constant(ConstantContextAction::Absorb));
         }
 
         if let Some(props) = node_type.get_props() {
             for prop in props.iter() {
                 if let LifeTime::Context(_) = prop.lifetime {
-                    return LifeTime::Context(ConstantContextAction::Push);
+                    return LifeTime::Context(ContextType::Constant(ConstantContextAction::Push));
                 }
             }
         }
