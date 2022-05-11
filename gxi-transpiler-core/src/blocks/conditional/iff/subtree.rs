@@ -3,43 +3,37 @@ use std::ops::{Deref, DerefMut};
 use crate::{
     blocks::node::NodeSubBlock,
     lifetime::LifeTime,
-    sub_tree::{SubTree, SubTreeEnumeratorState},
+    sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
 };
 use quote::{quote, ToTokens, TokenStreamExt};
-use syn::{__private::TokenStream2, parse::Parse};
+use syn::__private::TokenStream2;
 
 #[derive(Default)]
 pub struct IfSubTree(pub Vec<NodeSubBlock>);
 
-impl SubTree<NodeSubBlock> for IfSubTree {}
+impl SubTree for IfSubTree {
+    type SubBlock = NodeSubBlock;
+}
+
+impl NodeSubTreeExt for IfSubTree {}
 
 impl ToTokens for IfSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let mut enumerator_state = SubTreeEnumeratorState::default();
-        let mut token_buff = TokenStream2::new();
+        let (token_buff, _) = self.for_each_sub_block(|block, block_tokens, _| {
+            if let NodeSubBlock::Node(node) = &block {
+                block_tokens.append_all(quote! {
+                   //FIX: __node.set_at_index(&__child.as_node(), #node_index);
+                });
 
-        for block in self.0.iter() {
-            let mut block_tokens = TokenStream2::new();
-            block.to_tokens(&mut block_tokens, &enumerator_state);
-
-            match block {
-                NodeSubBlock::Node(node) => {
+                if let LifeTime::Context(_) = &node.lifetime {
                     block_tokens.append_all(quote! {
-                       //FIX: __node.set_at_index(&__child.as_node(), #node_index);
-                    });
-
-                    if let LifeTime::Context(context) = &node.lifetime {
-                        block_tokens.append_all(quote! {
-                            __ctx.set_value(Box::from(__child));
-                        })
-                    }
+                        __ctx.set_value(Box::from(__child));
+                    })
                 }
-                _ => (),
             }
+        });
 
-            token_buff.append_all(block_tokens);
-        }
-
+        tokens.append_all(token_buff)
     }
 }
 

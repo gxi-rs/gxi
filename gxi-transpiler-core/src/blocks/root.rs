@@ -3,10 +3,10 @@ use std::collections::VecDeque;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::parse::Parse;
 
-use crate::blocks::node::{NodeBlock, NodeSubBlock};
-use crate::lifetime::{ConstantContextAction, LifeTime};
+use crate::blocks::node::NodeBlock;
+use crate::lifetime::LifeTime;
 
-use super::node::NodeWrapper;
+use super::node::{NodeSubBlock, NodeWrapper};
 
 /// As the name suggests, root block is the first block of the gxi macro.
 /// The root block inherently is a single [`NodeBlock`]

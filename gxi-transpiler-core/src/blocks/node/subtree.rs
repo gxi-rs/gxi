@@ -8,7 +8,7 @@ use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
     lifetime::ConstantContextAction,
     optional_parse::OptionalParse,
-    sub_tree::{SubTree, SubTreeEnumeratorState},
+    sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
 };
 
 /// TODO:
@@ -66,33 +66,22 @@ impl NodeSubBlock {
 #[derive(Default)]
 pub struct NodeSubTree(pub Vec<NodeSubBlock>);
 
-impl SubTree<NodeSubBlock> for NodeSubTree {}
+impl SubTree for NodeSubTree {
+    type SubBlock = NodeSubBlock;
+}
+
+impl NodeSubTreeExt for NodeSubTree {}
 
 impl ToTokens for NodeSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let mut enumerator_state = SubTreeEnumeratorState::default();
-        let mut token_buff = TokenStream2::new();
-
-        for block in self.0.iter() {
-            let mut block_tokens = TokenStream2::new();
-            block.to_tokens(&mut block_tokens, &enumerator_state);
-
-            match block {
-                NodeSubBlock::Conditional(_) | NodeSubBlock::Iter => {
-                    enumerator_state.variable_size_blocks += 1;
-                }
-                NodeSubBlock::Node(node) => {
-                    enumerator_state.indexes_occupied += 1;
-                    block_tokens.append_all(quote! {
-                        __node.push(&__child.as_node(), &*__child);
-                    });
-                    ConstantContextAction::Push.to_tokens(&mut block_tokens);
-                }
-                _ => (),
-            };
-
-            token_buff.append_all(block_tokens);
-        }
+        let (token_buff, enumerator_state) = self.for_each_sub_block(|block, block_tokens, _| {
+            if let NodeSubBlock::Node(_) = block {
+                block_tokens.append_all(quote! {
+                    __node.push(&__child.as_node(), &*__child);
+                });
+                ConstantContextAction::Push.to_tokens(block_tokens);
+            }
+        });
 
         if enumerator_state.variable_size_blocks > 0 {
             let number_of_variable_size_blocks = enumerator_state.variable_size_blocks;
@@ -101,9 +90,20 @@ impl ToTokens for NodeSubTree {
             });
         }
 
-        tokens.append_all(quote! {
-            #token_buff
-        })
+        tokens.append_all(token_buff)
+    }
+
+    fn to_token_stream(&self) -> TokenStream2 {
+        let mut tokens = TokenStream2::new();
+        self.to_tokens(&mut tokens);
+        tokens
+    }
+
+    fn into_token_stream(self) -> TokenStream2
+    where
+        Self: Sized,
+    {
+        self.to_token_stream()
     }
 }
 
