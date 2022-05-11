@@ -1,6 +1,4 @@
 use std::ops::{Deref, DerefMut};
-use std::slice::Iter;
-
 use quote::ToTokens;
 use syn::{__private::TokenStream2, parse::Parse};
 

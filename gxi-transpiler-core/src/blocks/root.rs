@@ -83,10 +83,6 @@ impl ToTokens for RootBlock {
 
 #[cfg(test)]
 mod tests {
-    use super::RootBlock;
-    use anyhow::ensure;
-    use quote::quote;
-
     #[test]
     fn parser_test() -> anyhow::Result<()> {
         //        ensure!(
