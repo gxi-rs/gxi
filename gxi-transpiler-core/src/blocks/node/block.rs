@@ -95,7 +95,7 @@ impl ToTokens for NodeBlock {
         let Self {
             sub_tree: subtree,
             node_type,
-            lifetime,
+            lifetime: _,
             wrapper,
         } = self;
 
@@ -105,7 +105,6 @@ impl ToTokens for NodeBlock {
             // functional components can't have props
             NodeType::FunctionalComponent { .. } => quote! {},
             _ => {
-                let return_type = node_type.get_return_type();
                 let (const_props, observable_props) = node_type.get_const_and_observable_props();
 
                 let mut subtree_tokens = TokenStream2::new();
@@ -121,7 +120,7 @@ impl ToTokens for NodeBlock {
             }
         };
 
-        let mut rc_token = wrapper.to_token_stream();
+        let rc_token = wrapper.to_token_stream();
 
         // assemble
         if rc_token.is_empty() && mid_calls.is_empty() {
@@ -140,19 +139,6 @@ impl ToTokens for NodeBlock {
                 };
             });
         }
-    }
-
-    fn to_token_stream(&self) -> TokenStream2 {
-        let mut tokens = TokenStream2::new();
-        self.to_tokens(&mut tokens);
-        tokens
-    }
-
-    fn into_token_stream(self) -> TokenStream2
-    where
-        Self: Sized,
-    {
-        self.to_token_stream()
     }
 }
 
@@ -321,7 +307,7 @@ impl From<&NodeType> for LifeTime {
             }
         }
 
-        return LifeTime::Constant;
+        LifeTime::Constant
     }
 }
 

@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 use crate::{
     blocks::node::NodeSubBlock,
     lifetime::LifeTime,
-    sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
+    sub_tree::{NodeSubTreeExt, SubTree},
 };
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
