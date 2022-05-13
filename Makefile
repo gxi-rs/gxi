@@ -6,7 +6,7 @@ expand_web_example:
 container:
 	podman run \
 		-p 8080:8080 \
-       	-v $(shell pwd):/app \
+		-v $(shell pwd):/app:Z \
        	-it ghcr.io/gxi-rs/gxib:latest
 
 doc:
