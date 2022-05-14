@@ -452,8 +452,6 @@ mod tests {
             } else {
                 bail!("wrong node type")
             }
-            let return_type = node_type.get_return_type();
-            ensure!(return_type.to_string() == "Body");
             ensure!(node_type.get_init_call().to_string() == quote! {Body::new()}.to_string());
         }
         {
@@ -488,8 +486,6 @@ mod tests {
             } else {
                 bail!("wrong node type")
             }
-            let return_type = node_type.get_return_type();
-            ensure!(return_type.to_string() == quote! {Comp}.to_string());
             ensure!(
                 node_type.get_init_call().to_string()
                     == quote! {Comp::with_name("hey")}.to_string()

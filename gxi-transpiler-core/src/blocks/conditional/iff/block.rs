@@ -1,4 +1,4 @@
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
@@ -41,9 +41,8 @@ impl OptionalParse for IfBlock {
         };
 
         let mut else_arms = Vec::default();
-        let mut lifetime = LifeTime::Constant;
 
-        {
+        let lifetime = {
             let mut observable_state_found = if_arm.state.is_const();
             let mut reached_else_without_if_arm = false;
 
@@ -60,12 +59,14 @@ impl OptionalParse for IfBlock {
             }
 
             if observable_state_found {
-                lifetime = LifeTime::Context(ContextType::Indexed);
+                LifeTime::Context(ContextType::Indexed)
+            } else {
+                LifeTime::Constant
             }
-        }
+        };
 
-        //TODO: calculate nested state
-        let state = todo!();
+        //FIX: calculate nested state
+        let state = State::Constant;
 
         Ok(Some(Self {
             if_arm,
@@ -81,7 +82,7 @@ impl_parse_for_optional_parse!(IfBlock);
 /// TODO: tokenization rule
 /// TODO: continue here
 impl IfBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, _enumerator_state: &SubTreeEnumeratorState) {
         let constant_state = self.state.is_const();
 
         let if_block_tokens = {

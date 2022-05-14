@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use crate::lifetime::{ConstantContextAction, LifeTime};
+use crate::lifetime::LifeTime;
 use crate::{observer_builder::ObserverBuilder, state::State};
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;

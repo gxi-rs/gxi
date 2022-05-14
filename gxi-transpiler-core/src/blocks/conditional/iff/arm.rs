@@ -137,15 +137,10 @@ impl ElseArm {
                 if constant_scope {
                     TokenStream2::new()
                 } else {
-                    let mut body = IfSubTree::default();
-                    let body = {
-                        let mut tokens = TokenStream2::new();
-                        body.to_tokens(&mut tokens);
-                        tokens
-                    };
                     quote! {
+                        //FIX: 
                         else {
-                            #body
+                            panic!("pure else arm not implemented yet")
                         }
                     }
                 }
