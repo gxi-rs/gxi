@@ -92,19 +92,6 @@ impl ToTokens for NodeSubTree {
 
         tokens.append_all(token_buff)
     }
-
-    fn to_token_stream(&self) -> TokenStream2 {
-        let mut tokens = TokenStream2::new();
-        self.to_tokens(&mut tokens);
-        tokens
-    }
-
-    fn into_token_stream(self) -> TokenStream2
-    where
-        Self: Sized,
-    {
-        self.to_token_stream()
-    }
 }
 
 impl Deref for NodeSubTree {
