@@ -3,11 +3,15 @@ args:=
 expand_web_example:
 	cd examples/web && cargo expand | bat -l rust
 
-container:
-	podman run \
+create_container:
+	podman create \
+		--name gxi \
 		-p 8080:8080 \
-		-v $(shell pwd):/app:Z \
+		-v $(shell pwd):/gxi:Z \
        	-it ghcr.io/gxi-rs/gxib:latest
+
+start_container:
+	podman start gxi -a
 
 doc:
 	cargo watch -- cargo doc --features web $(args)
