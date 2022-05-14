@@ -37,7 +37,7 @@ pub struct NodeBlock {
     ///
     /// 1. [`ConditionalBlock`]
     ///     with [`State::Observable`] then the lifetime is escalated to
-    ///      [`LifeTime::Rc`](LifeTime::Rc)
+    ///      [`LifeTime::Context`] and wrapper to [`NodeWrapper::Rc`]
     pub lifetime: LifeTime,
     pub wrapper: NodeWrapper,
 }
@@ -68,7 +68,7 @@ impl OptionalParse for NodeBlock {
         // is ConditionalBlock is found with State::Observable
         for sub_node in sub_tree.iter() {
             if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
-                if if_block.state == State::Constant {
+                if let State::Observable(_) = if_block.state {
                     wrapper = NodeWrapper::Rc;
                     lifetime = LifeTime::Context(Default::default());
                     break;
@@ -87,9 +87,6 @@ impl OptionalParse for NodeBlock {
 
 impl_parse_for_optional_parse!(NodeBlock);
 
-/// Optimization Rules:
-/// 1. If a component consists of a serializable sub tree then serialize them to string
-///
 impl ToTokens for NodeBlock {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let Self {
@@ -255,16 +252,6 @@ impl NodeType {
                 quote! { #path #constructor(#(#args),*) }
             }
             NodeType::Element { name, .. } => quote! { gxi::Element::from(#name) },
-        }
-    }
-
-    pub fn get_return_type(&self) -> TokenStream2 {
-        match self {
-            NodeType::FunctionalComponent { .. } => {
-                unreachable!("Internal Error: functional components have unknown return type")
-            }
-            NodeType::Element { .. } => quote! {gxi::Element},
-            NodeType::Component { path, .. } => path.to_token_stream(),
         }
     }
 
