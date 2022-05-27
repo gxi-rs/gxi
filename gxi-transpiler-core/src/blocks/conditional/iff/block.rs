@@ -61,7 +61,7 @@ impl OptionalParse for IfBlock {
         // only if there is a observable **condition** track
         // subtree state
         let state = if let LifeTime::Context(_) = lifetime {
-            let mut observables = Vec::default();
+            let observables = Vec::default();
 
             //TODO: figure this out
             State::Observable(Observables(observables))

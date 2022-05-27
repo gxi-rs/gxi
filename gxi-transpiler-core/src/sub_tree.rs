@@ -3,7 +3,6 @@ use std::ops::{Deref, DerefMut};
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::blocks::node::NodeSubBlock;
-use crate::observables::Observables;
 use crate::state::{State, StateExt};
 
 /// Comma separated Tokens

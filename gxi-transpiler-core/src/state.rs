@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign};
+use std::ops::AddAssign;
 
 use quote::ToTokens;
 use syn::__private::TokenStream2;
@@ -17,7 +17,7 @@ pub enum State {
 }
 
 impl PartialEq for State {
-    fn eq(&self, other: &Self) -> bool {
+    fn eq(&self, _other: &Self) -> bool {
         todo!()
     }
 }
