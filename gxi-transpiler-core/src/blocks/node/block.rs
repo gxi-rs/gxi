@@ -7,7 +7,7 @@ use crate::{
     lifetime::{ConstantContextAction, ContextType, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::{State, StateExt},
-    sub_tree::{SubTree, NodeSubTreeExt},
+    sub_tree::{NodeSubTreeExt, SubTree},
 };
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -61,17 +61,25 @@ impl OptionalParse for NodeBlock {
                 Default::default()
             };
 
-        let mut wrapper = NodeWrapper::None;
         let mut lifetime = LifeTime::from(&node_type);
+        let mut wrapper = if let (LifeTime::Constant, NodeType::FunctionalComponent { .. }) =
+            (&lifetime, &node_type)
+        {
+            NodeWrapper::None
+        } else {
+            NodeWrapper::Rc
+        };
 
         // set wrapper = NodeWrapper::Rc and LifeTime = Context
         // is ConditionalBlock is found with State::Observable
-        for sub_node in sub_tree.iter() {
-            if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
-                if let State::Observable(_) = if_block.state {
-                    wrapper = NodeWrapper::Rc;
-                    lifetime = LifeTime::Context(Default::default());
-                    break;
+        if let (NodeWrapper::None, LifeTime::Constant) = (&wrapper, &lifetime) {
+            for sub_node in sub_tree.iter() {
+                if let NodeSubBlock::Conditional(ConditionalBlock::If(if_block)) = sub_node {
+                    if let State::Observable(_) = if_block.state {
+                        wrapper = NodeWrapper::Rc;
+                        lifetime = LifeTime::Context(Default::default());
+                        break;
+                    }
                 }
             }
         }
@@ -309,13 +317,6 @@ impl From<&NodeType> for LifeTime {
         }
 
         LifeTime::Constant
-    }
-}
-
-
-impl From<&NodeType> for NodeWrapper {
-    fn from(_: &NodeType) -> Self {
-        todo!()
     }
 }
 

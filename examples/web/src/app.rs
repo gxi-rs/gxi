@@ -1,4 +1,4 @@
-use crate::{cat_fact, complex_counter, todo};
+use crate::{cat_fact, complex_counter};
 use gxi::{gxi, Body, VNodeContext};
 
 pub fn app() -> VNodeContext<Body> {
