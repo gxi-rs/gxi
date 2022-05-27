@@ -1,6 +1,6 @@
 [package]
 name = "gxi"
-version = "0.6.0"
+version = "0.6.1"
 authors = ["aniketfuryrocks <prajapati.ani306@gmail.com>"]
 edition = "2021"
 description = "A Declarative Cross-Platform Native UI-Framework"
