@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign};
+
 use quote::ToTokens;
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
@@ -16,17 +18,16 @@ pub enum State {
 
 impl PartialEq for State {
     fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Observable(v1), Self::Observable(v2)) => {
-                for i in 0..v1.len() {
-                    if v1[i].to_string() != v2[i].to_string() {
-                        return false;
-                    }
-                }
-                true
-            }
-            (Self::Constant, Self::Constant) => true,
-            _ => false,
+        todo!()
+    }
+}
+
+impl AddAssign for State {
+    fn add_assign(&mut self, rhs: Self) {
+        match (self, rhs) {
+            (State::Observable(s), State::Observable(ref mut o)) => s.append(o),
+            (this @ State::Constant, rhs @ State::Observable(_)) => *this = rhs,
+            _ => (),
         }
     }
 }
@@ -152,6 +153,14 @@ impl State {
             State::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
         }
     }
+}
+
+pub trait StateExt {
+    /// state of self
+    fn get_state(&self) -> State;
+
+    /// state of the nested tree
+    fn get_nested_state(&self) -> State;
 }
 
 //TODO: add more tests

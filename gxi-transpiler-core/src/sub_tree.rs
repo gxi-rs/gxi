@@ -1,8 +1,10 @@
-use std::ops::{Deref, DerefMut};
 use quote::ToTokens;
+use std::ops::{Deref, DerefMut};
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::blocks::node::NodeSubBlock;
+use crate::observables::Observables;
+use crate::state::{State, StateExt};
 
 /// Comma separated Tokens
 pub trait SubTree:
@@ -41,7 +43,7 @@ pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
         let mut enumerator_state = SubTreeEnumeratorState::default();
         let mut token_buff = TokenStream2::new();
 
-        for block in self.deref().iter() {
+        for block in self.iter() {
             block.to_tokens(&mut token_buff, &enumerator_state);
 
             match block {
@@ -58,6 +60,16 @@ pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
         }
 
         (token_buff, enumerator_state)
+    }
+
+    fn get_nested_state(&self) -> State {
+        let mut state = State::Constant;
+
+        for block in self.iter() {
+            state += block.get_nested_state()
+        }
+
+        state
     }
 }
 

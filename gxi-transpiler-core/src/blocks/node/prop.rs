@@ -1,7 +1,9 @@
 use std::ops::{Deref, DerefMut};
 
 use crate::lifetime::LifeTime;
-use crate::{observer_builder::ObserverBuilder, state::State};
+use crate::observables::Observables;
+use crate::observer_builder::ObserverBuilder;
+use crate::state::State;
 use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
@@ -26,6 +28,24 @@ impl Parse for NodeProps {
         }
 
         Ok(this)
+    }
+}
+
+impl From<&NodeProps> for State {
+    fn from(props: &NodeProps) -> Self {
+        let mut observables = Vec::default();
+
+        for prop in props.iter() {
+            if let State::Observable(mut o) = prop.state.clone() {
+                observables.append(&mut o)
+            }
+        }
+
+        if observables.is_empty() {
+            State::Constant
+        } else {
+            State::Observable(Observables(observables))
+        }
     }
 }
 
@@ -69,7 +89,7 @@ impl DerefMut for NodeProps {
 pub struct NodeProp {
     pub left: Box<syn::Expr>,
     pub right: Box<syn::Expr>,
-    pub scope: State,
+    pub state: State,
     pub lifetime: LifeTime,
 }
 
@@ -96,7 +116,7 @@ impl Parse for NodeProp {
 
         Ok(Self {
             left,
-            scope,
+            state: scope,
             right,
             lifetime,
         })
@@ -106,7 +126,10 @@ impl Parse for NodeProp {
 impl ToTokens for NodeProp {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let Self {
-            left, right, scope, ..
+            left,
+            right,
+            state: scope,
+            ..
         } = self;
 
         tokens.append_all(scope.to_token_stream(&ObserverBuilder {

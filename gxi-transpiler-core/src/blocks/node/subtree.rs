@@ -7,7 +7,9 @@ use syn::parse::Parse;
 use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
     lifetime::ConstantContextAction,
+    observables::Observables,
     optional_parse::OptionalParse,
+    state::{State, StateExt},
     sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
 };
 
@@ -41,6 +43,24 @@ impl NodeSubBlock {
             NodeSubBlock::Execution(ex) => ex.to_tokens(tokens),
             NodeSubBlock::Conditional(cond) => cond.to_tokens(tokens, enumerator_state),
             NodeSubBlock::Iter => todo!(),
+        }
+    }
+}
+
+impl StateExt for NodeSubBlock {
+    fn get_state(&self) -> State {
+        match self {
+            Self::Node(node) => node.get_state(),
+            Self::Execution(_) | Self::Conditional(_) => State::Constant,
+            Self::Iter => todo!(),
+        }
+    }
+
+    fn get_nested_state(&self) -> State {
+        match self {
+            Self::Node(node) => node.get_nested_state(),
+            Self::Execution(_) | Self::Conditional(_) => State::Constant,
+            Self::Iter => todo!(),
         }
     }
 }

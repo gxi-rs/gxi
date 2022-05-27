@@ -6,8 +6,8 @@ use crate::{
     },
     lifetime::{ConstantContextAction, ContextType, LifeTime},
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    state::State,
-    sub_tree::SubTree,
+    state::{State, StateExt},
+    sub_tree::{SubTree, NodeSubTreeExt},
 };
 use quote::ToTokens;
 use quote::{quote, TokenStreamExt};
@@ -139,6 +139,20 @@ impl ToTokens for NodeBlock {
     }
 }
 
+impl StateExt for NodeBlock {
+    fn get_state(&self) -> State {
+        if let Some(props) = self.node_type.get_props() {
+            State::from(props)
+        } else {
+            State::Constant
+        }
+    }
+
+    fn get_nested_state(&self) -> State {
+        self.sub_tree.get_nested_state()
+    }
+}
+
 type Arg = syn::Expr;
 
 /// A node block can be of 3 different [`NodeTypes`](NodeType).
@@ -261,7 +275,7 @@ impl NodeType {
 
         if let Some(props) = self.get_props() {
             for prop in props.iter() {
-                if let State::Constant = prop.scope {
+                if let State::Constant = prop.state {
                     prop.to_tokens(&mut const_props);
                 } else {
                     prop.to_tokens(&mut observable_props);
@@ -295,6 +309,13 @@ impl From<&NodeType> for LifeTime {
         }
 
         LifeTime::Constant
+    }
+}
+
+
+impl From<&NodeType> for NodeWrapper {
+    fn from(_: &NodeType) -> Self {
+        todo!()
     }
 }
 

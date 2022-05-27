@@ -3,6 +3,7 @@ use syn::__private::TokenStream2;
 
 use crate::{
     lifetime::{ContextType, LifeTime},
+    observables::Observables,
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
     state::State,
@@ -29,6 +30,7 @@ pub struct IfBlock {
     /// Note: The ObserverBuilder will not borrow the RefCell value.
     pub lifetime: LifeTime,
     /// state of the whole tree (conditions + subtrees)
+    /// > if lifetime = [`LifeTime::Constant`] then state is [`State::Constant`]
     pub state: State,
 }
 
@@ -42,31 +44,30 @@ impl OptionalParse for IfBlock {
 
         let mut else_arms = Vec::default();
 
-        let lifetime = {
-            let mut observable_state_found = if_arm.state.is_const();
-            let mut reached_else_without_if_arm = false;
+        let mut lifetime = LifeTime::Constant;
 
-            while !reached_else_without_if_arm {
-                let else_arm = input.parse::<ElseArm>()?;
+        {
+            let mut else_arm = input.parse::<ElseArm>()?;
 
-                if let ElseArm::WithIfArm { if_arm, .. } = &else_arm {
-                    observable_state_found = if_arm.state.is_const()
-                } else {
-                    reached_else_without_if_arm = true;
+            while let ElseArm::WithIfArm { if_arm, .. } = &else_arm {
+                if if_arm.state.is_const() {
+                    lifetime = LifeTime::Context(ContextType::Indexed)
                 }
-
                 else_arms.push(else_arm);
+                else_arm = input.parse::<ElseArm>()?;
             }
+        }
 
-            if observable_state_found {
-                LifeTime::Context(ContextType::Indexed)
-            } else {
-                LifeTime::Constant
-            }
+        // only if there is a observable **condition** track
+        // subtree state
+        let state = if let LifeTime::Context(_) = lifetime {
+            let mut observables = Vec::default();
+
+            //TODO: figure this out
+            State::Observable(Observables(observables))
+        } else {
+            State::Constant
         };
-
-        //FIX: calculate nested state
-        let state = State::Constant;
 
         Ok(Some(Self {
             if_arm,

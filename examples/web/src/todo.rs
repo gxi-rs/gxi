@@ -45,7 +45,7 @@ pub fn todo() -> VNodeContext<gxi::Element> {
             },
             div [
                 Text ( value = "5th element" )
-            ],
+            ]
         ]
     }
 }

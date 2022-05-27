@@ -6,7 +6,7 @@ pub fn app() -> VNodeContext<Body> {
         Body [
             complex_counter(),
             cat_fact(),
-            todo()
+//            todo()
         ]
     }
 }
