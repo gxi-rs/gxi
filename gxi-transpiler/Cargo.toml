@@ -1,6 +1,6 @@
 [package]
 name = "gxi-transpiler"
-version = "0.6.1"
+version = "0.6.0"
 edition = "2021"
 license = "MIT"
 authors = ["aniketfuryrocks <contact@aniketprajapati.me>"]
