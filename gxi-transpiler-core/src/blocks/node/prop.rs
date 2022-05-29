@@ -98,7 +98,6 @@ impl Parse for NodeProp {
         // check for * used to mark sccope to be OPen
         let mut scope = State::default();
 
-        #[allow(unused_mut)]
         let mut lifetime = LifeTime::Constant;
 
         let const_tt = input.parse::<Token!(const)>();
@@ -109,6 +108,11 @@ impl Parse for NodeProp {
             scope = State::find_expr_scope(&right)?;
         }
 
+        if let State::Observable(_) = scope {
+            lifetime = LifeTime::Context(Default::default());
+        }
+
+        // event listner needs an extended lifetime
         #[cfg(feature = "web")]
         if left.to_token_stream().to_string().starts_with("on") {
             lifetime = LifeTime::Context(Default::default());

@@ -6,7 +6,7 @@ use syn::parse::Parse;
 
 use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
-    lifetime::ConstantContextAction,
+    lifetime::{ConstantContextAction, LifeTime, ContextType},
     optional_parse::OptionalParse,
     state::{State, StateExt},
     sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
@@ -94,11 +94,13 @@ impl NodeSubTreeExt for NodeSubTree {}
 impl ToTokens for NodeSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let (token_buff, enumerator_state) = self.for_each_sub_block(|block, block_tokens, _| {
-            if let NodeSubBlock::Node(_) = block {
+            if let NodeSubBlock::Node(node) = block {
                 block_tokens.append_all(quote! {
                     __node.push(&__child.as_node(), &*__child);
                 });
-                ConstantContextAction::Push.to_tokens(block_tokens);
+                if let LifeTime::Context(ContextType::Constant(action)) = &node.lifetime {
+                    action.to_tokens(block_tokens);
+                }
             }
         });
 

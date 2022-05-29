@@ -62,12 +62,12 @@ impl OptionalParse for NodeBlock {
             };
 
         let mut lifetime = LifeTime::from(&node_type);
-        let mut wrapper = if let (LifeTime::Constant, NodeType::FunctionalComponent { .. }) =
-            (&lifetime, &node_type)
-        {
-            NodeWrapper::None
-        } else {
-            NodeWrapper::Rc
+
+        let mut wrapper = match (&lifetime, &node_type) {
+            (LifeTime::Constant, _) | (_, NodeType::FunctionalComponent { .. }) => {
+                NodeWrapper::None
+            }
+            _ => NodeWrapper::Rc,
         };
 
         // set wrapper = NodeWrapper::Rc and LifeTime = Context
