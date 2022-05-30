@@ -6,7 +6,7 @@ use syn::parse::Parse;
 
 use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
-    lifetime::{ConstantContextAction, LifeTime, ContextType},
+    lifetime::{ContextType, LifeTime},
     optional_parse::OptionalParse,
     state::{State, StateExt},
     sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
