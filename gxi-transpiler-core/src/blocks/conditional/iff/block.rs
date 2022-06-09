@@ -2,7 +2,6 @@ use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
-    lifetime::{ContextType, LifeTime},
     observables::Observables,
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
@@ -22,21 +21,22 @@ use super::arm::{ElseArm, IfArm};
 pub struct IfBlock {
     pub if_arm: IfArm,
     pub else_arms: Vec<ElseArm>,
+    /// State of the whole tree (conditions + subtree)
+    ///
     /// if at least one observable is found **inside the conditions** of any `if_arm`,
     /// the tree is considered as [`State::Observable`], i.e the tree will be
     /// re constructed from the ground up and contexts destroyed if the observable
     /// changes its value.
     /// Obviously, optimizations are put in place to prevent unnecessary re renders.
     /// Note: The ObserverBuilder will not borrow the RefCell value.
-    pub lifetime: LifeTime,
-    /// state of the whole tree (conditions + subtrees)
-    /// > if lifetime = [`LifeTime::Constant`] then state is [`State::Constant`]
     pub state: State,
 }
 
 impl OptionalParse for IfBlock {
     fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
-        let if_arm = if let Some(if_arm) = IfArm::optional_parse(input)? {
+        let mut observables = Observables::default();
+
+        let if_arm = if let Some(if_arm) = IfArm::optional_parse(input, &mut observables)? {
             if_arm
         } else {
             return Ok(None);
@@ -44,27 +44,20 @@ impl OptionalParse for IfBlock {
 
         let mut else_arms = Vec::default();
 
-        let mut lifetime = LifeTime::Constant;
+        loop {
+            let else_arm = ElseArm::parse(input, &mut observables)?;
+            else_arms.push(else_arm);
 
-        {
-            let mut else_arm = input.parse::<ElseArm>()?;
-
-            while let ElseArm::WithIfArm { if_arm, .. } = &else_arm {
-                if if_arm.state.is_const() {
-                    lifetime = LifeTime::Context(ContextType::Indexed)
-                }
-                else_arms.push(else_arm);
-                else_arm = input.parse::<ElseArm>()?;
+            if let ElseArm::None = else_arms.last().unwrap() {
+                break;
             }
         }
 
-        // only if there is a observable **condition** track
-        // subtree state
-        let state = if let LifeTime::Context(_) = lifetime {
-            let observables = Vec::default();
+        // only if there is a observable **condition**
+        let state = if !observables.is_empty() {
+            let mut state = State::Observable(observables);
 
-            //TODO: figure this out
-            State::Observable(Observables(observables))
+            state
         } else {
             State::Constant
         };
@@ -72,7 +65,6 @@ impl OptionalParse for IfBlock {
         Ok(Some(Self {
             if_arm,
             else_arms,
-            lifetime,
             state,
         }))
     }
@@ -89,7 +81,7 @@ impl IfBlock {
         let if_block_tokens = {
             let mut tokens = TokenStream2::new();
 
-            if !self.if_arm.state.is_const() {
+            if !self.if_arm.observables_state_range.is_empty() {
                 tokens.append_all(quote! {
                     use std::ops::{DerefMut, Deref};
                 });
@@ -125,15 +117,15 @@ mod tests {
     use anyhow::{bail, ensure};
 
     #[test]
-    fn max_pre_allocations() -> syn::Result<()> {
-        Ok(())
+    fn state_test() -> anyhow::Result<()> {
+        todo!()
     }
 
     #[test]
-    fn conditional_if_block() -> anyhow::Result<()> {
+    fn parse_test() -> anyhow::Result<()> {
         let const_condition_expr = quote! { 3 == 4};
         let observable_condition_expr =
-            quote! { t == 3 && #const_condition_expr && 2 < 3 && t == t && t < t2 && t3 < t1 };
+            quote! { (t == 3 && #const_condition_expr && 2 < 3 && t == t && t < t2 && t3 < t1) };
         let observable_condition_expr_scope = State::Observable(Observables(vec![
             quote! {t},
             quote! {t2},
@@ -146,86 +138,95 @@ mod tests {
 
             let IfBlock {
                 if_arm,
-                state: scope,
-                max_node_height,
+                else_arms,
+                state,
             } = syn::parse2(expr)?;
 
-            ensure!(scope == observable_condition_expr_scope);
             ensure!(
                 if_arm.condition.to_token_stream().to_string()
                     == observable_condition_expr.to_string()
             );
-            ensure!(max_node_height == 1);
-        }
-        {
-            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } };
-
-            let IfBlock {
-                if_arm,
-                state: scope,
-                max_node_height,
-            } = syn::parse2(expr)?;
-
-            ensure!(scope == observable_condition_expr_scope);
-            ensure!(
-                if_arm.condition.to_token_stream().to_string()
-                    == observable_condition_expr.to_string()
-            );
-            ensure!(max_node_height == 1);
-
-            let else_arm = &*if_arm.else_arm;
-            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                ensure!(if_arm.state == State::Constant);
-                ensure!(
-                    if_arm.condition.to_token_stream().to_string()
-                        == const_condition_expr.to_string()
-                );
-                ensure!(matches!(*if_arm.else_arm, ElseArm::None));
+            ensure!(else_arms.len() == 1);
+            if let Some(ElseArm::PureArm { body, .. }) = else_arms.last() {
             } else {
-                bail!("expected ElseArm::WithIfArm")
+                bail!("")
             }
+            ensure!(state == observable_condition_expr_scope);
         }
-        {
-            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } else if #observable_condition_expr { a } };
 
-            let IfBlock {
-                if_arm,
-                state: scope,
-                max_node_height,
-            } = syn::parse2(expr)?;
-
-            ensure!(scope == observable_condition_expr_scope);
-            ensure!(
-                if_arm.condition.to_token_stream().to_string()
-                    == observable_condition_expr.to_string()
-            );
-            ensure!(max_node_height == 1);
-
-            let else_arm = &*if_arm.else_arm;
-            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
-                ensure!(if_arm.state == State::Constant);
-                ensure!(
-                    if_arm.condition.to_token_stream().to_string()
-                        == const_condition_expr.to_string()
-                );
-                if let ElseArm::WithIfArm { if_arm, .. } = &*if_arm.else_arm {
-                    //                    let mut expected_scope = observable_condition_expr_scope.clone();
-                    //                    if let Scope::Observable(expected_scope) = &mut expected_scope {
-                    //                        expected_scope.push(quote! {t4})
-                    //                    } else {
-                    //                        unreachable!()
-                    //                  }
-                    ensure!(if_arm.state == observable_condition_expr_scope);
-                    ensure!(
-                        if_arm.condition.to_token_stream().to_string()
-                            == quote! {#observable_condition_expr && t4}.to_string()
-                    );
-                }
-                ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
-            } else {
-                bail!("expected ElseArm::WithIfArm")
-            }
-        }
         Ok(())
     }
+
+    //    #[test]
+    //    fn conditional_if_block() -> anyhow::Result<()> {
+    //        {
+    //            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } };
+    //
+    //            let IfBlock {
+    //                if_arm,
+    //                state: scope,
+    //                max_node_height,
+    //            } = syn::parse2(expr)?;
+    //
+    //            ensure!(scope == observable_condition_expr_scope);
+    //            ensure!(
+    //                if_arm.condition.to_token_stream().to_string()
+    //                    == observable_condition_expr.to_string()
+    //            );
+    //            ensure!(max_node_height == 1);
+    //
+    //            let else_arm = &*if_arm.else_arm;
+    //            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
+    //                ensure!(if_arm.state == State::Constant);
+    //                ensure!(
+    //                    if_arm.condition.to_token_stream().to_string()
+    //                        == const_condition_expr.to_string()
+    //                );
+    //                ensure!(matches!(*if_arm.else_arm, ElseArm::None));
+    //            } else {
+    //                bail!("expected ElseArm::WithIfArm")
+    //            }
+    //        }
+    //        {
+    //            let expr = quote! { if #observable_condition_expr { div } else if #const_condition_expr { a } else if #observable_condition_expr { a } };
+    //
+    //            let IfBlock {
+    //                if_arm,
+    //                state: scope,
+    //                max_node_height,
+    //            } = syn::parse2(expr)?;
+    //
+    //            ensure!(scope == observable_condition_expr_scope);
+    //            ensure!(
+    //                if_arm.condition.to_token_stream().to_string()
+    //                    == observable_condition_expr.to_string()
+    //            );
+    //            ensure!(max_node_height == 1);
+    //
+    //            let else_arm = &*if_arm.else_arm;
+    //            if let ElseArm::WithIfArm { if_arm, .. } = else_arm {
+    //                ensure!(if_arm.state == State::Constant);
+    //                ensure!(
+    //                    if_arm.condition.to_token_stream().to_string()
+    //                        == const_condition_expr.to_string()
+    //                );
+    //                if let ElseArm::WithIfArm { if_arm, .. } = &*if_arm.else_arm {
+    //                    //                    let mut expected_scope = observable_condition_expr_scope.clone();
+    //                    //                    if let Scope::Observable(expected_scope) = &mut expected_scope {
+    //                    //                        expected_scope.push(quote! {t4})
+    //                    //                    } else {
+    //                    //                        unreachable!()
+    //                    //                  }
+    //                    ensure!(if_arm.state == observable_condition_expr_scope);
+    //                    ensure!(
+    //                        if_arm.condition.to_token_stream().to_string()
+    //                            == quote! {#observable_condition_expr && t4}.to_string()
+    //                    );
+    //                }
+    //                ensure!(matches!(*if_arm.else_arm, ElseArm::PureArm { .. }));
+    //            } else {
+    //                bail!("expected ElseArm::WithIfArm")
+    //            }
+    //        }
+    //        Ok(())
 }

@@ -2,9 +2,7 @@ use quote::{quote, ToTokens};
 use syn::{__private::TokenStream2, parse::Parse};
 
 use crate::{
-    optional_parse::{impl_parse_for_optional_parse, OptionalParse},
-    state::State,
-    sub_tree::SubTree,
+    observables::Observables, optional_parse::OptionalParse, state::State, sub_tree::SubTree,
 };
 
 use super::subtree::IfSubTree;
@@ -20,11 +18,15 @@ pub struct IfArm {
     pub if_token: syn::Token!(if),
     pub condition: syn::Expr,
     pub sub_tree: IfSubTree,
-    pub state: State,
+    /// splice range of state from IfBlock
+    pub observables_state_range: std::ops::Range<usize>,
 }
 
-impl OptionalParse for IfArm {
-    fn optional_parse(input: &syn::parse::ParseStream) -> syn::Result<Option<Self>> {
+impl IfArm {
+    pub fn optional_parse(
+        input: &syn::parse::ParseStream,
+        if_block_observable_state: &mut Observables,
+    ) -> syn::Result<Option<Self>> {
         let if_token = if let Ok(if_token) = input.parse::<syn::Token!(if)>() {
             if_token
         } else {
@@ -32,11 +34,20 @@ impl OptionalParse for IfArm {
         };
 
         // get scope
-        let (condition, state) = {
+        let (condition, observables_state_range) = {
             let condition = input.parse::<syn::Expr>()?;
-            // no need to check scope when const keyword is provided
-            let state = State::find_expr_scope(&condition)?;
-            (condition, state)
+
+            let splice_start_index = if_block_observable_state.len();
+
+            if let State::Observable(Observables(observables)) = State::find_expr_scope(&condition)?
+            {
+                if_block_observable_state.extend(observables.into_iter());
+            };
+
+            (
+                condition,
+                splice_start_index..if_block_observable_state.len(),
+            )
         };
 
         // parse children
@@ -50,12 +61,10 @@ impl OptionalParse for IfArm {
             if_token,
             condition,
             sub_tree,
-            state,
+            observables_state_range,
         }))
     }
 }
-
-impl_parse_for_optional_parse!(IfArm);
 
 impl IfArm {
     pub fn to_token_stream(&self, arm_index: usize) -> TokenStream2 {
@@ -63,13 +72,14 @@ impl IfArm {
             if_token,
             sub_tree,
             condition,
-            state: scope,
+            observables_state_range,
         } = self;
 
         let mut scoped_variables_borrow = TokenStream2::new();
-        if let State::Observable(observables) = scope {
-            scoped_variables_borrow = observables.borrowed_token_stream();
-        }
+        //FIXX
+        //        if let State::Observable(observables) = scope {
+        //            scoped_variables_borrow = observables.borrowed_token_stream();
+        //        }
 
         quote! {
             #if_token { #scoped_variables_borrow #condition } {
@@ -94,10 +104,13 @@ pub enum ElseArm {
     None,
 }
 
-impl Parse for ElseArm {
-    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+impl ElseArm {
+    pub fn parse(
+        input: syn::parse::ParseStream,
+        if_block_observable_state: &mut Observables,
+    ) -> syn::Result<Self> {
         if let Ok(else_token) = input.parse::<syn::Token!(else)>() {
-            if let Some(if_arm) = IfArm::optional_parse(&input)? {
+            if let Some(if_arm) = IfArm::optional_parse(&input, if_block_observable_state)? {
                 Ok(Self::WithIfArm {
                     else_token,
                     if_arm: Box::from(if_arm),
@@ -138,7 +151,7 @@ impl ElseArm {
                     TokenStream2::new()
                 } else {
                     quote! {
-                        //FIX: 
+                        //FIX:
                         else {
                             panic!("pure else arm not implemented yet")
                         }
