@@ -16,5 +16,6 @@ pub mod optional_parse;
 pub mod blocks;
 pub mod lifetime;
 pub mod observables;
+pub mod snippets;
 
 pub use crate::blocks::RootBlock;

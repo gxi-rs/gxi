@@ -1,10 +1,11 @@
-use quote::{quote, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
     observables::Observables,
     observer_builder::ObserverBuilder,
     optional_parse::{impl_parse_for_optional_parse, OptionalParse},
+    snippets,
     state::State,
     sub_tree::SubTreeEnumeratorState,
 };
@@ -80,9 +81,7 @@ impl IfBlock {
             let mut tokens = TokenStream2::new();
 
             if !self.if_arm.observables_state_range.is_empty() {
-                tokens.append_all(quote! {
-                    use std::ops::{DerefMut, Deref};
-                });
+                snippets::Imports::Deref.to_tokens(&mut tokens);
             }
 
             tokens.append_all(self.if_arm.to_token_stream(1, &self.state));
@@ -95,9 +94,7 @@ impl IfBlock {
         };
 
         tokens.append_all(self.state.to_token_stream(&ObserverBuilder {
-            pre_add_observer_tokens: &quote! {
-                let mut __ctx = gxi::IndexedContext::default();
-            },
+            pre_add_observer_tokens: &snippets::ContextSnippets::Indexed.to_token_stream(),
             add_observer_body_tokens: &if_block_tokens,
             borrow: false,
         }))
@@ -177,29 +174,33 @@ mod tests {
         let mut tokens = TokenStream2::new();
         if_block.to_tokens(&mut tokens, &SubTreeEnumeratorState::default());
 
-        assert_eq!(tokens.to_string(), quote! {
-            { 
-                let __node = std::rc::Rc::downgrade(& __node);
-                let mut __ctx = gxi::IndexedContext::default();
-                item.add_observer(Box::new(move |item| {
-                    if let Some (__node) = __node.upgrade() {
-                        use std::ops::{ DerefMut , Deref };
-                        if { 
-                            let item = item.borrow();
-                            *item == "a" 
-                        } {
-                            if __ctx.check_index(1usize) {
-                                let __child = gxi::Element::from("a");
-                                __node.push(& __child.as_node(),  &*__child);
+        assert_eq!(
+            tokens.to_string(),
+            quote! {
+                {
+                    let __node = std::rc::Rc::downgrade(& __node);
+                    let mut __ctx = gxi::IndexedContext::default();
+                    item.add_observer(Box::new(move |item| {
+                        if let Some (__node) = __node.upgrade() {
+                            use std::ops::{ DerefMut , Deref };
+                            if {
+                                let item = item.borrow();
+                                *item == "a"
+                            } {
+                                if __ctx.check_index(1usize) {
+                                    let __child = gxi::Element::from("a");
+                                    __node.push(& __child.as_node(),  &*__child);
+                                }
                             }
-                        } 
-                        false 
-                    } else {
-                        true 
-                    } 
-                })); 
+                            false
+                        } else {
+                            true
+                        }
+                    }));
+                }
             }
-        }.to_string());
+            .to_string()
+        );
 
         Ok(())
     }
