@@ -1,4 +1,4 @@
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Range};
 
 use crate::{NativeContainer, NativeWidget, Node};
 
@@ -23,68 +23,46 @@ pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
     #[allow(unused_variables)]
     fn push(&self, member: &Node, native_widget: &NativeWidget) {
         // do not add widget of to top level container widget
-        match member {
-            Node::Leaf => {
-                #[cfg(feature = "web")]
+        if let Node::TopLevelContainer = member {
+            return;
+        }
+
+        #[cfg(feature = "web")]
+        self.append_child(native_widget).unwrap();
+    }
+
+    fn insert_at_index(
+        &self,
+        member: &Node,
+        native_widget: &NativeWidget,
+        index: usize,
+        should_replace: bool,
+    ) {
+        if let Node::TopLevelContainer = member {
+            return;
+        }
+
+        #[cfg(feature = "web")]
+        {
+            let index = index as u32;
+            let old = self.children().item(index);
+            if should_replace {
+                self.replace_child(native_widget, &old.unwrap()).unwrap();
+            } else if let Some(old) = self.children().item(index) {
+                self.insert_before(native_widget, Some(&old)).unwrap();
+            } else {
                 self.append_child(native_widget).unwrap();
             }
-            Node::Container => {
-                #[cfg(feature = "web")]
-                self.append_child(native_widget).unwrap();
-            }
-            Node::TopLevelContainer => (),
         }
     }
 
-    fn insert_at_index(&self, _new_member: &Node, _index: usize) {
-        todo!()
-        //        if replace {
-        //            self.replace_child(
-        //                new_member.as_ref().borrow().get_native_widget(),
-        //                old_member.as_ref().borrow().get_native_widget(),
-        //            )
-        //            .unwrap();
-        //        }
-        //        let old_member = self.get_children()[index].clone();
-        //        self.get_children_mut()[index] = new_member.clone();
-        //
-        //        match (old_member, new_member) {
-        //            (Some(old_member), Some(new_member)) => {
-        //                #[cfg(feature = "web")]
-        //                self.replace_child(
-        //                    new_member.as_ref().borrow().get_native_widget(),
-        //                    old_member.as_ref().borrow().get_native_widget(),
-        //                )
-        //                .unwrap();
-        //            }
-        //            (None, Some(new_member)) => {
-        //                let new_member_widget = new_member.as_ref().borrow();
-        //                let new_member_widget = new_member_widget.deref().get_native_widget();
-        //
-        //                let children = self.get_children();
-        //
-        //                for i in (index + 1)..children.len() {
-        //                    if let Some(next_member) = &children[i] {
-        //                        #[cfg(feature = "web")]
-        //                        self.deref()
-        //                            .insert_before(
-        //                                new_member_widget,
-        //                                Some(next_member.as_ref().borrow().get_native_widget()),
-        //                            )
-        //                            .unwrap();
-        //                        return;
-        //                    }
-        //                }
-        //
-        //                #[cfg(feature = "web")]
-        //                self.append_child(new_member_widget).unwrap();
-        //            }
-        //            (Some(old_member), None) => {
-        //                #[cfg(feature = "web")]
-        //                self.remove_child(old_member.as_ref().borrow().get_native_widget())
-        //                    .unwrap();
-        //            }
-        //            (None, None) => {}
-        //        }
+    fn remove_elements(&self, range: Range<usize>) {
+        #[cfg(feature = "web")]
+        if !range.is_empty() {
+            let index = range.start as u32;
+            for _ in range {
+                self.children().item(index).unwrap().remove();
+            }
+        }
     }
 }

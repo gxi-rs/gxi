@@ -1,4 +1,5 @@
 use std::any::Any;
+use std::ops::Range;
 
 #[derive(Default)]
 pub struct IndexedContext {
@@ -27,5 +28,29 @@ impl IndexedContext {
     /// sets *self to default
     pub fn reset(&mut self) {
         *self = Self::default();
+    }
+
+    pub fn compute_index_helper(
+        index_buff: &mut [usize],
+        dynamic_index: usize,
+        dynamic_places_occupied: usize,
+        constant_places_previously_occupied: usize,
+    ) -> (usize, Range<usize>, bool) {
+        let index: usize = index_buff[..dynamic_index].iter().sum::<usize>()
+            + constant_places_previously_occupied
+            - 1;
+
+        let should_replace = index_buff[dynamic_index] != 0;
+
+        let range_to_remove = if dynamic_places_occupied >= index_buff[dynamic_index] {
+            0..0
+        } else {
+            let start = index + dynamic_places_occupied;
+            start..(start + index_buff[dynamic_index])
+        };
+
+        index_buff[dynamic_index] = dynamic_places_occupied;
+
+        (index, range_to_remove, should_replace)
     }
 }
