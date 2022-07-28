@@ -17,7 +17,8 @@ impl Parse for NodeProps {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let mut this = Self::default();
         // parse props
-        if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input) {
+        if let Ok(parens) = syn::__private::parse_parens(input) {
+            let content = parens.content;
             while !content.is_empty() {
                 let prop: NodeProp = content.parse()?;
                 this.push(prop);

@@ -107,7 +107,7 @@ impl ToTokens for NodeSubTree {
         if enumerator_state.variable_size_blocks > 0 {
             let number_of_variable_size_blocks = enumerator_state.variable_size_blocks;
             tokens.append_all(quote! {
-                let mut __index_buff = vec[0usize; #number_of_variable_size_blocks];
+                let mut __index_buff = [0usize; #number_of_variable_size_blocks];
             });
         }
 

@@ -1,4 +1,3 @@
-use quote::ToTokens;
 use std::ops::{Deref, DerefMut};
 use syn::{__private::TokenStream2, parse::Parse};
 
@@ -6,9 +5,7 @@ use crate::blocks::node::NodeSubBlock;
 use crate::state::{State, StateExt};
 
 /// Comma separated Tokens
-pub trait SubTree:
-    Default + ToTokens + Sized + Deref<Target = Vec<Self::SubBlock>> + DerefMut
-{
+pub trait SubTree: Default + Sized + Deref<Target = Vec<Self::SubBlock>> + DerefMut {
     type SubBlock: Parse;
 
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
@@ -35,6 +32,7 @@ pub trait SubTree:
 }
 
 pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
+    // iterates thorugh each sub block/node block
     fn for_each_sub_block<F: Fn(&NodeSubBlock, &mut TokenStream2, &SubTreeEnumeratorState)>(
         &self,
         callback: F,
@@ -75,5 +73,6 @@ pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
 #[derive(Default)]
 pub struct SubTreeEnumeratorState {
     pub indexes_occupied: usize,
+    // number of conditional or iterable blocks, variable size
     pub variable_size_blocks: usize,
 }

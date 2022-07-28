@@ -50,16 +50,16 @@ impl OptionalParse for NodeBlock {
             return Ok(None);
         };
         // parse children
-        let sub_tree =
-            if let Ok(syn::group::Brackets { content, .. }) = syn::group::parse_brackets(input) {
-                if !content.is_empty() {
-                    NodeSubTree::parse(&content)?
-                } else {
-                    Default::default()
-                }
+        let sub_tree = if let Ok(braces) = syn::__private::parse_brackets(input) {
+            let content = braces.content;
+            if !content.is_empty() {
+                NodeSubTree::parse(&content)?
             } else {
                 Default::default()
-            };
+            }
+        } else {
+            Default::default()
+        };
 
         let mut lifetime = LifeTime::from(&node_type);
 
@@ -360,8 +360,8 @@ impl NodeType {
                     // if props then element else function
                     let mut props = NodeProps::default();
 
-                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
-                    {
+                    if let Ok(parens) = syn::__private::parse_parens(input) {
+                        let content = parens.content;
                         if content.peek(Token!(const)) || content.peek2(Token!(=)) {
                             // parse props
                             // WARN: code duplication
@@ -397,8 +397,9 @@ impl NodeType {
                     // otherwise function
 
                     let mut args = Vec::<Arg>::default();
-                    if let Ok(syn::group::Parens { content, .. }) = syn::group::parse_parens(input)
-                    {
+                    if let Ok(parens) = syn::__private::parse_parens(input) {
+                        let content = parens.content;
+
                         while !content.is_empty() {
                             args.push(content.parse()?);
 

@@ -144,7 +144,8 @@ pub struct DependencyArray(Vec<Dependency>);
 impl Parse for DependencyArray {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         let mut dependency_array = Vec::new();
-        let syn::group::Brackets { content, .. } = syn::group::parse_brackets(input)?;
+        let bracket = syn::__private::parse_brackets(input)?;
+        let content = bracket.content;
 
         while !content.is_empty() {
             dependency_array.push(content.parse()?);

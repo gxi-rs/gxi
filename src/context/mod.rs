@@ -3,31 +3,59 @@
 //! This tree structure is a unique way of representing one way binding between
 //! `state`, `readers` and `writers` in an observable event based pattern.
 //!
+//! > Note:
+//! >
 //! > This method can introduce `memory leaks` and `undefined behaviour`, if not used
-//! > correctly. Therefore it is recommended to stick with the `gxi` macro to produce
+//! > correctly. Therefore, it is recommended to stick with the `gxi` macro to produce
 //! > bug free code.
 //!
-//! A context node is defined a as a memory pool of nodes and sub trees. Each type of
-//! context node come with their own side effect, ment to be used in a particular situation
-//! only.
+//! A context node is defined as a memory pool of nodes and sub trees. Each type of
+//! context node come with their own side effect, meant to be used in a particular situation.
 //!
 //! ## Lifecycle
 //!
 //! ```md
 //!    {
 //!
-//!       [context node]
-//!
-//!       [state]
-//!          |
-//!          |
-//!          |  [observable node]
-//!          |        /
-//!          |        |
-//!           ----- (view)
-//!
+//!     [context node]
+//!        |
+//!        |    [ state ] ----
+//!        |       |          |
+//!        |       | (owns)   |
+//!        |       |          |
+//!        |    [writer]      |  Weakly owns state (Exists till state exists),
+//!        |       |          |  by binding weak reference of itself into state's observer
+//!        |       |          |  which intern exist till writer does
+//!        |       |          |
+//!        ----------------(reader)
+//!     
+//!        context owns writer and reader.
 //!    }
 //! ```
+//!
+//! ## Concept
+//!
+//! `writers` *strongly* own state. Until and unless there is at-least one node
+//! which mutates state, readers need to exist.
+//! `readers` bind an `observer` to `state` by weekly moving themselves into the state.
+//!
+//!  if `reader` drops before the `state`, binded observer is romoved.
+//!  if all `writers` drop, state is removed. but, readers exist till the lifetime of local
+//!  context.
+//!
+//! `context` own all `nodes` with extended Lifetime (`readers` and `writers`).
+//!
+//!
+//! Each function returns their context, which is moved into a master context.
+//! The master context lives throughout the lifetime of the application.
+//!
+//! ## Dropping
+//!
+//! `state`, `readers` can only be freed when `writers` are dropped.
+//!
+//! There are basically 2 ways to drop `writers`:
+//! 1. Conditional rendering [`IndexedContext`]
+//! 2. Iterative rendering (WIP)
 
 mod const_context;
 mod indexed_context;

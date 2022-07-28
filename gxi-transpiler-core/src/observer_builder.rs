@@ -35,7 +35,7 @@ impl<'a> ObserverBuilder<'a> {
         let mut buff = TokenStream2::new();
 
         let borrow_buff = if *borrow {
-            observables.borrowed_token_stream()
+            observables.borrowed_token_stream(&(0..observables.len()))
         } else {
             TokenStream2::new()
         };
@@ -87,7 +87,7 @@ mod tests {
     #[test]
     fn test() {
         // WARN: write tests
-        let builder = ObserverBuilder {
+        ObserverBuilder {
             pre_add_observer_tokens: &quote! {},
             add_observer_body_tokens: &quote! {},
             borrow: false,

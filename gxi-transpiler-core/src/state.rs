@@ -9,7 +9,7 @@ use syn::Expr;
 use crate::observables::Observables;
 use crate::observer_builder::ObserverBuilder;
 
-/// State of a expr
+/// State of a expression
 #[derive(Debug, Clone)]
 pub enum State {
     Observable(Observables),
@@ -131,7 +131,10 @@ impl State {
             | Expr::Group(_)
             | Expr::Yield(_) => Err(syn::Error::new(
                 expr.span(),
-                "[gxi] didn't expect this expression here",
+                format!(
+                    "[gxi] Unexpected expression {} Refer to https://github.com/gxi-rs/gxi/issues/31",
+                    expr.to_token_stream()
+                ),
             )),
             _ => unreachable!(),
         }

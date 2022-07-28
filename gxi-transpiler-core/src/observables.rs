@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref, DerefMut, Range};
 
 use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
@@ -17,9 +17,11 @@ impl Observables {
     /// ```rust
     /// let observable = (**observable).borrow();
     /// ```
-    pub fn borrowed_token_stream(&self) -> TokenStream2 {
+    pub fn borrowed_token_stream(&self, range: &Range<usize>) -> TokenStream2 {
+        let slice = &self[range.to_owned()];
+
         if self.len() == 1 {
-            let observable = &self[0];
+            let observable = &slice[0];
 
             return quote! {
               let #observable = #observable.borrow();
@@ -30,7 +32,6 @@ impl Observables {
 
         for observable in self.iter() {
             scoped_variables_borrow.append_all(quote! {
-
                 let #observable = (**#observable).borrow();
             });
         }

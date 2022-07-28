@@ -1,9 +1,10 @@
-use quote::{quote, ToTokens};
-use syn::{__private::TokenStream2, parse::Parse};
+use std::ops::Range;
 
-use crate::{
-    observables::Observables, optional_parse::OptionalParse, state::State, sub_tree::SubTree,
-};
+use quote::{quote, ToTokens};
+use syn::__private::TokenStream2;
+use syn::parse::Parse;
+
+use crate::{observables::Observables, state::State, sub_tree::SubTree};
 
 use super::subtree::IfSubTree;
 
@@ -19,7 +20,7 @@ pub struct IfArm {
     pub condition: syn::Expr,
     pub sub_tree: IfSubTree,
     /// splice range of state from IfBlock
-    pub observables_state_range: std::ops::Range<usize>,
+    pub observables_state_range: Range<usize>,
 }
 
 impl IfArm {
@@ -52,9 +53,8 @@ impl IfArm {
 
         // parse children
         let sub_tree = {
-            let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
-
-            IfSubTree::parse(&content)?
+            let bracket = syn::__private::parse_braces(input)?;
+            IfSubTree::parse(&bracket.content)?
         };
 
         Ok(Some(Self {
@@ -66,26 +66,49 @@ impl IfArm {
     }
 }
 
+impl Parse for IfArm {
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
+        Ok(Self::optional_parse(&input, &mut Observables::default())?.unwrap())
+    }
+}
+
 impl IfArm {
-    pub fn to_token_stream(&self, arm_index: usize) -> TokenStream2 {
+    pub fn to_token_stream(&self, arm_index: usize, state: &State) -> TokenStream2 {
         let Self {
             if_token,
-            sub_tree,
+            sub_tree: _,
             condition,
             observables_state_range,
         } = self;
 
-        let mut scoped_variables_borrow = TokenStream2::new();
-        //FIXX
-        //        if let State::Observable(observables) = scope {
-        //            scoped_variables_borrow = observables.borrowed_token_stream();
-        //        }
+        let conditon = if let State::Observable(observables) = state {
+            let borrow = observables.borrowed_token_stream(observables_state_range);
+            quote!({
+                #borrow
+                #condition
+            })
+        } else {
+            condition.to_token_stream()
+        };
 
-        quote! {
-            #if_token { #scoped_variables_borrow #condition } {
+        let mut sub_tree = TokenStream2::new();
+        self.sub_tree.to_tokens(&mut sub_tree, state);
+
+        let sub_tree = if let State::Constant = state {
+            quote!(
+                #sub_tree
+            )
+        } else {
+            quote!(
                 if __ctx.check_index(#arm_index) {
                     #sub_tree
                 }
+            )
+        };
+
+        quote! {
+            #if_token #conditon {
+                #sub_tree
             }
         }
     }
@@ -116,7 +139,8 @@ impl ElseArm {
                     if_arm: Box::from(if_arm),
                 })
             } else {
-                let syn::group::Braces { content, .. } = syn::group::parse_braces(input)?;
+                let content = syn::__private::parse_braces(input)?.content;
+
                 Ok(Self::PureArm {
                     else_token,
                     body: IfSubTree::parse(&content)?,
@@ -129,17 +153,18 @@ impl ElseArm {
 }
 
 impl ElseArm {
-    pub fn to_token_stream(&self, arm_index: usize, constant_scope: bool) -> TokenStream2 {
+    /// constant_scope: true if the IFBlock's state `is_const()`
+    pub fn to_token_stream(&self, arm_index: usize, state: &State) -> TokenStream2 {
         match self {
             ElseArm::WithIfArm { else_token, if_arm } => {
-                let if_tokens = if_arm.to_token_stream(arm_index);
+                let if_tokens = if_arm.to_token_stream(arm_index, state);
                 quote! { #else_token #if_tokens }
             }
             ElseArm::PureArm { else_token, body } => {
                 let body = {
                     let mut tokens = TokenStream2::new();
                     //WARN: arm index breaking change
-                    body.to_tokens(&mut tokens);
+                    body.to_tokens(&mut tokens, state);
                     tokens
                 };
                 quote! {
@@ -147,13 +172,13 @@ impl ElseArm {
                 }
             }
             ElseArm::None => {
-                if constant_scope {
+                if let State::Constant = state {
                     TokenStream2::new()
                 } else {
                     quote! {
                         //FIX:
                         else {
-                            panic!("pure else arm not implemented yet")
+                            panic!("if block without else arm not yet implemented")
                         }
                     }
                 }

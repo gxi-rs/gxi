@@ -3,9 +3,10 @@ use std::ops::{Deref, DerefMut};
 use crate::{
     blocks::node::NodeSubBlock,
     lifetime::LifeTime,
-    sub_tree::{NodeSubTreeExt, SubTree},
+    state::State,
+    sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
 };
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 #[derive(Default)]
@@ -17,13 +18,25 @@ impl SubTree for IfSubTree {
 
 impl NodeSubTreeExt for IfSubTree {}
 
-impl ToTokens for IfSubTree {
-    fn to_tokens(&self, tokens: &mut TokenStream2) {
-        let (token_buff, _) = self.for_each_sub_block(|block, block_tokens, _| {
+impl IfSubTree {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, state: &State) {
+        let (token_buff, _) = self.for_each_sub_block(|block, block_tokens, enumerator_state| {
             if let NodeSubBlock::Node(node) = &block {
-                block_tokens.append_all(quote! {
-                   //FIX: __node.set_at_index(&__child.as_node(), #node_index);
-                });
+                let SubTreeEnumeratorState {
+                    indexes_occupied,
+                    variable_size_blocks: _,
+                } = enumerator_state;
+
+                // refer to `src/vnode.rs
+                if let State::Constant = state {
+                    block_tokens.append_all(quote! {
+                       __node.insert_at_index(&__child.as_node(), #indexes_occupied);
+                    });
+                } else {
+                    block_tokens.append_all(quote! {
+                       __node.push(&__child.as_node(),  &*__child);
+                    });
+                }
 
                 if let LifeTime::Context(_) = &node.lifetime {
                     block_tokens.append_all(quote! {
