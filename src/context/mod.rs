@@ -5,7 +5,7 @@
 //!
 //! > Note:
 //! >
-//! > This method can introduce `memory leaks` and `undefined behaviour`, if not used
+//! > This method can introduce `memory leaks` and `undefined behavior`, if not used
 //! > correctly. Therefore, it is recommended to stick with the `gxi` macro to produce
 //! > bug free code.
 //!
@@ -37,7 +37,11 @@
 //!
 //! `writers` *strongly* own state. Until and unless there is at-least one node
 //! which mutates state, readers need to exist.
+//!
 //! `readers` bind an `observer` to `state` by weekly moving themselves into the state.
+//!
+//!  in-case `reader` is dynamic (Conditional, Iterative), local context is moved to global context
+//!  and a weak reference of local context is moved to state observer.
 //!
 //!  if `reader` drops before the `state`, binded observer is romoved.
 //!  if all `writers` drop, state is removed. but, readers exist till the lifetime of local

@@ -11,7 +11,6 @@ impl IndexedContext {
     /// then mutates current index and returns true
     /// drops indexed value
     pub fn check_index(&mut self, index: usize) -> bool {
-        panic!("check index");
         if self.index != index {
             self.value = None;
             self.index = index;
