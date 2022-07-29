@@ -1,6 +1,6 @@
 use std::ops::{Deref, DerefMut};
 
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
 
@@ -8,11 +8,11 @@ use crate::{
     blocks::{conditional::ConditionalBlock, execution::ExecutionBlock, node::NodeBlock},
     lifetime::{ContextType, LifeTime},
     optional_parse::OptionalParse,
+    snippets::{self, VNodeActions},
     state::{State, StateExt},
     sub_tree::{NodeSubTreeExt, SubTree, SubTreeEnumeratorState},
 };
 
-/// TODO:
 pub enum NodeSubBlock {
     Node(NodeBlock),
     Execution(ExecutionBlock),
@@ -95,9 +95,7 @@ impl ToTokens for NodeSubTree {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let (token_buff, enumerator_state) = self.for_each_sub_block(|block, block_tokens, _| {
             if let NodeSubBlock::Node(node) = block {
-                block_tokens.append_all(quote! {
-                    __node.push(&__child.as_node(), &*__child);
-                });
+                VNodeActions::Push.to_tokens(block_tokens);
                 if let LifeTime::Context(ContextType::Constant(action)) = &node.lifetime {
                     action.to_tokens(block_tokens);
                 }
@@ -105,10 +103,8 @@ impl ToTokens for NodeSubTree {
         });
 
         if enumerator_state.variable_size_blocks > 0 {
-            let number_of_variable_size_blocks = enumerator_state.variable_size_blocks;
-            tokens.append_all(quote! {
-                let mut __index_buff = [0usize; #number_of_variable_size_blocks];
-            });
+            snippets::DynamicIndex::IndexBuff(enumerator_state.variable_size_blocks)
+                .to_tokens(tokens);
         }
 
         tokens.append_all(token_buff)

@@ -94,7 +94,7 @@ impl IfBlock {
         };
 
         tokens.append_all(self.state.to_token_stream(&ObserverBuilder {
-            pre_add_observer_tokens: &snippets::ContextSnippets::Indexed.to_token_stream(),
+            pre_add_observer_tokens: &snippets::IndexedContext::New.to_token_stream(),
             add_observer_body_tokens: &if_block_tokens,
             borrow: false,
         }))

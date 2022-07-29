@@ -31,6 +31,7 @@ pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
         self.append_child(native_widget).unwrap();
     }
 
+    #[allow(unused_variables)]
     fn insert_at_index(
         &self,
         member: &Node,
@@ -56,6 +57,7 @@ pub trait VContainer: VNode + Deref<Target = NativeContainer> + DerefMut {
         }
     }
 
+    #[allow(unused_variables)]
     fn remove_elements(&self, range: Range<usize>) {
         #[cfg(feature = "web")]
         if !range.is_empty() {
