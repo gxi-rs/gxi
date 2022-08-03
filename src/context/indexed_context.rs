@@ -1,10 +1,13 @@
-use std::any::Any;
 use std::ops::Range;
 
-#[derive(Default)]
+use crate::MemDump;
+
+#[derive(Default, derive_more::Deref, derive_more::DerefMut)]
 pub struct IndexedContext {
     pub index: usize,
-    pub value: Option<Box<dyn Any>>,
+    #[deref]
+    #[deref_mut]
+    pub ctx: MemDump,
 }
 
 impl IndexedContext {
@@ -13,17 +16,12 @@ impl IndexedContext {
     /// drops indexed value
     pub fn check_index(&mut self, index: usize) -> bool {
         if self.index != index {
-            self.value = None;
+            self.ctx.clear();
             self.index = index;
             true
         } else {
             false
         }
-    }
-
-    // TODO: replace set_value with push so that multiple nodes can be inserted
-    pub fn set_value(&mut self, value: Box<dyn Any>) {
-        self.value = Some(value);
     }
 
     /// sets *self to default
