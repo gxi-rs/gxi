@@ -1,13 +1,13 @@
 use std::ops::AddAssign;
 
 use quote::ToTokens;
-use syn::__private::TokenStream2;
+
 use syn::parse::Parse;
 use syn::spanned::Spanned;
 use syn::Expr;
 
 use crate::observables::Observables;
-use crate::observer_builder::ObserverBuilder;
+
 
 /// State of a expression
 #[derive(Debug, Clone)]
@@ -145,16 +145,6 @@ impl State {
 impl Parse for State {
     fn parse(input: syn::parse::ParseStream) -> syn::Result<Self> {
         Self::find_expr_scope(&input.parse()?)
-    }
-}
-
-impl State {
-    pub fn to_token_stream(&self, observer_builder: &ObserverBuilder) -> TokenStream2 {
-        match &self {
-            State::Observable(observables) => observer_builder.to_token_stream(observables),
-            // with a constant scope only body is required
-            State::Constant => observer_builder.add_observer_body_tokens.to_token_stream(),
-        }
     }
 }
 

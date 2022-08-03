@@ -4,6 +4,8 @@ use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::Parse;
 
+use crate::snippets;
+use crate::sub_tree::SubTreeEnumeratorState;
 use crate::{observables::Observables, state::State, sub_tree::SubTree};
 
 use super::subtree::IfSubTree;
@@ -73,7 +75,12 @@ impl Parse for IfArm {
 }
 
 impl IfArm {
-    pub fn to_token_stream(&self, arm_index: usize, state: &State) -> TokenStream2 {
+    pub fn to_token_stream(
+        &self,
+        arm_index: usize,
+        state: &State,
+        enumerator_state: &SubTreeEnumeratorState,
+    ) -> TokenStream2 {
         let Self {
             if_token,
             sub_tree: _,
@@ -92,7 +99,8 @@ impl IfArm {
         };
 
         let mut sub_tree = TokenStream2::new();
-        self.sub_tree.to_tokens(&mut sub_tree, state);
+        self.sub_tree
+            .to_tokens(&mut sub_tree, state, enumerator_state);
 
         let sub_tree = if let State::Constant = state {
             quote!(
@@ -154,31 +162,40 @@ impl ElseArm {
 
 impl ElseArm {
     /// constant_scope: true if the IFBlock's state `is_const()`
-    pub fn to_token_stream(&self, arm_index: usize, state: &State) -> TokenStream2 {
+    pub fn to_token_stream(
+        &self,
+        arm_index: usize,
+        state: &State,
+        enumerator_state: &SubTreeEnumeratorState,
+    ) -> TokenStream2 {
         match self {
             ElseArm::WithIfArm { else_token, if_arm } => {
-                let if_tokens = if_arm.to_token_stream(arm_index, state);
+                let if_tokens = if_arm.to_token_stream(arm_index, state, enumerator_state);
                 quote! { #else_token #if_tokens }
             }
             ElseArm::PureArm { else_token, body } => {
-                let body = {
-                    let mut tokens = TokenStream2::new();
-                    //WARN: arm index breaking change
-                    body.to_tokens(&mut tokens, state);
-                    tokens
+                let mut tokens = quote! {
+                    #else_token
                 };
-                quote! {
-                    #else_token #body
-                }
+                body.to_tokens(&mut tokens, state, enumerator_state);
+                tokens
             }
             ElseArm::None => {
                 if let State::Constant = state {
                     TokenStream2::new()
                 } else {
+                    let tokens = &mut TokenStream2::new();
+                    snippets::IndexedContext::ComputeIndex(
+                        enumerator_state.dynamic_places_occupied,
+                        0,
+                        0,
+                    )
+                    .to_tokens(tokens);
+                    snippets::VNodeActions::RemoveElements.to_tokens(tokens);
+
                     quote! {
-                        //FIX:
-                        else {
-                            panic!("if block without else arm not yet implemented")
+                        else if (*__ctx).borrow_mut().check_index(0usize) {
+                            #tokens
                         }
                     }
                 }

@@ -1,19 +1,22 @@
-use quote::{quote, TokenStreamExt};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 
-use crate::observables::Observables;
+use crate::snippets::{self, AddObserverCondition};
+use crate::state::State;
 
 pub struct ObserverBuilder<'a> {
     pub pre_add_observer_tokens: &'a TokenStream2,
-    pub add_observer_body_tokens: &'a TokenStream2,
+    pub body: &'a TokenStream2,
+    pub post_add_observer_tokens: &'a TokenStream2,
+    pub state: &'a State,
     /// if true and one observable
     /// then `.borrow()` is called on the `RefCell` closure value
     /// else if true and more than one observables
-    /// then
+    /// then dont borrow
     pub borrow: bool,
 }
 
-impl<'a> ObserverBuilder<'a> {
+impl<'a> ToTokens for ObserverBuilder<'a> {
     /// if there is only one observable
     /// add_observer is called on the observable with a closure `|RefCell|`
     ///
@@ -23,75 +26,79 @@ impl<'a> ObserverBuilder<'a> {
     /// ## Note
     /// duplicate observables are not taken into account. Duplicate Observables should
     /// be romoved at parse stage
-    pub fn to_token_stream(&self, observables: &'a Observables) -> TokenStream2 {
+    fn to_tokens(&self, tokens: &mut TokenStream2) {
         let ObserverBuilder {
             pre_add_observer_tokens,
-            add_observer_body_tokens: add_observer_body,
+            body,
+            post_add_observer_tokens,
+            state,
             borrow,
         } = self;
 
-        assert!(!observables.is_empty());
-
-        let mut buff = TokenStream2::new();
-
-        let borrow_buff = if *borrow {
-            observables.borrowed_token_stream(&(0..observables.len()))
+        let observables = if let State::Observable(observables) = state {
+            observables
         } else {
-            TokenStream2::new()
+            body.to_tokens(tokens);
+            return;
         };
 
+        let mut multi_observable_tokens = TokenStream2::new();
+
         let (observable_name, value_name) = if observables.len() > 1 {
-            buff = quote! {
-                let __multi_observer = State::from(());
-            };
+            snippets::ObservableAction::NewMultiObserver.to_tokens(&mut multi_observable_tokens);
             // add ownership of observables to multi_observer state
             for observable in observables.iter() {
-                buff.append_all(quote! {
-                    add_multi_observer(&#observable, std::rc::Rc::downgrade(&__multi_observer));
-                });
+                snippets::ObservableAction::AddMultiObserverTo(observable)
+                    .to_tokens(&mut multi_observable_tokens);
             }
             // clone observables
             for observable in observables.iter() {
-                buff.append_all(quote! {
-                    let #observable = #observable.clone();
-                });
+                snippets::StdAction::Clone(snippets::VariableName::Other(observable))
+                    .to_tokens(&mut multi_observable_tokens);
             }
 
-            (quote! {__multi_observer}, quote! {_})
+            (
+                snippets::VariableName::MultiObserver.to_token_stream(),
+                snippets::VariableName::None.to_token_stream(),
+            )
         } else {
             (observables[0].clone(), observables[0].clone())
         };
 
-        quote! {{
-            let __node = std::rc::Rc::downgrade(&__node);
-            #buff
-            #pre_add_observer_tokens
-            #observable_name.add_observer(Box::new(move |#value_name| {
-                if let Some(__node) = __node.upgrade() {
-                    #borrow_buff
-                    #add_observer_body
-                    false
-                } else {
-                    true
-                }
-            }));
-        }}
-    }
-}
+        let body = {
+            let mut body = if *borrow {
+                observables.borrowed_token_stream(&(0..observables.len()))
+            } else {
+                TokenStream2::new()
+            };
 
-#[cfg(test)]
-mod tests {
-    use super::{Observables, ObserverBuilder};
-    use quote::quote;
+            self.body.to_tokens(&mut body);
 
-    #[test]
-    fn test() {
-        // WARN: write tests
-        ObserverBuilder {
-            pre_add_observer_tokens: &quote! {},
-            add_observer_body_tokens: &quote! {},
-            borrow: false,
-        }
-        .to_token_stream(&Observables(vec![quote! {hello, hi}]));
+            body
+        };
+
+        let add_observer = snippets::StateAction::AddObserver {
+            value_name: &value_name,
+            observable_name: &observable_name,
+            observer_condition: match state {
+                State::Constant => AddObserverCondition::Node(&body),
+                // FIX: NodeWithCtx
+                State::Observable(_) => AddObserverCondition::Node(&body),
+            },
+        };
+
+        tokens.append_all({
+            let mut tokens = TokenStream2::new();
+
+            snippets::RcAction::Downgrade(&snippets::VariableName::Node.to_token_stream())
+                .to_tokens(&mut tokens);
+
+            multi_observable_tokens.to_tokens(&mut tokens);
+            pre_add_observer_tokens.to_tokens(&mut tokens);
+            add_observer.to_tokens(&mut tokens);
+            post_add_observer_tokens.to_tokens(&mut tokens);
+
+            quote!({#tokens})
+        });
     }
 }

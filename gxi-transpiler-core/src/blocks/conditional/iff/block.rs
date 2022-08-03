@@ -1,4 +1,4 @@
-use quote::{ToTokens, TokenStreamExt};
+use quote::{quote, ToTokens, TokenStreamExt};
 use syn::__private::TokenStream2;
 
 use crate::{
@@ -76,7 +76,7 @@ impl_parse_for_optional_parse!(IfBlock);
 /// TODO: tokenization rule
 /// TODO: continue here
 impl IfBlock {
-    pub fn to_tokens(&self, tokens: &mut TokenStream2, _enumerator_state: &SubTreeEnumeratorState) {
+    pub fn to_tokens(&self, tokens: &mut TokenStream2, enumerator_state: &SubTreeEnumeratorState) {
         let if_block_tokens = {
             let mut tokens = TokenStream2::new();
 
@@ -84,20 +84,38 @@ impl IfBlock {
                 snippets::Imports::Deref.to_tokens(&mut tokens);
             }
 
-            tokens.append_all(self.if_arm.to_token_stream(1, &self.state));
+            tokens.append_all(
+                self.if_arm
+                    .to_token_stream(1, &self.state, enumerator_state),
+            );
 
             for (index, else_arm) in self.else_arms.iter().enumerate() {
-                tokens.append_all(else_arm.to_token_stream(index + 2, &self.state));
+                tokens.append_all(else_arm.to_token_stream(
+                    index + 2,
+                    &self.state,
+                    enumerator_state,
+                ));
             }
 
             tokens
         };
 
-        tokens.append_all(self.state.to_token_stream(&ObserverBuilder {
-            pre_add_observer_tokens: &snippets::IndexedContext::New.to_token_stream(),
-            add_observer_body_tokens: &if_block_tokens,
+        ObserverBuilder {
+            pre_add_observer_tokens: &{
+                let mut tokens = TokenStream2::new();
+
+                snippets::IndexedContext::New.to_tokens(&mut tokens);
+                snippets::StdAction::Clone(snippets::VariableName::IndexBuff)
+                    .to_tokens(&mut tokens);
+
+                tokens
+            },
+            body: &if_block_tokens,
+            post_add_observer_tokens: &quote! {},
+            state: &self.state,
             borrow: false,
-        }))
+        }
+        .to_tokens(tokens)
     }
 }
 

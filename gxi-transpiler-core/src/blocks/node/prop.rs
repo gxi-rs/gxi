@@ -4,7 +4,7 @@ use crate::lifetime::LifeTime;
 use crate::observables::Observables;
 use crate::observer_builder::ObserverBuilder;
 use crate::state::State;
-use quote::{quote, ToTokens, TokenStreamExt};
+use quote::{quote, ToTokens};
 use syn::__private::TokenStream2;
 use syn::parse::{Parse, ParseStream};
 use syn::Token;
@@ -131,18 +131,18 @@ impl Parse for NodeProp {
 impl ToTokens for NodeProp {
     fn to_tokens(&self, tokens: &mut TokenStream2) {
         let Self {
-            left,
-            right,
-            state: scope,
-            ..
+            left, right, state, ..
         } = self;
 
-        tokens.append_all(scope.to_token_stream(&ObserverBuilder {
+        ObserverBuilder {
             pre_add_observer_tokens: &TokenStream2::new(),
-            add_observer_body_tokens: &quote! {
+            borrow: true,
+            body: &quote! {
                 __node.#left(#right);
             },
-            borrow: true,
-        }))
+            post_add_observer_tokens: &quote!(),
+            state,
+        }
+        .to_tokens(tokens)
     }
 }

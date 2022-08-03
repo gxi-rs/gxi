@@ -102,8 +102,8 @@ impl ToTokens for NodeSubTree {
             }
         });
 
-        if enumerator_state.variable_size_blocks > 0 {
-            snippets::DynamicIndex::IndexBuff(enumerator_state.variable_size_blocks)
+        if enumerator_state.dynamic_places_occupied > 0 {
+            snippets::DynamicIndex::IndexBuff(enumerator_state.dynamic_places_occupied)
                 .to_tokens(tokens);
         }
 

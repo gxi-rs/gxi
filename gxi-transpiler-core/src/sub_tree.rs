@@ -43,14 +43,16 @@ pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
         for block in self.iter() {
             block.to_tokens(&mut token_buff, &enumerator_state);
 
+            enumerator_state.index_counter += 1;
+
             match block {
                 NodeSubBlock::Conditional(_) | NodeSubBlock::Iter => {
-                    enumerator_state.variable_size_blocks += 1;
+                    enumerator_state.dynamic_places_occupied += 1;
                 }
                 NodeSubBlock::Node(_) => {
-                    enumerator_state.indexes_occupied += 1;
+                    enumerator_state.constant_places_occupied += 1;
                 }
-                _ => (),
+                NodeSubBlock::Execution(_) => (),
             };
 
             callback(block, &mut token_buff, &enumerator_state)
@@ -72,7 +74,10 @@ pub trait NodeSubTreeExt: SubTree<SubBlock = NodeSubBlock> {
 
 #[derive(Default)]
 pub struct SubTreeEnumeratorState {
-    pub indexes_occupied: usize,
-    // number of conditional or iterable blocks, variable size
-    pub variable_size_blocks: usize,
+    /// number of conditional or iterable blocks, variable size
+    pub dynamic_places_occupied: usize,
+    /// number of nodes
+    pub constant_places_occupied: usize,
+    /// counter
+    pub index_counter: usize,
 }
