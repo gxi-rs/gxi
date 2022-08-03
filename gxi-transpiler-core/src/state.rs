@@ -8,7 +8,6 @@ use syn::Expr;
 
 use crate::observables::Observables;
 
-
 /// State of a expression
 #[derive(Debug, Clone)]
 pub enum State {

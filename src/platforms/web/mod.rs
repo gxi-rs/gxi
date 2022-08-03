@@ -2,8 +2,8 @@ pub use run::*;
 pub use top_level::*;
 pub use web_container::*;
 pub use web_element::*;
-pub use widgets::*;
 pub use web_sys;
+pub use widgets::*;
 
 #[cfg(feature = "async-web")]
 pub use wasm_bindgen_futures::*;
