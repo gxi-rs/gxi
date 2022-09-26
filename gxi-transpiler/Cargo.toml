@@ -19,5 +19,5 @@ default = ["gxi-transpiler-core/default"]
 
 [dependencies]
 gxi-transpiler-core = { path = "../gxi-transpiler-core", version = "0.6.0", optional = true }
-syn = { version = "1.0.98", features = ["full"] }
-quote = "1.0.20"
+syn = { version = "1.0.100", features = ["full"] }
+quote = "1.0.21"
