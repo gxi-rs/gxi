@@ -18,7 +18,7 @@ impl<T> Deref for VNodeShell<T> {
     fn deref(&self) -> &Self::Target {
         match self {
             VNodeShell::Default(t) => t,
-            VNodeShell::Rc(t) => &*t,
+            VNodeShell::Rc(t) => t,
         }
     }
 }
