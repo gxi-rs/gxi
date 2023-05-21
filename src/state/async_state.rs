@@ -27,7 +27,7 @@ impl<V> Deref for AsyncState<V> {
     type Target = AsyncObservable<V>;
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 

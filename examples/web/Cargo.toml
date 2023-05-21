@@ -6,6 +6,6 @@ edition = "2018"
 [dependencies]
 gxi = { version = "^0.6.1", path = "../../", features = ["web", "async-web"] }
 console_error_panic_hook = "0.1.7"
-reqwest = "0.11.12"
-web-sys = { version = "0.3.60", features = ["console", "HtmlInputElement"] }
-wasm-bindgen = "0.2.83"
+reqwest = "0.11.18"
+web-sys = { version = "0.3.63", features = ["console", "HtmlInputElement"] }
+wasm-bindgen = "0.2.86"

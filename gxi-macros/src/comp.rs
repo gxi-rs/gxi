@@ -15,7 +15,7 @@ pub struct CompParser {
 fn get_pat_ident(pat: &syn::Pat) -> Option<String> {
     match pat {
         syn::Pat::Ident(arg) => Some(arg.ident.to_string()),
-        syn::Pat::Reference(ref_arg) => get_pat_ident(&*ref_arg.pat),
+        syn::Pat::Reference(ref_arg) => get_pat_ident(&ref_arg.pat),
         syn::Pat::Wild(_) => None,
         _ => unreachable!(),
     }
@@ -55,7 +55,7 @@ impl Parse for CompParser {
 
                 for ele in args {
                     if let syn::FnArg::Typed(arg) = ele {
-                        if let Some(arg_name) = get_pat_ident(&*arg.pat) {
+                        if let Some(arg_name) = get_pat_ident(&arg.pat) {
                             match args_map.entry(arg_name) {
                                 std::collections::hash_map::Entry::Vacant(v) => v.insert(()),
                                 _ => {
@@ -73,7 +73,7 @@ impl Parse for CompParser {
 
                     for ele in args {
                         if let syn::FnArg::Typed(arg) = ele {
-                            let name_ident = if let Some(arg_name) = get_pat_ident(&*arg.pat) {
+                            let name_ident = if let Some(arg_name) = get_pat_ident(&arg.pat) {
                                 syn::Ident::new(&arg_name, arg.span())
                             } else {
                                 let mut try_name = format!("__u{}", c);

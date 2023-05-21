@@ -321,7 +321,7 @@ impl From<&NodeType> for LifeTime {
 }
 
 fn starts_with_lower_case(string: &str) -> bool {
-    matches!(string.chars().next().unwrap(), 'a'..='z')
+    string.chars().next().unwrap().is_ascii_lowercase()
 }
 
 impl NodeType {

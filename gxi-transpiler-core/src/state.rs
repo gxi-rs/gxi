@@ -118,15 +118,12 @@ impl State {
             Expr::While(_) => todo!(),
             Expr::Async(_)
             | Expr::Await(_)
-            | Expr::Box(_)
             | Expr::Continue(_)
             | Expr::Let(_)
             | Expr::Struct(_)
-            | Expr::Type(_)
             | Expr::Break(_)
             | Expr::Return(_)
             | Expr::Assign(_)
-            | Expr::AssignOp(_)
             | Expr::Group(_)
             | Expr::Yield(_) => Err(syn::Error::new(
                 expr.span(),

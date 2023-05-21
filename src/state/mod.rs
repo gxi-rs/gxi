@@ -43,7 +43,7 @@ impl<V> Deref for State<V> {
     type Target = Observable<V>;
 
     fn deref(&self) -> &Self::Target {
-        &*self.0
+        &self.0
     }
 }
 
