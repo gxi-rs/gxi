@@ -15,8 +15,8 @@ desktop = []
 default = []
 
 [dependencies]
-syn = { version = "2.0.16", features = ["full"] }
-quote = "1.0.27"
+syn = { version = "2.0.74", features = ["full"] }
+quote = "1.0.36"
 
 [dev-dependencies]
-anyhow = { version = "1.0.71", features = ["backtrace"] }
+anyhow = { version = "1.0.86", features = ["backtrace"] }
